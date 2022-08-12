@@ -1,0 +1,17 @@
+[features]
+seeds = false
+skip-lint = false
+[programs.localnet]
+twamm = "TWM1DdtALRdEFzmiWmPeVY1Cdy6uXHSu6tWtFjE5x2k"
+[programs.testnet]
+twamm = "TWM1DdtALRdEFzmiWmPeVY1Cdy6uXHSu6tWtFjE5x2k"
+
+[registry]
+url = "https://api.apr.dev"
+
+[provider]
+cluster = "localnet"
+wallet = "~/.config/solana/id.json"
+
+[scripts]
+test = "yarn run ts-mocha -p ./tsconfig.json -t 1000000 tests/**/*.ts"
