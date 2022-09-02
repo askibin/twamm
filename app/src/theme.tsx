@@ -4,8 +4,6 @@ import darkScrollbar from "@mui/material/darkScrollbar";
 import { grey } from "@mui/material/colors";
 import { lensPath, set, view } from "ramda";
 
-// Temporary import theme from the separate package
-// eslint-disable-next-line import/no-relative-packages
 import { theme as kitTheme } from "../packages/material-kit-react/src/theme/index";
 
 const lensScrollbar = lensPath([
