@@ -15,9 +15,3 @@
 .connectWallet:active {
   color: #fff;
 }
-
-.tokenField {
-  background: rgba(255, 255, 255, 0.04);
-  border: 0.5px solid rgba(255, 255, 255, 0.1);
-  border-radius: 16px;
-}
