@@ -10,7 +10,7 @@ import { useCallback, useRef, useState } from "react";
 
 import CoinPopover from "./coin-popover";
 import TokenField from "./token-field";
-import TokenPairForm from '../molecules/token-pair-form';
+import TokenPairForm from "../molecules/token-pair-form";
 
 export interface Props {
   tokenA: string;
@@ -54,7 +54,10 @@ export default function TokenRatio(props: Props) {
       <CoinPopover ref={popoverRef} onChange={onCoinSelect} />
       <Paper elevation={1}>
         <Box p={2}>
-          <TokenPairForm />
+          <TokenPairForm
+            onASelect={onTokenAChoose}
+            onBSelect={onTokenBChoose}
+          />
         </Box>
       </Paper>
     </>

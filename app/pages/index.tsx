@@ -30,6 +30,7 @@ const Home: NextPage = () => {
       <OfflineOverlay />
       <Header />
       <Box
+        className={styles.main}
         component="main"
         sx={{
           alignItems: "center",

@@ -1,6 +1,7 @@
 /* eslint-disable */
 // TODO: remove ^
 import Box from "@mui/material/Box";
+import CurrencyExchangeIcon from '@mui/icons-material/CurrencyExchange';
 import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
 import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
@@ -15,9 +16,11 @@ export interface Props {
   tokenB: string;
   tokenAValue: number;
   tokenBValue: number;
+  onASelect: () => void;
+  onBSelect: () => void;
 }
 
-export default (props: Props) => {
+export default ({ onASelect, onBSelect }: Props) => {
   const popoverRef = useRef<{ isOpened: boolean; open: () => void }>();
   const form = useFormik({
     initialValues: {},
@@ -25,20 +28,6 @@ export default (props: Props) => {
   });
 
   const [curToken, setCurToken] = useState<number>();
-
-  const onTokenAChoose = useCallback(() => {
-    console.log(props); // eslint-disable-line no-console
-
-    setCurToken(1);
-    if (!popoverRef.current?.isOpened) popoverRef.current?.open();
-  }, [popoverRef, setCurToken]);
-
-  const onTokenBChoose = useCallback(() => {
-    console.log(props); // eslint-disable-line no-console
-
-    setCurToken(2);
-    if (!popoverRef.current?.isOpened) popoverRef.current?.open();
-  }, [popoverRef, setCurToken]);
 
   const onCoinSelect = useCallback(
     (symbol: string) => {
@@ -57,8 +46,22 @@ export default (props: Props) => {
           Sign in on the internal platform
         </Typography>
       </Box>
-      <TokenField onClick={onTokenAChoose} />
-      <TokenField onClick={onTokenBChoose} />
+      <Box>
+        <TokenField
+          label="Pay"
+          onClick={onASelect}
+          InputProps={{
+            startAdornment: <span>234</span>,
+          }}
+        />
+      </Box>
+      <Box p={2} sx={{ display: "flex", justifyContent: "center" }}>
+        <CurrencyExchangeIcon />
+      </Box>
+      <Box>
+        <TokenField label="Receive" onClick={onBSelect} />
+      </Box>
+
       <TextField
         error={Boolean(form.touched.email && form.errors.email)}
         fullWidth
@@ -80,4 +83,4 @@ export default (props: Props) => {
       </Box>
     </form>
   );
-}
+};
