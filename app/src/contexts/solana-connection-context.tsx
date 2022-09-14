@@ -48,6 +48,8 @@ export const SolanaConnectionProvider: FC<{ children: ReactNode }> = ({
 
   return (
     <SolanaConnectionContext.Provider
+      /* FIXME: 👇 */
+      /* eslint-disable-next-line react/jsx-no-constructed-context-values */
       value={{
         clusters,
         cluster,

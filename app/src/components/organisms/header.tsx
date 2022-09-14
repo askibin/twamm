@@ -1,26 +1,14 @@
-import type { NextPage } from "next";
 import Avatar from "@mui/material/Avatar";
-import type { FC } from "react";
 import AppBar from "@mui/material/AppBar";
-import Head from "next/head";
-import Button from "@mui/material/Button";
-import Box from "@mui/material/Box";
-import Grid from "@mui/material/Grid";
-import Container from "@mui/material/Container";
-import TextField from "@mui/material/TextField";
 import Stack from "@mui/material/Stack";
 import Toolbar from "@mui/material/Toolbar";
-import { useMemo } from "react";
-import { useTheme } from "@mui/material/styles";
 import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
-import Typography from "@mui/material/Typography";
-import { useFormik } from "formik";
 
 import styles from "./header.module.css";
+import { useBreakpoints } from "../../hooks/use-breakpoints";
 
-const Header: FC = () => {
-  const theme = useTheme();
-  const isDesktop = useMemo(() => false, []);
+export default () => {
+  const { isDesktop } = useBreakpoints();
 
   return (
     <AppBar aria-labelledby="header" position="static">
@@ -38,5 +26,3 @@ const Header: FC = () => {
     </AppBar>
   );
 };
-
-export default Header;

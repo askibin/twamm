@@ -20,7 +20,7 @@ export type MarketCoinRecords = Record<string, MarketCoin>;
 const swrKey = (params: {
   vs_currency: string;
   ids?: string;
-  category: string;
+  category: string[];
 }) => ({ key: "coins", params });
 
 type SWRKeyType = ReturnType<typeof swrKey>;
@@ -33,10 +33,16 @@ const fetcher = (api: CoingeckoApi) => {
     fetchFromAPI<MarketCoins>("coinsMarketsGet", ...args);
 
   return async ({ params: { vs_currency, ids, category } }: SWRKeyType) => {
-    const coins = await fetchCoins(vs_currency, ids, category);
+    const coins = await fetchCoins(vs_currency, ids, category[0]);
+    const solanaCoins = await fetchCoins(vs_currency, ids, category[1]);
+
     const coinRecords: MarketCoinRecords = {};
 
     coins.forEach((coin) => {
+      coinRecords[coin.symbol] = coin;
+    });
+
+    solanaCoins.forEach((coin) => {
       coinRecords[coin.symbol] = coin;
     });
 
@@ -49,7 +55,7 @@ export const useCoins: APIHook<void, MarketCoinRecords> = (_, options = {}) => {
 
   const vsCurrency = "usd";
   const ids = "sol";
-  const category = "stablecoins";
+  const category = ["stablecoins", "solana-ecosystem"];
 
   const params = { vs_currency: vsCurrency, ids, category };
 

@@ -1,0 +1,17 @@
+.root {
+}
+
+.coins {
+  padding-top: 0px;
+  padding-bottom: 0px;
+}
+
+.coinItem {
+  cursor: pointer;
+  padding: 0 16px;
+}
+.coinItem:hover,
+.coinItem:active,
+.coinItem:focus {
+  background-image: linear-gradient(90deg, #e7e2e2, 4%, #ededed);
+}

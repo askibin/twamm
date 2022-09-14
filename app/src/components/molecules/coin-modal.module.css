@@ -1,10 +1,14 @@
 .root {
+}
+
+.modalInner {
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 60%;
   background-color: #fff;
+  padding: 0;
+  overflow: hidden;
 }
 
 .closeButton {

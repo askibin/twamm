@@ -1,61 +1,64 @@
+import type { MouseEvent } from "react";
 import type { ListChildComponentProps } from "react-window";
-import { styled } from "@mui/material/styles";
-import Box from "@mui/material/Box";
 import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
-import ListItemAvatar from "@mui/material/ListItemAvatar";
 import ListItemIcon from "@mui/material/ListItemIcon";
-import ListItemButton from "@mui/material/ListItemButton";
 import ListItemText from "@mui/material/ListItemText";
-import IconButton from "@mui/material/IconButton";
-import FormGroup from "@mui/material/FormGroup";
-import FormControlLabel from "@mui/material/FormControlLabel";
-import Checkbox from "@mui/material/Checkbox";
-import Grid from "@mui/material/Grid";
-import Typography from "@mui/material/Typography";
-import FolderIcon from "@mui/icons-material/Folder";
-import DeleteIcon from "@mui/icons-material/Delete";
 import Avatar from "@mui/material/Avatar";
-import Stack from "@mui/material/Stack";
 import { FixedSizeList } from "react-window";
-import { Fragment, useMemo } from "react";
+import { useMemo } from "react";
 
+import styles from "./coin-select.module.css";
 import { useBreakpoints } from "../../hooks/use-breakpoints";
 
 export interface Props {
-  className: string;
   coins: Record<string, { symbol: string; image: string; name: string }>;
+  filterCoin?: string;
+  onClick: (arg0: MouseEvent, arg1: string) => void;
 }
 
-export default ({ className, coins }: Props) => {
+export default ({ coins, filterCoin, onClick = () => {} }: Props) => {
   const { isMobile } = useBreakpoints();
 
   const coinRecords = useMemo(() => {
     const values = Object.values(coins);
 
-    return values;
-  }, [coins]);
+    if (!filterCoin) return values;
+
+    return values.filter(
+      (coin) =>
+        coin.name.toLowerCase().startsWith(filterCoin) ||
+        coin.symbol.startsWith(filterCoin)
+    );
+  }, [coins, filterCoin]);
 
   return (
-    <List dense={isMobile}>
+    <List className={styles.coins} dense={isMobile}>
       <FixedSizeList
         height={400}
-        width={360}
-        itemSize={46}
+        width="100%"
+        itemSize={56}
         itemCount={coinRecords.length}
         overscanCount={5}
       >
         {({ index, style }: ListChildComponentProps) => (
-          <ListItem style={style} key={index} component="div" disablePadding>
+          <ListItem
+            className={styles.coinItem}
+            component="div"
+            disablePadding
+            key={index}
+            onClick={(e: MouseEvent) => onClick(e, coinRecords[index].symbol)}
+            style={style}
+          >
             <ListItemIcon>
               <Avatar
                 alt={coinRecords[index].symbol}
                 src={coinRecords[index].image}
-              ></Avatar>
+              />
             </ListItemIcon>
             <ListItemText
               primary={coinRecords[index].symbol.toUpperCase()}
-              secondary={true ? "Secondary text" : null}
+              secondary={coinRecords[index].name}
             />
           </ListItem>
         )}

@@ -1,15 +1,14 @@
+/* eslint-disable */
+// TODO: remove ^
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
-//import Grid from "@mui/material/Grid";
-//import Link from "@mui/material/Link";
 import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
 import { useFormik } from "formik";
 import { useCallback, useRef } from "react";
 
 import CoinPopover from "./coin-popover";
-import TokenField from "../organisms/token-field";
-import { useCoins } from "../../hooks/use-coins";
+import TokenField from "./token-field";
 
 export interface Props {
   tokenA: string;
@@ -18,19 +17,17 @@ export interface Props {
   tokenBValue: number;
 }
 
-export default function TokenRatio({}: Props) {
-  const popoverRef = useRef();
+export default function TokenRatio(props: Props) {
+  const popoverRef = useRef<{ isOpened: boolean; open: () => void }>();
   const formik = useFormik({
     initialValues: {},
     onSubmit: () => {},
   });
 
-  const data = useCoins();
-
   const onTokenAChoose = useCallback(() => {
-    console.log(234);
+    console.log(props); // eslint-disable-line no-console
 
-    if (!popoverRef.current?.isOpened) popoverRef.current.open();
+    if (!popoverRef.current?.isOpened) popoverRef.current?.open();
   }, [popoverRef]);
 
   return (

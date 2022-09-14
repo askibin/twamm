@@ -1,19 +1,11 @@
 import type { NextPage } from "next";
-import AppBar from "@mui/material/AppBar";
-import Head from "next/head";
-// import Image from "next/image";
 import Box from "@mui/material/Box";
-import Button from "@mui/material/Button";
 import Container from "@mui/material/Container";
-// import Grid from "@mui/material/Grid";
-// import Link from "@mui/material/Link";
-import TextField from "@mui/material/TextField";
-import Typography from "@mui/material/Typography";
-import { useFormik } from "formik";
+import Head from "next/head";
 
 import TokenRatio from "../src/components/organisms/token-ratio";
 import Header from "../src/components/organisms/header";
-
+import OfflineOverlay from "../src/components/organisms/offline-overlay";
 import styles from "./index.module.css";
 
 const Home: NextPage = () => {
@@ -35,6 +27,7 @@ const Home: NextPage = () => {
         />
         <title>Login | Material Kit</title>
       </Head>
+      <OfflineOverlay />
       <Header />
       <Box
         component="main"

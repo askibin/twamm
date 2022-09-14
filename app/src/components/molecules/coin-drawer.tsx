@@ -1,18 +1,14 @@
-import Avatar from "@mui/material/Avatar";
-import AppBar from "@mui/material/AppBar";
-import Stack from "@mui/material/Stack";
-import Toolbar from "@mui/material/Toolbar";
-import Button from "@mui/material/Button";
-import { styled } from "@mui/material/styles";
-import { grey } from "@mui/material/colors";
 import Box from "@mui/material/Box";
-import Skeleton from "@mui/material/Skeleton";
-import Typography from "@mui/material/Typography";
 import SwipeableDrawer from "@mui/material/SwipeableDrawer";
-import { useMemo, useState } from "react";
-import { useTheme } from "@mui/material/styles";
+import { grey } from "@mui/material/colors";
+import { styled } from "@mui/material/styles";
+import { useCallback } from "react";
+
+import CoinSelect from "../organisms/coin-select";
+import styles from "./coin-drawer.module.css";
 
 export interface Props {
+  onSelect: (arg0: string) => void;
   open: boolean;
   setOpen: (arg0: boolean) => void;
 }
@@ -33,14 +29,27 @@ const Puller = styled(Box)(({ theme }) => ({
   left: "calc(50% - 15px)",
 }));
 
-export default function ({ open, setOpen }: Props) {
+export default ({
+  onSelect: handleSelect = () => {},
+  open,
+  setOpen,
+}: Props) => {
   const toggleDrawer = (newOpen: boolean) => () => {
     setOpen(newOpen);
   };
 
+  const onSelect = useCallback(
+    (symbol: string) => {
+      setOpen(false);
+      handleSelect(symbol);
+    },
+    [handleSelect, setOpen]
+  );
+
   return (
     <SwipeableDrawer
       anchor="bottom"
+      className={styles.root}
       open={open}
       onClose={toggleDrawer(false)}
       onOpen={toggleDrawer(true)}
@@ -52,30 +61,26 @@ export default function ({ open, setOpen }: Props) {
     >
       <StyledBox
         sx={{
-          _position: "absolute",
-          //top: -drawerBleeding,
+          top: -drawerBleeding,
           borderTopLeftRadius: 8,
           borderTopRightRadius: 8,
           visibility: "visible",
           right: 0,
           left: 0,
+          p: 0,
         }}
       >
         <Puller />
-        <Typography sx={{ p: 2, color: "text.secondary" }}>
-          51 results
-        </Typography>
       </StyledBox>
       <StyledBox
+        className={styles.inner}
         sx={{
-          px: 2,
-          pb: 2,
           height: "100%",
           overflow: "auto",
         }}
       >
-        <Skeleton variant="rectangular" height="100%" />
+        <CoinSelect onSelect={onSelect} />
       </StyledBox>
     </SwipeableDrawer>
   );
-}
+};

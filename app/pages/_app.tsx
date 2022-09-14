@@ -13,22 +13,22 @@ import { CoingeckoApiProvider } from "../src/contexts/coingecko-api-context";
 
 const BaselineMemo = memo(() => <CssBaseline enableColorScheme />);
 
-const App = ({ Component, pageProps }: AppProps) =>
-  console.log({ pageProps }) || (
-    <ThemeProvider theme={theme}>
-      <BaselineMemo />
-      <StrictMode>
-        <NotificationProvider>
-          <CoingeckoApiProvider>
-            <SolanaConnectionProvider>
-              <WalletProvider>
-                <Component {...pageProps} />
-              </WalletProvider>
-            </SolanaConnectionProvider>
-          </CoingeckoApiProvider>
-        </NotificationProvider>
-      </StrictMode>
-    </ThemeProvider>
-  );
+const App = ({ Component, pageProps }: AppProps) => (
+  <ThemeProvider theme={theme}>
+    <BaselineMemo />
+    <StrictMode>
+      <NotificationProvider>
+        <CoingeckoApiProvider>
+          <SolanaConnectionProvider>
+            <WalletProvider>
+              {/* eslint-disable-next-line react/jsx-props-no-spreading */}
+              <Component {...pageProps} />
+            </WalletProvider>
+          </SolanaConnectionProvider>
+        </CoingeckoApiProvider>
+      </NotificationProvider>
+    </StrictMode>
+  </ThemeProvider>
+);
 
 export default App;
