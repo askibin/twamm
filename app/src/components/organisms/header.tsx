@@ -18,7 +18,7 @@ export default () => {
       >
         <Stack direction="row" className={styles.logo}>
           <Avatar className={styles.avatar}>T</Avatar>
-          Twap
+          Solana TWAMM
         </Stack>
 
         <WalletMultiButton />

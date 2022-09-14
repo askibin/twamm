@@ -15,13 +15,14 @@ export default ({ coins, onClick = () => {} }: Props) => (
   <Stack className={styles.root} direction="row" mt={2}>
     {coins.map(({ image, name, symbol }) => (
       <Chip
-        sx={{ mr: 1, mb: 1 }}
+        avatar={<Avatar alt={name} src={image} />}
         className={styles.coin}
         component={Button}
-        variant="outlined"
-        avatar={<Avatar alt={name} src={image} />}
-        onClick={(e: MouseEvent) => onClick(e, symbol)}
+        key={symbol}
         label={symbol.toUpperCase()}
+        onClick={(e: MouseEvent) => onClick(e, symbol)}
+        sx={{ mr: 1, mb: 1 }}
+        variant="outlined"
       />
     ))}
   </Stack>

@@ -3,12 +3,13 @@ import { useMediaQuery, useTheme } from "@mui/material";
 // eslint-disable-next-line import/prefer-default-export
 export const useBreakpoints = () => {
   const { breakpoints } = useTheme();
-  const { tablet } = breakpoints.values;
+  const { desktop, tablet } = breakpoints.values;
 
   const isMobile = useMediaQuery(breakpoints.down(tablet));
+  const isDesktop = useMediaQuery(breakpoints.up(desktop + 1));
 
   return {
-    isDesktop: !isMobile,
+    isDesktop,
     isLaptop: !isMobile,
     isMobile,
     isTablet: !isMobile,

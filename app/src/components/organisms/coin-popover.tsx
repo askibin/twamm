@@ -10,7 +10,9 @@ import CoinModal from "../molecules/coin-modal";
 import CoinDrawer from "../molecules/coin-drawer";
 import { useBreakpoints } from "../../hooks/use-breakpoints";
 
-export interface Props {}
+export interface Props {
+  onChange?: (arg0: string) => void;
+}
 
 interface ModalProps extends Props {
   onSelect: (arg0: string) => void;
@@ -26,14 +28,16 @@ const Drawer = memo(({ onSelect, open, setOpen }: ModalProps) => (
   <CoinDrawer onSelect={onSelect} open={open} setOpen={setOpen} />
 ));
 
-export default forwardRef((props: Props, ref) => {
+export default forwardRef(({ onChange = () => {} }: Props, ref) => {
   const { isMobile } = useBreakpoints();
-  const [open, setOpen] = useState(true);
-  // should be false
+  const [open, setOpen] = useState(false);
 
-  const onSelect = useCallback((symbol: string) => {
-    console.log(symbol); // eslint-disable-line no-console
-  }, []);
+  const onSelect = useCallback(
+    (symbol: string) => {
+      onChange(symbol);
+    },
+    [onChange]
+  );
 
   useImperativeHandle(ref, () => ({
     close() {

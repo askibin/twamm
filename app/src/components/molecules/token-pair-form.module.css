@@ -1,0 +1,17 @@
+.connectBox [class="wallet-adapter-dropdown"] {
+  width: 100%;
+}
+
+.connectWallet {
+  background-color: #4bbeff;
+  border-radius: 40px;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  color: #000;
+}
+.connectWallet:hover,
+.connectWallet:focus,
+.connectWallet:active {
+  color: #fff;
+}

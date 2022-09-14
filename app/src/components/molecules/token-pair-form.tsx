@@ -1,16 +1,14 @@
 /* eslint-disable */
 // TODO: remove ^
 import Box from "@mui/material/Box";
-import Paper from "@mui/material/Paper";
 import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
 import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
 import { useFormik } from "formik";
 import { useCallback, useRef, useState } from "react";
 
-import CoinPopover from "./coin-popover";
-import TokenField from "./token-field";
-import TokenPairForm from '../molecules/token-pair-form';
+import TokenField from "../organisms/token-field";
+import styles from "./token-pair-form.module.css";
 
 export interface Props {
   tokenA: string;
@@ -19,7 +17,7 @@ export interface Props {
   tokenBValue: number;
 }
 
-export default function TokenRatio(props: Props) {
+export default (props: Props) => {
   const popoverRef = useRef<{ isOpened: boolean; open: () => void }>();
   const form = useFormik({
     initialValues: {},
@@ -50,13 +48,36 @@ export default function TokenRatio(props: Props) {
   );
 
   return (
-    <>
-      <CoinPopover ref={popoverRef} onChange={onCoinSelect} />
-      <Paper elevation={1}>
-        <Box p={2}>
-          <TokenPairForm />
-        </Box>
-      </Paper>
-    </>
+    <form onSubmit={form.handleSubmit}>
+      <Box sx={{ my: 3 }}>
+        <Typography color="textPrimary" variant="h4">
+          Sign in
+        </Typography>
+        <Typography color="textSecondary" gutterBottom variant="body2">
+          Sign in on the internal platform
+        </Typography>
+      </Box>
+      <TokenField onClick={onTokenAChoose} />
+      <TokenField onClick={onTokenBChoose} />
+      <TextField
+        error={Boolean(form.touched.email && form.errors.email)}
+        fullWidth
+        helperText={form.touched.email && form.errors.email}
+        label="Email Address"
+        margin="normal"
+        name="email"
+        onBlur={form.handleBlur}
+        onChange={form.handleChange}
+        type="email"
+        value={form.values.email}
+        variant="outlined"
+      />
+      <Box className={styles.connectBox} sx={{ py: 2 }}>
+        <WalletMultiButton
+          className={styles.connectWallet}
+          disabled={form.isSubmitting}
+        />
+      </Box>
+    </form>
   );
 }
