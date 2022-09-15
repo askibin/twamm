@@ -1,0 +1,29 @@
+{
+  "name": "@twamm/client.js",
+  "version": "0.1.0",
+  "private": true,
+  "description": "> TODO: description",
+  "homepage": "https://github.com/askibin/twamm#readme",
+  "main": "lib/client.ts",
+  "directories": {
+    "lib": "lib",
+    "test": "__tests__"
+  },
+  "files": [
+    "lib"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/askibin/twamm.git"
+  },
+  "scripts": {
+    "test": "node ./__tests__/client.test.ts"
+  },
+  "bugs": {
+    "url": "https://github.com/askibin/twamm/issues"
+  },
+  "dependencies": {
+    "bs58": "^5.0.0",
+    "js-sha256": "^0.9.0"
+  }
+}

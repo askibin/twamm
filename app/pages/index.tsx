@@ -2,11 +2,14 @@ import type { NextPage } from "next";
 import Box from "@mui/material/Box";
 import Container from "@mui/material/Container";
 import Head from "next/head";
+import { account } from "@twamm/client.js";
 
 import TokenRatio from "../src/components/organisms/token-ratio";
 import Header from "../src/components/organisms/header";
 import OfflineOverlay from "../src/components/organisms/offline-overlay";
 import styles from "./index.module.css";
+
+import { useTokenPairs } from "../src/hooks/use-token-pairs";
 
 const Home: NextPage = () => {
   const { data } = {
@@ -17,6 +20,10 @@ const Home: NextPage = () => {
       tokenBValue: 1,
     },
   };
+
+  const tokenPairs = useTokenPairs();
+
+  console.log({ tokenPairs });
 
   return (
     <div className={styles.root}>
