@@ -13,6 +13,8 @@ export declare interface APIHook<A, R, O = any> {
 export function fetchJSONFromAPI<Key extends keyof Api>(api: Api) {
   return async function fetchFromAPI<T>(method: Key, ...args: any): Promise<T> {
     const fn = api[method];
+    // FIXME: V
+    // @ts-ignore
     const resp = await fn.apply(api, args);
     return resp.json();
   };

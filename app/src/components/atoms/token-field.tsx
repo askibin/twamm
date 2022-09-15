@@ -8,8 +8,8 @@ import TextField from "@mui/material/TextField";
 import styles from "./token-field.module.css";
 
 export interface Props {
-  alt: string;
-  image: string;
+  alt?: string;
+  image?: string;
   label: string;
   onClick: (e: MouseEvent) => void;
 }
