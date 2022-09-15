@@ -1,5 +1,6 @@
 /* eslint-disable */
 // TODO: remove ^
+import Avatar from "@mui/material/Avatar";
 import Box from "@mui/material/Box";
 import CurrencyExchangeIcon from "@mui/icons-material/CurrencyExchange";
 import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
