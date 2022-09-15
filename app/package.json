@@ -1,0 +1,65 @@
+{
+  "name": "@twap/app",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "lint/fix": "prettier pages --write && eslint pages --fix"
+  },
+  "dependencies": {
+    "@emotion/react": "^11.10.4",
+    "@emotion/styled": "^11.10.4",
+    "@jup-ag/core": "^2.0.0-beta.4",
+    "@mui/icons-material": "^5.10.3",
+    "@mui/material": "^5.10.4",
+    "@mui/styled-engine": "^5.10.4",
+    "@mui/styled-engine-sc": "^5.10.3",
+    "@solana/wallet-adapter-base": "^0.9.16",
+    "@solana/wallet-adapter-react": "^0.15.18",
+    "@solana/wallet-adapter-react-ui": "^0.9.16",
+    "@solana/wallet-adapter-wallets": "^0.18.7",
+    "@solana/web3.js": "^1.59.1",
+    "@types/react-window": "^1.8.5",
+    "date-fns": "^2.29.2",
+    "formik": "^2.2.9",
+    "isomorphic-fetch": "^3.0.0",
+    "next": "12.2.5",
+    "notistack": "^2.0.5",
+    "ramda": "^0.28.0",
+    "react": "18.2.0",
+    "react-dom": "18.2.0",
+    "react-window": "^1.8.7",
+    "styled-components": "^5.3.5",
+    "swr": "^1.3.0"
+  },
+  "devDependencies": {
+    "@types/node": "18.7.14",
+    "@types/ramda": "^0.28.15",
+    "@types/react": "18.0.18",
+    "@types/react-dom": "18.0.6",
+    "@typescript-eslint/eslint-plugin": "^5.36.2",
+    "eslint": "8.23.0",
+    "eslint-config-airbnb": "^19.0.4",
+    "eslint-config-airbnb-typescript": "^17.0.0",
+    "eslint-config-next": "12.2.5",
+    "eslint-config-prettier": "^8.5.0",
+    "eslint-plugin-prettier": "^4.2.1",
+    "prettier": "^2.7.1",
+    "typescript": "4.8.2"
+  },
+  "workspaces": [
+    "packages/*"
+  ],
+  "optionalDependencies": {
+    "@babel/core": "^7.0.0",
+    "@typescript-eslint/parser": "^5.0.0",
+    "eslint-plugin-import": "^2.25.3",
+    "eslint-plugin-jsx-a11y": "^6.5.1",
+    "eslint-plugin-react": "^7.28.0",
+    "eslint-plugin-react-hooks": "^4.3.0",
+    "react-is": "16.8.0"
+  }
+}

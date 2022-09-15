@@ -1,0 +1,20 @@
+{
+  "extends": [
+    "next/core-web-vitals",
+    "airbnb",
+    "airbnb-typescript",
+    "prettier"
+  ],
+  "plugins": ["prettier"],
+  "parserOptions": {
+    "project": "./tsconfig.json"
+  },
+  "rules": {
+    "max-len": ["error", { "code": 100, "comments": 120 }],
+    "object-curly-newline": ["error", { "consistent": true }],
+    "prettier/prettier": ["error"],
+    "react/function-component-definition": 0,
+    "react/react-in-jsx-scope": 0,
+    "react/require-default-props": 0
+  }
+}

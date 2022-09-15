@@ -1,0 +1,8 @@
+.root {
+  flex-wrap: wrap;
+}
+
+.coin {
+  border-radius: 6px;
+  cursor: pointer;
+}

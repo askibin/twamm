@@ -1,0 +1,11 @@
+.toolbar {
+  justify-content: space-between;
+}
+
+.logo {
+  align-items: center;
+}
+
+.logo .avatar {
+  margin-right: 8px;
+}
