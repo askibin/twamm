@@ -2,15 +2,13 @@
 // TODO: remove ^
 import Box from "@mui/material/Box";
 import Paper from "@mui/material/Paper";
-import TextField from "@mui/material/TextField";
-import Typography from "@mui/material/Typography";
-import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
 import { useFormik } from "formik";
 import { useCallback, useRef, useState } from "react";
 
 import CoinPopover from "./coin-popover";
-import TokenField from "./token-field";
 import TokenPairForm from "../molecules/token-pair-form";
+import styles from "./token-ratio.module.css";
+import { useCoinData } from "../../hooks/use-coin-data";
 
 export interface Props {
   tokenA: string;
@@ -49,14 +47,21 @@ export default function TokenRatio(props: Props) {
     [curToken]
   );
 
+  const initialTokenB = useCoinData({ id: "solana" });
+  const initialTokenA = useCoinData({ id: "usd-coin" });
+
   return (
     <>
       <CoinPopover ref={popoverRef} onChange={onCoinSelect} />
-      <Paper elevation={1}>
+      <Paper className={styles.tokenPair} elevation={1}>
         <Box p={2}>
           <TokenPairForm
             onASelect={onTokenAChoose}
             onBSelect={onTokenBChoose}
+            tokenA={initialTokenA.data?.symbol}
+            tokenAImage={initialTokenA.data?.image.small}
+            tokenB={initialTokenB.data?.symbol}
+            tokenBImage={initialTokenB.data?.image.small}
           />
         </Box>
       </Paper>

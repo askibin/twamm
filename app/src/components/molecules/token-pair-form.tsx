@@ -1,26 +1,39 @@
 /* eslint-disable */
 // TODO: remove ^
+import Avatar from "@mui/material/Avatar";
 import Box from "@mui/material/Box";
-import CurrencyExchangeIcon from '@mui/icons-material/CurrencyExchange';
+import CurrencyExchangeIcon from "@mui/icons-material/CurrencyExchange";
+import Grid from "@mui/material/Grid";
+import Paper from "@mui/material/Paper";
 import TextField from "@mui/material/TextField";
-import Typography from "@mui/material/Typography";
+import Select from "@mui/material/Select";
+import Stack from "@mui/material/Stack";
 import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
 import { useFormik } from "formik";
 import { useCallback, useRef, useState } from "react";
 
-import TokenField from "../organisms/token-field";
+import TokenField from "../atoms/token-field";
 import styles from "./token-pair-form.module.css";
 
 export interface Props {
-  tokenA: string;
-  tokenB: string;
-  tokenAValue: number;
-  tokenBValue: number;
+  tokenA?: string;
+  tokenB?: string;
+  tokenAImage?: string;
+  tokenBImage?: string;
+  tokenAValue?: number;
+  tokenBValue?: number;
   onASelect: () => void;
   onBSelect: () => void;
 }
 
-export default ({ onASelect, onBSelect }: Props) => {
+export default ({
+  tokenA,
+  tokenB,
+  tokenAImage,
+  tokenBImage,
+  onASelect,
+  onBSelect,
+}: Props) => {
   const popoverRef = useRef<{ isOpened: boolean; open: () => void }>();
   const form = useFormik({
     initialValues: {},
@@ -38,31 +51,26 @@ export default ({ onASelect, onBSelect }: Props) => {
 
   return (
     <form onSubmit={form.handleSubmit}>
-      <Box sx={{ my: 3 }}>
-        <Typography color="textPrimary" variant="h4">
-          Sign in
-        </Typography>
-        <Typography color="textSecondary" gutterBottom variant="body2">
-          Sign in on the internal platform
-        </Typography>
-      </Box>
       <Box>
         <TokenField
+          alt={tokenA}
+          image={tokenAImage}
           label="Pay"
           onClick={onASelect}
-          InputProps={{
-            startAdornment: <span>234</span>,
-          }}
         />
       </Box>
       <Box p={2} sx={{ display: "flex", justifyContent: "center" }}>
         <CurrencyExchangeIcon />
       </Box>
       <Box>
-        <TokenField label="Receive" onClick={onBSelect} />
+        <TokenField
+          alt={tokenB}
+          image={tokenBImage}
+          label="Receive"
+          onClick={onBSelect}
+        />
       </Box>
-
-      <TextField
+      {/*<TextField
         error={Boolean(form.touched.email && form.errors.email)}
         fullWidth
         helperText={form.touched.email && form.errors.email}
@@ -74,7 +82,7 @@ export default ({ onASelect, onBSelect }: Props) => {
         type="email"
         value={form.values.email}
         variant="outlined"
-      />
+      />*/}
       <Box className={styles.connectBox} sx={{ py: 2 }}>
         <WalletMultiButton
           className={styles.connectWallet}

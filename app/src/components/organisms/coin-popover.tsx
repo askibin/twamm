@@ -11,6 +11,7 @@ import CoinDrawer from "../molecules/coin-drawer";
 import { useBreakpoints } from "../../hooks/use-breakpoints";
 
 export interface Props {
+  // eslint-disable-next-line react/no-unused-prop-types
   onChange?: (arg0: string) => void;
 }
 
