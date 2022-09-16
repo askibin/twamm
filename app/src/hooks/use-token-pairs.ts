@@ -25,7 +25,6 @@ const fetcher = (getProvider, getProgram) => {
   };
 };
 
-// eslint-disable-next-line import/prefer-default-export
 export const useTokenPairs = () => {
   const { program, provider } = useProgram();
 

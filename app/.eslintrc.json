@@ -10,6 +10,7 @@
     "project": "./tsconfig.json"
   },
   "rules": {
+    "import/prefer-default-export": 0,
     "max-len": ["error", { "code": 100, "comments": 120 }],
     "object-curly-newline": ["error", { "consistent": true }],
     "prettier/prettier": ["error"],

@@ -56,7 +56,6 @@ const fetcher = (api: CoingeckoApi) => {
   };
 };
 
-// eslint-disable-next-line import/prefer-default-export
 export const useCoinData: APIHook<{ id: string }, Coin> = (
   params,
   options = {}

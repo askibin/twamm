@@ -1,29 +1,33 @@
 import type { NextPage } from "next";
 import Box from "@mui/material/Box";
-import Container from "@mui/material/Container";
 import Head from "next/head";
-import { account } from "@twamm/client.js";
+import { useCallback, useMemo, useState } from "react";
 
-import TokenRatio from "../src/components/organisms/token-ratio";
 import Header from "../src/components/organisms/header";
+import { modes } from "../src/components/atoms/mode-toggle";
 import OfflineOverlay from "../src/components/organisms/offline-overlay";
+import Swap from "../src/components/ecosystems/swap";
+import TokenPairs from "../src/components/ecosystems/token-pairs";
 import styles from "./index.module.css";
 
-import { useTokenPairs } from "../src/hooks/use-token-pairs";
+const DEFAULT_MODE = modes.get("pools") as string;
 
 const Home: NextPage = () => {
-  const { data } = {
-    data: {
-      tokenA: "RAY",
-      tokenB: "SOL",
-      tokenAValue: 1,
-      tokenBValue: 1,
+  const [mode, setMode] = useState<string>(DEFAULT_MODE);
+
+  const onModeChange = useCallback(
+    (nextMode: string) => {
+      setMode(nextMode);
     },
-  };
+    [setMode]
+  );
 
-  const tokenPairs = useTokenPairs();
+  const component = useMemo(() => {
+    if (mode === DEFAULT_MODE)
+      return <TokenPairs mode={mode} onModeChange={onModeChange} />;
 
-  console.log({ tokenPairs });
+    return <Swap mode={mode} onModeChange={onModeChange} />;
+  }, [mode, onModeChange]);
 
   return (
     <div className={styles.root}>
@@ -36,24 +40,8 @@ const Home: NextPage = () => {
       </Head>
       <OfflineOverlay />
       <Header />
-      <Box
-        className={styles.main}
-        component="main"
-        sx={{
-          alignItems: "center",
-          display: "flex",
-          flexGrow: 1,
-          minHeight: "100%",
-        }}
-      >
-        <Container maxWidth="sm">
-          <TokenRatio
-            tokenA={data.tokenA}
-            tokenB={data.tokenB}
-            tokenAValue={data.tokenAValue}
-            tokenBValue={data.tokenBValue}
-          />
-        </Container>
+      <Box className={styles.main} component="main" pt={10}>
+        {component}
       </Box>
     </div>
   );

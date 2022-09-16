@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
 
-// eslint-disable-next-line import/prefer-default-export
 export const useNavigatorOnlineStatus = ({
   onOnline: handleOnline = () => {},
   onOffline: handleOffline = () => {},
