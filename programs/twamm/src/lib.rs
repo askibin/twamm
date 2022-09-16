@@ -121,6 +121,13 @@ pub mod twamm {
         instructions::delete_test_pool(ctx, &params)
     }
 
+    pub fn delete_test_pair<'info>(
+        ctx: Context<'_, '_, '_, 'info, DeleteTestPair<'info>>,
+        params: DeleteTestPairParams,
+    ) -> Result<u8> {
+        instructions::delete_test_pair(ctx, &params)
+    }
+
     pub fn withdraw_fees<'info>(
         ctx: Context<'_, '_, '_, 'info, WithdrawFees<'info>>,
         params: WithdrawFeesParams,

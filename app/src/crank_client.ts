@@ -9,7 +9,6 @@ import {
 } from "@project-serum/anchor";
 import { Twamm } from "../../target/types/twamm";
 import {
-  Connection,
   PublicKey,
   TransactionInstruction,
   Transaction,
@@ -101,7 +100,6 @@ export class CrankClient {
       this.tokenAMint.toBuffer(),
       this.tokenBMint.toBuffer(),
     ]);
-    await this.reloadConfig();
 
     const tokens: Token[] = await (
       await fetch(TOKEN_LIST_URL["mainnet-beta"])
@@ -120,9 +118,13 @@ export class CrankClient {
     }
     this.tokenPairName = `${inputToken.symbol}-${outputToken.symbol}`;
 
+    BN.prototype.toJSON = function () {
+      return this.toString(10);
+    };
+
     this.jupiterId = "JUP3c2Uh3WA4Ng34tw6kPd2G4C5BB21Xo36Je1s32Ph";
     this.jupiter = await Jupiter.load({
-      connection: new Connection(cluster_url),
+      connection: this.provider.connection,
       cluster: "mainnet-beta",
       user: this.transferAuthority,
       wrapUnwrapSOL: false,
@@ -162,7 +164,7 @@ export class CrankClient {
     );
   };
 
-  getRoutes = async (side: OrderSide, amount: BN, slippage = 0.1) => {
+  getRoutes = async (side: OrderSide, amount: BN, slippage = 5.0) => {
     return this.jupiter
       .computeRoutes({
         inputMint: side === "sell" ? this.tokenAMint : this.tokenBMint,
@@ -177,18 +179,27 @@ export class CrankClient {
         return routes;
       })
       .catch((error) => {
-        console.log(error);
+        console.error(error);
         return null;
       });
   };
 
-  getInstructions = async (routes: RouteInfo[], maxSlippageFromBest = 0.1) => {
+  getInstructions = async (routes: RouteInfo[], maxSlippageFromBest = 0.05) => {
     if (!routes.length) {
       return null;
     }
-    const recentBlockhash = (
-      await this.provider.connection.getLatestBlockhash()
-    ).blockhash;
+    const recentBlockhash = await this.provider.connection
+      .getLatestBlockhash()
+      .then((blockhashConfig) => {
+        return blockhashConfig.blockhash;
+      })
+      .catch((error) => {
+        console.error(error);
+        return null;
+      });
+    if (!recentBlockhash) {
+      return null;
+    }
     const bestRouteAmount = JSBI.toNumber(routes[0].otherAmountThreshold);
 
     for (const route of routes) {
@@ -210,7 +221,7 @@ export class CrankClient {
           return result;
         })
         .catch((error) => {
-          console.log(error);
+          console.error(error);
           return null;
         });
 
@@ -337,7 +348,7 @@ export class CrankClient {
     let tokenPairs = await this.provider.connection.getProgramAccounts(
       this.program.programId,
       {
-        filters: [{ dataSize: 576 }, { memcmp: { bytes: data, offset: 0 } }],
+        filters: [{ dataSize: 592 }, { memcmp: { bytes: data, offset: 0 } }],
       }
     );
     return Promise.all(
@@ -374,6 +385,13 @@ export class CrankClient {
     let date_str = date.toDateString();
     let time = date.toLocaleTimeString();
     console.log(`[${date_str} ${time}] [${this.tokenPairName}] ${message}`);
+  };
+
+  error = (message: string) => {
+    let date = new Date();
+    let date_str = date.toDateString();
+    let time = date.toLocaleTimeString();
+    console.error(`[${date_str} ${time}] [${this.tokenPairName}] ${message}`);
   };
 
   getOutstandingAmount = async () => {
@@ -416,7 +434,7 @@ export class CrankClient {
       if (err && err.error && err.error.errorMessage) {
         return [false, err.error.errorMessage];
       }
-      console.log(err);
+      console.error(err);
       return [false, "Unknown error"];
     }
   };
@@ -501,7 +519,7 @@ export class CrankClient {
       if (err && err.error && err.error.errorMessage) {
         return [false, err.error.errorMessage];
       }
-      console.log(err);
+      console.error(err);
       return [false, "Unknown error"];
     }
   };

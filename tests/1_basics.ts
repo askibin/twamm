@@ -80,6 +80,8 @@ describe("basics", () => {
         allowSettlements: false,
         feeNumerator: new anchor.BN(1),
         feeDenominator: new anchor.BN(10),
+        settleFeeNumerator: new anchor.BN(0),
+        settleFeeDenominator: new anchor.BN(1),
         crankRewardTokenA: new anchor.BN(2),
         crankRewardTokenB: new anchor.BN(3),
         minSwapAmountTokenA: new anchor.BN(4),
@@ -132,6 +134,8 @@ describe("basics", () => {
         allowSettlements: false,
         feeNumerator: new anchor.BN(1),
         feeDenominator: new anchor.BN(10),
+        settleFeeNumerator: new anchor.BN(0),
+        settleFeeDenominator: new anchor.BN(1),
         crankRewardTokenA: new anchor.BN(2),
         crankRewardTokenB: new anchor.BN(3),
         minSwapAmountTokenA: new anchor.BN(4),
@@ -178,6 +182,8 @@ describe("basics", () => {
       allowSettlements: false,
       feeNumerator: new anchor.BN(1),
       feeDenominator: new anchor.BN(10),
+      settleFeeNumerator: new anchor.BN(0),
+      settleFeeDenominator: new anchor.BN(1),
       maxSwapPriceDiff: 0.1,
       maxUnsettledAmount: 0.3,
       minTimeTillExpiration: 0.3,
@@ -342,6 +348,8 @@ describe("basics", () => {
       .setFees({
         feeNumerator: new anchor.BN(2),
         feeDenominator: new anchor.BN(100),
+        settleFeeNumerator: new anchor.BN(2),
+        settleFeeDenominator: new anchor.BN(10),
         crankRewardTokenA: new anchor.BN(22),
         crankRewardTokenB: new anchor.BN(33),
       })
@@ -358,6 +366,8 @@ describe("basics", () => {
     );
     tokenPairExpected.feeNumerator = new anchor.BN(2);
     tokenPairExpected.feeDenominator = new anchor.BN(100);
+    tokenPairExpected.settleFeeNumerator = new anchor.BN(2);
+    tokenPairExpected.settleFeeDenominator = new anchor.BN(10);
     tokenPairExpected.configA.crankReward = new anchor.BN(22);
     tokenPairExpected.configB.crankReward = new anchor.BN(33);
     expect(JSON.stringify(tokenPair)).to.equal(
@@ -564,7 +574,7 @@ describe("basics", () => {
   it("settle", async () => {
     twamm.initPoolMetas([20, 3, 10]);
     try {
-      twamm.settle("sell", 1000);
+      await twamm.settle("sell", 1000);
     } catch (err) {
       expect(err.error.errorCode.code).to.equal("NothingToSettle");
     }

@@ -184,6 +184,14 @@ pub fn settle(ctx: Context<Settle>, params: &SettleParams) -> Result<i64> {
 
     // transfer tokens to/from the user
     msg!("Transfer tokens to/from the user");
+    let settle_fee = math::checked_as_u64(math::checked_div(
+        math::checked_mul(
+            res.net_amount_settled as u128,
+            token_pair.settle_fee_numerator as u128,
+        )?,
+        token_pair.settle_fee_denominator as u128,
+    )?)?;
+    let net_amount_settled_after_fees = math::checked_sub(res.net_amount_settled, settle_fee)?;
     if params.supply_side == MatchingSide::Buy {
         let context = CpiContext::new(
             ctx.accounts.token_program.to_account_info(),
@@ -199,8 +207,10 @@ pub fn settle(ctx: Context<Settle>, params: &SettleParams) -> Result<i64> {
             ctx.accounts.user_account_token_a.to_account_info(),
             ctx.accounts.transfer_authority.clone(),
             ctx.accounts.token_program.to_account_info(),
-            res.net_amount_settled,
+            net_amount_settled_after_fees,
         )?;
+        token_pair.stats_a.fees_collected =
+            token_pair.stats_a.fees_collected.wrapping_add(settle_fee);
     } else {
         let context = CpiContext::new(
             ctx.accounts.token_program.to_account_info(),
@@ -216,8 +226,10 @@ pub fn settle(ctx: Context<Settle>, params: &SettleParams) -> Result<i64> {
             ctx.accounts.user_account_token_b.to_account_info(),
             ctx.accounts.transfer_authority.clone(),
             ctx.accounts.token_program.to_account_info(),
-            res.net_amount_settled,
+            net_amount_settled_after_fees,
         )?;
+        token_pair.stats_b.fees_collected =
+            token_pair.stats_b.fees_collected.saturating_add(settle_fee);
     }
 
     // update pool states

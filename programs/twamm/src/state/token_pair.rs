@@ -83,9 +83,13 @@ pub struct TokenPair {
     pub allow_cranks: bool,
     pub allow_settlements: bool,
 
-    // withdrawal fee, taken from target side only
+    // withdrawal fee, taken from the target side only
     pub fee_numerator: u64,
     pub fee_denominator: u64,
+
+    // settlement fee, taken from the target side only
+    pub settle_fee_numerator: u64,
+    pub settle_fee_denominator: u64,
 
     // maximum trade price difference versus oracle price
     pub max_swap_price_diff: f64,
@@ -138,6 +142,7 @@ impl TokenPair {
 
     pub fn validate(&self) -> bool {
         self.fee_numerator < self.fee_denominator
+            && self.settle_fee_numerator < self.settle_fee_denominator
             && self.max_swap_price_diff >= 0.0
             && self.max_swap_price_diff <= 1.0
             && self.max_unsettled_amount >= 0.0

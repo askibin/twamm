@@ -1,5 +1,6 @@
 pub mod cancel_order;
 pub mod crank;
+pub mod delete_test_pair;
 pub mod delete_test_pool;
 pub mod get_outstanding_amount;
 pub mod init;
@@ -20,6 +21,7 @@ pub mod withdraw_fees;
 
 pub use cancel_order::*;
 pub use crank::*;
+pub use delete_test_pair::*;
 pub use delete_test_pool::*;
 pub use get_outstanding_amount::*;
 pub use init::*;

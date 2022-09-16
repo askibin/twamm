@@ -30,6 +30,8 @@ pub struct SetFees<'info> {
 pub struct SetFeesParams {
     pub fee_numerator: u64,
     pub fee_denominator: u64,
+    pub settle_fee_numerator: u64,
+    pub settle_fee_denominator: u64,
     pub crank_reward_token_a: u64,
     pub crank_reward_token_b: u64,
 }
@@ -58,6 +60,8 @@ pub fn set_fees<'info>(
     let token_pair = ctx.accounts.token_pair.as_mut();
     token_pair.fee_numerator = params.fee_numerator;
     token_pair.fee_denominator = params.fee_denominator;
+    token_pair.settle_fee_numerator = params.settle_fee_numerator;
+    token_pair.settle_fee_denominator = params.settle_fee_denominator;
     token_pair.config_a.crank_reward = params.crank_reward_token_a;
     token_pair.config_b.crank_reward = params.crank_reward_token_b;
 

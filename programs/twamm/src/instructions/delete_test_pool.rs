@@ -10,42 +10,27 @@ use {
         },
     },
     anchor_lang::prelude::*,
-    anchor_spl::token::{Token, TokenAccount},
+    anchor_spl::token::TokenAccount,
 };
 
 #[derive(Accounts)]
 pub struct DeleteTestPool<'info> {
     #[account(mut)]
     pub admin: Signer<'info>,
+
     #[account(mut, seeds = [b"multisig"], bump = multisig.load()?.bump)]
     pub multisig: AccountLoader<'info, Multisig>,
 
-    #[account(
-        mut, constraint = user_account_token_a.mint == custody_token_a.mint,
-    )]
-    pub user_account_token_a: Box<Account<'info, TokenAccount>>,
-
-    #[account(
-        mut, constraint = user_account_token_b.mint == custody_token_b.mint,
-    )]
-    pub user_account_token_b: Box<Account<'info, TokenAccount>>,
-
-    #[account(mut, seeds = [b"token_pair",
-                            token_pair.config_a.mint.as_ref(),
-                            token_pair.config_b.mint.as_ref()],
+    #[account(seeds = [b"token_pair",
+                       token_pair.config_a.mint.as_ref(),
+                       token_pair.config_b.mint.as_ref()],
               bump = token_pair.token_pair_bump)]
     pub token_pair: Box<Account<'info, TokenPair>>,
 
-    /// CHECK: empty PDA, authority for token accounts
-    #[account(
-        mut, seeds = [b"transfer_authority"], bump = token_pair.transfer_authority_bump
-    )]
-    pub transfer_authority: AccountInfo<'info>,
-
-    #[account(mut, constraint = custody_token_a.key() == token_pair.config_a.custody)]
+    #[account(constraint = custody_token_a.key() == token_pair.config_a.custody)]
     pub custody_token_a: Box<Account<'info, TokenAccount>>,
 
-    #[account(mut, constraint = custody_token_b.key() == token_pair.config_b.custody)]
+    #[account(constraint = custody_token_b.key() == token_pair.config_b.custody)]
     pub custody_token_b: Box<Account<'info, TokenAccount>>,
 
     #[account(mut, seeds = [b"pool",
@@ -55,8 +40,6 @@ pub struct DeleteTestPool<'info> {
                             pool.counter.to_le_bytes().as_slice()],
               bump = pool.bump, close = admin)]
     pub pool: Box<Account<'info, Pool>>,
-
-    token_program: Program<'info, Token>,
 }
 
 #[derive(AnchorSerialize, AnchorDeserialize)]
@@ -85,24 +68,6 @@ pub fn delete_test_pool<'info>(
         );
         return Ok(signatures_left);
     }
-
-    let token_pair = ctx.accounts.token_pair.as_mut();
-
-    token_pair.transfer_tokens(
-        ctx.accounts.custody_token_a.to_account_info(),
-        ctx.accounts.user_account_token_a.to_account_info(),
-        ctx.accounts.transfer_authority.clone(),
-        ctx.accounts.token_program.to_account_info(),
-        ctx.accounts.custody_token_a.amount,
-    )?;
-
-    token_pair.transfer_tokens(
-        ctx.accounts.custody_token_b.to_account_info(),
-        ctx.accounts.user_account_token_b.to_account_info(),
-        ctx.accounts.transfer_authority.clone(),
-        ctx.accounts.token_program.to_account_info(),
-        ctx.accounts.custody_token_b.amount,
-    )?;
 
     Ok(0)
 }

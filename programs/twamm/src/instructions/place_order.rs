@@ -10,7 +10,7 @@ use {
             token_pair::TokenPair,
         },
     },
-    anchor_lang::prelude::*,
+    anchor_lang::{prelude::*, Discriminator},
     anchor_spl::token::{Token, TokenAccount, Transfer},
 };
 
@@ -64,6 +64,7 @@ pub struct PlaceOrder<'info> {
     pub current_pool: Box<Account<'info, Pool>>,
 
     /// CHECK: Pool to deposit tokens to, seeds should match either current_pool or with counter + 1
+    #[account(mut)]
     pub target_pool: AccountInfo<'info>,
 
     system_program: Program<'info, System>,
@@ -112,29 +113,31 @@ pub fn place_order(ctx: Context<PlaceOrder>, params: &PlaceOrderParams) -> Resul
     };
 
     // validate pool addresses and initialize a new pool if needed
+    if !token_pair.current_pool_present[tif_index] {
+        msg!("Initialize current pool");
+        let current_pool = ctx.accounts.current_pool.as_mut();
+        current_pool.status = PoolStatus::Active;
+        current_pool.time_in_force = params.time_in_force;
+        current_pool.expiration_time =
+            math::checked_add(current_time, params.time_in_force as i64)?;
+        current_pool.token_pair = token_pair.key();
+        current_pool.counter = token_pair.pool_counters[tif_index];
+        current_pool.bump = *ctx
+            .bumps
+            .get("current_pool")
+            .ok_or(ProgramError::InvalidSeeds)?;
+        token_pair.current_pool_present[tif_index] = true;
+    }
+    assert!(ctx.accounts.current_pool.expiration_time != 0);
+
     let mut pool_acc;
     let pool;
-    if target_pool.key() == ctx.accounts.current_pool.key() {
+    let current_pool_key = ctx.accounts.current_pool.key();
+    if target_pool.key() == current_pool_key {
         pool = ctx.accounts.current_pool.as_mut();
-        if pool.expiration_time == 0 {
-            msg!("Initialize current pool");
-            pool.status = PoolStatus::Active;
-            pool.time_in_force = params.time_in_force;
-            pool.expiration_time = math::checked_add(current_time, params.time_in_force as i64)?;
-            pool.token_pair = token_pair.key();
-            pool.counter = token_pair.pool_counters[tif_index];
-            pool.bump = *ctx
-                .bumps
-                .get("current_pool")
-                .ok_or(ProgramError::InvalidSeeds)?;
-        }
-        token_pair.current_pool_present[tif_index] = true;
     } else {
         msg!("Validate future pool");
-        if !token_pair.current_pool_present[tif_index] {
-            msg!("Error: Order can't be placed to the future pool if current pool isn't present");
-            return err!(TwammError::InvalidPoolAddress);
-        }
+        assert!(token_pair.current_pool_present[tif_index]);
         let future_counter = math::checked_add(token_pair.pool_counters[tif_index], 1)?;
         let (future_pool_address, future_pool_bump) = Pubkey::find_program_address(
             &[
@@ -168,17 +171,19 @@ pub fn place_order(ctx: Context<PlaceOrder>, params: &PlaceOrderParams) -> Resul
                 target_pool.to_account_info(),
                 ctx.accounts.system_program.to_account_info(),
                 &crate::ID,
-                &[
-                    &[
-                        ctx.accounts.custody_token_a.key().as_ref(),
-                        ctx.accounts.custody_token_b.key().as_ref(),
-                        token_pair.tifs[tif_index].to_le_bytes().as_slice(),
-                        future_counter.to_le_bytes().as_slice(),
-                    ],
-                    &[&[future_pool_bump]],
-                ],
+                &[&[
+                    b"pool",
+                    ctx.accounts.custody_token_a.key().as_ref(),
+                    ctx.accounts.custody_token_b.key().as_ref(),
+                    token_pair.tifs[tif_index].to_le_bytes().as_slice(),
+                    future_counter.to_le_bytes().as_slice(),
+                    &[future_pool_bump],
+                ]],
                 Pool::LEN,
             )?;
+            let target_pool_account_info = target_pool.to_account_info();
+            let mut pool_data = target_pool_account_info.try_borrow_mut_data()?;
+            pool_data[..8].copy_from_slice(Pool::discriminator().as_slice());
         }
 
         pool_acc = Account::<Pool>::try_from(target_pool)?;
@@ -251,6 +256,9 @@ pub fn place_order(ctx: Context<PlaceOrder>, params: &PlaceOrderParams) -> Resul
     pool_side.token_debt_total = math::checked_add(pool_side.token_debt_total, debt_amount)?;
     if order.lp_balance == 0 {
         pool_side.num_traders = math::checked_add(pool_side.num_traders, 1)?;
+    }
+    if target_pool.key() != current_pool_key {
+        pool.exit(&crate::ID)?;
     }
 
     // update user order

@@ -94,6 +94,47 @@ describe("single_user_single_tif", () => {
     await twamm.setTime(135);
     await twamm.settle(reverseSide, settleAmountFull);
 
+    const [ta_balance1, tb_balance1] = await twamm.getBalances(1);
+    await twamm.placeOrder(1, side, tif, amount, true);
+
+    await twamm.cancelOrder(0, tif, amount);
+    let tokenPair = await twamm.program.account.tokenPair.fetch(
+      twamm.tokenPairKey
+    );
+    let fees_collected = Number(tokenPair.statsA.feesCollected);
+    let source_amount_received = twamm.getTokenAAmount(amount / 2);
+    expect(fees_collected).to.equal(Math.floor(source_amount_received / 10));
+    expect(Number(tokenPair.statsB.feesCollected)).to.equal(0);
+
+    await twamm.cancelOrder(1, tif, amount, true);
+    const [ta_balance2, tb_balance2] = await twamm.getBalances(1);
+    expect(ta_balance2).to.equal(ta_balance1);
+    expect(tb_balance2).to.equal(tb_balance1);
+
+    const [ta_balance3, tb_balance3] = await twamm.getBalances(0);
+    expect(ta_balance3).to.equal(
+      ta_balance +
+        source_amount_received -
+        Number(tokenPair.statsA.feesCollected)
+    );
+    expect(tb_balance3).to.equal(tb_balance - amount / 2);
+
+    const [ta_balance4, tb_balance4] = await twamm.getBalances(3);
+    await twamm.withdrawFees(fees_collected, 0);
+    const [ta_balance5, tb_balance5] = await twamm.getBalances(3);
+    expect(ta_balance5).to.equal(ta_balance4 + fees_collected);
+    expect(tb_balance5).to.equal(tb_balance4);
+  });
+
+  it("scenario3", async () => {
+    await twamm.deleteTestPool(0, tif);
+    await twamm.reset(tifs, [1, 10]);
+
+    const [ta_balance, tb_balance] = await twamm.getBalances(0);
+    await twamm.placeOrder(0, side, tif, amount);
+    await twamm.setTime(135);
+    await twamm.settle(reverseSide, settleAmountFull);
+
     await twamm.cancelOrder(0, tif, amount);
     let tokenPair = await twamm.program.account.tokenPair.fetch(
       twamm.tokenPairKey

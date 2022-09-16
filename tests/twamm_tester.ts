@@ -124,6 +124,10 @@ export class TwammTester {
     this.tokenBDecimals = 6;
     this.tokenAPrice = 0;
     this.tokenBPrice = 0;
+
+    anchor.BN.prototype.toJSON = function () {
+      return this.toString(10);
+    };
   }
 
   init = async () => {
@@ -391,6 +395,7 @@ export class TwammTester {
   };
 
   reset = async (tifs: number[], fees: number[]) => {
+    await this.deleteTestPair(0);
     await this.program.methods
       .initTokenPair({
         allowDeposits: true,
@@ -399,6 +404,8 @@ export class TwammTester {
         allowSettlements: true,
         feeNumerator: new anchor.BN(fees[0]),
         feeDenominator: new anchor.BN(fees[1]),
+        settleFeeNumerator: new anchor.BN(0),
+        settleFeeDenominator: new anchor.BN(1),
         crankRewardTokenA: new anchor.BN(0),
         crankRewardTokenB: new anchor.BN(0),
         minSwapAmountTokenA: new anchor.BN(0),
@@ -442,13 +449,27 @@ export class TwammTester {
       .accounts({
         admin: this.admin1.publicKey,
         multisig: this.multisigKey,
+        tokenPair: this.tokenPairKey,
+        custodyTokenA: this.tokenACustodyKey,
+        custodyTokenB: this.tokenBCustodyKey,
+        pool: await this.getPoolKey(tif, nextPool ? 1 : 0),
+      })
+      .signers([this.admin1])
+      .rpc();
+  };
+
+  deleteTestPair = async (userId: number) => {
+    await this.program.methods
+      .deleteTestPair({})
+      .accounts({
+        admin: this.admin1.publicKey,
+        multisig: this.multisigKey,
         userAccountTokenA: this.tokenAWallets[userId],
         userAccountTokenB: this.tokenBWallets[userId],
         tokenPair: this.tokenPairKey,
         transferAuthority: this.authorityKey,
         custodyTokenA: this.tokenACustodyKey,
         custodyTokenB: this.tokenBCustodyKey,
-        pool: await this.getPoolKey(tif, nextPool ? 1 : 0),
         tokenProgram: spl.TOKEN_PROGRAM_ID,
       })
       .signers([this.admin1])

@@ -73,6 +73,8 @@ pub struct InitTokenPairParams {
     pub allow_settlements: bool,
     pub fee_numerator: u64,
     pub fee_denominator: u64,
+    pub settle_fee_numerator: u64,
+    pub settle_fee_denominator: u64,
     pub crank_reward_token_a: u64,
     pub crank_reward_token_b: u64,
     pub min_swap_amount_token_a: u64,
@@ -114,7 +116,7 @@ pub fn init_token_pair<'info>(
 
     // record token pair data
     let token_pair = ctx.accounts.token_pair.as_mut();
-    if !cfg!(feature = "test") && token_pair.config_a.mint != Pubkey::default() {
+    if token_pair.config_a.mint != Pubkey::default() {
         // return error if token pair is already initialized
         return Err(ProgramError::AccountAlreadyInitialized.into());
     }
@@ -126,6 +128,8 @@ pub fn init_token_pair<'info>(
 
     token_pair.fee_numerator = params.fee_numerator;
     token_pair.fee_denominator = params.fee_denominator;
+    token_pair.settle_fee_numerator = params.settle_fee_numerator;
+    token_pair.settle_fee_denominator = params.settle_fee_denominator;
     token_pair.config_a.crank_reward = params.crank_reward_token_a;
     token_pair.config_b.crank_reward = params.crank_reward_token_b;
 

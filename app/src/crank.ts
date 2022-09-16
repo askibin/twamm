@@ -46,24 +46,34 @@ async function do_crank(client: CrankClient) {
   let cluster_url = process.argv[2];
   let tokenA = new PublicKey(process.argv[3]);
   let tokenB = new PublicKey(process.argv[4]);
-  let errorDelay = 15000;
+  let errorDelay = 10000;
   let crankDelay = 5000;
 
   // init client
   let client = new CrankClient();
-  await client.init(cluster_url, tokenA, tokenB);
+  while (true) {
+    try {
+      await client.init(cluster_url, tokenA, tokenB);
+      await client.reloadConfig();
+      break;
+    } catch (err) {
+      console.error(err);
+      console.log(`Retrying in ${errorDelay} sec...`);
+      await sleep(errorDelay);
+    }
+  }
   client.log("Initialized");
 
   // main loop
   while (true) {
-    client.reloadConfig();
+    await client.reloadConfig().catch((err) => console.error(err));
     if (
       !client.tokenPairConfig.allowCranks ||
       (client.tokenPairConfig.crankAuthority != PublicKey.default.toString() &&
         client.tokenPairConfig.crankAuthority !=
           client.provider.wallet.publicKey.toString())
     ) {
-      client.log(
+      client.error(
         `Cranks are not allowed at this time. Retrying in ${errorDelay} sec...`
       );
       await sleep(errorDelay);
@@ -74,12 +84,12 @@ async function do_crank(client: CrankClient) {
     if (res || message === "Nothing to settle at this time") {
       client.log(`Cranked: ${message}`);
     } else {
-      client.log(`Crank error: ${message}. Trying internal matching...`);
+      client.error(`Crank error: ${message}. Trying internal matching...`);
       let [res2, message2] = await client.crank(null, null, null);
       if (res2 || message2 === "Nothing to settle at this time") {
         client.log(`Cranked internally: ${message2}`);
       } else {
-        client.log(
+        client.error(
           `Internal match error: ${message2}. Retrying in ${errorDelay} sec...`
         );
         await sleep(errorDelay);

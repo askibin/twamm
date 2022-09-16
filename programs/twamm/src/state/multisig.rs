@@ -35,6 +35,7 @@ pub enum AdminInstruction {
     SetTestOraclePrice,
     SetTestTime,
     DeleteTestPool,
+    DeleteTestPair,
 }
 
 impl Multisig {

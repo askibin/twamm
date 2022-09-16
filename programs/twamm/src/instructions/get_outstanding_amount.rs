@@ -70,7 +70,19 @@ pub fn get_outstanding_amount(
     };
     match res.settlement_side {
         MatchingSide::Internal => Ok(0),
-        MatchingSide::Buy => Ok(net_amount_required),
-        MatchingSide::Sell => Ok(-net_amount_required),
+        MatchingSide::Buy => {
+            if res.net_amount_required < token_pair.config_b.min_swap_amount {
+                Ok(0)
+            } else {
+                Ok(net_amount_required)
+            }
+        }
+        MatchingSide::Sell => {
+            if res.net_amount_required < token_pair.config_a.min_swap_amount {
+                Ok(0)
+            } else {
+                Ok(-net_amount_required)
+            }
+        }
     }
 }
