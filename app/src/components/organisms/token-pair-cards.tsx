@@ -13,14 +13,13 @@ const PAIRS = [
 ];
 
 export default ({ data }: Props) => {
-  console.log(data);
-
   if (!data) {
     return (
       <Styled.BlankCardList>
         {new Array(3).fill(null).map((_, i) => (
-          <li key={i}>
-            <Blank key={i} />
+          // eslint-disable-next-line react/no-array-index-key
+          <li key={`blank-${i}`}>
+            <Blank />
           </li>
         ))}
       </Styled.BlankCardList>
@@ -31,7 +30,7 @@ export default ({ data }: Props) => {
     <Styled.CardList>
       {PAIRS.map((pair) => (
         <Styled.CardListItem key={pair.join("-")}>
-          <PairCard name={`${pair[0]}-${pair[1]}`} />
+          <PairCard name={`${pair[0]}-${pair[1]}`} perf={0} aum={0} />
         </Styled.CardListItem>
       ))}
     </Styled.CardList>

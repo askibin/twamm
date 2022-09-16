@@ -7,14 +7,14 @@ import { useTokenPairs } from "../../hooks/use-token-pairs";
 export default () => {
   const data = useTokenPairs();
 
-  console.log("pairs", data.data);
+  console.log("pairs", data.data); // eslint-disable-line
 
   return (
     <Box>
       <Typography pb={2} color="white" variant="h4">
         Performing Pairs
       </Typography>
-      <TokenPairCards data={data.data}></TokenPairCards>
+      <TokenPairCards data={data.data} />
     </Box>
   );
 };
