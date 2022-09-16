@@ -1,4 +1,4 @@
-import * as account from "./account.ts";
+import * as account from "./account";
+import * as program from "./program";
 
-export { account }
-
+export { account, program };

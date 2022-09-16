@@ -1,7 +1,7 @@
 import type { Provider, Program } from "@project-serum/anchor";
 import swr from "swr";
 // eslint-disable-next-line import/no-extraneous-dependencies
-import { account } from "@twamm/client.js";
+import { account, program } from "@twamm/client.js";
 
 import { useProgram } from "./use-program";
 
@@ -9,11 +9,13 @@ const fetcher = (
   getProvider: Promise<Provider>,
   getProgram: Promise<Program>
 ) => {
-  const data = account.getEncodedDiscriminator("TokenPair");
+  const data = account.getEncodedDiscriminator("Order");
 
   return async () => {
     const provider = await getProvider;
     const program = await getProgram;
+
+    console.log("ws");
 
     const pairs = await provider.connection.getProgramAccounts(
       program.programId,
@@ -29,8 +31,8 @@ const fetcher = (
   };
 };
 
-export const useTokenPairs = () => {
+export const useOrders = () => {
   const { program, provider } = useProgram();
 
-  return swr("TokenPair", fetcher(provider, program), {});
+  return swr("Orders", fetcher(provider, program), {});
 };

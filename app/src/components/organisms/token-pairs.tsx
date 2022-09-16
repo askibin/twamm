@@ -2,12 +2,12 @@ import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 
 import TokenPairCards from "./token-pair-cards";
-import { useTokenPairs } from "../../hooks/use-token-pairs";
+import { useTokenPair } from "../../hooks/use-token-pair";
 
 export default () => {
-  const data = useTokenPairs();
+  const data = useTokenPair();
 
-  console.log("pairs", data.data); // eslint-disable-line
+  console.log(123, data.data)
 
   return (
     <Box>
