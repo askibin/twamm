@@ -442,6 +442,50 @@
           "isSigner": false
         },
         {
+          "name": "tokenPair",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "custodyTokenA",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "custodyTokenB",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "pool",
+          "isMut": true,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "params",
+          "type": {
+            "defined": "DeleteTestPoolParams"
+          }
+        }
+      ],
+      "returns": "u8"
+    },
+    {
+      "name": "deleteTestPair",
+      "accounts": [
+        {
+          "name": "admin",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "multisig",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
           "name": "userAccountTokenA",
           "isMut": true,
           "isSigner": false
@@ -458,7 +502,7 @@
         },
         {
           "name": "transferAuthority",
-          "isMut": true,
+          "isMut": false,
           "isSigner": false
         },
         {
@@ -472,11 +516,6 @@
           "isSigner": false
         },
         {
-          "name": "pool",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
           "name": "tokenProgram",
           "isMut": false,
           "isSigner": false
@@ -486,7 +525,7 @@
         {
           "name": "params",
           "type": {
-            "defined": "DeleteTestPoolParams"
+            "defined": "DeleteTestPairParams"
           }
         }
       ],
@@ -758,7 +797,7 @@
         },
         {
           "name": "targetPool",
-          "isMut": false,
+          "isMut": true,
           "isSigner": false
         },
         {
@@ -902,13 +941,19 @@
           {
             "name": "signers",
             "type": {
-              "array": ["publicKey", 6]
+              "array": [
+                "publicKey",
+                6
+              ]
             }
           },
           {
             "name": "signed",
             "type": {
-              "array": ["bool", 6]
+              "array": [
+                "bool",
+                6
+              ]
             }
           },
           {
@@ -1044,6 +1089,14 @@
             "type": "u64"
           },
           {
+            "name": "settleFeeNumerator",
+            "type": "u64"
+          },
+          {
+            "name": "settleFeeDenominator",
+            "type": "u64"
+          },
+          {
             "name": "maxSwapPriceDiff",
             "type": "f64"
           },
@@ -1086,25 +1139,37 @@
           {
             "name": "tifs",
             "type": {
-              "array": ["u32", 10]
+              "array": [
+                "u32",
+                10
+              ]
             }
           },
           {
             "name": "poolCounters",
             "type": {
-              "array": ["u64", 10]
+              "array": [
+                "u64",
+                10
+              ]
             }
           },
           {
             "name": "currentPoolPresent",
             "type": {
-              "array": ["bool", 10]
+              "array": [
+                "bool",
+                10
+              ]
             }
           },
           {
             "name": "futurePoolPresent",
             "type": {
-              "array": ["bool", 10]
+              "array": [
+                "bool",
+                10
+              ]
             }
           },
           {
@@ -1149,6 +1214,13 @@
       }
     },
     {
+      "name": "DeleteTestPairParams",
+      "type": {
+        "kind": "struct",
+        "fields": []
+      }
+    },
+    {
       "name": "DeleteTestPoolParams",
       "type": {
         "kind": "struct",
@@ -1189,6 +1261,14 @@
           },
           {
             "name": "feeDenominator",
+            "type": "u64"
+          },
+          {
+            "name": "settleFeeNumerator",
+            "type": "u64"
+          },
+          {
+            "name": "settleFeeDenominator",
             "type": "u64"
           },
           {
@@ -1262,7 +1342,10 @@
           {
             "name": "timeInForceIntervals",
             "type": {
-              "array": ["u32", 10]
+              "array": [
+                "u32",
+                10
+              ]
             }
           }
         ]
@@ -1337,6 +1420,14 @@
           },
           {
             "name": "feeDenominator",
+            "type": "u64"
+          },
+          {
+            "name": "settleFeeNumerator",
+            "type": "u64"
+          },
+          {
+            "name": "settleFeeDenominator",
             "type": "u64"
           },
           {
@@ -1767,6 +1858,9 @@
           },
           {
             "name": "DeleteTestPool"
+          },
+          {
+            "name": "DeleteTestPair"
           }
         ]
       }
@@ -1987,6 +2081,6 @@
     }
   ],
   "metadata": {
-    "address": "Get8bhzwzf9kjqgTJTy7tDjqntr7cc8siTFoXqtHCbQo"
+    "address": "FL41FNCf2gqNrpNmEkeXAZwqgY7oTVNscUWJK495c2oL"
   }
 }

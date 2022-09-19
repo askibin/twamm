@@ -20,7 +20,7 @@ const fetcher = (
     const pairs = await provider.connection.getProgramAccounts(
       program.programId,
       {
-        filters: [{ dataSize: 576 }, { memcmp: { bytes: data, offset: 0 } }],
+        filters: [{ dataSize: 592 }, { memcmp: { bytes: data, offset: 0 } }],
       }
     );
 

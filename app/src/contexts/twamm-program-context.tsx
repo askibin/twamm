@@ -11,7 +11,9 @@ export { idl };
 const opts: { preflightCommitment: Commitment } = {
   preflightCommitment: "processed",
 };
-const programId = new PublicKey(idl.metadata.address);
+
+console.log(123, idl)
+const programId = new PublicKey(idl?.metadata?.address);
 
 export const getProvider = async (wallet: Wallet) => {
   const network = "http://127.0.0.1:8899";
