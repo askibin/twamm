@@ -1,7 +1,6 @@
 {
   "name": "@twamm/client.js",
   "version": "0.0.1",
-  "private": true,
   "description": "> TODO: description",
   "homepage": "https://github.com/askibin/twamm#readme",
   "main": "lib/client.ts",
