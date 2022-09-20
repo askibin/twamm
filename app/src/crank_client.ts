@@ -587,7 +587,11 @@ export class CrankClient {
         tokenProgram: TOKEN_PROGRAM_ID,
       })
       .preInstructions(preInstructions)
-      .rpc();
+      .rpc()
+      .catch((err) => {
+        console.error(err);
+        throw err;
+      });
   };
 
   cancelOrder = async (poolAddress: PublicKey, lpAmount: number) => {
@@ -634,7 +638,11 @@ export class CrankClient {
         tokenProgram: TOKEN_PROGRAM_ID,
       })
       .postInstructions(postInstructions)
-      .rpc();
+      .rpc()
+      .catch((err) => {
+        console.error(err);
+        throw err;
+      });
   };
 
   cancelAll = async () => {

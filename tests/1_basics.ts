@@ -573,10 +573,12 @@ describe("basics", () => {
 
   it("settle", async () => {
     twamm.initPoolMetas([20, 3, 10]);
+    twamm.printErrors = false;
     try {
       await twamm.settle("sell", 1000);
     } catch (err) {
       expect(err.error.errorCode.code).to.equal("NothingToSettle");
     }
+    twamm.printErrors = true;
   });
 });

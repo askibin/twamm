@@ -2,7 +2,7 @@ import * as anchor from "@project-serum/anchor";
 import { TwammTester, OrderSide } from "./twamm_tester";
 import { expect, assert } from "chai";
 
-describe("single_user_single_tif", () => {
+describe("single_user", () => {
   let twamm = new TwammTester();
   let tifs = [0, 300, 0, 900, 0, 0, 0, 0, 0, 0];
   let tif = 300;
@@ -53,7 +53,7 @@ describe("single_user_single_tif", () => {
     // cancel
     await twamm.cancelOrder(0, tif, amount);
     try {
-      await twamm.getOrder.bind(twamm, 0, tif);
+      await twamm.getOrder(0, tif);
       assert(false);
     } catch (err) {}
 
@@ -157,5 +157,76 @@ describe("single_user_single_tif", () => {
     const [ta_balance5, tb_balance5] = await twamm.getBalances(3);
     expect(ta_balance5).to.equal(ta_balance4 + fees_collected);
     expect(tb_balance5).to.equal(tb_balance4);
+  });
+
+  it("scenario4", async () => {
+    let side: OrderSide = "sell";
+    let reverseSide: OrderSide = "buy";
+    let amount = 1333333;
+    let settleAmountSmall = 600;
+    await twamm.reset(tifs, [1, 10]);
+    await twamm.setOraclePrice(tokenAPrice, tokenBPrice);
+
+    // place and check order
+    const [ta_balance, tb_balance] = await twamm.getBalances(0);
+    await twamm.placeOrder(0, side, tif, amount);
+
+    const [ta_balance2, tb_balance2] = await twamm.getBalances(0);
+    expect(ta_balance2).to.equal(ta_balance - amount);
+    expect(tb_balance2).to.equal(tb_balance);
+
+    let order = await twamm.getOrder(0, tif);
+
+    let orderExpected = {
+      owner: twamm.users[0].publicKey,
+      time: new anchor.BN(0),
+      side: { sell: {} },
+      pool: await twamm.getPoolKey(tif, 0),
+      lpBalance: new anchor.BN(amount),
+      tokenDebt: new anchor.BN(0),
+      unsettledBalance: new anchor.BN(amount),
+      settlementDebt: new anchor.BN(0),
+      lastBalanceChangeTime: new anchor.BN(0),
+      bump: order.bump,
+    };
+    expect(JSON.stringify(order)).to.equal(JSON.stringify(orderExpected));
+
+    // settle
+    await twamm.setTime(135);
+    await twamm.settle(reverseSide, settleAmountSmall);
+
+    // cancel
+    await twamm.cancelOrder(0, tif, amount);
+    try {
+      await twamm.getOrder(0, tif);
+      assert(false);
+    } catch (err) {}
+
+    // check fees
+    let tokenPair = await twamm.program.account.tokenPair.fetch(
+      twamm.tokenPairKey
+    );
+    let fees_collected = Number(tokenPair.statsB.feesCollected);
+    expect(fees_collected).to.equal(settleAmountSmall / 10);
+    expect(Number(tokenPair.statsA.feesCollected)).to.equal(0);
+
+    // check received amount
+    const [ta_balance3, tb_balance3] = await twamm.getBalances(0);
+    expect(tb_balance3).to.equal(
+      tb_balance + settleAmountSmall - Number(tokenPair.statsB.feesCollected)
+    );
+    expect(ta_balance3).to.equal(
+      ta_balance - twamm.getTokenAAmount(settleAmountSmall)
+    );
+
+    // withdraw fees
+    const [ta_balance4, tb_balance4] = await twamm.getBalances(3);
+    await twamm.withdrawFees(0, fees_collected);
+    const [ta_balance5, tb_balance5] = await twamm.getBalances(3);
+    expect(tb_balance5).to.equal(tb_balance4 + fees_collected);
+    expect(ta_balance5).to.equal(ta_balance4);
+    tokenPair = await twamm.program.account.tokenPair.fetch(twamm.tokenPairKey);
+    expect(Number(tokenPair.statsA.feesCollected)).to.equal(0);
+    expect(Number(tokenPair.statsB.feesCollected)).to.equal(0);
   });
 });

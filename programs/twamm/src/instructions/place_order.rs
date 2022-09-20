@@ -91,7 +91,7 @@ pub fn place_order(ctx: Context<PlaceOrder>, params: &PlaceOrderParams) -> Resul
     let target_pool = &ctx.accounts.target_pool;
     let order = ctx.accounts.order.as_mut();
     let current_time = token_pair.get_time()?;
-    if order.time == 0 {
+    if order.lp_balance == 0 {
         msg!("Initialize order");
         order.owner = ctx.accounts.owner.key();
         order.time = current_time;

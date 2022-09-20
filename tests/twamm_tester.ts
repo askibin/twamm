@@ -10,6 +10,7 @@ export class TwammTester {
   provider: anchor.AnchorProvider;
   program: anchor.Program<Twamm>;
   users: anchor.web3.Keypair[];
+  printErrors: boolean;
 
   admin1: anchor.web3.Keypair;
   admin2: anchor.web3.Keypair;
@@ -53,6 +54,7 @@ export class TwammTester {
     this.provider = anchor.AnchorProvider.env();
     anchor.setProvider(this.provider);
     this.program = anchor.workspace.Twamm as Program<Twamm>;
+    this.printErrors = true;
 
     // fixed addresses
     let seed = Uint8Array.from([
@@ -262,7 +264,7 @@ export class TwammTester {
           this.tokenAMint,
           this.tokenAWallets[i],
           this.admin1.publicKey,
-          100 * 10 ** this.tokenADecimals,
+          1000 * 10 ** this.tokenADecimals,
           this.tokenADecimals
         );
 
@@ -272,7 +274,7 @@ export class TwammTester {
           this.tokenBMint,
           this.tokenBWallets[i],
           this.admin1.publicKey,
-          100 * 10 ** this.tokenBDecimals,
+          1000 * 10 ** this.tokenBDecimals,
           this.tokenBDecimals
         );
       }
@@ -438,7 +440,13 @@ export class TwammTester {
         tokenProgram: spl.TOKEN_PROGRAM_ID,
       })
       .signers([this.admin1])
-      .rpc();
+      .rpc()
+      .catch((err) => {
+        if (this.printErrors) {
+          console.error(err);
+        }
+        throw err;
+      });
 
     await this.initPoolMetas(tifs);
   };
@@ -455,7 +463,13 @@ export class TwammTester {
         pool: await this.getPoolKey(tif, nextPool ? 1 : 0),
       })
       .signers([this.admin1])
-      .rpc();
+      .rpc()
+      .catch((err) => {
+        if (this.printErrors) {
+          console.error(err);
+        }
+        throw err;
+      });
   };
 
   deleteTestPair = async (userId: number) => {
@@ -473,7 +487,13 @@ export class TwammTester {
         tokenProgram: spl.TOKEN_PROGRAM_ID,
       })
       .signers([this.admin1])
-      .rpc();
+      .rpc()
+      .catch((err) => {
+        if (this.printErrors) {
+          console.error(err);
+        }
+        throw err;
+      });
   };
 
   withdrawFees = async (amountTokenA: number, amountTokenB: number) => {
@@ -494,7 +514,13 @@ export class TwammTester {
         tokenProgram: spl.TOKEN_PROGRAM_ID,
       })
       .signers([this.admin2])
-      .rpc();
+      .rpc()
+      .catch((err) => {
+        if (this.printErrors) {
+          console.error(err);
+        }
+        throw err;
+      });
   };
 
   setOraclePrice = async (tokenAPrice: number, tokenBPrice: number) => {
@@ -518,7 +544,13 @@ export class TwammTester {
         systemProgram: SystemProgram.programId,
       })
       .signers([this.admin1])
-      .rpc();
+      .rpc()
+      .catch((err) => {
+        if (this.printErrors) {
+          console.error(err);
+        }
+        throw err;
+      });
     this.tokenAPrice = tokenAPrice;
     this.tokenBPrice = tokenBPrice;
   };
@@ -534,7 +566,13 @@ export class TwammTester {
         tokenPair: this.tokenPairKey,
       })
       .signers([this.admin1])
-      .rpc();
+      .rpc()
+      .catch((err) => {
+        if (this.printErrors) {
+          console.error(err);
+        }
+        throw err;
+      });
   };
 
   placeOrder = async (
@@ -564,7 +602,13 @@ export class TwammTester {
         tokenProgram: spl.TOKEN_PROGRAM_ID,
       })
       .signers([this.users[userId]])
-      .rpc();
+      .rpc()
+      .catch((err) => {
+        if (this.printErrors) {
+          console.error(err);
+        }
+        throw err;
+      });
   };
 
   cancelOrder = async (
@@ -590,7 +634,13 @@ export class TwammTester {
         tokenProgram: spl.TOKEN_PROGRAM_ID,
       })
       .signers([this.users[userId]])
-      .rpc();
+      .rpc()
+      .catch((err) => {
+        if (this.printErrors) {
+          console.error(err);
+        }
+        throw err;
+      });
   };
 
   initPoolMetas = async (tifs: number[]) => {
@@ -639,7 +689,13 @@ export class TwammTester {
       })
       .remainingAccounts(this.poolMetas)
       .signers([this.users[3]])
-      .rpc();
+      .rpc()
+      .catch((err) => {
+        if (this.printErrors) {
+          console.error(err);
+        }
+        throw err;
+      });
   };
 
   getTokenAAmount = (amountTokenB: number) => {

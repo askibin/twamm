@@ -139,10 +139,12 @@ pub fn cancel_order(ctx: Context<CancelOrder>, params: &CancelOrderParams) -> Re
 
     // update order and pool data
     msg!("Update order data");
-    if order.lp_balance == lp_amount {
+    let order_lp_balance = order.lp_balance;
+    if order_lp_balance == lp_amount {
         pool_side.num_traders = math::checked_sub(pool_side.num_traders, 1)?;
+        order.lp_balance = 0;
     } else {
-        order.lp_balance = math::checked_sub(order.lp_balance, lp_amount)?;
+        order.lp_balance = math::checked_sub(order_lp_balance, lp_amount)?;
         if order.token_debt < token_debt_removed {
             token_debt_removed = order.token_debt;
         }
@@ -153,12 +155,12 @@ pub fn cancel_order(ctx: Context<CancelOrder>, params: &CancelOrderParams) -> Re
     order.settlement_debt = order.get_unsettled_amount(expiration_time, current_time)?;
     order.unsettled_balance = math::checked_sub(order.unsettled_balance, withdraw_amount_source)?;
     order.last_balance_change_time = current_time;
-    let order_debt_removed = if order.lp_balance == lp_amount {
+    let order_debt_removed = if order_lp_balance == lp_amount {
         order.settlement_debt
     } else {
         math::checked_as_u64(math::checked_div(
             math::checked_mul(order.settlement_debt as u128, lp_amount as u128)?,
-            order.lp_balance as u128,
+            order_lp_balance as u128,
         )?)?
     };
     order.settlement_debt = math::checked_sub(order.settlement_debt, order_debt_removed)?;
@@ -218,7 +220,7 @@ pub fn cancel_order(ctx: Context<CancelOrder>, params: &CancelOrderParams) -> Re
     };
 
     // close order account if no longer needed
-    if order.lp_balance == lp_amount {
+    if order_lp_balance == lp_amount {
         msg!("Close order account");
         // rent exempt payment is not refundable to prevent spoofing
         order.set_inner(Order::default());
