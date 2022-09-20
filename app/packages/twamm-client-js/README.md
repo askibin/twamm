@@ -1,11 +1,11 @@
-# `client.js`
+# `@twamm/client.js`
 
 > TODO: description
 
 ## Usage
 
 ```
-const client.js = require('client.js');
+import client from "@twamm/client.js";
 
 // TODO: DEMONSTRATE API
 ```

@@ -1,7 +1,7 @@
 import type { Provider, Program } from "@project-serum/anchor";
 import swr from "swr";
 // eslint-disable-next-line import/no-extraneous-dependencies
-import { account, program } from "@twamm/client.js";
+import { account } from "@twamm/client.js";
 
 import { useProgram } from "./use-program";
 
@@ -14,8 +14,6 @@ const fetcher = (
   return async () => {
     const provider = await getProvider;
     const program = await getProgram;
-
-    console.log("ws");
 
     const pairs = await provider.connection.getProgramAccounts(
       program.programId,

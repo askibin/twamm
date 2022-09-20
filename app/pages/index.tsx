@@ -4,11 +4,13 @@ import Head from "next/head";
 import { useCallback, useMemo, useState } from "react";
 
 import Header from "../src/components/organisms/header";
-import { modes } from "../src/components/atoms/mode-toggle";
 import OfflineOverlay from "../src/components/organisms/offline-overlay";
+import Orders from "../src/components/ecosystems/orders";
+import styles from "./index.module.css";
 import Swap from "../src/components/ecosystems/swap";
 import TokenPairs from "../src/components/ecosystems/token-pairs";
-import styles from "./index.module.css";
+import WalletGuard from "../src/components/organisms/wallet-guard";
+import { modes } from "../src/components/atoms/mode-toggle";
 
 const DEFAULT_MODE = modes.get("pools") as string;
 
@@ -26,6 +28,9 @@ const Home: NextPage = () => {
     if (mode === DEFAULT_MODE)
       return <TokenPairs mode={mode} onModeChange={onModeChange} />;
 
+    if (mode === modes.get("orders"))
+      return <Orders mode={mode} onModeChange={onModeChange} />;
+
     return <Swap mode={mode} onModeChange={onModeChange} />;
   }, [mode, onModeChange]);
 
@@ -41,7 +46,7 @@ const Home: NextPage = () => {
       <OfflineOverlay />
       <Header />
       <Box className={styles.main} component="main" pt={10}>
-        {component}
+        <WalletGuard>{component}</WalletGuard>
       </Box>
     </div>
   );

@@ -17,6 +17,7 @@
     "@mui/material": "^5.10.4",
     "@mui/styled-engine": "^5.10.4",
     "@mui/styled-engine-sc": "^5.10.3",
+    "@mui/x-data-grid": "^5.17.3",
     "@project-serum/anchor": "^0.25.0",
     "@solana/wallet-adapter-base": "^0.9.16",
     "@solana/wallet-adapter-react": "^0.15.18",

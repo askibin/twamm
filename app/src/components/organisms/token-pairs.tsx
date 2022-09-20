@@ -5,16 +5,14 @@ import TokenPairCards from "./token-pair-cards";
 import { useTokenPair } from "../../hooks/use-token-pair";
 
 export default () => {
-  const data = useTokenPair();
-
-  console.log(123, data.data)
+  const { data } = useTokenPair();
 
   return (
     <Box>
       <Typography pb={2} color="white" variant="h4">
         Performing Pairs
       </Typography>
-      <TokenPairCards data={data.data} />
+      <TokenPairCards data={data} />
     </Box>
   );
 };

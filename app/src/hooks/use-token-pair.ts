@@ -15,8 +15,6 @@ const fetcher = (
     const provider = await getProvider;
     const program = await getProgram;
 
-    console.log("ws");
-
     const pairs = await provider.connection.getProgramAccounts(
       program.programId,
       {
@@ -27,7 +25,9 @@ const fetcher = (
     const fetchPair = (pair: any) =>
       program.account.tokenPair.fetch(pair.pubkey);
 
-    return Promise.all(pairs.map(fetchPair));
+    const pairsData = await Promise.all(pairs.map(fetchPair));
+
+    return pairsData;
   };
 };
 

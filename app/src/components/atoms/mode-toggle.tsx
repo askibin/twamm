@@ -11,6 +11,7 @@ export interface Props {
 export const modes = new Map([
   ["pools", "pools"],
   ["swap", "swap"],
+  ["orders", "orders"],
 ]);
 
 export default ({ mode, onChange: handleChange = () => {} }: Props) => {
@@ -23,6 +24,7 @@ export default ({ mode, onChange: handleChange = () => {} }: Props) => {
 
   const pools = modes.get("pools") as string;
   const swap = modes.get("swap") as string;
+  const orders = modes.get("orders") as string;
 
   return (
     <Styled.ModeButtonGroup
@@ -36,6 +38,9 @@ export default ({ mode, onChange: handleChange = () => {} }: Props) => {
       </Styled.ModeButton>
       <Styled.ModeButton value={swap} aria-label={swap}>
         Swap
+      </Styled.ModeButton>
+      <Styled.ModeButton value={orders} aria-label={orders}>
+        Orders
       </Styled.ModeButton>
     </Styled.ModeButtonGroup>
   );

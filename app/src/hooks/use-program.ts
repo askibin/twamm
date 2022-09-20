@@ -1,11 +1,18 @@
+import type { PublicKey } from "@solana/web3.js";
+import type { Wallet } from "@project-serum/anchor";
 import { useWallet } from "@solana/wallet-adapter-react";
+
 import { getProvider, getProgram } from "../contexts/twamm-program-context";
 
 export const useProgram = () => {
-  const wallet = useWallet();
+  const wallet: { publicKey: PublicKey | null } = useWallet();
 
-  const program = getProgram(wallet);
-  const provider = getProvider(wallet);
+  if (!wallet.publicKey) {
+    throw new Error("Can not initialize program. Absent wallet");
+  }
+
+  const program = getProgram(wallet as Wallet);
+  const provider = getProvider(wallet as Wallet);
 
   return { program, provider };
 };

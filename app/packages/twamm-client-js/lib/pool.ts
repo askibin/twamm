@@ -1,39 +1,63 @@
 import type { BN, Program } from "@project-serum/anchor";
+// TODO: make a PR to resolve the type
+// @ts-ignore
+import { getAssociatedTokenAddress } from "@solana/spl-token";
 import { PublicKey } from "@solana/web3.js";
 
 import { findAddress } from "./program";
 
 export class Pool {
-  transferAuthority: PublicKey;
+  program: Program;
 
-  init = async (program: Program, tokenAMint: PublicKey, tokenBMint: PublicKey) => {
-    const findProgramAddress = findAddress(program);
+  tokenAMint: PublicKey;
 
-    this.transferAuthority = await findProgramAddress(
-      "transfer_authority",
-      []
-    );
+  tokenBMint: PublicKey;
 
+  transferAuthority?: PublicKey;
+
+  constructor(program: Program, aMint: PublicKey, bMint: PublicKey) {
+    this.program = program;
+    this.tokenAMint = aMint;
+    this.tokenBMint = bMint;
+    this.transferAuthority = undefined;
   }
-}
 
-export const getPoolKey = async (tif: number, poolCounter: BN) => {
-    let tifBuf = Buffer.alloc(4);
+  init = async () => {
+    const findProgramAddress = findAddress(this.program);
+
+    this.transferAuthority = await findProgramAddress("transfer_authority", []);
+  };
+
+  getKey = async (tif: number, poolCounter: BN) => {
+    const tifBuf = Buffer.alloc(4);
     tifBuf.writeUInt32LE(tif, 0);
 
-    let counterBuf = Buffer.alloc(8);
+    const counterBuf = Buffer.alloc(8);
     counterBuf.writeBigUInt64LE(BigInt(poolCounter.toString()), 0);
 
-    return this.findProgramAddress("pool", [
-      this.tokenACustody.toBuffer(),
-      this.tokenBCustody.toBuffer(),
+    const tokenACustody = await getAssociatedTokenAddress(
+      this.tokenAMint,
+      this.transferAuthority,
+      true
+    );
+
+    const tokenBCustody = await getAssociatedTokenAddress(
+      this.tokenBMint,
+      this.transferAuthority,
+      true
+    );
+
+    return findAddress(this.program)("pool", [
+      tokenACustody.toBuffer(),
+      tokenBCustody.toBuffer(),
       tifBuf,
       counterBuf,
     ]);
   };
 
-export const getPool = async (tif: number, poolCounter: BN) => {
-    return this.program.account.pool.fetch(
-      await this.getPoolKey(tif, poolCounter)
-    );
+  getPool = async (tif: number, poolCounter: BN) => {
+    const key = await this.getKey(tif, poolCounter);
+
+    return this.program.account.pool.fetch(key);
   };
+}

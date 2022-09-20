@@ -3,8 +3,8 @@ import * as Styled from "./pair-card.styled";
 export interface FundPerf {
   name: string;
   perf: number;
-  aum: number;
-  deposited?: number;
+  fee: number;
+  // deposited?: number;
 }
 
 interface MetricProps {
@@ -33,7 +33,7 @@ const Metric = ({ title, value }: MetricProps) => (
   </div>
 );
 
-export default ({ name, perf, aum, deposited = 0 }: FundPerf) => (
+export default ({ name, perf, fee /* , deposited = 0 */ }: FundPerf) => (
   <Styled.Root>
     <Styled.Card>
       <Styled.Fund>
@@ -50,8 +50,8 @@ export default ({ name, perf, aum, deposited = 0 }: FundPerf) => (
         </Styled.FundPerf>
       </Styled.Fund>
       <Styled.FundMetrics>
-        <Metric title="AUM" value={`$${formatDeposited(aum)}`} />
-        <Metric title="Depositors" value={`$${formatDeposited(deposited)}`} />
+        <Metric title="Fee" value={`$${formatDeposited(fee)}`} />
+        {/* <Metric title="Depositors" value={`$${formatDeposited(deposited)}`} /> */}
       </Styled.FundMetrics>
     </Styled.Card>
   </Styled.Root>
