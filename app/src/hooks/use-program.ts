@@ -1,18 +1,37 @@
-import type { PublicKey } from "@solana/web3.js";
 import type { Wallet } from "@project-serum/anchor";
+import { Program, AnchorProvider as Provider } from "@project-serum/anchor";
+import { PublicKey } from "@solana/web3.js";
 import { useWallet } from "@solana/wallet-adapter-react";
 
-import { getProvider, getProgram } from "../contexts/twamm-program-context";
+import { programId, idl } from "../env";
+import { useBlockchainConnectionContext } from "./use-blockchain-connection-context";
 
 export const useProgram = () => {
-  const wallet: { publicKey: PublicKey | null } = useWallet();
+  const { commitment, createConnection } = useBlockchainConnectionContext();
+  // const wallet: { publicKey: PublicKey | null } = useWallet();
+  const wallet = useWallet();
 
-  if (!wallet.publicKey) {
-    throw new Error("Can not initialize program. Absent wallet");
+  if (!programId) {
+    throw new Error("Can not start. Absent program address");
   }
 
-  const program = getProgram(wallet as Wallet);
-  const provider = getProvider(wallet as Wallet);
+  if (!wallet.publicKey) {
+    throw new Error("Can not initialize. Absent wallet");
+  }
+
+  const currentWallet: unknown = wallet;
+
+  const preflightCommitment = { preflightCommitment: commitment };
+
+  const connection = createConnection(commitment);
+
+  const provider = new Provider(
+    connection,
+    currentWallet as Wallet,
+    preflightCommitment
+  );
+
+  const program = new Program(idl, new PublicKey(programId), provider);
 
   return { program, provider };
 };

@@ -8,7 +8,7 @@ import "../styles/globals.css";
 import theme from "../src/theme";
 import WalletProvider from "../src/contexts/wallet-context";
 import { NotificationProvider } from "../src/contexts/notification-context";
-import { SolanaConnectionProvider } from "../src/contexts/solana-connection-context";
+import { BlockchainConnectionProvider } from "../src/contexts/solana-connection-context";
 import { CoingeckoApiProvider } from "../src/contexts/coingecko-api-context";
 
 const BaselineMemo = memo(() => <CssBaseline enableColorScheme />);
@@ -19,12 +19,12 @@ const App = ({ Component, pageProps }: AppProps) => (
     <StrictMode>
       <NotificationProvider>
         <CoingeckoApiProvider>
-          <SolanaConnectionProvider>
+          <BlockchainConnectionProvider>
             <WalletProvider>
               {/* eslint-disable-next-line react/jsx-props-no-spreading */}
               <Component {...pageProps} />
             </WalletProvider>
-          </SolanaConnectionProvider>
+          </BlockchainConnectionProvider>
         </CoingeckoApiProvider>
       </NotificationProvider>
     </StrictMode>

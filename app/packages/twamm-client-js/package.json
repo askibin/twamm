@@ -1,7 +1,7 @@
 {
   "name": "@twamm/client.js",
   "publishConfig": {
-   "access": "public"
+    "access": "public"
   },
   "version": "0.0.1",
   "description": "> TODO: description",

@@ -2,6 +2,7 @@ import useSWR from "swr";
 import type { APIHook, CoingeckoApi } from "../utils/api";
 import { fetchJSONFromAPI } from "../utils/api";
 
+import { dedupeEach } from "../utils/api";
 import { useCoingeckoApi } from "./use-coingecko-api";
 
 type MarketCoin = {
@@ -53,11 +54,13 @@ const fetcher = (api: CoingeckoApi) => {
 export const useCoins: APIHook<void, MarketCoinRecords> = (_, options = {}) => {
   const api = useCoingeckoApi();
 
+  const opts = { ...dedupeEach(), ...options };
+
   const vsCurrency = "usd";
   const ids = "sol";
   const category = ["stablecoins", "solana-ecosystem"];
 
   const params = { vs_currency: vsCurrency, ids, category };
 
-  return useSWR(swrKey(params), fetcher(api), options);
+  return useSWR(swrKey(params), fetcher(api), opts);
 };

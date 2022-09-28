@@ -1,14 +1,12 @@
 import type { Program } from "@project-serum/anchor";
 import swr from "swr";
-// eslint-disable-next-line import/no-extraneous-dependencies
 import { Pool } from "@twamm/client.js";
 
+import { dedupeEach } from "../utils/api";
 import { useProgram } from "./use-program";
 import { useTokenPair } from "./use-token-pair";
 
-const fetcher = (getProgram: Promise<Program>, tokenPair: any) => async () => {
-  const program = await getProgram;
-
+const fetcher = (program: Program, tokenPair: any) => async () => {
   if (!tokenPair.data || tokenPair.error) {
     throw new Error("Can not fetch tokenPair");
   }
@@ -32,5 +30,5 @@ export const usePools = () => {
 
   const isValid = !tokenPair.isValidating;
 
-  return swr(isValid && "Pools", fetcher(program, tokenPair), {});
+  return swr(isValid && "Pools", fetcher(program, tokenPair), dedupeEach());
 };

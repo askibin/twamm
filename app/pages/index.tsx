@@ -12,7 +12,7 @@ import TokenPairs from "../src/components/ecosystems/token-pairs";
 import WalletGuard from "../src/components/organisms/wallet-guard";
 import { modes } from "../src/components/atoms/mode-toggle";
 
-const DEFAULT_MODE = modes.get("pools") as string;
+const DEFAULT_MODE = modes.get("swap") as string;
 
 const Home: NextPage = () => {
   const [mode, setMode] = useState<string>(DEFAULT_MODE);
@@ -25,13 +25,16 @@ const Home: NextPage = () => {
   );
 
   const component = useMemo(() => {
-    if (mode === DEFAULT_MODE)
+    if (mode === modes.get("pools"))
       return <TokenPairs mode={mode} onModeChange={onModeChange} />;
 
     if (mode === modes.get("orders"))
       return <Orders mode={mode} onModeChange={onModeChange} />;
 
-    return <Swap mode={mode} onModeChange={onModeChange} />;
+    if (mode === modes.get("swap"))
+      return <Swap mode={mode} onModeChange={onModeChange} />;
+
+    return null;
   }, [mode, onModeChange]);
 
   return (
