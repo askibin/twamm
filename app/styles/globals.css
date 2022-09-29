@@ -22,6 +22,12 @@ a {
   }
   body {
     color: rgba(0, 0, 0, 0.6);
-    background: #121623;
+    background-color: #121623;
+  }
+}
+
+@media (prefers-color-scheme: light) {
+  html {
+    color-scheme: dark;
   }
 }

@@ -21,7 +21,10 @@ export default ({ children }: { children: ReactNode }) => {
 
   if (!isConnected || !address) {
     return (
-      <Card sx={{ color: "#fff", backgroundColor: "transparent" }}>
+      <Card
+        elevation={0}
+        sx={{ color: "#fff", backgroundColor: "transparent" }}
+      >
         <CardContent>
           <Typography mb={1}>
             {!isConnected && "Select a wallet to add liquidity to the pool"}
