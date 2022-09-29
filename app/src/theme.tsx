@@ -6,7 +6,7 @@ import { lensPath, set, view } from "ramda";
 
 // Temporary import theme from the separate package
 // eslint-disable-next-line import/no-relative-packages
-import { theme as kitTheme } from "../packages/material-theme/src/theme/index";
+import { theme as kitTheme } from "../packages/material-kit-react/src/theme/index";
 
 const lensScrollbar = lensPath([
   "components",
