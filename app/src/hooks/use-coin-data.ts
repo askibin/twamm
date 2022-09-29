@@ -1,8 +1,7 @@
 import useSWR from "swr";
-import type { APIHook, CoingeckoApi } from "../utils/api";
-import { fetchJSONFromAPI } from "../utils/api";
 
-import { dedupeEach } from "../utils/api";
+import type { APIHook, CoingeckoApi } from "../utils/api";
+import { dedupeEach, fetchJSONFromAPI } from "../utils/api";
 import { useCoingeckoApi } from "./use-coingecko-api";
 
 type Coin = {
