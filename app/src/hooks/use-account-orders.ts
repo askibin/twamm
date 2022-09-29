@@ -4,7 +4,7 @@ import swr from "swr";
 import { Order } from "@twamm/client.js";
 import { useWallet } from "@solana/wallet-adapter-react";
 
-import { dedupeEach } from "../utils/api";
+import { dedupeEach, revalOnFocus } from "../utils/api";
 import { useProgram } from "./use-program";
 
 const swrKey = (params: { account: PublicKey }) => ({
@@ -17,6 +17,8 @@ const fetcher =
   async ({ params: { account } }: ReturnType<typeof swrKey>) => {
     const order = new Order(program, provider);
 
+    console.log("fetch orders", account.toBase58(), provider, program);
+
     const orders = await order.getOrders(account);
 
     return orders;
@@ -26,9 +28,11 @@ export const useAccountOrders = () => {
   const { publicKey: account } = useWallet();
   const { program, provider } = useProgram();
 
+  const opts = { ...dedupeEach(5e3), ...revalOnFocus() };
+
   return swr(
     account && swrKey({ account }),
     fetcher(provider, program),
-    dedupeEach()
+    opts
   );
 };

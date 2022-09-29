@@ -2,7 +2,7 @@ import type { Provider, Program } from "@project-serum/anchor";
 import swr from "swr";
 import { account } from "@twamm/client.js";
 
-import { dedupeEach } from "../utils/api";
+import { dedupeEach, revalOnFocus } from "../utils/api";
 import { useProgram } from "./use-program";
 
 const fetcher = (provider: Provider, program: Program) => {
@@ -28,5 +28,7 @@ const fetcher = (provider: Provider, program: Program) => {
 export const useTokenPair = () => {
   const { program, provider } = useProgram();
 
-  return swr("TokenPair", fetcher(provider, program), dedupeEach());
+  const opts = { ...dedupeEach(5e3), ...revalOnFocus() };
+
+  return swr("TokenPair", fetcher(provider, program), opts);
 };

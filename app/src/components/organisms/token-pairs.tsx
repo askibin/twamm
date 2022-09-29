@@ -5,7 +5,9 @@ import TokenPairCards from "./token-pair-cards";
 import { useTokenPair } from "../../hooks/use-token-pair";
 
 export default () => {
-  const { data } = useTokenPair();
+  const { data, isValidating } = useTokenPair();
+
+  console.log("data", data, isValidating);
 
   return (
     <Box>
