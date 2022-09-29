@@ -10,7 +10,9 @@
     "lint/fix": "prettier pages --write && eslint pages --fix"
   },
   "dependencies": {
+    "@emotion/cache": "^11.10.3",
     "@emotion/react": "^11.10.4",
+    "@emotion/server": "^11.10.0",
     "@emotion/styled": "^11.10.4",
     "@jup-ag/core": "^2.0.0-beta.4",
     "@mui/icons-material": "^5.10.3",

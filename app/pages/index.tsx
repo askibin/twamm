@@ -38,20 +38,18 @@ const Home: NextPage = () => {
   }, [mode, onModeChange]);
 
   return (
-    <div className={styles.root}>
+    <>
       <Head>
-        <meta
-          name="viewport"
-          content="initial-scale=1,user-scalable=no,maximum-scale=1,width=device-width"
-        />
-        <title>Login | Material Kit</title>
+        <title>Twamm</title>
       </Head>
-      <OfflineOverlay />
-      <Header />
-      <Box className={styles.main} component="main" pt={10}>
-        <WalletGuard>{component}</WalletGuard>
-      </Box>
-    </div>
+      <div className={styles.root}>
+        <OfflineOverlay />
+        <Header />
+        <Box className={styles.main} component="main" pt={10}>
+          <WalletGuard>{component}</WalletGuard>
+        </Box>
+      </div>
+    </>
   );
 };
 
