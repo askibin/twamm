@@ -17,8 +17,6 @@ const fetcher =
   async ({ params: { account } }: ReturnType<typeof swrKey>) => {
     const order = new Order(program, provider);
 
-    console.log("fetch orders", account.toBase58(), provider, program);
-
     const orders = await order.getOrders(account);
 
     return orders;
@@ -30,9 +28,5 @@ export const useAccountOrders = () => {
 
   const opts = { ...dedupeEach(5e3), ...revalOnFocus() };
 
-  return swr(
-    account && swrKey({ account }),
-    fetcher(provider, program),
-    opts
-  );
+  return swr(account && swrKey({ account }), fetcher(provider, program), opts);
 };
