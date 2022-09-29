@@ -1,0 +1,78 @@
+import CardContent from "@mui/material/CardContent";
+import Skeleton from "@mui/material/Skeleton";
+import { styled } from "@mui/material/styles";
+
+const div = styled("div");
+const span = styled("span");
+
+const HEIGHT = 210;
+const WIDTH = 338;
+
+const styledSkeleton = styled(Skeleton);
+const styledCard = styled(CardContent);
+
+export const FundSkeleton = styledSkeleton`
+  border-radius: 20px;
+  width: ${WIDTH}px;
+  height: ${HEIGHT}px;
+  background: linear-gradient(110.5deg, rgba(26, 31, 46, 0.4) 3.75%, rgba(36, 41, 57, 0.4) 117.62%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0px 8px 32px rgba(0, 0, 0, 0.08);
+`;
+
+export const Root = div`
+  width: ${WIDTH}px;
+  height: ${HEIGHT}px;
+  border-radius: 20px;
+  background-color: #181f2b;
+  color: #fff;
+  background: linear-gradient(110.5deg, rgba(26, 31, 46, 0.4) 3.75%, rgba(36, 41, 57, 0.4) 117.62%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0px 8px 32px rgba(0, 0, 0, 0.08);
+`;
+
+export const Card = styledCard`
+  padding: 8px 16px;
+`;
+
+export const Fund = div`
+  margin: 0;
+  padding-bottom: 51px;
+`;
+
+export const FundName = div`
+  font-size: 20px;
+  font-weight: 500;
+  line-height: 1.35em;
+`;
+
+export const FundPerf = div`
+  color: #fff;
+  font-size: 20px;
+  font-weight: 400;
+`;
+
+export const FundPerfValue = span`
+  color: #70efcb;
+  font-size: 28px;
+  font-weight: 600;
+`;
+
+export const FundMetrics = div`
+  display: flex;
+  flex-direction: row;
+  gap: 32px;
+`;
+
+export const FundMetricName = div`
+  font-size: 14px;
+  color: #a2a4a9;
+  font-weight: 500;
+  line-height: 1.35em;
+  padding-bottom: 8px;
+`;
+
+export const FundMetricValue = div`
+  font-size: 20px;
+  font-weight: 600;
+`;

@@ -1,0 +1,2083 @@
+{
+  "version": "0.1.0",
+  "name": "twamm",
+  "instructions": [
+    {
+      "name": "init",
+      "accounts": [
+        {
+          "name": "upgradeAuthority",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "multisig",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "transferAuthority",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "twammProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "twammProgramData",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "params",
+          "type": {
+            "defined": "InitParams"
+          }
+        }
+      ]
+    },
+    {
+      "name": "testInit",
+      "accounts": [
+        {
+          "name": "upgradeAuthority",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "multisig",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "transferAuthority",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "params",
+          "type": {
+            "defined": "TestInitParams"
+          }
+        }
+      ]
+    },
+    {
+      "name": "initTokenPair",
+      "accounts": [
+        {
+          "name": "admin",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "multisig",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "tokenPair",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "transferAuthority",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "mintTokenA",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "mintTokenB",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "custodyTokenA",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "custodyTokenB",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "rent",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "tokenProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "associatedTokenProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "params",
+          "type": {
+            "defined": "InitTokenPairParams"
+          }
+        }
+      ],
+      "returns": "u8"
+    },
+    {
+      "name": "setPermissions",
+      "accounts": [
+        {
+          "name": "admin",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "multisig",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "tokenPair",
+          "isMut": true,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "params",
+          "type": {
+            "defined": "SetPermissionsParams"
+          }
+        }
+      ],
+      "returns": "u8"
+    },
+    {
+      "name": "setLimits",
+      "accounts": [
+        {
+          "name": "admin",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "multisig",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "tokenPair",
+          "isMut": true,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "params",
+          "type": {
+            "defined": "SetLimitsParams"
+          }
+        }
+      ],
+      "returns": "u8"
+    },
+    {
+      "name": "setFees",
+      "accounts": [
+        {
+          "name": "admin",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "multisig",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "tokenPair",
+          "isMut": true,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "params",
+          "type": {
+            "defined": "SetFeesParams"
+          }
+        }
+      ],
+      "returns": "u8"
+    },
+    {
+      "name": "setAdminSigners",
+      "accounts": [
+        {
+          "name": "admin",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "multisig",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "params",
+          "type": {
+            "defined": "SetAdminSignersParams"
+          }
+        }
+      ],
+      "returns": "u8"
+    },
+    {
+      "name": "setCrankAuthority",
+      "accounts": [
+        {
+          "name": "admin",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "multisig",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "tokenPair",
+          "isMut": true,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "params",
+          "type": {
+            "defined": "SetCrankAuthorityParams"
+          }
+        }
+      ],
+      "returns": "u8"
+    },
+    {
+      "name": "setOracleConfig",
+      "accounts": [
+        {
+          "name": "admin",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "multisig",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "tokenPair",
+          "isMut": true,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "params",
+          "type": {
+            "defined": "SetOracleConfigParams"
+          }
+        }
+      ],
+      "returns": "u8"
+    },
+    {
+      "name": "setTimeInForce",
+      "accounts": [
+        {
+          "name": "admin",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "multisig",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "tokenPair",
+          "isMut": true,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "params",
+          "type": {
+            "defined": "SetTimeInForceParams"
+          }
+        }
+      ],
+      "returns": "u8"
+    },
+    {
+      "name": "setTestOraclePrice",
+      "accounts": [
+        {
+          "name": "admin",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "multisig",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "tokenPair",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "oracleTokenA",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "oracleTokenB",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "params",
+          "type": {
+            "defined": "SetTestOraclePriceParams"
+          }
+        }
+      ],
+      "returns": "u8"
+    },
+    {
+      "name": "setTestTime",
+      "accounts": [
+        {
+          "name": "admin",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "multisig",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "tokenPair",
+          "isMut": true,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "params",
+          "type": {
+            "defined": "SetTestTimeParams"
+          }
+        }
+      ],
+      "returns": "u8"
+    },
+    {
+      "name": "deleteTestPool",
+      "accounts": [
+        {
+          "name": "admin",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "multisig",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "tokenPair",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "custodyTokenA",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "custodyTokenB",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "pool",
+          "isMut": true,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "params",
+          "type": {
+            "defined": "DeleteTestPoolParams"
+          }
+        }
+      ],
+      "returns": "u8"
+    },
+    {
+      "name": "deleteTestPair",
+      "accounts": [
+        {
+          "name": "admin",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "multisig",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "userAccountTokenA",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "userAccountTokenB",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "tokenPair",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "transferAuthority",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "custodyTokenA",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "custodyTokenB",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "tokenProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "params",
+          "type": {
+            "defined": "DeleteTestPairParams"
+          }
+        }
+      ],
+      "returns": "u8"
+    },
+    {
+      "name": "withdrawFees",
+      "accounts": [
+        {
+          "name": "admin",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "multisig",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "tokenPair",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "transferAuthority",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "custodyTokenA",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "custodyTokenB",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "receiverTokenA",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "receiverTokenB",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "tokenProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "params",
+          "type": {
+            "defined": "WithdrawFeesParams"
+          }
+        }
+      ],
+      "returns": "u8"
+    },
+    {
+      "name": "getOutstandingAmount",
+      "accounts": [
+        {
+          "name": "owner",
+          "isMut": false,
+          "isSigner": true
+        },
+        {
+          "name": "tokenPair",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "oracleTokenA",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "oracleTokenB",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "params",
+          "type": {
+            "defined": "GetOutstandingAmountParams"
+          }
+        }
+      ],
+      "returns": "i64"
+    },
+    {
+      "name": "crank",
+      "accounts": [
+        {
+          "name": "owner",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "userAccountTokenA",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "userAccountTokenB",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "tokenPair",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "transferAuthority",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "custodyTokenA",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "custodyTokenB",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "oracleTokenA",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "oracleTokenB",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "tokenProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "params",
+          "type": {
+            "defined": "CrankParams"
+          }
+        }
+      ],
+      "returns": "i64"
+    },
+    {
+      "name": "settle",
+      "accounts": [
+        {
+          "name": "owner",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "userAccountTokenA",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "userAccountTokenB",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "tokenPair",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "transferAuthority",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "custodyTokenA",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "custodyTokenB",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "oracleTokenA",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "oracleTokenB",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "tokenProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "params",
+          "type": {
+            "defined": "SettleParams"
+          }
+        }
+      ],
+      "returns": "i64"
+    },
+    {
+      "name": "placeOrder",
+      "accounts": [
+        {
+          "name": "owner",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "userAccountTokenA",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "userAccountTokenB",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "tokenPair",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "custodyTokenA",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "custodyTokenB",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "order",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "currentPool",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "targetPool",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "tokenProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "params",
+          "type": {
+            "defined": "PlaceOrderParams"
+          }
+        }
+      ]
+    },
+    {
+      "name": "cancelOrder",
+      "accounts": [
+        {
+          "name": "owner",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "userAccountTokenA",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "userAccountTokenB",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "tokenPair",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "transferAuthority",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "custodyTokenA",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "custodyTokenB",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "order",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "pool",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "tokenProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "params",
+          "type": {
+            "defined": "CancelOrderParams"
+          }
+        }
+      ]
+    }
+  ],
+  "accounts": [
+    {
+      "name": "TestOracle",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "price",
+            "type": "u64"
+          },
+          {
+            "name": "expo",
+            "type": "i32"
+          },
+          {
+            "name": "conf",
+            "type": "u64"
+          },
+          {
+            "name": "publishTime",
+            "type": "i64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Multisig",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "numSigners",
+            "type": "u8"
+          },
+          {
+            "name": "numSigned",
+            "type": "u8"
+          },
+          {
+            "name": "minSignatures",
+            "type": "u8"
+          },
+          {
+            "name": "instructionAccountsLen",
+            "type": "u8"
+          },
+          {
+            "name": "instructionDataLen",
+            "type": "u16"
+          },
+          {
+            "name": "instructionHash",
+            "type": "u64"
+          },
+          {
+            "name": "signers",
+            "type": {
+              "array": [
+                "publicKey",
+                6
+              ]
+            }
+          },
+          {
+            "name": "signed",
+            "type": {
+              "array": [
+                "bool",
+                6
+              ]
+            }
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Order",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "owner",
+            "type": "publicKey"
+          },
+          {
+            "name": "time",
+            "type": "i64"
+          },
+          {
+            "name": "side",
+            "type": {
+              "defined": "OrderSide"
+            }
+          },
+          {
+            "name": "pool",
+            "type": "publicKey"
+          },
+          {
+            "name": "lpBalance",
+            "type": "u64"
+          },
+          {
+            "name": "tokenDebt",
+            "type": "u64"
+          },
+          {
+            "name": "unsettledBalance",
+            "type": "u64"
+          },
+          {
+            "name": "settlementDebt",
+            "type": "u64"
+          },
+          {
+            "name": "lastBalanceChangeTime",
+            "type": "i64"
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Pool",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "status",
+            "type": {
+              "defined": "PoolStatus"
+            }
+          },
+          {
+            "name": "timeInForce",
+            "type": "u32"
+          },
+          {
+            "name": "expirationTime",
+            "type": "i64"
+          },
+          {
+            "name": "tokenPair",
+            "type": "publicKey"
+          },
+          {
+            "name": "buySide",
+            "type": {
+              "defined": "PoolSide"
+            }
+          },
+          {
+            "name": "sellSide",
+            "type": {
+              "defined": "PoolSide"
+            }
+          },
+          {
+            "name": "counter",
+            "type": "u64"
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "TokenPair",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "allowDeposits",
+            "type": "bool"
+          },
+          {
+            "name": "allowWithdrawals",
+            "type": "bool"
+          },
+          {
+            "name": "allowCranks",
+            "type": "bool"
+          },
+          {
+            "name": "allowSettlements",
+            "type": "bool"
+          },
+          {
+            "name": "feeNumerator",
+            "type": "u64"
+          },
+          {
+            "name": "feeDenominator",
+            "type": "u64"
+          },
+          {
+            "name": "settleFeeNumerator",
+            "type": "u64"
+          },
+          {
+            "name": "settleFeeDenominator",
+            "type": "u64"
+          },
+          {
+            "name": "maxSwapPriceDiff",
+            "type": "f64"
+          },
+          {
+            "name": "maxUnsettledAmount",
+            "type": "f64"
+          },
+          {
+            "name": "minTimeTillExpiration",
+            "type": "f64"
+          },
+          {
+            "name": "crankAuthority",
+            "type": "publicKey"
+          },
+          {
+            "name": "configA",
+            "type": {
+              "defined": "TokenConfig"
+            }
+          },
+          {
+            "name": "configB",
+            "type": {
+              "defined": "TokenConfig"
+            }
+          },
+          {
+            "name": "statsA",
+            "type": {
+              "defined": "TokenStats"
+            }
+          },
+          {
+            "name": "statsB",
+            "type": {
+              "defined": "TokenStats"
+            }
+          },
+          {
+            "name": "tifs",
+            "type": {
+              "array": [
+                "u32",
+                10
+              ]
+            }
+          },
+          {
+            "name": "poolCounters",
+            "type": {
+              "array": [
+                "u64",
+                10
+              ]
+            }
+          },
+          {
+            "name": "currentPoolPresent",
+            "type": {
+              "array": [
+                "bool",
+                10
+              ]
+            }
+          },
+          {
+            "name": "futurePoolPresent",
+            "type": {
+              "array": [
+                "bool",
+                10
+              ]
+            }
+          },
+          {
+            "name": "tokenPairBump",
+            "type": "u8"
+          },
+          {
+            "name": "transferAuthorityBump",
+            "type": "u8"
+          },
+          {
+            "name": "inceptionTime",
+            "type": "i64"
+          }
+        ]
+      }
+    }
+  ],
+  "types": [
+    {
+      "name": "CancelOrderParams",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "lpAmount",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "CrankParams",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "routerInstructionData",
+            "type": "bytes"
+          }
+        ]
+      }
+    },
+    {
+      "name": "DeleteTestPairParams",
+      "type": {
+        "kind": "struct",
+        "fields": []
+      }
+    },
+    {
+      "name": "DeleteTestPoolParams",
+      "type": {
+        "kind": "struct",
+        "fields": []
+      }
+    },
+    {
+      "name": "GetOutstandingAmountParams",
+      "type": {
+        "kind": "struct",
+        "fields": []
+      }
+    },
+    {
+      "name": "InitTokenPairParams",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "allowDeposits",
+            "type": "bool"
+          },
+          {
+            "name": "allowWithdrawals",
+            "type": "bool"
+          },
+          {
+            "name": "allowCranks",
+            "type": "bool"
+          },
+          {
+            "name": "allowSettlements",
+            "type": "bool"
+          },
+          {
+            "name": "feeNumerator",
+            "type": "u64"
+          },
+          {
+            "name": "feeDenominator",
+            "type": "u64"
+          },
+          {
+            "name": "settleFeeNumerator",
+            "type": "u64"
+          },
+          {
+            "name": "settleFeeDenominator",
+            "type": "u64"
+          },
+          {
+            "name": "crankRewardTokenA",
+            "type": "u64"
+          },
+          {
+            "name": "crankRewardTokenB",
+            "type": "u64"
+          },
+          {
+            "name": "minSwapAmountTokenA",
+            "type": "u64"
+          },
+          {
+            "name": "minSwapAmountTokenB",
+            "type": "u64"
+          },
+          {
+            "name": "maxSwapPriceDiff",
+            "type": "f64"
+          },
+          {
+            "name": "maxUnsettledAmount",
+            "type": "f64"
+          },
+          {
+            "name": "minTimeTillExpiration",
+            "type": "f64"
+          },
+          {
+            "name": "maxOraclePriceErrorTokenA",
+            "type": "f64"
+          },
+          {
+            "name": "maxOraclePriceErrorTokenB",
+            "type": "f64"
+          },
+          {
+            "name": "maxOraclePriceAgeSecTokenA",
+            "type": "u32"
+          },
+          {
+            "name": "maxOraclePriceAgeSecTokenB",
+            "type": "u32"
+          },
+          {
+            "name": "oracleTypeTokenA",
+            "type": {
+              "defined": "OracleType"
+            }
+          },
+          {
+            "name": "oracleTypeTokenB",
+            "type": {
+              "defined": "OracleType"
+            }
+          },
+          {
+            "name": "oracleAccountTokenA",
+            "type": "publicKey"
+          },
+          {
+            "name": "oracleAccountTokenB",
+            "type": "publicKey"
+          },
+          {
+            "name": "crankAuthority",
+            "type": "publicKey"
+          },
+          {
+            "name": "timeInForceIntervals",
+            "type": {
+              "array": [
+                "u32",
+                10
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "InitParams",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "minSignatures",
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "PlaceOrderParams",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "side",
+            "type": {
+              "defined": "OrderSide"
+            }
+          },
+          {
+            "name": "timeInForce",
+            "type": "u32"
+          },
+          {
+            "name": "amount",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "SetAdminSignersParams",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "minSignatures",
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "SetCrankAuthorityParams",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "crankAuthority",
+            "type": "publicKey"
+          }
+        ]
+      }
+    },
+    {
+      "name": "SetFeesParams",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "feeNumerator",
+            "type": "u64"
+          },
+          {
+            "name": "feeDenominator",
+            "type": "u64"
+          },
+          {
+            "name": "settleFeeNumerator",
+            "type": "u64"
+          },
+          {
+            "name": "settleFeeDenominator",
+            "type": "u64"
+          },
+          {
+            "name": "crankRewardTokenA",
+            "type": "u64"
+          },
+          {
+            "name": "crankRewardTokenB",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "SetLimitsParams",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "minSwapAmountTokenA",
+            "type": "u64"
+          },
+          {
+            "name": "minSwapAmountTokenB",
+            "type": "u64"
+          },
+          {
+            "name": "maxSwapPriceDiff",
+            "type": "f64"
+          },
+          {
+            "name": "maxUnsettledAmount",
+            "type": "f64"
+          },
+          {
+            "name": "minTimeTillExpiration",
+            "type": "f64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "SetOracleConfigParams",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "maxOraclePriceErrorTokenA",
+            "type": "f64"
+          },
+          {
+            "name": "maxOraclePriceErrorTokenB",
+            "type": "f64"
+          },
+          {
+            "name": "maxOraclePriceAgeSecTokenA",
+            "type": "u32"
+          },
+          {
+            "name": "maxOraclePriceAgeSecTokenB",
+            "type": "u32"
+          },
+          {
+            "name": "oracleTypeTokenA",
+            "type": {
+              "defined": "OracleType"
+            }
+          },
+          {
+            "name": "oracleTypeTokenB",
+            "type": {
+              "defined": "OracleType"
+            }
+          },
+          {
+            "name": "oracleAccountTokenA",
+            "type": "publicKey"
+          },
+          {
+            "name": "oracleAccountTokenB",
+            "type": "publicKey"
+          }
+        ]
+      }
+    },
+    {
+      "name": "SetPermissionsParams",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "allowDeposits",
+            "type": "bool"
+          },
+          {
+            "name": "allowWithdrawals",
+            "type": "bool"
+          },
+          {
+            "name": "allowCranks",
+            "type": "bool"
+          },
+          {
+            "name": "allowSettlements",
+            "type": "bool"
+          }
+        ]
+      }
+    },
+    {
+      "name": "SetTestOraclePriceParams",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "priceTokenA",
+            "type": "u64"
+          },
+          {
+            "name": "priceTokenB",
+            "type": "u64"
+          },
+          {
+            "name": "expoTokenA",
+            "type": "i32"
+          },
+          {
+            "name": "expoTokenB",
+            "type": "i32"
+          },
+          {
+            "name": "confTokenA",
+            "type": "u64"
+          },
+          {
+            "name": "confTokenB",
+            "type": "u64"
+          },
+          {
+            "name": "publishTimeTokenA",
+            "type": "i64"
+          },
+          {
+            "name": "publishTimeTokenB",
+            "type": "i64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "SetTestTimeParams",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "time",
+            "type": "i64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "SetTimeInForceParams",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "timeInForceIndex",
+            "type": "u8"
+          },
+          {
+            "name": "newTimeInForce",
+            "type": "u32"
+          }
+        ]
+      }
+    },
+    {
+      "name": "SettleParams",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "supplySide",
+            "type": {
+              "defined": "MatchingSide"
+            }
+          },
+          {
+            "name": "minTokenAmountIn",
+            "type": "u64"
+          },
+          {
+            "name": "maxTokenAmountIn",
+            "type": "u64"
+          },
+          {
+            "name": "worstExchangeRate",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "TestInitParams",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "minSignatures",
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "WithdrawFeesParams",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "amountTokenA",
+            "type": "u64"
+          },
+          {
+            "name": "amountTokenB",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "OraclePrice",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "price",
+            "type": "u64"
+          },
+          {
+            "name": "exponent",
+            "type": "i32"
+          }
+        ]
+      }
+    },
+    {
+      "name": "PoolSide",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "sourceBalance",
+            "type": "u64"
+          },
+          {
+            "name": "targetBalance",
+            "type": "u64"
+          },
+          {
+            "name": "lpSupply",
+            "type": "u64"
+          },
+          {
+            "name": "tokenDebtTotal",
+            "type": "u64"
+          },
+          {
+            "name": "fillsVolume",
+            "type": "u64"
+          },
+          {
+            "name": "weightedFillsSum",
+            "type": "f64"
+          },
+          {
+            "name": "minFillPrice",
+            "type": "f64"
+          },
+          {
+            "name": "maxFillPrice",
+            "type": "f64"
+          },
+          {
+            "name": "numTraders",
+            "type": "u64"
+          },
+          {
+            "name": "settlementDebtTotal",
+            "type": "u64"
+          },
+          {
+            "name": "lastBalanceChangeTime",
+            "type": "i64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "TokenConfig",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "crankReward",
+            "type": "u64"
+          },
+          {
+            "name": "minSwapAmount",
+            "type": "u64"
+          },
+          {
+            "name": "maxOraclePriceError",
+            "type": "f64"
+          },
+          {
+            "name": "maxOraclePriceAgeSec",
+            "type": "u32"
+          },
+          {
+            "name": "oracleType",
+            "type": {
+              "defined": "OracleType"
+            }
+          },
+          {
+            "name": "oracleAccount",
+            "type": "publicKey"
+          },
+          {
+            "name": "mint",
+            "type": "publicKey"
+          },
+          {
+            "name": "custody",
+            "type": "publicKey"
+          },
+          {
+            "name": "decimals",
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "TokenStats",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "pendingWithdrawals",
+            "type": "u64"
+          },
+          {
+            "name": "feesCollected",
+            "type": "u64"
+          },
+          {
+            "name": "orderVolumeUsd",
+            "type": "f64"
+          },
+          {
+            "name": "tradeVolumeUsd",
+            "type": "f64"
+          },
+          {
+            "name": "settleVolumeUsd",
+            "type": "f64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "OracleType",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "None"
+          },
+          {
+            "name": "Test"
+          },
+          {
+            "name": "Pyth"
+          }
+        ]
+      }
+    },
+    {
+      "name": "AdminInstruction",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "InitTokenPair"
+          },
+          {
+            "name": "SetPermissions"
+          },
+          {
+            "name": "SetLimits"
+          },
+          {
+            "name": "SetFees"
+          },
+          {
+            "name": "SetAdminSigners"
+          },
+          {
+            "name": "SetCrankAuthority"
+          },
+          {
+            "name": "SetOracleConfig"
+          },
+          {
+            "name": "SetTimeInForce"
+          },
+          {
+            "name": "WithdrawFees"
+          },
+          {
+            "name": "SetTestOraclePrice"
+          },
+          {
+            "name": "SetTestTime"
+          },
+          {
+            "name": "DeleteTestPool"
+          },
+          {
+            "name": "DeleteTestPair"
+          }
+        ]
+      }
+    },
+    {
+      "name": "OrderSide",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "Buy"
+          },
+          {
+            "name": "Sell"
+          }
+        ]
+      }
+    },
+    {
+      "name": "PoolStatus",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "Active"
+          },
+          {
+            "name": "Locked"
+          },
+          {
+            "name": "Expired"
+          }
+        ]
+      }
+    },
+    {
+      "name": "SettlementType",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "Crank"
+          },
+          {
+            "name": "Settlement"
+          }
+        ]
+      }
+    },
+    {
+      "name": "MatchingSide",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "Buy"
+          },
+          {
+            "name": "Sell"
+          },
+          {
+            "name": "Internal"
+          }
+        ]
+      }
+    }
+  ],
+  "errors": [
+    {
+      "code": 6000,
+      "name": "MultisigAccountNotAuthorized",
+      "msg": "Account is not authorized to sign this instruction"
+    },
+    {
+      "code": 6001,
+      "name": "MultisigAlreadySigned",
+      "msg": "Account has already signed this instruction"
+    },
+    {
+      "code": 6002,
+      "name": "MultisigAlreadyExecuted",
+      "msg": "This instruction has already been executed"
+    },
+    {
+      "code": 6003,
+      "name": "InvalidTokenPairConfig",
+      "msg": "Invalid token pair config"
+    },
+    {
+      "code": 6004,
+      "name": "InvalidTokenAmount",
+      "msg": "Invalid token amount"
+    },
+    {
+      "code": 6005,
+      "name": "DepositsNotAllowed",
+      "msg": "Deposits are not allowed at this time"
+    },
+    {
+      "code": 6006,
+      "name": "WithdrawalsNotAllowed",
+      "msg": "Withdrawals are not allowed at this time"
+    },
+    {
+      "code": 6007,
+      "name": "CranksNotAllowed",
+      "msg": "Cranks are not allowed at this time"
+    },
+    {
+      "code": 6008,
+      "name": "SettlementsNotAllowed",
+      "msg": "Settlements are not allowed at this time"
+    },
+    {
+      "code": 6009,
+      "name": "InvalidEnvironment",
+      "msg": "Instruction is not allowed in production"
+    },
+    {
+      "code": 6010,
+      "name": "OrderSideMismatch",
+      "msg": "Order side mismatch"
+    },
+    {
+      "code": 6011,
+      "name": "TimeInForceMismatch",
+      "msg": "Time in force mismatch"
+    },
+    {
+      "code": 6012,
+      "name": "InvalidTimeInForce",
+      "msg": "Invalid time in force"
+    },
+    {
+      "code": 6013,
+      "name": "InvalidPoolAddress",
+      "msg": "Invalid pool address"
+    },
+    {
+      "code": 6014,
+      "name": "LockedPool",
+      "msg": "Pool doesn't accept new orders"
+    },
+    {
+      "code": 6015,
+      "name": "ExpiredPool",
+      "msg": "Pool has been expired"
+    },
+    {
+      "code": 6016,
+      "name": "InvalidPoolState",
+      "msg": "Invalid pool state"
+    },
+    {
+      "code": 6017,
+      "name": "MathOverflow",
+      "msg": "Overflow in arithmetic operation"
+    },
+    {
+      "code": 6018,
+      "name": "UnsupportedOracle",
+      "msg": "Unsupported price oracle"
+    },
+    {
+      "code": 6019,
+      "name": "InvalidOracleAccount",
+      "msg": "Invalid oracle account"
+    },
+    {
+      "code": 6020,
+      "name": "InvalidOracleState",
+      "msg": "Invalid oracle state"
+    },
+    {
+      "code": 6021,
+      "name": "StaleOraclePrice",
+      "msg": "Stale oracle price"
+    },
+    {
+      "code": 6022,
+      "name": "InvalidOraclePrice",
+      "msg": "Invalid oracle price"
+    },
+    {
+      "code": 6023,
+      "name": "MaxSlippage",
+      "msg": "Max slippage exceeded"
+    },
+    {
+      "code": 6024,
+      "name": "NothingToSettle",
+      "msg": "Nothing to settle at this time"
+    },
+    {
+      "code": 6025,
+      "name": "InvalidSettlementSide",
+      "msg": "Invalid settlement side"
+    },
+    {
+      "code": 6026,
+      "name": "SettlementAmountTooSmall",
+      "msg": "Amount to settle is too small"
+    },
+    {
+      "code": 6027,
+      "name": "SettlementAmountTooLarge",
+      "msg": "Amount to settle is too large"
+    },
+    {
+      "code": 6028,
+      "name": "SettlementError",
+      "msg": "Unexpected settlement error"
+    },
+    {
+      "code": 6029,
+      "name": "SettlementPriceOutOfBounds",
+      "msg": "Settle price is out of bounds"
+    }
+  ]
+}

@@ -19,3 +19,11 @@ export function fetchJSONFromAPI<Key extends keyof Api>(api: Api) {
     return resp.json();
   };
 }
+
+export const dedupeEach = (interval = 2000) => ({
+  dedupingInterval: interval,
+});
+
+export const revalOnFocus = (shouldRevalidate = false) => ({
+  revalidateOnFocus: shouldRevalidate,
+});

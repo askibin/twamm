@@ -2,9 +2,9 @@
 seeds = false
 skip-lint = false
 [programs.localnet]
-twamm = "TWM1DdtALRdEFzmiWmPeVY1Cdy6uXHSu6tWtFjE5x2k"
+twamm = "FL41FNCf2gqNrpNmEkeXAZwqgY7oTVNscUWJK495c2oL"
 [programs.testnet]
-twamm = "TWM1DdtALRdEFzmiWmPeVY1Cdy6uXHSu6tWtFjE5x2k"
+twamm = "FL41FNCf2gqNrpNmEkeXAZwqgY7oTVNscUWJK495c2oL"
 
 [registry]
 url = "https://api.apr.dev"

@@ -1,54 +1,55 @@
 import type { NextPage } from "next";
 import Box from "@mui/material/Box";
-import Container from "@mui/material/Container";
 import Head from "next/head";
+import { useCallback, useMemo, useState } from "react";
 
-import TokenRatio from "../src/components/organisms/token-ratio";
 import Header from "../src/components/organisms/header";
 import OfflineOverlay from "../src/components/organisms/offline-overlay";
+import Orders from "../src/components/ecosystems/orders";
 import styles from "./index.module.css";
+import Swap from "../src/components/ecosystems/swap";
+import TokenPairs from "../src/components/ecosystems/token-pairs";
+import WalletGuard from "../src/components/organisms/wallet-guard";
+import { modes } from "../src/components/atoms/mode-toggle";
+
+const DEFAULT_MODE = modes.get("swap") as string;
 
 const Home: NextPage = () => {
-  const { data } = {
-    data: {
-      tokenA: "RAY",
-      tokenB: "SOL",
-      tokenAValue: 1,
-      tokenBValue: 1,
+  const [mode, setMode] = useState<string>(DEFAULT_MODE);
+
+  const onModeChange = useCallback(
+    (nextMode: string) => {
+      setMode(nextMode);
     },
-  };
+    [setMode]
+  );
+
+  const component = useMemo(() => {
+    if (mode === modes.get("pools"))
+      return <TokenPairs mode={mode} onModeChange={onModeChange} />;
+
+    if (mode === modes.get("orders"))
+      return <Orders mode={mode} onModeChange={onModeChange} />;
+
+    if (mode === modes.get("swap"))
+      return <Swap mode={mode} onModeChange={onModeChange} />;
+
+    return null;
+  }, [mode, onModeChange]);
 
   return (
-    <div className={styles.root}>
+    <>
       <Head>
-        <meta
-          name="viewport"
-          content="initial-scale=1,user-scalable=no,maximum-scale=1,width=device-width"
-        />
-        <title>Login | Material Kit</title>
+        <title>Twamm</title>
       </Head>
-      <OfflineOverlay />
-      <Header />
-      <Box
-        className={styles.main}
-        component="main"
-        sx={{
-          alignItems: "center",
-          display: "flex",
-          flexGrow: 1,
-          minHeight: "100%",
-        }}
-      >
-        <Container maxWidth="sm">
-          <TokenRatio
-            tokenA={data.tokenA}
-            tokenB={data.tokenB}
-            tokenAValue={data.tokenAValue}
-            tokenBValue={data.tokenBValue}
-          />
-        </Container>
-      </Box>
-    </div>
+      <div className={styles.root}>
+        <OfflineOverlay />
+        <Header />
+        <Box className={styles.main} component="main" pt={10}>
+          <WalletGuard>{component}</WalletGuard>
+        </Box>
+      </div>
+    </>
   );
 };
 

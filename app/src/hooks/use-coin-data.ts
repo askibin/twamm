@@ -1,7 +1,7 @@
 import useSWR from "swr";
-import type { APIHook, CoingeckoApi } from "../utils/api";
-import { fetchJSONFromAPI } from "../utils/api";
 
+import type { APIHook, CoingeckoApi } from "../utils/api";
+import { dedupeEach, fetchJSONFromAPI } from "../utils/api";
 import { useCoingeckoApi } from "./use-coingecko-api";
 
 type Coin = {
@@ -56,12 +56,13 @@ const fetcher = (api: CoingeckoApi) => {
   };
 };
 
-// eslint-disable-next-line import/prefer-default-export
 export const useCoinData: APIHook<{ id: string }, Coin> = (
   params,
   options = {}
 ) => {
   const api = useCoingeckoApi();
+
+  const opts = { ...dedupeEach(), ...options };
 
   const params1 = params?.id
     ? {
@@ -74,5 +75,5 @@ export const useCoinData: APIHook<{ id: string }, Coin> = (
       }
     : undefined;
 
-  return useSWR(params1 && swrKey(params1), fetcher(api), options);
+  return useSWR(params1 && swrKey(params1), fetcher(api), opts);
 };

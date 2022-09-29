@@ -1,0 +1,35 @@
+{
+  "name": "@twamm/client.js",
+  "publishConfig": {
+    "access": "public"
+  },
+  "version": "0.0.1",
+  "description": "> TODO: description",
+  "homepage": "https://github.com/askibin/twamm#readme",
+  "main": "lib/client.ts",
+  "directories": {
+    "lib": "lib",
+    "test": "__tests__"
+  },
+  "files": [
+    "lib"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/askibin/twamm.git"
+  },
+  "scripts": {
+    "test": "node ./__tests__/client.test.ts"
+  },
+  "bugs": {
+    "url": "https://github.com/askibin/twamm/issues"
+  },
+  "dependencies": {
+    "@project-serum/anchor": "^0.25.0",
+    "@solana/spl-token": "^0.3.5",
+    "@solana/web3.js": "^1.62.0",
+    "bs58": "^5.0.0",
+    "js-sha256": "^0.9.0"
+  },
+  "gitHead": "4ed246bd4a1a3934a295bf93245a58824c0042a4"
+}
