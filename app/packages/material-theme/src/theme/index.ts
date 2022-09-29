@@ -8,6 +8,10 @@ export const theme = createTheme({
       md: 1000,
       lg: 1200,
       xl: 1920,
+      mobile: 0,
+      tablet: 640,
+      laptop: 1024,
+      desktop: 1200,
     },
   },
   components: {
