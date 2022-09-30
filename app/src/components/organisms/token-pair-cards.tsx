@@ -1,3 +1,4 @@
+import type { PublicKey } from "@solana/web3.js";
 import { useMemo } from "react";
 
 import PairCard, { Blank } from "../atoms/pair-card";
@@ -7,11 +8,17 @@ export interface Props {
   data?: Array<any>;
 }
 
-// const PAIRS = [
-// ["SOL", "USDC"],
-// ["SOL", "USDT"],
-// ["USDC", "USDT"],
-// ];
+type PairData = {
+  configA: {
+    mint: PublicKey;
+  };
+  configB: {
+    mint: PublicKey;
+  };
+  // TODO: improve fee types
+  feeNumerator: any;
+  feeDenominator: any;
+};
 
 export default ({ data }: Props) => {
   if (!data) {
@@ -28,9 +35,14 @@ export default ({ data }: Props) => {
   }
 
   const tokenPairs = useMemo(() => {
-    const pairs: Array<{ id: string; fee: number }> = [];
+    const pairs: Array<{
+      aMint: string;
+      bMint: string;
+      id: string;
+      fee: number;
+    }> = [];
 
-    data.forEach((pair: any, i: number) => {
+    data.forEach((pair: PairData, i: number) => {
       const { configA, configB, feeNumerator, feeDenominator } = pair;
 
       const aMint = configA.mint.toBase58();
@@ -41,8 +53,10 @@ export default ({ data }: Props) => {
       const fee = numerator / denominator;
 
       pairs[i] = {
-        id: `${aMint}-${bMint}`,
+        aMint,
+        bMint,
         fee,
+        id: `${aMint}-${bMint}`,
       };
     });
 
@@ -51,14 +65,14 @@ export default ({ data }: Props) => {
 
   return (
     <Styled.CardList>
-      {/* PAIRS.map((pair) => (
-        <Styled.CardListItem key={pair.join("-")}>
-          <PairCard name={`${pair[0]}-${pair[1]}`} perf={0} aum={0} />
-        </Styled.CardListItem>
-      )) */}
       {tokenPairs.map((tokenPair) => (
         <Styled.CardListItem key={tokenPair.id}>
-          <PairCard name="A-B" perf={0} fee={tokenPair.fee} />
+          <PairCard
+            aMint={tokenPair.aMint}
+            bMint={tokenPair.bMint}
+            perf={0}
+            fee={tokenPair.fee}
+          />
         </Styled.CardListItem>
       ))}
     </Styled.CardList>

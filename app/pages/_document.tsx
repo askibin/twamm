@@ -13,10 +13,6 @@ export default class PageDocument extends Document {
         <Head>
           <link rel="manifest" href="/manifest.json" />
           <meta name="theme-color" content={main} />
-          <meta
-            name="viewport"
-            content="initial-scale=1,user-scalable=no,maximum-scale=1,width=device-width"
-          />
           <link rel="apple-touch-icon" href="/static/favicon-32x32.png" />
           <meta name="apple-mobile-web-app-status-bar" content={main} />
           <link rel="icon" href="/static/favicon.ico" />
