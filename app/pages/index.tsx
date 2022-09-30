@@ -40,6 +40,10 @@ const Home: NextPage = () => {
   return (
     <>
       <Head>
+        <meta
+          name="viewport"
+          content="initial-scale=1,user-scalable=no,maximum-scale=1,width=device-width"
+        />
         <title>Twamm</title>
       </Head>
       <div className={styles.root}>

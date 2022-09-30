@@ -1,10 +1,11 @@
 import type { FC, ReactNode } from "react";
 import { createContext, useState } from "react";
 
-import { CoinsApi } from "../api/coingecko";
+import { CoinsApi, ContractApi } from "../api/coingecko";
 
 export type CoingeckoApiContextType = {
   api: CoinsApi;
+  contractApi: ContractApi;
 };
 
 export const ApiContext = createContext<CoingeckoApiContextType | undefined>(
@@ -16,6 +17,7 @@ export const CoingeckoApiProvider: FC<{ children: ReactNode }> = ({
 }) => {
   const [context] = useState<CoingeckoApiContextType>({
     api: new CoinsApi(),
+    contractApi: new ContractApi(),
   });
 
   return <ApiContext.Provider value={context}>{children}</ApiContext.Provider>;

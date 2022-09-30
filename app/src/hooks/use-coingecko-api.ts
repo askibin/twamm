@@ -9,3 +9,11 @@ export function useCoingeckoApi() {
   }
   return context.api;
 }
+
+export function useCoingeckoContractApi() {
+  const context = useContext(ApiContext);
+  if (context === undefined) {
+    throw new Error("Coingecko context is required");
+  }
+  return context.contractApi;
+}

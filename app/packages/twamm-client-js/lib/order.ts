@@ -26,8 +26,6 @@ export class Order {
       }
     );
 
-    console.log({ orders });
-
     return Promise.all(
       orders.map((order: { pubkey: PublicKey }) =>
         this.program.account.order.fetch(order.pubkey)
