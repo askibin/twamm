@@ -32,8 +32,8 @@ pub struct TokenStats {
     pub pending_withdrawals: u64,
     pub fees_collected: u64,
     pub order_volume_usd: f64,
-    pub trade_volume_usd: f64,
-    pub settle_volume_usd: f64,
+    pub routed_volume_usd: f64,
+    pub settled_volume_usd: f64,
 }
 
 #[derive(Copy, Clone, Default, Debug, Eq, PartialEq)]
@@ -427,13 +427,13 @@ impl TokenPair {
         let oracle_price_b = self.get_token_b_oracle_price(oracle_token_b)?;
         if settlement.settlement_side == MatchingSide::Sell {
             if settlement_type == SettlementType::Crank {
-                self.stats_a.trade_volume_usd += oracle::get_asset_value_usd(
+                self.stats_a.routed_volume_usd += oracle::get_asset_value_usd(
                     settlement.net_amount_settled,
                     self.config_a.decimals,
                     &oracle_price_a,
                 )?;
             } else {
-                self.stats_a.settle_volume_usd += oracle::get_asset_value_usd(
+                self.stats_a.settled_volume_usd += oracle::get_asset_value_usd(
                     settlement.net_amount_settled,
                     self.config_a.decimals,
                     &oracle_price_a,
@@ -441,13 +441,13 @@ impl TokenPair {
             }
         } else if settlement.settlement_side == MatchingSide::Buy {
             if settlement_type == SettlementType::Crank {
-                self.stats_b.trade_volume_usd += oracle::get_asset_value_usd(
+                self.stats_b.routed_volume_usd += oracle::get_asset_value_usd(
                     settlement.net_amount_settled,
                     self.config_b.decimals,
                     &oracle_price_b,
                 )?;
             } else {
-                self.stats_b.settle_volume_usd += oracle::get_asset_value_usd(
+                self.stats_b.settled_volume_usd += oracle::get_asset_value_usd(
                     settlement.net_amount_settled,
                     self.config_b.decimals,
                     &oracle_price_b,
