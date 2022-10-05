@@ -6,7 +6,7 @@ import { createContext, useCallback, useMemo, useState } from "react";
 export type Cluster = {
   name: string;
   endpoint: string;
-  moniker?: Clstr;
+  moniker?: Clstr | "custom";
 };
 
 export type Commitment = "confirmed";
@@ -48,8 +48,21 @@ export const BlockchainConnectionProvider: FC<{ children: ReactNode }> = ({
 
   const initialCommitment = commitments[0];
 
+  let initialCluster: Cluster = clusters[0];
+  if (globalThis.localStorage) {
+    const customEndpoint =
+      globalThis.localStorage?.getItem("twammClusterEndpoint") ??
+      clusters[0].endpoint;
+    // TODO: validate endpoint && handle custom outage gracefully
+    initialCluster = {
+      name: "Custom",
+      endpoint: customEndpoint,
+      moniker: "custom",
+    };
+  }
+
   const [commitment] = useState(initialCommitment);
-  const [cluster, setCluster] = useState(clusters[0]);
+  const [cluster, setCluster] = useState(initialCluster);
 
   const createConnection = useCallback(
     (commit: Cmtmnt = initialCommitment) =>

@@ -1,13 +1,12 @@
-/* eslint-disable */
-// TODO: remove ^
-import Avatar from "@mui/material/Avatar";
 import Box from "@mui/material/Box";
-import CurrencyExchangeIcon from "@mui/icons-material/CurrencyExchange";
-import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
-import { useFormik } from "formik";
+import Button from "@mui/material/Button";
+import SyncAltIcon from "@mui/icons-material/SyncAlt";
 import { useCallback, useRef, useState } from "react";
 
-import TokenField from "../atoms/token-field";
+import TimeInterval from "../atoms/time-interval";
+import TokenSelect from "../atoms/token-select";
+import InTokenField from "../molecules/in-token-field";
+import * as Styled from "./token-pair-form.styled";
 import styles from "./token-pair-form.module.css";
 
 export interface Props {
@@ -29,13 +28,8 @@ export default ({
   onASelect,
   onBSelect,
 }: Props) => {
-  const popoverRef = useRef<{ isOpened: boolean; open: () => void }>();
-  const form = useFormik({
-    initialValues: {},
-    onSubmit: () => {},
-  });
-
   const [curToken, setCurToken] = useState<number>();
+  const [isSubmitting, setSubmitting] = useState(false);
 
   const onCoinSelect = useCallback(
     (symbol: string) => {
@@ -44,45 +38,44 @@ export default ({
     [curToken]
   );
 
+  const onSubmit = useCallback(() => {
+    setSubmitting(true);
+  }, [setSubmitting]);
+
   return (
-    <form onSubmit={form.handleSubmit}>
-      <Box>
-        <TokenField
-          alt={tokenA}
-          image={tokenAImage}
-          label="Pay"
-          onClick={onASelect}
-        />
-      </Box>
-      <Box p={2} sx={{ display: "flex", justifyContent: "center" }}>
-        <CurrencyExchangeIcon />
-      </Box>
-      <Box>
-        <TokenField
+    <form onSubmit={onSubmit}>
+      <Styled.TokenLabelBox>You pay</Styled.TokenLabelBox>
+      <InTokenField name={tokenA} src={tokenAImage} onSelect={onASelect} />
+      <Styled.OperationImage>
+        <SyncAltIcon />
+      </Styled.OperationImage>
+      <Styled.TokenLabelBox>You receive</Styled.TokenLabelBox>
+      <Box pb={2}>
+        <TokenSelect
           alt={tokenB}
           image={tokenBImage}
-          label="Receive"
+          label={tokenB}
           onClick={onBSelect}
         />
       </Box>
-      {/*<TextField
-        error={Boolean(form.touched.email && form.errors.email)}
-        fullWidth
-        helperText={form.touched.email && form.errors.email}
-        label="Email Address"
-        margin="normal"
-        name="email"
-        onBlur={form.handleBlur}
-        onChange={form.handleChange}
-        type="email"
-        value={form.values.email}
-        variant="outlined"
-      />*/}
-      <Box className={styles.connectBox} sx={{ py: 2 }}>
-        <WalletMultiButton
-          className={styles.connectWallet}
-          disabled={form.isSubmitting}
+      <Box pb={2}>
+        <TimeInterval
+          info=""
+          label="Schedule Order"
+          values={[-1, 300, 800, 5600]}
         />
+      </Box>
+      <Box pb={2}>
+        <TimeInterval
+          info=""
+          label="Execution Period"
+          values={[300, 800, 5600]}
+        />
+      </Box>
+      <Box className={styles.connectBox} sx={{ py: 2 }}>
+        <Button className={styles.connectWallet} disabled={isSubmitting}>
+          Schedule
+        </Button>
       </Box>
     </form>
   );

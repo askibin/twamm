@@ -12,6 +12,7 @@ const THEME_OVERRIDES = {
   palette: {
     background: {
       default: "#121623",
+      paper: "#181f2b",
     },
   },
 };
@@ -53,6 +54,11 @@ declare module "@mui/material/styles" {
     laptop: true;
     desktop: true;
   }
+  interface ColorOverrides {
+    white: {
+      600: true;
+    };
+  }
 }
 
 const lensBreakpoints = lensPath(["breakpoints", "values"]);
@@ -67,15 +73,19 @@ const getBreakpoints = (theme: Theme) => {
     desktop: 1200,
   });
 
-  const lensDefaultBackground = lensPath(["palette", "background", "default"]);
+  return setBreakpoints(theme);
+};
+
+const getPalette = (theme: Theme) => {
+  const lensDefaultBackground = lensPath(["palette", "background"]);
   const setDefaultBackground = set(
     lensDefaultBackground,
     view(lensDefaultBackground, THEME_OVERRIDES)
   );
 
-  return pipe(setBreakpoints, setDefaultBackground)(theme);
+  return pipe(setDefaultBackground)(theme);
 };
 
-export const dark = getBreakpoints(getOverrides(kitTheme, "dark"));
+export const dark = getPalette(getBreakpoints(getOverrides(kitTheme, "dark")));
 
 export default dark;
