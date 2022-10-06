@@ -4,10 +4,16 @@ import Typography from "@mui/material/Typography";
 import { useMemo } from "react";
 
 import Table from "../atoms/table";
-import { useAccountOrders } from "../../hooks/use-account-orders";
+// import { useAccountOrders } from "../../hooks/use-account-orders";
 
 export default () => {
-  const { data, error, isValidating } = useAccountOrders();
+  //const { data, error, isValidating } = useAccountOrders();
+
+  const { data, error, isValidating } = {
+    data: [],
+    error: false,
+    isValidating: false,
+  };
 
   const isLoading = !data && !error && isValidating;
 
