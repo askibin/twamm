@@ -28,7 +28,7 @@ const fetcher = (provider: Provider, program: Program) => {
 export const useTokenPair = () => {
   const { program, provider } = useProgram();
 
-  const opts = { ...dedupeEach(5e3), ...revalOnFocus() };
+  const opts = { ...dedupeEach(20e3), ...revalOnFocus() };
 
   return swr("TokenPair", fetcher(provider, program), opts);
 };

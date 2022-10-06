@@ -1,6 +1,5 @@
 import Avatar from "@mui/material/Avatar";
 import Box from "@mui/material/Box";
-import TextField from "@mui/material/TextField";
 import { styled } from "@mui/material/styles";
 
 export const TokenField = styled(Box)`
@@ -23,6 +22,7 @@ export const TokenAmountTextField = styled("input")`
   padding: 5px 12px;
   font-size: 32px;
   font-weight: 600px;
+  color: #fff;
 `;
 
 export const TokenName = styled("span")``;

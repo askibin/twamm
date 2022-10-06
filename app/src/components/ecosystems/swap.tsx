@@ -1,14 +1,10 @@
 import { useCallback, useMemo, useState } from "react";
 import Box from "@mui/material/Box";
 import Container from "@mui/material/Container";
-import Paper from "@mui/material/Paper";
-import Divider from "@mui/material/Divider";
 import TuneIcon from "@mui/icons-material/Tune";
 import Backdrop from "@mui/material/Backdrop";
 import Modal from "@mui/material/Modal";
-import Fade from "@mui/material/Fade";
-import Button from "@mui/material/Button";
-import Typography from "@mui/material/Typography";
+import DialogContent from "@mui/material/DialogContent";
 
 import ModeToggle from "../atoms/mode-toggle";
 import SettingsModal from "../molecules/settings-modal";
@@ -50,7 +46,9 @@ export default ({ mode, onModeChange }: Props) => {
         BackdropComponent={Backdrop}
         BackdropProps={timeout}
       >
-        <SettingsModal open={opened} handleClose={onModalClose} />
+        <DialogContent>
+          <SettingsModal open={opened} handleClose={onModalClose} />
+        </DialogContent>
       </Modal>
       <Container maxWidth="sm">
         <Box p={2.5} sx={{ display: "flex", justifyContent: "center" }}>

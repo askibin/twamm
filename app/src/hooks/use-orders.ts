@@ -26,5 +26,5 @@ const fetcher = (provider: Provider, program: Program) => {
 export const useOrders = () => {
   const { program, provider } = useProgram();
 
-  return swr("Orders", fetcher(provider, program), dedupeEach());
+  return swr("Orders", fetcher(provider, program), dedupeEach(20e3));
 };

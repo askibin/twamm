@@ -29,7 +29,7 @@ export default ({
   gridProps,
   isUpdating = false,
   onRowClick = () => {},
-  searchBoxPlaceholderText,
+  // searchBoxPlaceholderText,
   title,
 }: Props) => {
   const [filterText, setFilterText] = useState("");
@@ -37,12 +37,14 @@ export default ({
   const options = useMemo(() => ({ pagination: { pageSize: 10 } }), []);
   const pages = useMemo(() => [10, 25, 50, 100], []);
 
-  const onFilterChange = useCallback(
-    (event: ChangeEvent<HTMLInputElement>) => {
-      setFilterText(event.target.value);
-    },
-    [setFilterText]
-  );
+  /*
+   *const onFilterChange = useCallback(
+   *  (event: ChangeEvent<HTMLInputElement>) => {
+   *    setFilterText(event.target.value);
+   *  },
+   *  [setFilterText]
+   *);
+   */
 
   const filterModel = useMemo(
     () => ({
@@ -58,7 +60,7 @@ export default ({
   );
 
   return (
-    <Paper sx={{ padding: "24px" }}>
+    <Styled.Container sx={{ padding: "24px" }}>
       <Box
         sx={{
           alignItems: "center",
@@ -72,11 +74,12 @@ export default ({
           {description && <Typography color="gray">{description}</Typography>}
         </Box>
 
+        {/*
         <TextField
           size="small"
           placeholder={searchBoxPlaceholderText ?? "Search"}
           onChange={onFilterChange}
-        />
+        /> */}
       </Box>
 
       <Styled.Grid
@@ -95,6 +98,6 @@ export default ({
         {...gridProps} /* eslint-disable-line react/jsx-props-no-spreading */
       />
       {isUpdating && <Typography variant="body1">Updating...</Typography>}
-    </Paper>
+    </Styled.Container>
   );
 };

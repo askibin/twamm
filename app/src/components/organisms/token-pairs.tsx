@@ -7,6 +7,8 @@ import { useTokenPair } from "../../hooks/use-token-pair";
 export default () => {
   const { data } = useTokenPair();
 
+  console.log("dd", data);
+
   return (
     <Box>
       <Typography pb={2} color="white" variant="h4">

@@ -34,7 +34,7 @@ export default function TokenRatio(props: Props) {
   const initialTokenB = useCoinData({ id: "solana" });
   const initialTokenA = useCoinData({ id: "tether" });
 
-  const availableTokenPair = useTokenPairByMints(["solana", "tether"]);
+  // const availableTokenPair = useTokenPairByMints(["solana", "tether"]);
 
   return (
     <>
