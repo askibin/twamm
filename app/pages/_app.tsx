@@ -1,7 +1,8 @@
+import "@solana/wallet-adapter-react-ui/styles.css";
 import type { AppProps } from "next/app";
 import { CacheProvider, EmotionCache } from "@emotion/react";
+import { LicenseInfo } from "@mui/x-license-pro";
 import { StrictMode } from "react";
-import "@solana/wallet-adapter-react-ui/styles.css";
 
 import "../styles/globals.css";
 import createEmotionCache from "../src/emotion-cache";
@@ -10,6 +11,9 @@ import { CoingeckoApiProvider } from "../src/contexts/coingecko-api-context";
 import { NotificationProvider } from "../src/contexts/notification-context";
 import { ThemeProvider } from "../src/contexts/theme-context";
 import { WalletProvider } from "../src/contexts/wallet-context";
+import { muiLicenseKey } from "../src/env";
+
+LicenseInfo.setLicenseKey(muiLicenseKey);
 
 const clientSideEmotionCache = createEmotionCache();
 

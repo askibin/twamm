@@ -22,6 +22,7 @@ export const ModeButton = styledButton(({ selected }) => {
     textTransform: "none",
     border: "1px solid transparent",
     fontWeight: 600,
+    whiteSpace: "nowrap",
   };
 
   if (!selected) return style;

@@ -1,4 +1,9 @@
-import type { SWRResponse } from "swr";
+import type {
+  Revalidator,
+  RevalidatorOptions,
+  SWRConfiguration,
+  SWRResponse,
+} from "swr";
 
 import type { CoingeckoApiContextType } from "../contexts/coingecko-api-context";
 import { CoinsApi as Api } from "../api/coingecko/api";
@@ -53,4 +58,28 @@ export const dedupeEach = (interval = 2000) => ({
 
 export const revalOnFocus = (shouldRevalidate = false) => ({
   revalidateOnFocus: shouldRevalidate,
+});
+
+export const retryFor = (interval = 10000, retryAttempts = 10) => ({
+  refreshInterval: interval,
+  onErrorRetry: (
+    resp: Response,
+    key: string,
+    configuration: SWRConfiguration,
+    revalidate: Revalidator,
+    revalidatorOpts: Required<RevalidatorOptions>
+  ) => {
+    const { refreshInterval } = configuration;
+    const { retryCount } = revalidatorOpts;
+
+    // That might be the issue one time. Think about stop retrying at some point
+    if (resp.status === 404 || retryCount > retryAttempts) {
+      return;
+    }
+
+    const retryIn =
+      typeof refreshInterval === "number" ? refreshInterval : interval;
+
+    setTimeout(revalidate, retryIn, { retryCount });
+  },
 });

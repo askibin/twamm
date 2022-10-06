@@ -1,8 +1,7 @@
 import Paper from "@mui/material/Paper";
-import { DataGrid } from "@mui/x-data-grid";
+import TextField from "@mui/material/TextField";
+import { DataGridPro } from "@mui/x-data-grid-pro";
 import { styled } from "@mui/material/styles";
-
-const styledGrid = styled(DataGrid);
 
 export const Container = styled(Paper)`
   padding: ${({ theme }) => theme.spacing(2)};
@@ -10,8 +9,7 @@ export const Container = styled(Paper)`
   background-color: #1b202e;
 `;
 
-export const Grid = styledGrid`
-
+export const Grid = styled(DataGridPro)`
   & .MuiDataGrid-row {
     cursor: pointer;
   }

@@ -46,9 +46,9 @@ export default function ClusterSelector({ handleClose = () => {} }: Props) {
       const origin = clusters.find((item) => item.moniker === cluster.moniker)!;
 
       setCluster({
-        ...origin,
         endpoint,
-        name: `${origin.name} (custom)`,
+        moniker: origin?.moniker ?? "custom",
+        name: origin?.name ?? "Custom",
       });
 
       onClusterSelect(endpoint);

@@ -11,7 +11,7 @@ export default () => {
 
   return (
     <Box>
-      <Typography pb={2} color="white" variant="h4">
+      <Typography pb={2} variant="h4">
         Performing Pairs
       </Typography>
       <TokenPairCards data={data} />

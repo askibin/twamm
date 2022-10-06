@@ -71,8 +71,29 @@ const palette = {
   },
 };
 
+const lightPalette = {
+  ...palette,
+  text: {
+    primary: "#121828",
+    secondary: "#fff",
+    disabled: "#c6c6c6",
+  },
+};
+
+const darkPalette = {
+  ...palette,
+  text: {
+    ...palette.text,
+    primary: "#fff",
+  },
+  background: {
+    default: "#121623",
+    paper: "#181f2b",
+  },
+};
+
 export const light = {
-  palette,
+  palette: lightPalette,
   components: {
     MuiPaper: {
       styleOverrides: {
@@ -83,20 +104,46 @@ export const light = {
 };
 
 export const dark = {
-  palette: {
-    ...palette,
-    background: {
-      default: "#121623",
-      paper: "#181f2b",
-    },
-  },
+  palette: darkPalette,
   components: {
+    MuiDataGrid: {
+      styleOverrides: {
+        root: {
+          color: "#fff",
+        },
+        overlay: {
+          color: "#fff",
+          position: "relative",
+        },
+      },
+    },
+    MuiInputBase: {
+      styleOverrides: {
+        input: {
+          color: "#fff",
+        },
+      },
+    },
+    MuiOutlinedInput: {
+      styleOverrides: {
+        notchedOutline: {
+          borderColor: "#E6E8F0",
+        },
+      },
+    },
     MuiPaper: {
       styleOverrides: {
         root: {
           color: "rgba(255, 255, 255, 0.6)",
           background:
             "linear-gradient(110.5deg, rgba(26, 31, 46, 0.4) 3.75%, rgba(36, 41, 57, 0.4) 117.62%)",
+        },
+      },
+    },
+    MuiTypography: {
+      styleOverrides: {
+        root: {
+          color: darkPalette.text.primary,
         },
       },
     },
