@@ -13,23 +13,35 @@ import { useBreakpoints } from "../../hooks/use-breakpoints";
 export interface Props {
   // eslint-disable-next-line react/no-unused-prop-types
   onChange?: (arg0: string) => void;
+  tokens?: string[];
 }
 
 interface ModalProps extends Props {
   onSelect: (arg0: string) => void;
   open: boolean;
   setOpen: (arg0: boolean) => void;
+  tokens?: string[];
 }
 
-const Modal = memo(({ onSelect, open, setOpen }: ModalProps) => (
-  <CoinModal open={open} setOpen={setOpen} onSelect={onSelect} />
+const Modal = memo(({ onSelect, open, setOpen, tokens }: ModalProps) => (
+  <CoinModal
+    open={open}
+    setOpen={setOpen}
+    onSelect={onSelect}
+    tokens={tokens}
+  />
 ));
 
-const Drawer = memo(({ onSelect, open, setOpen }: ModalProps) => (
-  <CoinDrawer onSelect={onSelect} open={open} setOpen={setOpen} />
+const Drawer = memo(({ onSelect, open, setOpen, tokens }: ModalProps) => (
+  <CoinDrawer
+    onSelect={onSelect}
+    open={open}
+    setOpen={setOpen}
+    tokens={tokens}
+  />
 ));
 
-export default forwardRef(({ onChange = () => {} }: Props, ref) => {
+export default forwardRef(({ onChange = () => {}, tokens }: Props, ref) => {
   const { isMobile } = useBreakpoints();
   const [open, setOpen] = useState(false);
 
@@ -51,8 +63,17 @@ export default forwardRef(({ onChange = () => {} }: Props, ref) => {
   }));
 
   if (isMobile) {
-    return <Drawer onSelect={onSelect} open={open} setOpen={setOpen} />;
+    return (
+      <Drawer
+        onSelect={onSelect}
+        open={open}
+        setOpen={setOpen}
+        tokens={tokens}
+      />
+    );
   }
 
-  return <Modal onSelect={onSelect} open={open} setOpen={setOpen} />;
+  return (
+    <Modal onSelect={onSelect} open={open} setOpen={setOpen} tokens={tokens} />
+  );
 });

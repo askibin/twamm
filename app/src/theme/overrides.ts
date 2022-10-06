@@ -140,6 +140,13 @@ export const dark = {
         },
       },
     },
+    MuiSkeleton: {
+      styleOverrides: {
+        root: {
+          backgroundColor: "rgba(255, 255, 255, 0.04)",
+        },
+      },
+    },
     MuiTypography: {
       styleOverrides: {
         root: {

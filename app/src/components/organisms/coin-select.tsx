@@ -6,25 +6,39 @@ import SearchIcon from "@mui/icons-material/Search";
 import TextField from "@mui/material/TextField";
 import { useCallback, useMemo, useState } from "react";
 
+import type { JupToken } from "../../hooks/use-jup-tokens";
 import CoinSelect from "../molecules/coin-select";
 import CoinTags from "../molecules/coin-tags";
 import styles from "./coin-select.module.css";
-import { useCoins } from "../../hooks/use-coins";
+import { useJupTokensByMint } from "../../hooks/use-jup-tokens-by-mints";
 
 export interface Props {
-  onSelect: (arg0: string) => void;
+  tokens?: string[];
+  onSelect: (arg0: JupToken) => void;
 }
 
 const STARRED_COINS = ["usdt", "usdc", "sol", "ray", "dai", "busd"];
 
-export default ({ onSelect = () => {} }: Props) => {
-  const { data, isValidating } = useCoins();
+export default ({ tokens, onSelect = () => {} }: Props) => {
+  // const { data, isValidating } = useCoins();
+  // TODO: remove use-coins;
   const [search, setSearch] = useState<string>();
+
+  const { data, isValidating } = useJupTokensByMint(tokens);
 
   const coinRecords = useMemo(() => {
     if (!data) return {};
 
-    return data;
+    const records: Record<string, any> = {};
+
+    data.forEach((token) => {
+      records[token.symbol.toLowerCase()] = {
+        ...token,
+        image: token.logoURI,
+      };
+    });
+
+    return records;
   }, [data]);
 
   const starredCoins = STARRED_COINS.map(
@@ -33,9 +47,9 @@ export default ({ onSelect = () => {} }: Props) => {
 
   const onCoinSelect = useCallback(
     (_: MouseEvent, symbol: string) => {
-      onSelect(symbol);
+      onSelect(coinRecords[symbol.toLowerCase()]);
     },
-    [onSelect]
+    [coinRecords, onSelect]
   );
 
   const onSearch = useCallback((e: ChangeEvent<HTMLInputElement>) => {

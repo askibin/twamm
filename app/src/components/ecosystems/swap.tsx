@@ -10,6 +10,7 @@ import ModeToggle from "../atoms/mode-toggle";
 import SettingsModal from "../molecules/settings-modal";
 import TokenRatio from "../organisms/token-ratio";
 import * as Styled from "./swap.styled";
+import { useTokenPairsToSwap } from "../../hooks/use-token-pairs-to-swap";
 
 export interface Props {
   mode: string;
@@ -18,6 +19,11 @@ export interface Props {
 
 export default ({ mode, onModeChange }: Props) => {
   const [opened, setOpened] = useState(false);
+
+  const tokenPairs = useTokenPairsToSwap();
+
+  console.log(tokenPairs.data);
+
   const { data } = {
     data: {
       tokenA: "RAY",
@@ -50,12 +56,14 @@ export default ({ mode, onModeChange }: Props) => {
           <SettingsModal open={opened} handleClose={onModalClose} />
         </DialogContent>
       </Modal>
+
       <Container maxWidth="sm">
         <Box p={2.5} sx={{ display: "flex", justifyContent: "center" }}>
           <ModeToggle mode={mode} onChange={onModeChange} />
         </Box>
         <Styled.Section>
           <TokenRatio
+            pairs={tokenPairs}
             tokenA={data.tokenA}
             tokenB={data.tokenB}
             tokenAValue={data.tokenAValue}

@@ -1,18 +1,27 @@
+import type { SWRResponse } from "swr";
 import Box from "@mui/material/Box";
-import { useCallback, useRef, useState } from "react";
+import CircularProgress from "@mui/material/CircularProgress";
+import { flatten } from "ramda";
+import { useCallback, useMemo, useRef, useState } from "react";
 
+import type { JupToken } from "../../hooks/use-jup-tokens";
 import * as Styled from "./token-ratio.styled";
 import CoinPopover from "./coin-popover";
 import TokenPairForm from "../molecules/token-pair-form";
-import { useCoinData } from "../../hooks/use-coin-data";
-import { useTokenPairByMints } from "../../hooks/use-token-pair-by-mints";
+import { useTokenPair } from "../../hooks/use-token-pair-to-swap";
 
-export interface Props {}
+export interface Props {
+  pairs: SWRResponse<Array<[string, string]>>;
+}
 
-export default function TokenRatio(props: Props) {
+export default function TokenRatio({ pairs }: Props) {
   const popoverRef = useRef<{ isOpened: boolean; open: () => void }>();
 
   const [curToken, setCurToken] = useState<number>();
+  const [aToken, setAToken] = useState<JupToken>();
+  const [bToken, setBToken] = useState<JupToken>();
+
+  const selectedPair = useTokenPair(aToken && bToken && { aToken, bToken });
 
   const onTokenAChoose = useCallback(() => {
     setCurToken(1);
@@ -25,29 +34,46 @@ export default function TokenRatio(props: Props) {
   }, [popoverRef, setCurToken]);
 
   const onCoinSelect = useCallback(
-    (symbol: string) => {
-      console.log(curToken, symbol); // eslint-disable-line no-console
+    (token: JupToken) => {
+      if (curToken === 1) setAToken(token);
+      if (curToken === 2) setBToken(token);
     },
     [curToken]
   );
 
-  const initialTokenB = useCoinData({ id: "solana" });
-  const initialTokenA = useCoinData({ id: "tether" });
+  const availableTokens = useMemo(() => {
+    if (!pairs.data) return undefined;
 
-  // const availableTokenPair = useTokenPairByMints(["solana", "tether"]);
+    return Array.from(new Set(flatten(pairs.data)).values());
+  }, [pairs.data]);
+
+  if (!pairs.data && !pairs.error) {
+    return (
+      <Box sx={{ display: "flex", justifyContent: "center" }}>
+        <CircularProgress />
+      </Box>
+    );
+  }
 
   return (
     <>
-      <CoinPopover ref={popoverRef} onChange={onCoinSelect} />
+      <CoinPopover
+        onChange={onCoinSelect}
+        ref={popoverRef}
+        tokens={availableTokens}
+      />
       <Styled.Swap elevation={1}>
         <Box p={2}>
           <TokenPairForm
             onASelect={onTokenAChoose}
             onBSelect={onTokenBChoose}
-            tokenA={initialTokenA.data?.symbol}
-            tokenAImage={initialTokenA.data?.image.small}
-            tokenB={initialTokenB.data?.symbol}
-            tokenBImage={initialTokenB.data?.image.small}
+            tokenA={aToken?.symbol}
+            tokenAImage={aToken?.logoURI}
+            tokenAMint={aToken?.address}
+            tokenB={bToken?.symbol}
+            tokenBImage={bToken?.logoURI}
+            tokenBMint={bToken?.address}
+            tokenPair={selectedPair}
           />
         </Box>
       </Styled.Swap>

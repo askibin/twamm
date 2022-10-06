@@ -8,9 +8,10 @@ export interface Props {
   name?: string;
   src?: string;
   onSelect: () => void;
+  onChange: () => void;
 }
 
-export default ({ name = "-", src, onSelect }: Props) => {
+export default ({ name = "-", src, onSelect, onChange }: Props) => {
   const { data: total } = { data: 0 };
 
   return (
@@ -20,7 +21,7 @@ export default ({ name = "-", src, onSelect }: Props) => {
           <TokenSelect alt={name} image={src} label={name} onClick={onSelect} />
         </Grid>
         <Grid item xs={8}>
-          <TokenField alt={name} image={src} label="Pay" onClick={onSelect} />
+          <TokenField alt={name} image={src} onChange={onChange} />
           <Styled.TokenTotal>
             {total ?? "-"} {name}
           </Styled.TokenTotal>

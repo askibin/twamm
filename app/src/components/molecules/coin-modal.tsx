@@ -13,9 +13,10 @@ export interface Props {
   onSelect: (arg0: string) => void;
   open: boolean;
   setOpen: (arg0: boolean) => void;
+  tokens?: string[];
 }
 
-export default ({ onSelect = () => {}, open, setOpen }: Props) => {
+export default ({ onSelect = () => {}, open, setOpen, tokens }: Props) => {
   const handleClose = () => setOpen(false);
 
   const p2 = useMemo(() => ({ p: 2 }), []);
@@ -48,7 +49,7 @@ export default ({ onSelect = () => {}, open, setOpen }: Props) => {
           >
             <CloseIcon />
           </IconButton>
-          <CoinSelect onSelect={onCoinSelect} />
+          <CoinSelect tokens={tokens} onSelect={onCoinSelect} />
         </Paper>
       </Fade>
     </Modal>

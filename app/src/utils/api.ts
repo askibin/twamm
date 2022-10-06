@@ -56,6 +56,10 @@ export const dedupeEach = (interval = 2000) => ({
   dedupingInterval: interval,
 });
 
+export const refreshEach = (interval = 5000) => ({
+  refreshInterval: interval,
+});
+
 export const revalOnFocus = (shouldRevalidate = false) => ({
   revalidateOnFocus: shouldRevalidate,
 });

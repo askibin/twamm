@@ -11,6 +11,7 @@ export interface Props {
   onSelect: (arg0: string) => void;
   open: boolean;
   setOpen: (arg0: boolean) => void;
+  tokens?: string[];
 }
 
 const StyledBox = styled(Box)(({ theme }) => ({
@@ -33,6 +34,7 @@ export default ({
   onSelect: handleSelect = () => {},
   open,
   setOpen,
+  tokens,
 }: Props) => {
   const toggleDrawer = (newOpen: boolean) => () => {
     setOpen(newOpen);
@@ -79,7 +81,7 @@ export default ({
           overflow: "auto",
         }}
       >
-        <CoinSelect onSelect={onSelect} />
+        <CoinSelect tokens={tokens} onSelect={onSelect} />
       </StyledBox>
     </SwipeableDrawer>
   );

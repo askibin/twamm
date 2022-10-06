@@ -1,23 +1,26 @@
-import type { MouseEvent, SyntheticEvent } from "react";
-import { useCallback, useMemo, useState } from "react";
+import type { SyntheticEvent } from "react";
+import { useCallback, useState } from "react";
 
 import * as Styled from "./token-field.styled";
 
 export interface Props {
   alt?: string;
   image?: string;
-  label: string;
-  onClick: (e: MouseEvent) => void;
+  onChange: (arg0: number) => void;
 }
 
-export default ({ label, onClick, alt, image }: Props) => {
+export default ({ onChange: handleChange = () => {}, alt, image }: Props) => {
   const [amount, setAmount] = useState<number>(0);
 
   const onChange = useCallback(
     (e: SyntheticEvent<HTMLInputElement>) => {
+      // @ts-ignore
       const { value } = e.target;
-      if (!isNaN(Number(value))) {
-        setAmount(Number(value));
+
+      const next = Number(value);
+      if (!isNaN(next)) {
+        setAmount(next);
+        handleChange(next);
       }
     },
     [setAmount]
