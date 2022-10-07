@@ -1,10 +1,16 @@
 import { BN } from "@project-serum/anchor";
-import { PublicKey, SystemProgram, Transaction } from "@solana/web3.js";
+import {
+  PublicKey,
+  SystemProgram,
+  SYSVAR_RENT_PUBKEY,
+  Transaction,
+  TransactionInstruction,
+} from "@solana/web3.js";
 import {
   createSyncNativeInstruction,
-  createAssociatedTokenAccountInstruction,
   Token,
   TOKEN_PROGRAM_ID,
+  ASSOCIATED_TOKEN_PROGRAM_ID,
 } from "@solana/spl-token";
 import { findAddress } from "@twamm/client.js/lib/program";
 
@@ -13,18 +19,73 @@ import { useProgram } from "./use-program";
 
 const SOL_ADDRESS = "So11111111111111111111111111111111111111112";
 
+const createAssociatedTokenAccountInstruction = (
+  payer: PublicKey,
+  associatedToken: PublicKey,
+  owner: PublicKey,
+  mint: PublicKey,
+  programId = TOKEN_PROGRAM_ID,
+  associatedTokenProgramId = ASSOCIATED_TOKEN_PROGRAM_ID
+): TransactionInstruction => {
+  const keys = [
+    { pubkey: payer, isSigner: true, isWritable: true },
+    { pubkey: associatedToken, isSigner: false, isWritable: true },
+    { pubkey: owner, isSigner: false, isWritable: false },
+    { pubkey: mint, isSigner: false, isWritable: false },
+    { pubkey: SystemProgram.programId, isSigner: false, isWritable: false },
+    { pubkey: programId, isSigner: false, isWritable: false },
+    { pubkey: SYSVAR_RENT_PUBKEY, isSigner: false, isWritable: false },
+  ];
+
+  return new TransactionInstruction({
+    keys,
+    programId: associatedTokenProgramId,
+    data: Buffer.alloc(0),
+  });
+};
+
+const findAssociatedTokenAddress = async (
+  walletAddress: PublicKey,
+  mintAddress: PublicKey
+) => {
+  const [address] = await PublicKey.findProgramAddress(
+    [
+      walletAddress.toBuffer(),
+      TOKEN_PROGRAM_ID.toBuffer(),
+      mintAddress.toBuffer(),
+    ],
+    ASSOCIATED_TOKEN_PROGRAM_ID
+  );
+
+  return address;
+};
+
 const assureAccountIsCreated =
   (provider: any) => async (mint: PublicKey, accountAddress: PublicKey) => {
     try {
-      console.log(3, accountAddress)
+      const accountInfo = await provider.connection.getAccountInfo(
+        accountAddress
+      );
 
-      throw new Error('TokenAccountNotFoundError')
-      // let tokenAccount = await Token.getAccountInfo(provider.connection, accountAddress);
-    } catch (err) {
-      if (!err.stack || !err.stack.startsWith("TokenAccountNotFoundError")) {
-        throw new Error("Unexpected error in getAccount");
+      if (!accountInfo) {
+        throw new Error("TokenAccountNotFoundError");
       }
-      let transaction = new Transaction();
+    } catch (err: any) {
+      console.log({ err });
+      if (!err?.message.startsWith("TokenAccountNotFoundError")) {
+        throw new Error("Unexpected error in getAccountInfo");
+      }
+
+      const transaction = new Transaction();
+
+      const accounts = [
+        provider.wallet.publicKey,
+        accountAddress,
+        provider.wallet.publicKey,
+        mint,
+      ];
+      console.log("acc", accounts);
+
       transaction.add(
         createAssociatedTokenAccountInstruction(
           provider.wallet.publicKey,
@@ -33,6 +94,8 @@ const assureAccountIsCreated =
           mint
         )
       );
+
+      console.log({ transaction });
 
       await provider.sendAll([{ tx: transaction }]);
     }
@@ -94,6 +157,8 @@ export const useScheduleOrder = () => {
   }) {
     console.log(amount, tif, aMint, bMint, nextPool);
 
+    console.log(234234);
+
     const transferAuthority = await findProgramAddress(
       "transfer_authority",
       []
@@ -107,34 +172,24 @@ export const useScheduleOrder = () => {
       new PublicKey(bMint).toBuffer(),
     ]);
 
-    const aCustody = await Token.getAssociatedTokenAddress(
-      aMintPublicKey,
+    const aCustody = await findAssociatedTokenAddress(
       transferAuthority,
-      aMintPublicKey,
-      provider.wallet.publicKey,
-      true
+      aMintPublicKey
     );
 
-    const bCustody = await Token.getAssociatedTokenAddress(
-      bMintPublicKey,
+    const bCustody = await findAssociatedTokenAddress(
       transferAuthority,
-      bMintPublicKey,
-      provider.wallet.publicKey,
-      true
+      bMintPublicKey
     );
 
-    const aWallet = await Token.getAssociatedTokenAddress(
-      aMintPublicKey,
+    const aWallet = await findAssociatedTokenAddress(
       provider.wallet.publicKey,
-      aMintPublicKey,
-      provider.wallet.publicKey
+      aMintPublicKey
     );
 
-    const bWallet = await Token.getAssociatedTokenAddress(
-      bMintPublicKey,
+    const bWallet = await findAssociatedTokenAddress(
       provider.wallet.publicKey,
-      bMintPublicKey,
-      provider.wallet.publicKey
+      bMintPublicKey
     );
 
     await assureAccountIsCreated(provider)(aMintPublicKey, aWallet);
@@ -147,7 +202,7 @@ export const useScheduleOrder = () => {
         SystemProgram.transfer({
           fromPubkey: provider.wallet.publicKey,
           toPubkey: aWallet,
-          lamports: amount,
+          lamports: amount * 1e6,
         })
       );
       // pre.push(createSyncNativeInstruction(aWallet));
@@ -158,7 +213,7 @@ export const useScheduleOrder = () => {
         SystemProgram.transfer({
           fromPubkey: provider.wallet.publicKey,
           toPubkey: bWallet,
-          lamports: amount,
+          lamports: amount * 1e6,
         })
       );
 
@@ -177,29 +232,41 @@ export const useScheduleOrder = () => {
     );
     const getPool = getPoolKey(findProgramAddress, aCustody, bCustody);
 
-    const result = await forit(
-      program.methods
-        .placeOrder({
-          side: side === "sell" ? { sell: {} } : { buy: {} },
-          timeInForce: tif,
-          amount: new BN(amount),
-        })
-        .accounts({
-          owner: provider.wallet.publicKey,
-          userAccountTokenA: aWallet,
-          userAccountTokenB: bWallet,
-          tokenPair: tokenPairAddress,
-          custodyTokenA: aCustody,
-          custodyTokenB: bCustody,
-          order: await getOrder(tif, counter), // nextPool ? counter + 1 : counter ),
-          currentPool: await getPool(tif, counter),
-          targetPool: await getPool(tif, counter), // nextPool ?...),
-          systemProgram: SystemProgram.programId,
-          tokenProgram: TOKEN_PROGRAM_ID,
-        })
-        // .preInstructions(pre)
-        .rpc()
-    );
+    console.log(6666, BN, amount);
+
+    let result;
+    try {
+      result = await forit(
+        program.methods
+          .placeOrder({
+            side: side === "sell" ? { sell: {} } : { buy: {} },
+            timeInForce: tif,
+            amount: new BN(Number(amount)),
+          })
+          .accounts({
+            owner: provider.wallet.publicKey,
+            userAccountTokenA: aWallet,
+            userAccountTokenB: bWallet,
+            tokenPair: tokenPairAddress,
+            custodyTokenA: aCustody,
+            custodyTokenB: bCustody,
+            order: await getOrder(tif, counter), // nextPool ? counter + 1 : counter ),
+            currentPool: await getPool(tif, counter),
+            targetPool: await getPool(tif, counter), // nextPool ?...),
+            systemProgram: SystemProgram.programId,
+            tokenProgram: TOKEN_PROGRAM_ID,
+          })
+          // .preInstructions(pre)
+          .rpc()
+          .catch((err) => {
+            console.warn(err);
+          })
+      );
+    } catch (erorr) {
+      console.log("eror", erorr);
+    }
+
+    console.log("executing");
 
     console.log("res", result);
 

@@ -49,9 +49,11 @@ export default ({
   const onSubmit = useCallback(async () => {
     // setSubmitting(true);
 
+    console.log("SEND");
+
     const r = await execute({
       side: "sell",
-      amount: amount * 1e6,
+      amount: amount,
       aMint: tokenAMint,
       bMint: tokenBMint,
       tifs: tokenPair.data.tifs,
@@ -60,11 +62,9 @@ export default ({
     });
 
     console.log(r);
-  }, [setSubmitting, amount, tokenAMint, tokenBMint]);
+  }, [setSubmitting, amount, tokenAMint, tokenBMint, tokenPair.data]);
 
   const { tifs } = tokenPair.data ?? { tifs: undefined };
-
-  console.log(tifs);
 
   const schedule = useMemo(() => {
     if (!tifs) return undefined;

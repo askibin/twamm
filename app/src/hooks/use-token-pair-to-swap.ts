@@ -46,7 +46,7 @@ export const useTokenPair: APIHook<{ aToken: any; bToken: any }, any> = (
 ) => {
   const { provider, program } = useProgram();
 
-  const opts = { ...dedupeEach(2e3), ...refreshEach(), ...options };
+  const opts = { ...dedupeEach(30e3), ...refreshEach(), ...options };
   // Should continiously update the pair to fetch actual data
 
   return swr(params && swrKey(params), fetcher(provider, program), opts);
