@@ -68,7 +68,7 @@ export default ({
   const onSubmit = useCallback(async () => {
     // setSubmitting(true);
 
-    console.log("SEND");
+    console.log("SEND", tif, amount);
 
     const r = await execute({
       side: "sell",

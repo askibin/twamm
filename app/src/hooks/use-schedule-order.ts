@@ -9,10 +9,11 @@ import {
 import {
   ASSOCIATED_TOKEN_PROGRAM_ID,
   NATIVE_MINT,
-  Token,
   TOKEN_PROGRAM_ID,
 } from "@solana/spl-token";
 import { findAddress } from "@twamm/client.js/lib/program";
+
+import * as Token from "@solana/spl-token"
 
 import { forit } from "../utils/forit";
 import { useProgram } from "./use-program";
