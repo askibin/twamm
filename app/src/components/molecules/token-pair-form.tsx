@@ -81,7 +81,15 @@ export default ({
     });
 
     console.log(r);
-  }, [setSubmitting, amount, tokenAMint, tokenBMint, tokenPair.data]);
+  }, [
+    execute,
+    setSubmitting,
+    amount,
+    tif,
+    tokenAMint,
+    tokenBMint,
+    tokenPair.data,
+  ]);
 
   const { tifs } = tokenPair.data ?? { tifs: undefined };
 
