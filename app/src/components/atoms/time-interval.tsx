@@ -1,16 +1,19 @@
+import type { MouseEvent } from "react";
 import Box from "@mui/material/Box";
 import ButtonGroup from "@mui/material/ButtonGroup";
 import InfoIcon from "@mui/icons-material/Info";
 import Popover from "@mui/material/Popover";
 import Skeleton from "@mui/material/Skeleton";
-import { memo, useState } from "react";
+import { memo, useCallback, useState } from "react";
 
 import * as Styled from "./time-interval.styled";
 
 export interface Props {
   info?: string;
   label: string;
+  value?: number;
   values?: number[];
+  onSelect: (arg0: number) => void;
 }
 
 const formatInterval = (value: number) => {
@@ -26,21 +29,36 @@ const formatInterval = (value: number) => {
   return `${m ? `${m}m ` : ""}${s ? `${s}s` : ""}`;
 };
 
-const Intervals = memo(({ values }: { values?: number[] }) => {
-  if (!values) return <Skeleton variant="rectangular" />;
+const Intervals = memo(
+  ({
+    value: selectedValue,
+    values,
+    onSelect,
+  }: {
+    value?: number;
+    values?: number[];
+    onSelect: (e: MouseEvent<HTMLElement>) => void;
+  }) => {
+    if (!values) return <Skeleton variant="rectangular" />;
 
-  return (
-    <ButtonGroup variant="outlined" aria-label="outlined button group">
-      {values.map((value: number) => (
-        <Styled.ScheduleButton key={value}>
-          {formatInterval(value)}
-        </Styled.ScheduleButton>
-      ))}
-    </ButtonGroup>
-  );
-});
+    return (
+      <ButtonGroup variant="outlined" aria-label="outlined button group">
+        {values.map((value: number) => (
+          <Styled.ScheduleButton
+            data-interval={value}
+            key={value}
+            onClick={onSelect}
+            disabled={value === selectedValue}
+          >
+            {formatInterval(value)}
+          </Styled.ScheduleButton>
+        ))}
+      </ButtonGroup>
+    );
+  }
+);
 
-export default ({ info, label, values }: Props) => {
+export default ({ info, label, value, values, onSelect }: Props) => {
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
 
   const handlePopoverOpen = (event: React.MouseEvent<HTMLElement>) => {
@@ -50,6 +68,14 @@ export default ({ info, label, values }: Props) => {
   const handlePopoverClose = () => {
     setAnchorEl(null);
   };
+
+  const onIntervalSelect = useCallback(
+    (e: MouseEvent<HTMLElement>) => {
+      // @ts-ignore
+      onSelect(Number(e.target.getAttribute("data-interval")));
+    },
+    [onSelect]
+  );
 
   const open = Boolean(anchorEl);
 
@@ -82,7 +108,7 @@ export default ({ info, label, values }: Props) => {
           {info}
         </Popover>
       </Box>
-      <Intervals values={values} />
+      <Intervals value={value} values={values} onSelect={onIntervalSelect} />
     </Styled.Interval>
   );
 };

@@ -1,3 +1,4 @@
+import type { SWRResponse } from "swr";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import SyncAltIcon from "@mui/icons-material/SyncAlt";
@@ -10,6 +11,7 @@ import styles from "./token-pair-form.module.css";
 import TimeInterval from "../atoms/time-interval";
 import TokenSelect from "../atoms/token-select";
 import { useScheduleOrder } from "../../hooks/use-schedule-order";
+import { useTIFIntervals } from "../../hooks/use-tif-intervals";
 
 export interface Props {
   tokenA?: string;
@@ -20,7 +22,7 @@ export interface Props {
   tokenBMint?: string;
   onASelect: () => void;
   onBSelect: () => void;
-  tokenPair: any;
+  tokenPair: SWRResponse<{ tifs: number[] }>;
 }
 
 export default ({
@@ -35,15 +37,32 @@ export default ({
   tokenPair,
 }: Props) => {
   const [amount, setAmount] = useState<number>(0);
+  const [tif, setTif] = useState<number>();
   const [isSubmitting, setSubmitting] = useState(false);
 
   const { execute } = useScheduleOrder();
+
+  const intervals = useTIFIntervals({
+    aMint: tokenAMint,
+    bMint: tokenBMint,
+    tifs: tokenPair.data?.tifs,
+    currentPoolPresent: tokenPair.data?.currentPoolPresent,
+    poolCounters: tokenPair.data?.poolCounters,
+  });
 
   const onChangeAmount = useCallback(
     (value) => {
       setAmount(value);
     },
     [setAmount]
+  );
+
+  const onIntervalSelect = useCallback(
+    (interval) => {
+      console.log(interval);
+      setTif(interval);
+    },
+    [setTif]
   );
 
   const onSubmit = useCallback(async () => {
@@ -58,7 +77,7 @@ export default ({
       bMint: tokenBMint,
       tifs: tokenPair.data.tifs,
       poolCounters: tokenPair.data.poolCounters,
-      tif: 300,
+      tif,
     });
 
     console.log(r);
@@ -97,15 +116,23 @@ export default ({
             />
           </Box>
           <Box pb={2}>
-            <TimeInterval info="" label="Schedule Order" values={schedule} />
-          </Box>
-          <Box pb={2}>
             <TimeInterval
               info=""
-              label="Execution Period"
-              values={[300, 800, 5600]}
+              label="Schedule Order"
+              values={schedule}
+              value={tif}
+              onSelect={onIntervalSelect}
             />
           </Box>
+          {/*
+           *<Box pb={2}>
+           *  <TimeInterval
+           *    info=""
+           *    label="Execution Period"
+           *    values={[300, 800, 5600]}
+           *  />
+           *</Box>
+           */}
           <Box className={styles.connectBox} sx={{ py: 2 }}>
             <Button
               type="submit"

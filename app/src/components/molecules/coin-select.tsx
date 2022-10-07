@@ -55,7 +55,9 @@ export default ({ coins, filterCoin, onClick = () => {} }: Props) => {
               <Avatar
                 alt={coinRecords[index].symbol}
                 src={coinRecords[index].image}
-              />
+              >
+                T
+              </Avatar>
             </ListItemIcon>
             <ListItemText
               primary={coinRecords[index].symbol.toUpperCase()}

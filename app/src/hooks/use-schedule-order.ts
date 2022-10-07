@@ -7,17 +7,17 @@ import {
   TransactionInstruction,
 } from "@solana/web3.js";
 import {
-  createSyncNativeInstruction,
+  ASSOCIATED_TOKEN_PROGRAM_ID,
+  NATIVE_MINT,
   Token,
   TOKEN_PROGRAM_ID,
-  ASSOCIATED_TOKEN_PROGRAM_ID,
 } from "@solana/spl-token";
 import { findAddress } from "@twamm/client.js/lib/program";
 
 import { forit } from "../utils/forit";
 import { useProgram } from "./use-program";
 
-const SOL_ADDRESS = "So11111111111111111111111111111111111111112";
+const SOL_ADDRESS = NATIVE_MINT.toBase58();
 
 const createAssociatedTokenAccountInstruction = (
   payer: PublicKey,
@@ -70,6 +70,8 @@ const assureAccountIsCreated =
       if (!accountInfo) {
         throw new Error("TokenAccountNotFoundError");
       }
+
+      console.log("accInfo", accountInfo);
     } catch (err: any) {
       console.log({ err });
       if (!err?.message.startsWith("TokenAccountNotFoundError")) {
@@ -157,8 +159,6 @@ export const useScheduleOrder = () => {
   }) {
     console.log(amount, tif, aMint, bMint, nextPool);
 
-    console.log(234234);
-
     const transferAuthority = await findProgramAddress(
       "transfer_authority",
       []
@@ -205,7 +205,7 @@ export const useScheduleOrder = () => {
           lamports: amount * 1e6,
         })
       );
-      // pre.push(createSyncNativeInstruction(aWallet));
+      pre.push(Token.createSyncNativeInstruction(aWallet));
     }
 
     if (side === "buy" && bMint == SOL_ADDRESS) {
@@ -217,7 +217,7 @@ export const useScheduleOrder = () => {
         })
       );
 
-      // pre.push(createSyncNativeInstruction(bWallet));
+      pre.push(Token.createSyncNativeInstruction(bWallet));
     }
 
     const index = tifs.indexOf(tif);
