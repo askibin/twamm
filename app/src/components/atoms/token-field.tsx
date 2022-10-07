@@ -17,7 +17,7 @@ export default ({ onChange: handleChange = () => {}, alt, image }: Props) => {
       // @ts-ignore
       const { value } = e.target;
 
-      const next = Number(value);
+      const next = value;
       if (!isNaN(next)) {
         setAmount(next);
         handleChange(next);

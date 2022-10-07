@@ -16,6 +16,8 @@ export interface Props {
   tokenB?: string;
   tokenAImage?: string;
   tokenBImage?: string;
+  tokenAMint?: string;
+  tokenBMint?: string;
   onASelect: () => void;
   onBSelect: () => void;
   tokenPair: any;
@@ -32,18 +34,10 @@ export default ({
   onBSelect,
   tokenPair,
 }: Props) => {
-  const [curToken, setCurToken] = useState<number>();
   const [amount, setAmount] = useState<number>(0);
   const [isSubmitting, setSubmitting] = useState(false);
 
   const { execute } = useScheduleOrder();
-
-  const onCoinSelect = useCallback(
-    (symbol: string) => {
-      console.log(curToken, symbol); // eslint-disable-line no-console
-    },
-    [curToken]
-  );
 
   const onChangeAmount = useCallback(
     (value) => {
@@ -52,22 +46,21 @@ export default ({
     [setAmount]
   );
 
-  const onSubmit = useCallback(
-    async (e) => {
-      // setSubmitting(true);
+  const onSubmit = useCallback(async () => {
+    // setSubmitting(true);
 
-      const r = await execute({
-        side: "sell",
-        amount,
-        aMint: tokenAMint,
-        bMint: tokenBMint,
-        tif: 300,
-      });
+    const r = await execute({
+      side: "sell",
+      amount: amount * 1e6,
+      aMint: tokenAMint,
+      bMint: tokenBMint,
+      tifs: tokenPair.data.tifs,
+      poolCounters: tokenPair.data.poolCounters,
+      tif: 300,
+    });
 
-      console.log(r);
-    },
-    [setSubmitting, amount, tokenAMint, tokenBMint]
-  );
+    console.log(r);
+  }, [setSubmitting, amount, tokenAMint, tokenBMint]);
 
   const { tifs } = tokenPair.data ?? { tifs: undefined };
 
