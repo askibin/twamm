@@ -1,10 +1,7 @@
 import type { MouseEvent } from "react";
 import Avatar from "@mui/material/Avatar";
-import Button from "@mui/material/Button";
-import Chip from "@mui/material/Chip";
-import Stack from "@mui/material/Stack";
 
-import styles from "./coin-tags.module.css";
+import * as Styled from "./token-tags.styled";
 
 export interface Props {
   coins: Array<{ symbol: string; image: string; name: string }>;
@@ -12,12 +9,10 @@ export interface Props {
 }
 
 export default ({ coins, onClick = () => {} }: Props) => (
-  <Stack className={styles.root} direction="row" mt={2}>
+  <Styled.Tags direction="row" mt={2}>
     {coins.map(({ image, name, symbol }) => (
-      <Chip
+      <Styled.Tag
         avatar={<Avatar alt={name} src={image} />}
-        className={styles.coin}
-        component={Button}
         key={symbol}
         label={symbol.toUpperCase()}
         onClick={(e: MouseEvent) => onClick(e, symbol)}
@@ -25,5 +20,5 @@ export default ({ coins, onClick = () => {} }: Props) => (
         variant="outlined"
       />
     ))}
-  </Stack>
+  </Styled.Tags>
 );

@@ -7,8 +7,8 @@ import TextField from "@mui/material/TextField";
 import { useCallback, useMemo, useState } from "react";
 
 import CoinSelect from "../molecules/coin-select";
-import CoinTags from "../molecules/coin-tags";
 import styles from "./coin-select.module.css";
+import TokenTags from "../atoms/token-tags";
 import { useJupTokensByMint } from "../../hooks/use-jup-tokens-by-mints";
 
 export interface Props {
@@ -76,7 +76,7 @@ export default ({ tokens, onSelect = () => {} }: Props) => {
         />
       </Box>
       <Box px={2} pb={1}>
-        <CoinTags coins={starredCoins} onClick={onCoinSelect} />
+        <TokenTags coins={starredCoins} onClick={onCoinSelect} />
       </Box>
       <Divider />
       <CoinSelect

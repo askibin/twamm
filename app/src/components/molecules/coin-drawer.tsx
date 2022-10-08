@@ -1,65 +1,55 @@
 import Box from "@mui/material/Box";
-import SwipeableDrawer from "@mui/material/SwipeableDrawer";
 import { grey } from "@mui/material/colors";
 import { styled } from "@mui/material/styles";
-import { useCallback } from "react";
+import { useCallback, useMemo } from "react";
 
 import CoinSelect from "../organisms/coin-select";
-import styles from "./coin-drawer.module.css";
+import * as Styled from "./coin-drawer.styled";
 
 export interface Props {
-  onSelect: (arg0: string) => void;
+  onSelect: (arg0: JupToken) => void;
   open: boolean;
   setOpen: (arg0: boolean) => void;
   tokens?: string[];
 }
-
-const StyledBox = styled(Box)(({ theme }) => ({
-  // backgroundColor: theme.palette.mode === "light" ? "#fff" : grey[800],
-}));
 
 const drawerBleeding = 56;
 
 const Puller = styled(Box)(({ theme }) => ({
   width: 30,
   height: 6,
-  backgroundColor: theme.palette.mode === "light" ? grey[300] : theme.palette.primary.main,
+  backgroundColor:
+    theme.palette.mode === "light" ? grey[300] : theme.palette.primary.main,
   borderRadius: 3,
   position: "absolute",
   top: 8,
   left: "calc(50% - 15px)",
 }));
 
-export default ({
-  onSelect: handleSelect = () => {},
-  open,
-  setOpen,
-  tokens,
-}: Props) => {
+export default ({ onSelect: handleSelect, open, setOpen, tokens }: Props) => {
   const toggleDrawer = (newOpen: boolean) => () => {
     setOpen(newOpen);
   };
 
+  const modalProps = useMemo(() => ({ keepMounted: true }), []);
+
   const onSelect = useCallback(
-    (symbol: string) => {
+    (token: JupToken) => {
       setOpen(false);
-      handleSelect(symbol);
+      handleSelect(token);
     },
     [handleSelect, setOpen]
   );
 
   return (
-    <SwipeableDrawer
+    <Styled.Drawer
       anchor="bottom"
-      className={styles.root}
-      open={open}
+      disableSwipeToOpen={false}
+      ModalProps={modalProps}
       onClose={toggleDrawer(false)}
       onOpen={toggleDrawer(true)}
+      open={open}
       swipeAreaWidth={drawerBleeding}
-      disableSwipeToOpen={false}
-      ModalProps={{
-        keepMounted: true,
-      }}
     >
       <Box
         sx={{
@@ -74,15 +64,9 @@ export default ({
       >
         <Puller />
       </Box>
-      <StyledBox
-        className={styles.inner}
-        sx={{
-          height: "100%",
-          overflow: "auto",
-        }}
-      >
+      <Styled.Inner>
         <CoinSelect tokens={tokens} onSelect={onSelect} />
-      </StyledBox>
-    </SwipeableDrawer>
+      </Styled.Inner>
+    </Styled.Drawer>
   );
 };

@@ -15,6 +15,10 @@ export const TokenIcon = styled(Avatar)`
   width: 60px;
   height: 60px;
   margin-right: 12px;
+  & > svg {
+    width: 75%;
+    height: 75%;
+  }
 `;
 
 export const TokenName = styled("span")`
