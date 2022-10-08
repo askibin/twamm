@@ -28,6 +28,8 @@ export const Controls = styled(Stack)`
 
 export const UtilsControl = styled(Card)`
   cursor: pointer;
+  display: flex;
+  padding: 4px;
 
   ${(params: ActiveCardProps) =>
     params.istxactive &&

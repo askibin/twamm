@@ -1,4 +1,3 @@
-import type { PublicKey } from "@solana/web3.js";
 import { useMemo } from "react";
 
 import PairCard, { Blank } from "../atoms/pair-card";
@@ -50,7 +49,6 @@ export default ({ data }: Props) => {
 
       const numerator = feeNumerator;
       const denominator = feeDenominator;
-      console.log(numerator, denominator);
 
       const fee = numerator / denominator;
 

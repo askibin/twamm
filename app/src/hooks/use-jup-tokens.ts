@@ -6,14 +6,6 @@ import type { APIHook } from "../utils/api";
 import { dedupeEach, revalOnFocus, retryFor } from "../utils/api";
 import { useBlockchainConnectionContext } from "./use-blockchain-connection-context";
 
-export type JupToken = {
-  name: string;
-  symbol: string;
-  logoURI: string;
-  address: string;
-  tags: string[] | undefined;
-};
-
 const swrKey = (params: { moniker: Cluster }) => ({
   key: "JupTokens",
   params,

@@ -16,8 +16,6 @@ const fetcher = (provider: Provider, program: Program) => {
       }
     );
 
-    console.log(pairs);
-
     const fetchPair = (pair: any) =>
       program.account.tokenPair.fetch(pair.pubkey);
 

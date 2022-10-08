@@ -4,7 +4,6 @@ import CircularProgress from "@mui/material/CircularProgress";
 import { flatten } from "ramda";
 import { useCallback, useMemo, useRef, useState } from "react";
 
-import type { JupToken } from "../../hooks/use-jup-tokens";
 import * as Styled from "./token-ratio.styled";
 import CoinPopover from "./coin-popover";
 import TokenPairForm from "../molecules/token-pair-form";

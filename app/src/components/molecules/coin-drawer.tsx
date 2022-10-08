@@ -15,7 +15,7 @@ export interface Props {
 }
 
 const StyledBox = styled(Box)(({ theme }) => ({
-  backgroundColor: theme.palette.mode === "light" ? "#fff" : grey[800],
+  // backgroundColor: theme.palette.mode === "light" ? "#fff" : grey[800],
 }));
 
 const drawerBleeding = 56;
@@ -23,7 +23,7 @@ const drawerBleeding = 56;
 const Puller = styled(Box)(({ theme }) => ({
   width: 30,
   height: 6,
-  backgroundColor: theme.palette.mode === "light" ? grey[300] : grey[900],
+  backgroundColor: theme.palette.mode === "light" ? grey[300] : theme.palette.primary.main,
   borderRadius: 3,
   position: "absolute",
   top: 8,
@@ -61,7 +61,7 @@ export default ({
         keepMounted: true,
       }}
     >
-      <StyledBox
+      <Box
         sx={{
           top: -drawerBleeding,
           borderTopLeftRadius: 8,
@@ -73,7 +73,7 @@ export default ({
         }}
       >
         <Puller />
-      </StyledBox>
+      </Box>
       <StyledBox
         className={styles.inner}
         sx={{

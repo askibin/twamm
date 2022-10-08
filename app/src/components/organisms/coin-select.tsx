@@ -6,7 +6,6 @@ import SearchIcon from "@mui/icons-material/Search";
 import TextField from "@mui/material/TextField";
 import { useCallback, useMemo, useState } from "react";
 
-import type { JupToken } from "../../hooks/use-jup-tokens";
 import CoinSelect from "../molecules/coin-select";
 import CoinTags from "../molecules/coin-tags";
 import styles from "./coin-select.module.css";
@@ -17,7 +16,7 @@ export interface Props {
   onSelect: (arg0: JupToken) => void;
 }
 
-const STARRED_COINS = ["usdt", "usdc", "sol", "ray", "dai", "busd"];
+const STARRED_COINS = ["usdt", "usdc", "sol", "ray", "dai"];
 
 export default ({ tokens, onSelect = () => {} }: Props) => {
   // const { data, isValidating } = useCoins();

@@ -1,7 +1,6 @@
 import swr from "swr";
 
 import type { APIHook } from "../utils/api";
-import type { JupToken } from "./use-jup-tokens";
 import { dedupeEach, revalOnFocus } from "../utils/api";
 import { useJupTokens } from "./use-jup-tokens";
 
