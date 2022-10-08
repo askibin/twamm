@@ -1,5 +1,6 @@
 import Avatar from "@mui/material/Avatar";
 import Box from "@mui/material/Box";
+import { NumericFormat } from "react-number-format";
 import { styled } from "@mui/material/styles";
 
 export const TokenField = styled(Box)`
@@ -14,7 +15,7 @@ export const TokenIcon = styled(Avatar)`
   height: 60px;
 `;
 
-export const TokenAmountTextField = styled("input")`
+export const TokenAmountTextField = styled(NumericFormat)`
   border: none;
   width: 100%;
   outline: transparent;

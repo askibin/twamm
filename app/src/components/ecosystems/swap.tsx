@@ -1,13 +1,7 @@
-import { useCallback, useMemo, useState } from "react";
 import Box from "@mui/material/Box";
 import Container from "@mui/material/Container";
-import TuneIcon from "@mui/icons-material/Tune";
-import Backdrop from "@mui/material/Backdrop";
-import Modal from "@mui/material/Modal";
-import DialogContent from "@mui/material/DialogContent";
 
 import ModeToggle from "../atoms/mode-toggle";
-import SettingsModal from "../molecules/settings-modal";
 import TokenRatio from "../organisms/token-ratio";
 import * as Styled from "./swap.styled";
 import { useTokenPairsToSwap } from "../../hooks/use-token-pairs-to-swap";
@@ -18,11 +12,7 @@ export interface Props {
 }
 
 export default ({ mode, onModeChange }: Props) => {
-  const [opened, setOpened] = useState(false);
-
   const tokenPairs = useTokenPairsToSwap();
-
-  console.log(tokenPairs.data);
 
   const { data } = {
     data: {
@@ -33,49 +23,20 @@ export default ({ mode, onModeChange }: Props) => {
     },
   };
 
-  const onToggleSettings = useCallback(() => {
-    setOpened((prev: boolean) => !prev);
-  }, [setOpened]);
-
-  const onModalClose = () => setOpened(false);
-
-  const timeout = useMemo(() => ({ timeout: 500 }), []);
-
   return (
-    <>
-      <Modal
-        aria-labelledby="transition-modal-title"
-        aria-describedby="transition-modal-description"
-        open={opened}
-        onClose={onModalClose}
-        closeAfterTransition
-        BackdropComponent={Backdrop}
-        BackdropProps={timeout}
-      >
-        <DialogContent>
-          <SettingsModal open={opened} handleClose={onModalClose} />
-        </DialogContent>
-      </Modal>
-
-      <Container maxWidth="sm">
-        <Box p={2.5} sx={{ display: "flex", justifyContent: "center" }}>
-          <ModeToggle mode={mode} onChange={onModeChange} />
-        </Box>
-        <Styled.Section>
-          <TokenRatio
-            pairs={tokenPairs}
-            tokenA={data.tokenA}
-            tokenB={data.tokenB}
-            tokenAValue={data.tokenAValue}
-            tokenBValue={data.tokenBValue}
-          />
-          <Styled.SettingsControl>
-            <Styled.Control elevation={10} onClick={onToggleSettings}>
-              <TuneIcon />
-            </Styled.Control>
-          </Styled.SettingsControl>
-        </Styled.Section>
-      </Container>
-    </>
+    <Container maxWidth="sm">
+      <Box p={2.5} sx={{ display: "flex", justifyContent: "center" }}>
+        <ModeToggle mode={mode} onChange={onModeChange} />
+      </Box>
+      <Styled.Section>
+        <TokenRatio
+          pairs={tokenPairs}
+          tokenA={data.tokenA}
+          tokenB={data.tokenB}
+          tokenAValue={data.tokenAValue}
+          tokenBValue={data.tokenBValue}
+        />
+      </Styled.Section>
+    </Container>
   );
 };

@@ -15,7 +15,6 @@ export type SelectedTif = [number, boolean];
 
 export interface Props {
   onSelect: (arg0: SelectedTif) => void;
-  a: OrderType;
   tifs?: number[];
   intervals: MaybeResponse<any>;
 }
@@ -38,7 +37,7 @@ export default ({ onSelect, tifs, intervals, value: tif }: Props) => {
     (value: number) => {
       dispatch(action.setSchedule({ tif: value }));
 
-      console.log('state', value)
+      console.log("state", value);
 
       onSelect([value]);
     },
@@ -49,7 +48,7 @@ export default ({ onSelect, tifs, intervals, value: tif }: Props) => {
     (value: number) => {
       dispatch(action.setPeriod({ tif: value }));
 
-      console.log('state', value)
+      console.log("state", value);
 
       onSelect([value]);
     },

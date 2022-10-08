@@ -10,6 +10,7 @@ import { BlockchainConnectionProvider } from "../src/contexts/solana-connection-
 import { CoingeckoApiProvider } from "../src/contexts/coingecko-api-context";
 import { NotificationProvider } from "../src/contexts/notification-context";
 import { ThemeProvider } from "../src/contexts/theme-context";
+import { Provider as TxProvider } from "../src/contexts/transaction-runner-context";
 import { WalletProvider } from "../src/contexts/wallet-context";
 import { muiLicenseKey } from "../src/env";
 
@@ -33,8 +34,10 @@ const App = ({
           <CoingeckoApiProvider>
             <BlockchainConnectionProvider>
               <WalletProvider>
-                {/* eslint-disable-next-line react/jsx-props-no-spreading */}
-                <Component {...pageProps} />
+                <TxProvider>
+                  {/* eslint-disable-next-line react/jsx-props-no-spreading */}
+                  <Component {...pageProps} />
+                </TxProvider>
               </WalletProvider>
             </BlockchainConnectionProvider>
           </CoingeckoApiProvider>

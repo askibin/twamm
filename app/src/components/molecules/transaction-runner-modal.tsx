@@ -5,8 +5,7 @@ import Modal from "@mui/material/Modal";
 import Typography from "@mui/material/Typography";
 import { useMemo } from "react";
 
-import ClusterSelector from "./cluster-selector";
-import * as Styled from "./settings-modal.styled";
+import * as Styled from "./transaction-runner.styled";
 
 export interface Props {
   open: boolean;
@@ -20,7 +19,7 @@ export default ({ open, setOpen }: Props) => {
 
   return (
     <Modal
-      aria-labelledby="settings-modal-title"
+      aria-labelledby="transaction-runner-modal-title"
       BackdropComponent={Backdrop}
       BackdropProps={backdropProps}
       closeAfterTransition
@@ -32,14 +31,10 @@ export default ({ open, setOpen }: Props) => {
           <Styled.Close aria-label="close" onClick={handleClose}>
             <CloseIcon />
           </Styled.Close>
-          <Typography id="settings-modal-title" variant="h5" pb={2}>
+          <Typography id="transaction-runner-modal-title" variant="h5" pb={2}>
             Settings
           </Typography>
           <Styled.Line />
-          <Typography variant="h6" p={2}>
-            Cluster Selector
-          </Typography>
-          <ClusterSelector handleClose={handleClose} />
         </Styled.Inner>
       </Fade>
     </Modal>

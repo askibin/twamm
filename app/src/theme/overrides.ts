@@ -106,6 +106,16 @@ export const light = {
 export const dark = {
   palette: darkPalette,
   components: {
+    MuiCard: {
+      styleOverrides: {
+        root: {
+          display: "flex",
+          padding: "4px",
+          background: "rgba(255, 255, 255, 0.04)",
+          border: "1px solid rgba(255, 255, 255, 0.1)",
+        },
+      },
+    },
     MuiDataGrid: {
       styleOverrides: {
         root: {
@@ -121,6 +131,19 @@ export const dark = {
       styleOverrides: {
         input: {
           color: "#fff",
+        },
+      },
+    },
+    MuiModal: {
+      styleOverrides: {
+        root: {
+          "& .MuiPaper-root": {
+            background:
+              "linear-gradient(110.5deg, rgba(26, 31, 46) 3.75%, rgba(36, 41, 57) 117.62%)",
+            border: "0.5px solid rgba(255, 255, 255, 0.16)",
+            boxShadow: "0px 8px 32px rgba(0, 0, 0, 0.08)",
+            borderRadius: "20px",
+          },
         },
       },
     },

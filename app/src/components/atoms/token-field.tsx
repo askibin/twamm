@@ -1,34 +1,32 @@
-import type { SyntheticEvent } from "react";
+import type { ChangeEvent } from "react";
 import { useCallback, useState } from "react";
 
 import * as Styled from "./token-field.styled";
 
 export interface Props {
-  alt?: string;
-  image?: string;
   onChange: (arg0: number) => void;
 }
 
-export default ({ onChange: handleChange = () => {}, alt, image }: Props) => {
+export default ({ onChange: handleChange }: Props) => {
   const [amount, setAmount] = useState<number>(0);
 
   const onChange = useCallback(
-    (e: SyntheticEvent<HTMLInputElement>) => {
-      // @ts-ignore
-      const { value } = e.target;
+    (e: ChangeEvent<HTMLInputElement>) => {
+      const next = Number(e.target.value);
 
-      const next = value;
-      if (!isNaN(next)) {
-        setAmount(next);
-        handleChange(next);
-      }
+      setAmount(next);
+      handleChange(next);
     },
-    [setAmount]
+    [handleChange, setAmount]
   );
 
   return (
     <Styled.TokenField>
-      <Styled.TokenAmountTextField value={amount} onChange={onChange} />
+      <Styled.TokenAmountTextField
+        allowNegative={false}
+        value={amount}
+        onChange={onChange}
+      />
       <Styled.TokenAmountInUSD>$0</Styled.TokenAmountInUSD>
     </Styled.TokenField>
   );
