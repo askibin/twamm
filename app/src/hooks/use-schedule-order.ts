@@ -203,7 +203,7 @@ export const useScheduleOrder = () => {
         SystemProgram.transfer({
           fromPubkey: provider.wallet.publicKey,
           toPubkey: aWallet,
-          lamports: amount * 1e6,
+          lamports: Number(amount) * 1e9,
         })
       );
       pre.push(Token.createSyncNativeInstruction(aWallet));
@@ -214,7 +214,7 @@ export const useScheduleOrder = () => {
         SystemProgram.transfer({
           fromPubkey: provider.wallet.publicKey,
           toPubkey: bWallet,
-          lamports: amount * 1e6,
+          lamports: Number(amount) * 1e9,
         })
       );
 
@@ -233,7 +233,7 @@ export const useScheduleOrder = () => {
     );
     const getPool = getPoolKey(findProgramAddress, aCustody, bCustody);
 
-    console.log(6666, BN, amount);
+    console.log("--", Number(amount) * 1e9);
 
     let result;
     try {
@@ -242,7 +242,7 @@ export const useScheduleOrder = () => {
           .placeOrder({
             side: side === "sell" ? { sell: {} } : { buy: {} },
             timeInForce: tif,
-            amount: new BN(Number(amount)),
+            amount: new BN(Number(amount) * 1e9),
           })
           .accounts({
             owner: provider.wallet.publicKey,
@@ -257,7 +257,7 @@ export const useScheduleOrder = () => {
             systemProgram: SystemProgram.programId,
             tokenProgram: TOKEN_PROGRAM_ID,
           })
-          // .preInstructions(pre)
+          .preInstructions(pre)
           .rpc()
           .catch((err) => {
             console.warn(err);

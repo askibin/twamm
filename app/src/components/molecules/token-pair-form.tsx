@@ -8,8 +8,8 @@ import { Form } from "react-final-form";
 import * as Styled from "./token-pair-form.styled";
 import InTokenField from "./in-token-field";
 import styles from "./token-pair-form.module.css";
-import TimeInterval from "../atoms/time-interval";
 import TokenSelect from "../atoms/token-select";
+import TradeIntervals from "../molecules/trade-intervals";
 import { useScheduleOrder } from "../../hooks/use-schedule-order";
 import { useTIFIntervals } from "../../hooks/use-tif-intervals";
 
@@ -58,9 +58,9 @@ export default ({
   );
 
   const onIntervalSelect = useCallback(
-    (interval) => {
-      console.log(interval);
-      setTif(interval);
+    (selectedTif) => {
+      console.log("state", selectedTif);
+      setTif(selectedTif);
     },
     [setTif]
   );
@@ -97,7 +97,7 @@ export default ({
     if (!tifs) return undefined;
 
     let intervals = tifs.filter((tif) => tif !== 0);
-    return [-1].concat(intervals);
+    return intervals;
   }, [tifs]);
 
   return (
@@ -123,24 +123,13 @@ export default ({
               onClick={onBSelect}
             />
           </Box>
-          <Box pb={2}>
-            <TimeInterval
-              info=""
-              label="Schedule Order"
-              values={schedule}
-              value={tif}
-              onSelect={onIntervalSelect}
-            />
-          </Box>
-          {/*
-           *<Box pb={2}>
-           *  <TimeInterval
-           *    info=""
-           *    label="Execution Period"
-           *    values={[300, 800, 5600]}
-           *  />
-           *</Box>
-           */}
+          <TradeIntervals
+            tifs={tokenPair.data?.tifs}
+            intervals={intervals}
+            tifs={schedule}
+            value={tif}
+            onSelect={onIntervalSelect}
+          />
           <Box className={styles.connectBox} sx={{ py: 2 }}>
             <Button
               type="submit"
