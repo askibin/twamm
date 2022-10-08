@@ -10,6 +10,9 @@ const BORDER = "1px solid rgba(255, 255, 255, 0.2)";
 export const ModeButtonGroup = styled(ToggleButtonGroup)`
   border-radius: 40px;
   background: rgba(255, 255, 255, 0.04);
+  & .MuiToggleButton-root:hover {
+    background-color: transparent;
+  }
 `;
 
 // TODO: rewrite to fix types

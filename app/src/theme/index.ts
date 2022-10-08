@@ -8,7 +8,7 @@ export const components = (theme: Theme) => {
   return set(lens, view(lens, getOverrides(theme)), theme);
 };
 
-export const background = (theme: Theme) => {
-  const lens = lensPath(["palette", "background"]);
+export const palette = (section: string) => (theme: Theme) => {
+  const lens = lensPath(["palette", section]);
   return set(lens, view(lens, getOverrides(theme)), theme);
 };

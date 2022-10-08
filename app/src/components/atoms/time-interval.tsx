@@ -17,16 +17,32 @@ export interface Props {
 }
 
 const formatInterval = (value: number) => {
+  const getIntervalValues = (
+    interval: number,
+    length: number
+  ): [number, number] => {
+    const amount = parseInt(String(interval / length), 10);
+    const leftover = interval - amount * length;
+
+    return [amount, leftover];
+  };
+
   if (value < 0) return "no delay";
 
-  const h = parseInt(String(value / 3600), 10);
-  const leftM = value - h * 3600;
-  const m = parseInt(String(leftM / 60), 10);
-  const s = value - m * 60;
+  const [w, leftD] = getIntervalValues(value, 604800);
+  const [d, leftH] = getIntervalValues(leftD, 86400);
+  const [h, leftM] = getIntervalValues(leftH, 3600);
+  const [m, s] = getIntervalValues(leftM, 60);
 
-  if (h) return `${h}h${m ? ` ${m}m` : ""}`;
+  const parts = [w, d, h, m, s];
+  const literals = ["w", "d", "h", "m", "s"];
+  const formatted: string[] = [];
 
-  return `${m ? `${m}m ` : ""}${s ? `${s}s` : ""}`;
+  parts.forEach((part, i) => {
+    if (part) formatted.push(`${part}${literals[i]}`);
+  });
+
+  return formatted.join(" ");
 };
 
 const Intervals = memo(
@@ -84,29 +100,31 @@ export default ({ info, label, value, values, onSelect }: Props) => {
       <Box pb={1}>
         <Styled.Label>
           {label}
-          <Box onClick={handlePopoverOpen}>
+          <Styled.InfoControl p={0} onClick={handlePopoverOpen}>
             <InfoIcon />
-          </Box>
+          </Styled.InfoControl>
         </Styled.Label>
-        <Popover
-          anchorEl={anchorEl}
-          open={open}
-          anchorOrigin={{
-            vertical: "top",
-            horizontal: "right",
-          }}
-          transformOrigin={{
-            vertical: "bottom",
-            horizontal: "center",
-          }}
-          sx={{
-            pointerEvents: "none",
-          }}
-          onClose={handlePopoverClose}
-          disableRestoreFocus
-        >
-          {info}
-        </Popover>
+        {!info?.length ? null : (
+          <Popover
+            anchorEl={anchorEl}
+            open={open}
+            anchorOrigin={{
+              vertical: "top",
+              horizontal: "right",
+            }}
+            transformOrigin={{
+              vertical: "bottom",
+              horizontal: "center",
+            }}
+            sx={{
+              pointerEvents: "none",
+            }}
+            onClose={handlePopoverClose}
+            disableRestoreFocus
+          >
+            {info}
+          </Popover>
+        )}
       </Box>
       <Intervals value={value} values={values} onSelect={onIntervalSelect} />
     </Styled.Interval>

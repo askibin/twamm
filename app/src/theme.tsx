@@ -7,7 +7,7 @@ import { lensPath, pipe, set, view } from "ramda";
 // Temporary import theme from the separate package
 // eslint-disable-next-line import/no-relative-packages
 import { theme as kitTheme } from "../packages/material-kit-react/src/theme/index";
-import { components, background } from "./theme/index";
+import { components, background, palette } from "./theme/index";
 
 const lensScrollbar = lensPath([
   "components",
@@ -69,7 +69,12 @@ const getBreakpoints = (theme: Theme) => {
 };
 
 export const enhanceTheme = (theme: Theme) =>
-  pipe(background, components, getBreakpoints)(getOverrides(theme, "dark"));
+  pipe(
+    palette("background"),
+    components,
+    palette("text"),
+    getBreakpoints
+  )(getOverrides(theme, "dark"));
 
 export { kitTheme };
 
