@@ -6,6 +6,8 @@ import Typography from "@mui/material/Typography";
 import { useMemo } from "react";
 
 import * as Styled from "./transaction-runner.styled";
+import * as TxState from "../atoms/transaction-runner";
+import { useTxRunnerContext } from "../../hooks/use-transaction-runner-context";
 
 export interface Props {
   open: boolean;
@@ -13,9 +15,21 @@ export interface Props {
 }
 
 export default ({ open, setOpen }: Props) => {
+  const { active, signature, viewExplorer } = useTxRunnerContext();
+
   const handleClose = () => setOpen(false);
 
   const backdropProps = useMemo(() => ({ timeout: 500 }), []);
+
+  const state = useMemo(
+    () => ({
+      isReady: !active && !signature,
+      isLoading: active && !signature,
+      isFinished: signature,
+      hasError: false,
+    }),
+    [active, signature]
+  );
 
   return (
     <Modal
@@ -32,9 +46,16 @@ export default ({ open, setOpen }: Props) => {
             <CloseIcon />
           </Styled.Close>
           <Typography id="transaction-runner-modal-title" variant="h5" pb={2}>
-            Settings
+            {state.hasError && <TxState.Error />}
+            {state.isReady && <TxState.Empty />}
+            {state.isLoading && <TxState.Progress />}
+            {state.isFinished && (
+              <TxState.Success
+                signature={signature as string}
+                view={viewExplorer}
+              />
+            )}
           </Typography>
-          <Styled.Line />
         </Styled.Inner>
       </Fade>
     </Modal>
