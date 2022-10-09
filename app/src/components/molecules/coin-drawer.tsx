@@ -7,10 +7,12 @@ import CoinSelect from "../organisms/coin-select";
 import * as Styled from "./coin-drawer.styled";
 
 export interface Props {
+  onDeselect: (arg0: string) => void;
   onSelect: (arg0: JupToken) => void;
   open: boolean;
   setOpen: (arg0: boolean) => void;
   tokens?: string[];
+  tokensToDeselect?: string[];
 }
 
 const drawerBleeding = 56;
@@ -26,14 +28,29 @@ const Puller = styled(Box)(({ theme }) => ({
   left: "calc(50% - 15px)",
 }));
 
-export default ({ onSelect: handleSelect, open, setOpen, tokens }: Props) => {
+export default ({
+  onDeselect,
+  onSelect: handleSelect,
+  open,
+  setOpen,
+  tokens,
+  tokensToDeselect,
+}: Props) => {
   const toggleDrawer = (newOpen: boolean) => () => {
     setOpen(newOpen);
   };
 
   const modalProps = useMemo(() => ({ keepMounted: true }), []);
 
-  const onSelect = useCallback(
+  const onCoinDelete = useCallback(
+    (symbol: string) => {
+      setOpen(false);
+      onDeselect(symbol);
+    },
+    [onDeselect, setOpen]
+  );
+
+  const onCoinSelect = useCallback(
     (token: JupToken) => {
       setOpen(false);
       handleSelect(token);
@@ -65,7 +82,12 @@ export default ({ onSelect: handleSelect, open, setOpen, tokens }: Props) => {
         <Puller />
       </Box>
       <Styled.Inner>
-        <CoinSelect tokens={tokens} onSelect={onSelect} />
+        <CoinSelect
+          tokens={tokens}
+          selected={tokensToDeselect}
+          onDelete={onCoinDelete}
+          onSelect={onCoinSelect}
+        />
       </Styled.Inner>
     </Styled.Drawer>
   );

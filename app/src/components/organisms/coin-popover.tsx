@@ -17,63 +17,108 @@ export interface Props {
 }
 
 interface ModalProps extends Props {
-  onSelect: (arg0: string) => void;
+  onDeselect: (arg0: string) => void;
+  onSelect: (arg0: JupToken) => void;
   open: boolean;
   setOpen: (arg0: boolean) => void;
   tokens?: string[];
+  tokensToDeselect?: string;
 }
 
-const Modal = memo(({ onSelect, open, setOpen, tokens }: ModalProps) => (
-  <CoinModal
-    open={open}
-    setOpen={setOpen}
-    onSelect={onSelect}
-    tokens={tokens}
-  />
-));
+const Modal = memo(
+  ({
+    onDeselect,
+    onSelect,
+    open,
+    setOpen,
+    tokens,
+    tokensToDeselect,
+  }: ModalProps) => (
+    <CoinModal
+      onDeselect={onDeselect}
+      onSelect={onSelect}
+      open={open}
+      setOpen={setOpen}
+      tokens={tokens}
+      tokensToDeselect={tokensToDeselect}
+    />
+  )
+);
 
-const Drawer = memo(({ onSelect, open, setOpen, tokens }: ModalProps) => (
-  <CoinDrawer
-    onSelect={onSelect}
-    open={open}
-    setOpen={setOpen}
-    tokens={tokens}
-  />
-));
+const Drawer = memo(
+  ({
+    onDeselect,
+    onSelect,
+    open,
+    setOpen,
+    tokens,
+    tokensToDeselect,
+  }: ModalProps) => (
+    <CoinDrawer
+      onDeselect={onDeselect}
+      onSelect={onSelect}
+      open={open}
+      setOpen={setOpen}
+      tokens={tokens}
+      tokensToDeselect={tokensToDeselect}
+    />
+  )
+);
 
-export default forwardRef(({ onChange = () => {}, tokens }: Props, ref) => {
-  const { isMobile } = useBreakpoints();
-  const [open, setOpen] = useState(false);
+export default forwardRef(
+  (
+    { onDeselect: handleDeselect, onChange, tokens, tokensToDeselect }: Props,
+    ref
+  ) => {
+    const { isMobile } = useBreakpoints();
+    const [open, setOpen] = useState(false);
 
-  const onSelect = useCallback(
-    (symbol: string) => {
-      onChange(symbol);
-    },
-    [onChange]
-  );
+    const onDeselect = useCallback(
+      (symbol: string) => {
+        handleDeselect(symbol);
+      },
+      [handleDeselect]
+    );
 
-  useImperativeHandle(ref, () => ({
-    close() {
-      setOpen(false);
-    },
-    isOpened: open,
-    open() {
-      setOpen(true);
-    },
-  }));
+    const onSelect = useCallback(
+      (token: JupToken) => {
+        onChange(token);
+      },
+      [onChange]
+    );
 
-  if (isMobile) {
+    useImperativeHandle(ref, () => ({
+      close() {
+        setOpen(false);
+      },
+      isOpened: open,
+      open() {
+        setOpen(true);
+      },
+    }));
+
+    if (isMobile) {
+      return (
+        <Drawer
+          onDeselect={onDeselect}
+          onSelect={onSelect}
+          open={open}
+          setOpen={setOpen}
+          tokens={tokens}
+          tokensToDeselect={tokensToDeselect}
+        />
+      );
+    }
+
     return (
-      <Drawer
+      <Modal
+        onDeselect={onDeselect}
         onSelect={onSelect}
         open={open}
         setOpen={setOpen}
         tokens={tokens}
+        tokensToDeselect={tokensToDeselect}
       />
     );
   }
-
-  return (
-    <Modal onSelect={onSelect} open={open} setOpen={setOpen} tokens={tokens} />
-  );
-});
+);

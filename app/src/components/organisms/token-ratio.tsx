@@ -16,7 +16,7 @@ import Mby from "../../types/maybe";
 import * as Styled from "./token-ratio.styled";
 import CoinPopover from "./coin-popover";
 import TokenPairForm from "../molecules/token-pair-form";
-import availableReducer, {
+import availableTokens, {
   action,
   initialState,
 } from "../../reducers/select-available-tokens.reducer";
@@ -36,13 +36,13 @@ export default function TokenRatio({ pairs }: Props) {
   const [aToken, setAToken] = useState<JupToken>();
   const [bToken, setBToken] = useState<JupToken>();
 
-  const [state, dispatch] = useReducer(availableReducer, initialState);
+  const [state, dispatch] = useReducer(availableTokens, initialState);
 
   const selectedPair = useTokenPair(aToken && bToken && { aToken, bToken });
 
   useEffect(() => {
     if (!state.available) {
-      Mby.tap<TokenPair[]>((pair) => dispatch(action.init({ pair })), pairs);
+      Mby.tap<TokenPair[]>((p) => dispatch(action.init({ pairs: p })), pairs);
     }
 
     return () => {};
@@ -51,30 +51,37 @@ export default function TokenRatio({ pairs }: Props) {
   const onTokenAChoose = useCallback(() => {
     setCurToken(1);
     if (!popoverRef.current?.isOpened) popoverRef.current?.open();
-  }, [popoverRef, setCurToken]);
+  }, [popoverRef, setCurToken, state.a]);
 
   const onTokenBChoose = useCallback(() => {
     setCurToken(2);
     if (!popoverRef.current?.isOpened) popoverRef.current?.open();
   }, [popoverRef, setCurToken]);
 
+  const onCoinDeselect = useCallback((symbol) => {
+    console.log(symbol);
+    dispatch(action.clear({ symbol }));
+  }, []);
+
   const onCoinSelect = useCallback(
     (token: JupToken) => {
       console.log({ token });
-      if (curToken === 1) dispatch(action.selectA(token));
+      if (curToken === 1) {
+        dispatch(action.selectA({ token }));
+      }
       if (curToken === 1) setAToken(token);
       if (curToken === 2) setBToken(token);
     },
     [curToken]
   );
 
-  const availableTokens = useMemo(() => {
+  const availableTokens1 = useMemo(() => {
     if (!state.available) return undefined;
 
     return Array.from(new Set(flatten(state.available)).values());
   }, [/*pairs.data*/ state.available]);
 
-  console.log({ availableTokens });
+  console.log({ availableTokens1 }, state);
 
   if (!state.available && !pairs.error) {
     return (
@@ -87,18 +94,20 @@ export default function TokenRatio({ pairs }: Props) {
   return (
     <>
       <CoinPopover
+        onDeselect={onCoinDeselect}
         onChange={onCoinSelect}
         ref={popoverRef}
-        tokens={availableTokens}
+        tokens={state.available}
+        tokensToDeselect={state.cancellable}
       />
       <Styled.Swap elevation={1}>
         <Box p={2}>
           <TokenPairForm
             onASelect={onTokenAChoose}
             onBSelect={onTokenBChoose}
-            tokenA={aToken?.symbol}
-            tokenAImage={aToken?.logoURI}
-            tokenAMint={aToken?.address}
+            tokenA={state.a?.symbol}
+            tokenAImage={state.a?.logoURI}
+            tokenAMint={state.a?.address}
             tokenB={bToken?.symbol}
             tokenBImage={bToken?.logoURI}
             tokenBMint={bToken?.address}

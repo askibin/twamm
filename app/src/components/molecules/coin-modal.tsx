@@ -12,17 +12,33 @@ export interface Props {
   open: boolean;
   setOpen: (arg0: boolean) => void;
   tokens?: string[];
+  tokensToDeselect?: string[];
 }
 
-export default ({ onSelect = () => {}, open, setOpen, tokens }: Props) => {
+export default ({
+  onDeselect,
+  onSelect,
+  open,
+  setOpen,
+  tokens,
+  tokensToDeselect,
+}: Props) => {
   const handleClose = () => setOpen(false);
 
   const backdropProps = useMemo(() => ({ timeout: 500 }), []);
 
-  const onCoinSelect = useCallback(
-    (symbol: JupToken) => {
+  const onCoinDelete = useCallback(
+    (symbol: string) => {
       setOpen(false);
-      onSelect(symbol);
+      onDeselect(symbol.toLowerCase());
+    },
+    [onDeselect, setOpen]
+  );
+
+  const onCoinSelect = useCallback(
+    (token: JupToken) => {
+      setOpen(false);
+      onSelect(token);
     },
     [onSelect, setOpen]
   );
@@ -40,7 +56,12 @@ export default ({ onSelect = () => {}, open, setOpen, tokens }: Props) => {
           <Styled.Close aria-label="close" onClick={handleClose}>
             <CloseIcon />
           </Styled.Close>
-          <CoinSelect tokens={tokens} onSelect={onCoinSelect} />
+          <CoinSelect
+            tokens={tokens}
+            selected={tokensToDeselect}
+            onDelete={onCoinDelete}
+            onSelect={onCoinSelect}
+          />
         </Styled.Inner>
       </Fade>
     </Modal>
