@@ -2,25 +2,51 @@ import type { SWRResponse } from "swr";
 import Box from "@mui/material/Box";
 import CircularProgress from "@mui/material/CircularProgress";
 import { flatten } from "ramda";
-import { useCallback, useMemo, useRef, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useReducer,
+  useRef,
+  useState,
+} from "react";
 
+import type { Maybe } from "../../types/maybe.d";
+import Mby from "../../types/maybe";
 import * as Styled from "./token-ratio.styled";
 import CoinPopover from "./coin-popover";
 import TokenPairForm from "../molecules/token-pair-form";
+import availableReducer, {
+  action,
+  initialState,
+} from "../../reducers/select-available-tokens.reducer";
 import { useTokenPair } from "../../hooks/use-token-pair-to-swap";
 
 export interface Props {
-  pairs: SWRResponse<Array<[string, string]>>;
+  // pairs: SWRResponse<Array<[string, string]>>;
+  pairs: Maybe<TokenPair[]>;
 }
 
 export default function TokenRatio({ pairs }: Props) {
   const popoverRef = useRef<{ isOpened: boolean; open: () => void }>();
 
+  console.log(pairs);
+
   const [curToken, setCurToken] = useState<number>();
   const [aToken, setAToken] = useState<JupToken>();
   const [bToken, setBToken] = useState<JupToken>();
 
+  const [state, dispatch] = useReducer(availableReducer, initialState);
+
   const selectedPair = useTokenPair(aToken && bToken && { aToken, bToken });
+
+  useEffect(() => {
+    if (!state.available) {
+      Mby.tap<TokenPair[]>((pair) => dispatch(action.init({ pair })), pairs);
+    }
+
+    return () => {};
+  }, [pairs, state.available]);
 
   const onTokenAChoose = useCallback(() => {
     setCurToken(1);
@@ -34,6 +60,8 @@ export default function TokenRatio({ pairs }: Props) {
 
   const onCoinSelect = useCallback(
     (token: JupToken) => {
+      console.log({ token });
+      if (curToken === 1) dispatch(action.selectA(token));
       if (curToken === 1) setAToken(token);
       if (curToken === 2) setBToken(token);
     },
@@ -41,12 +69,14 @@ export default function TokenRatio({ pairs }: Props) {
   );
 
   const availableTokens = useMemo(() => {
-    if (!pairs.data) return undefined;
+    if (!state.available) return undefined;
 
-    return Array.from(new Set(flatten(pairs.data)).values());
-  }, [pairs.data]);
+    return Array.from(new Set(flatten(state.available)).values());
+  }, [/*pairs.data*/ state.available]);
 
-  if (!pairs.data && !pairs.error) {
+  console.log({ availableTokens });
+
+  if (!state.available && !pairs.error) {
     return (
       <Box sx={{ display: "flex", justifyContent: "center" }}>
         <CircularProgress />

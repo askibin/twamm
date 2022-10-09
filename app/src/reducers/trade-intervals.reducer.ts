@@ -1,12 +1,3 @@
-interface State {
-  periodTifs: number[] | undefined;
-  scheduleTifs: number[] | undefined;
-  tifs: number[] | undefined;
-  tifScheduled: number | undefined;
-  tifSelected: number | undefined;
-  tifsLeft: number[] | undefined;
-}
-
 const SET_TIFS = "SET_TIFS";
 
 const SET_SCHEDULE = "SET_SCHEDULE";
@@ -17,6 +8,15 @@ const CLEAR_TIFS = "CLEAR_TIFS";
 
 const noDelayTif = -1;
 
+interface State {
+  periodTifs: number[] | undefined;
+  scheduleTifs: number[] | undefined;
+  tifs: number[] | undefined;
+  tifScheduled: number | undefined;
+  tifSelected: number | undefined;
+  tifsLeft: number[] | undefined;
+}
+
 export const initialState = {
   periodTifs: undefined,
   scheduleTifs: undefined,
@@ -26,7 +26,10 @@ export const initialState = {
   tifsLeft: undefined,
 };
 
-export default <S extends State, A extends Action>(state: S, action: A) => {
+export default <S extends State, A extends Action<any>>(
+  state: S,
+  action: A
+) => {
   if (!action) return state;
 
   switch (action.type) {

@@ -9,7 +9,7 @@ import * as Styled from "./token-pair-form.styled";
 import InTokenField from "./in-token-field";
 import styles from "./token-pair-form.module.css";
 import TokenSelect from "../atoms/token-select";
-import TradeIntervals from "../molecules/trade-intervals";
+import TradeIntervals from "./trade-intervals";
 import { useScheduleOrder } from "../../hooks/use-schedule-order";
 import { useTIFIntervals } from "../../hooks/use-tif-intervals";
 

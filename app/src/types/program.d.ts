@@ -8,3 +8,5 @@ declare type JupToken = {
 };
 
 declare type OrderType = "sell" | "buy";
+
+declare type TokenPair = [string, string];

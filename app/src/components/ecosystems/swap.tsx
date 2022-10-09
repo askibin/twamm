@@ -3,6 +3,7 @@ import Container from "@mui/material/Container";
 
 import ModeToggle from "../atoms/mode-toggle";
 import TokenRatio from "../organisms/token-ratio";
+import Maybe from "../../types/maybe";
 import * as Styled from "./swap.styled";
 import { useTokenPairsToSwap } from "../../hooks/use-token-pairs-to-swap";
 
@@ -30,7 +31,7 @@ export default ({ mode, onModeChange }: Props) => {
       </Box>
       <Styled.Section>
         <TokenRatio
-          pairs={tokenPairs}
+          pairs={Maybe.of(tokenPairs.data)}
           tokenA={data.tokenA}
           tokenB={data.tokenB}
           tokenAValue={data.tokenAValue}
