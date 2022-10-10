@@ -1,4 +1,4 @@
-import { flatten, lensProp, pipe, set, view } from "ramda";
+import { flatten } from "ramda";
 
 const CLEAR = "CLEAR";
 
@@ -8,26 +8,26 @@ const INIT = "INIT";
 
 const SELECT_A = "SELECT_A";
 
+const SELECT_B = "SELECT_B";
+
 const SWAP = "SWAP";
 
 interface State {
   a?: JupToken;
-  b?: JupToken;
-  type?: OrderType;
   available?: string[];
+  b?: JupToken;
   cancellable?: string[];
-  selectable?: TokenPair[];
-  selected?: string[];
   pairs?: TokenPair[];
+  type?: OrderType;
 }
 
 export const initialState = {
   a: undefined,
-  b: undefined,
-  type: undefined,
   available: undefined,
-  selected: undefined,
+  b: undefined,
+  cancellable: undefined,
   pairs: undefined,
+  type: undefined,
 };
 
 const clear = (payload: { symbol: string }) => ({
@@ -50,6 +50,11 @@ const selectA = (payload: { token: JupToken }) => ({
   payload,
 });
 
+const selectB = (payload: { token: JupToken }) => ({
+  type: SELECT_B,
+  payload,
+});
+
 const swap = (payload = {}) => ({
   type: SWAP,
   payload,
@@ -63,8 +68,6 @@ export default <S extends Partial<State>, A extends Action<any>>(
   action: A
 ) => {
   if (!action) return state;
-
-  console.log("act", action);
 
   switch (action.type) {
     case INIT: {
@@ -113,7 +116,15 @@ export default <S extends Partial<State>, A extends Action<any>>(
 
       const cancellable = [token.address];
 
-      return { ...state, a: token, b: undefined, available, cancellable };
+      return { ...state, a: token, available, cancellable };
+    }
+
+    case SELECT_B: {
+      const {
+        payload: { token },
+      } = action as Action<ActionPayload<typeof selectB>>;
+
+      return { ...state, b: token };
     }
 
     case CLEAR_A: {
@@ -123,24 +134,10 @@ export default <S extends Partial<State>, A extends Action<any>>(
       return { ...state, b: undefined, a: undefined, available };
     }
 
-    //case SWAP: {
-    //const { a, b, type } = state;
-
-    //return { a: b, b: a, type: type === "sell" ? "buy" : "sell" };
-    //}
-
-    //case SELECT_A: {
-    //const { address, symbol } = action.payload;
-
-    //console.log({ address, symbol });
-
-    //return state;
-    //}
-
     default: {
       return state;
     }
   }
 };
 
-export const action = { clear, clearA, init, selectA, swap };
+export const action = { clear, clearA, init, selectA, selectB, swap };

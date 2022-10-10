@@ -34,6 +34,19 @@ const tap = <T>(f: (arg0: T) => void, m: Maybe<T>): Maybe<T> => {
   }
 };
 
+const nothing = <A, B>(
+  f: () => Maybe<B>,
+  m: Maybe<A>
+): Maybe<B> | undefined => {
+  switch (m.type) {
+    case MaybeType.Nothing: {
+      return f();
+    }
+    default:
+      return undefined;
+  }
+};
+
 const andThen = <A, B>(f: (arg0: A) => Maybe<B>, m: Maybe<A>): Maybe<B> => {
   switch (m.type) {
     case MaybeType.Just:
@@ -59,10 +72,20 @@ const withDefault = <T>(defaultValue: T, m: Maybe<T>): T => {
 
 const MaybeImpl = {
   andMap: curry(andMap),
-  tap,
   andThen: curry(andThen),
+  nothing,
   of,
+  tap,
   withDefault: curry(withDefault),
 };
 
 export default MaybeImpl;
+
+const isNothing = (maybeNothing: any): boolean => {
+  if (!maybeNothing.type) throw new Error("Not a Maybe type");
+  return maybeNothing.type === NothingImpl().type;
+};
+
+export const MaybeUtils = {
+  isNothing,
+};

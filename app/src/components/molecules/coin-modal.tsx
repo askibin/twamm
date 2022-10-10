@@ -8,6 +8,7 @@ import CoinSelect from "../organisms/coin-select";
 import * as Styled from "./coin-modal.styled";
 
 export interface Props {
+  onDeselect: (arg0: string) => void;
   onSelect: (arg0: JupToken) => void;
   open: boolean;
   setOpen: (arg0: boolean) => void;

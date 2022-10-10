@@ -11,18 +11,17 @@ import CoinDrawer from "../molecules/coin-drawer";
 import { useBreakpoints } from "../../hooks/use-breakpoints";
 
 export interface Props {
-  // eslint-disable-next-line react/no-unused-prop-types
-  onChange?: (arg0: string) => void;
+  onChange: (arg0: JupToken) => void;
+  onDeselect: (arg0: string) => void;
   tokens?: string[];
+  tokensToDeselect?: string[];
 }
 
-interface ModalProps extends Props {
-  onDeselect: (arg0: string) => void;
+interface ModalProps extends Omit<Props, "onChange"> {
   onSelect: (arg0: JupToken) => void;
   open: boolean;
   setOpen: (arg0: boolean) => void;
   tokens?: string[];
-  tokensToDeselect?: string;
 }
 
 const Modal = memo(

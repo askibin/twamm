@@ -77,7 +77,7 @@ const Intervals = memo(
 export default ({ info, label, value, values, onSelect }: Props) => {
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
 
-  const handlePopoverOpen = (event: React.MouseEvent<HTMLElement>) => {
+  const handlePopoverOpen = (event: MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
   };
 
@@ -100,7 +100,7 @@ export default ({ info, label, value, values, onSelect }: Props) => {
       <Box pb={1}>
         <Styled.Label>
           {label}
-          <Styled.InfoControl p={0} onClick={handlePopoverOpen}>
+          <Styled.InfoControl onClick={handlePopoverOpen}>
             <InfoIcon />
           </Styled.InfoControl>
         </Styled.Label>

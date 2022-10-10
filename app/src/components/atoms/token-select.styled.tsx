@@ -1,24 +1,26 @@
+import type { BoxProps } from "@mui/material/Box";
 import Avatar from "@mui/material/Avatar";
-import Box from "@mui/material/Box";
+import Stack from "@mui/material/Stack";
 import { styled } from "@mui/material/styles";
 
-export const TokenField = styled(Box)`
+interface DisabledBoxProps extends BoxProps {
+  disabled?: boolean;
+}
+
+export const TokenField = styled(Stack)`
   border-radius: 16px;
   display: flex;
   flex-direction: row;
   flex-grow: 0;
   align-items: center;
   cursor: pointer;
+  ${(props: DisabledBoxProps) => (props.disabled ? `color: red;` : undefined)}
 `;
 
 export const TokenIcon = styled(Avatar)`
   width: 60px;
   height: 60px;
   margin-right: 12px;
-  & > svg {
-    width: 75%;
-    height: 75%;
-  }
 `;
 
 export const TokenName = styled("span")`

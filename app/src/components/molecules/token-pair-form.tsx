@@ -118,6 +118,7 @@ export default ({
           <Box pb={2}>
             <TokenSelect
               alt={tokenB}
+              disabled={!tokenA}
               image={tokenBImage}
               label={tokenB}
               onClick={onBSelect}
