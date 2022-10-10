@@ -9,7 +9,7 @@ const NothingImpl = (): Nothing => ({
 
 const JustImpl = <T>(value: T): Just<T> => ({
   type: MaybeType.Just,
-  value,
+  value: value as Exclude<T, undefined | null>,
 });
 
 const andMap = <A, B>(f: (arg0: A) => B, m: Maybe<A>): Maybe<B> => {
@@ -31,19 +31,6 @@ const tap = <T>(f: (arg0: T) => void, m: Maybe<T>): Maybe<T> => {
     case MaybeType.Nothing:
     default:
       return NothingImpl();
-  }
-};
-
-const nothing = <A, B>(
-  f: () => Maybe<B>,
-  m: Maybe<A>
-): Maybe<B> | undefined => {
-  switch (m.type) {
-    case MaybeType.Nothing: {
-      return f();
-    }
-    default:
-      return undefined;
   }
 };
 
@@ -73,19 +60,29 @@ const withDefault = <T>(defaultValue: T, m: Maybe<T>): T => {
 const MaybeImpl = {
   andMap: curry(andMap),
   andThen: curry(andThen),
-  nothing,
   of,
-  tap,
-  withDefault: curry(withDefault),
+  tap, // uncurried due to unknown type
+  withDefault, // uncurried,
 };
 
 export default MaybeImpl;
 
-const isNothing = (maybeNothing: any): boolean => {
+const isNothing = <T = any>(maybeNothing: Maybe<T> | any): boolean => {
   if (!maybeNothing.type) throw new Error("Not a Maybe type");
   return maybeNothing.type === NothingImpl().type;
 };
 
+const nothing = <A, B>(f: () => B, m: Maybe<A>): B | undefined => {
+  switch (m.type) {
+    case MaybeType.Nothing: {
+      return f();
+    }
+    default:
+      return undefined;
+  }
+};
+
 export const MaybeUtils = {
   isNothing,
+  nothing,
 };

@@ -1,32 +1,30 @@
-import type { SWRResponse } from "swr";
 import Box from "@mui/material/Box";
-import SyncAltIcon from "@mui/icons-material/SyncAlt";
-import { useCallback, useEffect, useMemo, useReducer, useState } from "react";
+import { useCallback, useEffect, useReducer } from "react";
 
-import type { MaybeResponse } from "../../types/global.d";
+import type { Maybe as TMaybe } from "../../types/maybe.d";
 import intervalsReducer, {
   action,
   initialState,
 } from "../../reducers/trade-intervals.reducer";
-
 import TimeInterval from "../atoms/time-interval";
 
-export type SelectedTif = [number, boolean];
+export type SelectedTif = [number];
 
 export interface Props {
   onSelect: (arg0: SelectedTif) => void;
   tifs?: number[];
-  intervals: MaybeResponse<any>;
+  intervals: TMaybe<any>;
 }
+
+// TODO: finalize intervals
 
 export default ({ onSelect, tifs, intervals, value: tif }: Props) => {
   const [state, dispatch] = useReducer(intervalsReducer, initialState);
 
-  console.log("state", state);
+  console.log("tif", tif, intervals);
 
   useEffect(() => {
     if (tifs && tifs !== state.tifs) {
-      console.log("state", "effect", tifs);
       dispatch(action.setTifs({ tifs, tifsLeft: tifs }));
     }
 
@@ -37,8 +35,6 @@ export default ({ onSelect, tifs, intervals, value: tif }: Props) => {
     (value: number) => {
       dispatch(action.setSchedule({ tif: value }));
 
-      console.log("state", value);
-
       onSelect([value]);
     },
     [dispatch, onSelect]
@@ -48,14 +44,10 @@ export default ({ onSelect, tifs, intervals, value: tif }: Props) => {
     (value: number) => {
       dispatch(action.setPeriod({ tif: value }));
 
-      console.log("state", value);
-
       onSelect([value]);
     },
     [dispatch, onSelect]
   );
-
-  const ttifs = intervals.data;
 
   return (
     <>

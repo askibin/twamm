@@ -7,10 +7,12 @@ import type { APIHook } from "../utils/api";
 import { dedupeEach, refreshEach } from "../utils/api";
 import { useProgram } from "./use-program";
 
-const swrKey = (params: { aToken: any; bToken: any }) => ({
+const swrKey = (params: { aToken: JupToken; bToken: JupToken }) => ({
   key: "tokenPairToSwap",
   params,
 });
+
+type Params = Parameters<typeof swrKey>[0];
 
 const fetcher = (provider: Provider, program: Program) => {
   const findProgramAddress = findAddress(program);
@@ -23,7 +25,9 @@ const fetcher = (provider: Provider, program: Program) => {
       new PublicKey(bToken.address).toBuffer(),
     ]);
 
-    const tokenPair = await program.account.tokenPair.fetch(address);
+    const tokenPair = (await program.account.tokenPair.fetch(
+      address
+    )) as TokenPairAccountData;
 
     const { currentPoolPresent, futurePoolPresent, poolCounters, tifs } =
       tokenPair;
@@ -34,13 +38,11 @@ const fetcher = (provider: Provider, program: Program) => {
       tifs,
     };
 
-    console.log(pair);
-
     return pair;
   };
 };
 
-export const useTokenPair: APIHook<{ aToken: any; bToken: any }, any> = (
+export const useTokenPair: APIHook<Params, TokenPairData> = (
   params,
   options = {}
 ) => {

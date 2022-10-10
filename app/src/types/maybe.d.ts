@@ -5,7 +5,7 @@ export enum MaybeType {
 
 declare interface Just<T> {
   type: typeof MaybeType.Just;
-  value: T;
+  value: Exclude<T, undefined | null>;
 }
 
 declare interface Nothing {

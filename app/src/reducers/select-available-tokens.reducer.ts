@@ -35,11 +35,6 @@ const clear = (payload: { symbol: string }) => ({
   payload,
 });
 
-const clearA = (payload = {}) => ({
-  type: CLEAR_A,
-  payload,
-});
-
 const init = (payload: { pairs: TokenPair[] }) => ({
   type: INIT,
   payload,
@@ -62,6 +57,20 @@ const swap = (payload = {}) => ({
 
 const flattenPairs = (pairs: TokenPair[]) =>
   Array.from(new Set(flatten(pairs)).values());
+
+const matchPairs = (pair: TokenPair, pairs: TokenPair[]) => {
+  const matchedPair = pairs.find(
+    (tokenPair) => tokenPair.includes(pair[0]) && tokenPair.includes(pair[1])
+  );
+
+  if (!matchedPair) return undefined;
+
+  const type = pair[0] === matchedPair[0] ? "sell" : "buy";
+
+  return type;
+};
+
+// TODO: cover with tests & better types
 
 export default <S extends Partial<State>, A extends Action<any>>(
   state: S,
@@ -94,12 +103,13 @@ export default <S extends Partial<State>, A extends Action<any>>(
         return {
           ...state,
           a: undefined,
-          b: undefined,
           available,
+          b: undefined,
           cancellable: undefined,
+          type: undefined,
         };
 
-      if (isB) return { ...state, b: undefined };
+      if (isB) return { ...state, b: undefined, type: undefined };
 
       return state;
     }
@@ -108,7 +118,7 @@ export default <S extends Partial<State>, A extends Action<any>>(
       const {
         payload: { token },
       } = action as Action<ActionPayload<typeof selectA>>;
-      const pairs = state.pairs ?? [];
+      const { b, pairs = [] } = state;
 
       const available = flatten(
         pairs.filter((pair) => pair.includes(token.address))
@@ -116,22 +126,62 @@ export default <S extends Partial<State>, A extends Action<any>>(
 
       const cancellable = [token.address];
 
-      return { ...state, a: token, available, cancellable };
+      const shouldClearOpposite = b && token.address === b.address;
+
+      let type;
+      if (b && !shouldClearOpposite) {
+        const pair: TokenPair = [token.address, b.address];
+        type = matchPairs(pair, pairs);
+      }
+
+      return {
+        ...state,
+        a: token,
+        b: shouldClearOpposite ? undefined : b,
+        available,
+        cancellable,
+        type,
+      };
     }
 
     case SELECT_B: {
       const {
         payload: { token },
       } = action as Action<ActionPayload<typeof selectB>>;
+      const { a, pairs = [] } = state;
 
-      return { ...state, b: token };
+      let type;
+      if (a) {
+        const pair: TokenPair = [a.address, token.address];
+        type = matchPairs(pair, pairs);
+      }
+
+      return { ...state, b: token, type };
     }
 
     case CLEAR_A: {
       const pairs = state.pairs ?? [];
       const available = flattenPairs(pairs);
 
-      return { ...state, b: undefined, a: undefined, available };
+      return {
+        ...state,
+        b: undefined,
+        a: undefined,
+        available,
+        type: undefined,
+      };
+    }
+
+    case SWAP: {
+      const { a, b, type } = state;
+
+      return {
+        ...state,
+        a: b,
+        b: a,
+        cancellable: b?.address ? [b.address] : undefined,
+        type: type === "sell" ? "buy" : "sell",
+      };
     }
 
     default: {
@@ -140,4 +190,4 @@ export default <S extends Partial<State>, A extends Action<any>>(
   }
 };
 
-export const action = { clear, clearA, init, selectA, selectB, swap };
+export const action = { clear, init, selectA, selectB, swap };

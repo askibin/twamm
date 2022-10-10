@@ -1,4 +1,10 @@
-import type { SWRResponse } from "swr";
-import type { MaybeData } from "./maybe-data.d";
+declare type JupToken = {
+  name: string;
+  decimals: number;
+  symbol: string;
+  logoURI: string;
+  address: string;
+  tags: string[] | undefined;
+};
 
-declare type MaybeResponse<T, E = any> = SWRResponse<T, E> | MaybeData<T, E>;
+declare type TokenPair = [string, string];

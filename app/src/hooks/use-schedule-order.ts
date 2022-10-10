@@ -158,8 +158,6 @@ export const useScheduleOrder = () => {
     tif: number;
     nextPool?: number;
   }) {
-    console.log(amount, tif, aMint, bMint, nextPool);
-
     const transferAuthority = await findProgramAddress(
       "transfer_authority",
       []

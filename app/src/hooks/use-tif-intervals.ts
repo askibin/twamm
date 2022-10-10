@@ -29,19 +29,13 @@ const fetcher = (provider: Provider, program: Program) => async (params) => {
     .filter(({ hasCurrentPool }) => hasCurrentPool)
     .map(({ tif, index }) => [tif, index]);
 
-  console.log("intvals", intervals, poolsToFetch);
-
   try {
     if (poolsToFetch.length) {
       const pools = await Promise.all(
         poolsToFetch.map(([tif, index]) => {
-          console.log(7, { tif, index }, poolCounters[index]);
-
           return pool.getPool(tif, poolCounters[index]);
         })
       );
-
-      console.log({ pools });
     }
   } catch (error) {
     console.log(error);

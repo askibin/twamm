@@ -26,6 +26,8 @@ export const initialState = {
   tifsLeft: undefined,
 };
 
+// TODO: cover with better types & tests
+
 export default <S extends State, A extends Action<any>>(
   state: S,
   action: A

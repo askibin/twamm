@@ -35,6 +35,7 @@ export default ({ alt, disabled = false, image, label, onClick }: Props) => {
       <Styled.TokenField
         direction="row"
         onClick={disabled ? handlePopoverOpen : onClick}
+        disabled={disabled}
       >
         <Styled.TokenIcon alt={alt} src={image}>
           {disabled ? <CancelIcon /> : <QuestionMarkIcon />}

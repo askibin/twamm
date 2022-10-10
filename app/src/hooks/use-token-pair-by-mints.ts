@@ -24,16 +24,12 @@ const fetcher = (
       throw new Error("Can not fetch tokenPair");
     }
 
-    console.log({ d: tokenPair.data });
-
     const [mintA, mintB] = params;
 
     const availableMints: [string, string] = tokenPair.data.map((pair: any) => [
       pair.configA.mint,
       pair.configB.mint,
     ]);
-
-    console.log({ params });
 
     let isMatchedByMints = false;
     availableMints.forEach((mints) => {

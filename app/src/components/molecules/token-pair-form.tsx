@@ -1,40 +1,50 @@
-import type { SWRResponse } from "swr";
 import Box from "@mui/material/Box";
-import Button from "@mui/material/Button";
 import SyncAltIcon from "@mui/icons-material/SyncAlt";
 import { useCallback, useMemo, useState } from "react";
 import { Form } from "react-final-form";
 
+import type { Maybe as TMaybe } from "../../types/maybe.d";
+import type { SelectedTif } from "./trade-intervals";
 import * as Styled from "./token-pair-form.styled";
+import Maybe from "../../types/maybe";
 import InTokenField from "./in-token-field";
-import styles from "./token-pair-form.module.css";
 import TokenSelect from "../atoms/token-select";
 import TradeIntervals from "./trade-intervals";
 import { useScheduleOrder } from "../../hooks/use-schedule-order";
 import { useTIFIntervals } from "../../hooks/use-tif-intervals";
 
 export interface Props {
-  tokenA?: string;
-  tokenB?: string;
-  tokenAImage?: string;
-  tokenBImage?: string;
-  tokenAMint?: string;
-  tokenBMint?: string;
   onASelect: () => void;
   onBSelect: () => void;
-  tokenPair: SWRResponse<{ tifs: number[] }>;
+  onABSwap: () => void;
+  poolTifs: TMaybe<number[]>;
+  poolsCurrent: TMaybe<boolean[]>;
+  poolCounters: TMaybe<PoolCounter[]>;
+  side: TMaybe<OrderType>;
+  tokenA?: string;
+  tokenAImage?: string;
+  tokenAMint?: string;
+  tokenB?: string;
+  tokenBImage?: string;
+  tokenBMint?: string;
 }
 
+const defaultVal = Maybe.withDefault;
+
 export default ({
-  tokenA,
-  tokenB,
-  tokenAImage,
-  tokenBImage,
-  tokenAMint,
-  tokenBMint,
   onASelect,
   onBSelect,
-  tokenPair,
+  onABSwap,
+  poolTifs: mbTifs,
+  poolsCurrent: mbPoolsCurrent,
+  poolCounters: mbPoolCounters,
+  side: mbSide,
+  tokenA,
+  tokenAImage,
+  tokenAMint,
+  tokenB,
+  tokenBImage,
+  tokenBMint,
 }: Props) => {
   const [amount, setAmount] = useState<number>(0);
   const [tif, setTif] = useState<number>();
@@ -42,25 +52,29 @@ export default ({
 
   const { execute } = useScheduleOrder();
 
+  const tifs = defaultVal(undefined, mbTifs);
+  const currentPoolPresent = defaultVal(undefined, mbPoolsCurrent);
+  const poolCounters = defaultVal(undefined, mbPoolCounters);
+  const side = defaultVal(undefined, mbSide);
+
   const intervals = useTIFIntervals({
     aMint: tokenAMint,
     bMint: tokenBMint,
-    tifs: tokenPair.data?.tifs,
-    currentPoolPresent: tokenPair.data?.currentPoolPresent,
-    poolCounters: tokenPair.data?.poolCounters,
+    tifs,
+    currentPoolPresent,
+    poolCounters,
   });
 
   const onChangeAmount = useCallback(
-    (value) => {
+    (value: number) => {
       setAmount(value);
     },
     [setAmount]
   );
 
   const onIntervalSelect = useCallback(
-    (selectedTif) => {
-      console.log("state", selectedTif);
-      setTif(selectedTif);
+    (selectedTif: SelectedTif) => {
+      setTif(selectedTif[0]);
     },
     [setTif]
   );
@@ -68,30 +82,38 @@ export default ({
   const onSubmit = useCallback(async () => {
     // setSubmitting(true);
 
-    console.log("SEND", tif, amount);
-
-    const r = await execute({
-      side: "sell",
-      amount: amount,
-      aMint: tokenAMint,
-      bMint: tokenBMint,
-      tifs: tokenPair.data.tifs,
-      poolCounters: tokenPair.data.poolCounters,
+    console.log("SEND", {
+      side,
+      amount,
+      tokenAMint,
+      tokenBMint,
+      tifs,
+      poolCounters,
       tif,
     });
+
+    /*const r = await execute({
+      side,
+      amount,
+      aMint: tokenAMint,
+      bMint: tokenBMint,
+      tifs,
+      poolCounters,
+      tif,
+    });*/
 
     console.log(r);
   }, [
     execute,
-    setSubmitting,
+    //setSubmitting,
     amount,
+    side,
     tif,
     tokenAMint,
     tokenBMint,
-    tokenPair.data,
+    tifs,
+    poolCounters,
   ]);
-
-  const { tifs } = tokenPair.data ?? { tifs: undefined };
 
   const schedule = useMemo(() => {
     if (!tifs) return undefined;
@@ -112,7 +134,12 @@ export default ({
             onSelect={onASelect}
           />
           <Styled.OperationImage>
-            <SyncAltIcon />
+            <Styled.OperationButton
+              disabled={!tokenA || !tokenB}
+              onClick={onABSwap}
+            >
+              <SyncAltIcon />
+            </Styled.OperationButton>
           </Styled.OperationImage>
           <Styled.TokenLabelBox>You receive</Styled.TokenLabelBox>
           <Box pb={2}>
@@ -124,22 +151,19 @@ export default ({
               onClick={onBSelect}
             />
           </Box>
-          <TradeIntervals
-            tifs={tokenPair.data?.tifs}
-            intervals={intervals}
-            tifs={schedule}
-            value={tif}
-            onSelect={onIntervalSelect}
-          />
-          <Box className={styles.connectBox} sx={{ py: 2 }}>
-            <Button
-              type="submit"
-              className={styles.connectWallet}
-              disabled={isSubmitting}
-            >
-              Schedule
-            </Button>
+          <Box py={2}>
+            <TradeIntervals
+              intervals={Maybe.of(intervals.data)}
+              tifs={schedule}
+              value={tif}
+              onSelect={onIntervalSelect}
+            />
           </Box>
+          <Styled.ConnectBox py={3}>
+            <Styled.ConnectButton type="submit" disabled={isSubmitting}>
+              Schedule
+            </Styled.ConnectButton>
+          </Styled.ConnectBox>
         </form>
       )}
     </Form>
