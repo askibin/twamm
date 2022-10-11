@@ -48,9 +48,9 @@ export default () => {
             </Box>
             <Box pr={2}>
               <Styled.UtilsControl
-                istxactive={active}
-                istxerror={Boolean(error)}
-                istxsuccess={Boolean(signature)}
+                istxactive={active ? true : undefined}
+                istxerror={error ? true : undefined}
+                istxsuccess={signature ? true : undefined}
                 onClick={() => setTxOpen(true)}
               >
                 {txStateIcon}

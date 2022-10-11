@@ -16,7 +16,7 @@ export interface Props {
   onSelect: (arg0: number) => void;
 }
 
-const formatInterval = (value: number) => {
+const formatInterval = (value: number, max = 2) => {
   const getIntervalValues = (
     interval: number,
     length: number
@@ -39,7 +39,7 @@ const formatInterval = (value: number) => {
   const formatted: string[] = [];
 
   parts.forEach((part, i) => {
-    if (part) formatted.push(`${part}${literals[i]}`);
+    if (part && formatted.length < max) formatted.push(`${part}${literals[i]}`);
   });
 
   return formatted.join(" ");

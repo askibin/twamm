@@ -2,6 +2,7 @@ import type { Provider, Program } from "@project-serum/anchor";
 import { PublicKey } from "@solana/web3.js";
 import swr from "swr";
 import { findAddress } from "@twamm/client.js/lib/program";
+import { forit } from "../utils/forit";
 
 import type { APIHook } from "../utils/api";
 import { dedupeEach, refreshEach } from "../utils/api";
@@ -14,23 +15,47 @@ const swrKey = (params: { aToken: JupToken; bToken: JupToken }) => ({
 
 type Params = Parameters<typeof swrKey>[0];
 
+const mintToBuffer = (mint: string) => new PublicKey(mint).toBuffer();
+
+const fetchTokenPair =
+  (program: Program, findProgramAddress: any) =>
+  async (
+    mints: [string, string]
+  ): Promise<TokenPairAccountData | undefined> => {
+    const addressPair = mints.map(mintToBuffer);
+
+    const address = await findProgramAddress("token_pair", addressPair);
+
+    const tokenPair = (await forit(
+      program.account.tokenPair.fetch(address)
+    )) as [Error | undefined, TokenPairAccountData | undefined];
+
+    return !tokenPair[1] ? undefined : tokenPair[1];
+  };
+
 const fetcher = (provider: Provider, program: Program) => {
   const findProgramAddress = findAddress(program);
 
   return async ({ params }: ReturnType<typeof swrKey>) => {
     const { aToken, bToken } = params;
 
-    const address = await findProgramAddress("token_pair", [
-      new PublicKey(aToken.address).toBuffer(),
-      new PublicKey(bToken.address).toBuffer(),
-    ]);
+    // TODO: resolve the side according the fetched result
 
-    const tokenPair = (await program.account.tokenPair.fetch(
-      address
-    )) as TokenPairAccountData;
+    let tokenPair = await fetchTokenPair(
+      program,
+      findProgramAddress
+    )([aToken.address, bToken.address]);
+
+    if (!tokenPair) {
+      tokenPair = await fetchTokenPair(
+        program,
+        findProgramAddress
+      )([bToken.address, aToken.address]);
+    }
 
     const { currentPoolPresent, futurePoolPresent, poolCounters, tifs } =
-      tokenPair;
+      tokenPair as TokenPairAccountData;
+
     const pair = {
       currentPoolPresent,
       futurePoolPresent,

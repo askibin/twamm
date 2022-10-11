@@ -22,6 +22,7 @@ export interface Props {
   poolCounters: TMaybe<PoolCounter[]>;
   side: TMaybe<OrderType>;
   tokenA?: string;
+  tokenADecimals?: number;
   tokenAImage?: string;
   tokenAMint?: string;
   tokenB?: string;
@@ -42,6 +43,7 @@ export default ({
   poolCounters: mbPoolCounters,
   side: mbSide,
   tokenA,
+  tokenADecimals,
   tokenAImage,
   tokenAMint,
   tokenB,
@@ -93,28 +95,32 @@ export default ({
   }, [tokenA, tokenB, amount]);
 
   const onSubmit = useCallback(async () => {
-    console.log("SEND", {
+    const params = {
       side,
       amount,
-      tokenAMint,
-      tokenBMint,
-      tifs,
-      poolCounters,
-      tif,
-    });
-
-    return false;
-
-    await execute({
-      side,
-      amount,
+      decimals: tokenADecimals,
       aMint: tokenAMint,
       bMint: tokenBMint,
+      nextPool: undefined,
       tifs,
       poolCounters,
       tif,
-    });
-  }, [execute, amount, side, tif, tokenAMint, tokenBMint, tifs, poolCounters]);
+    };
+
+    console.log("SEND", params);
+
+    await execute(params);
+  }, [
+    execute,
+    amount,
+    side,
+    tif,
+    tokenAMint,
+    tokenADecimals,
+    tokenBMint,
+    tifs,
+    poolCounters,
+  ]);
 
   const schedule = useMemo(() => {
     if (!tifs) return undefined;
@@ -123,55 +129,70 @@ export default ({
     return intervals;
   }, [tifs]);
 
+  const isScheduled = false;
+
+  const readableIntervals = useMemo(() => {
+    if (!intervals.data) return undefined;
+
+    return intervals.data.map((interval) => {
+      const timeLeft = interval.left
+        ? Number(((interval.left * 1e3 - Date.now()) / 1e3).toFixed(0))
+        : interval.tif;
+
+      return { tif: timeLeft, index: interval.index };
+    });
+  }, [intervals]);
+
+  console.log("RI", readableIntervals);
+
+  const intvals = !readableIntervals
+    ? schedule
+    : readableIntervals.filter(({ tif }) => tif).map((ri) => ri.tif);
+
   return (
     <Form onSubmit={onSubmit} validate={() => errors}>
-      {({ handleSubmit, submitting, valid, ...args }) =>
-        console.log("args", args) || (
-          <form onSubmit={handleSubmit}>
-            <Styled.TokenLabelBox>You pay</Styled.TokenLabelBox>
-            <InTokenField
-              name={tokenA}
-              onChange={onChangeAmount}
-              src={tokenAImage}
-              onSelect={onASelect}
+      {({ handleSubmit, submitting, valid }) => (
+        <form onSubmit={handleSubmit}>
+          <Styled.TokenLabelBox>You pay</Styled.TokenLabelBox>
+          <InTokenField
+            name={tokenA}
+            onChange={onChangeAmount}
+            src={tokenAImage}
+            onSelect={onASelect}
+          />
+          <Styled.OperationImage>
+            <Styled.OperationButton
+              disabled={!tokenA || !tokenB}
+              onClick={onABSwap}
+            >
+              <SyncAltIcon />
+            </Styled.OperationButton>
+          </Styled.OperationImage>
+          <Styled.TokenLabelBox>You receive</Styled.TokenLabelBox>
+          <Box pb={2}>
+            <TokenSelect
+              alt={tokenB}
+              disabled={!tokenA}
+              image={tokenBImage}
+              label={tokenB}
+              onClick={onBSelect}
             />
-            <Styled.OperationImage>
-              <Styled.OperationButton
-                disabled={!tokenA || !tokenB}
-                onClick={onABSwap}
-              >
-                <SyncAltIcon />
-              </Styled.OperationButton>
-            </Styled.OperationImage>
-            <Styled.TokenLabelBox>You receive</Styled.TokenLabelBox>
-            <Box pb={2}>
-              <TokenSelect
-                alt={tokenB}
-                disabled={!tokenA}
-                image={tokenBImage}
-                label={tokenB}
-                onClick={onBSelect}
-              />
-            </Box>
-            <Box py={2}>
-              <TradeIntervals
-                intervals={Maybe.of(intervals.data)}
-                tifs={schedule}
-                value={tif}
-                onSelect={onIntervalSelect}
-              />
-            </Box>
-            <Styled.ConnectBox py={3}>
-              <Styled.ConnectButton
-                type="submit"
-                disabled={!valid || submitting}
-              >
-                Schedule
-              </Styled.ConnectButton>
-            </Styled.ConnectBox>
-          </form>
-        )
-      }
+          </Box>
+          <Box py={2}>
+            <TradeIntervals
+              intervals={Maybe.of(intervals.data)}
+              tifs={intvals}
+              value={tif}
+              onSelect={onIntervalSelect}
+            />
+          </Box>
+          <Styled.ConnectBox py={3}>
+            <Styled.ConnectButton type="submit" disabled={!valid || submitting}>
+              {isScheduled ? "Schedule Order" : "Place Order"}
+            </Styled.ConnectButton>
+          </Styled.ConnectBox>
+        </form>
+      )}
     </Form>
   );
 };

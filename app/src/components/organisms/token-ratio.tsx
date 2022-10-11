@@ -71,6 +71,8 @@ export default function TokenRatio({ pairs }: Props) {
   if (MaybeUtils.isNothing(availableMaybe))
     return MaybeUtils.nothing(Loading, availableMaybe);
 
+  console.log({ selectedPair });
+
   return (
     <>
       <CoinPopover
@@ -83,14 +85,15 @@ export default function TokenRatio({ pairs }: Props) {
       <Styled.Swap elevation={1}>
         <Box p={2}>
           <TokenPairForm
+            onABSwap={onTokenSwap}
             onASelect={onTokenAChoose}
             onBSelect={onTokenBChoose}
-            onABSwap={onTokenSwap}
-            poolTifs={Maybe.of(selectedPair.data?.tifs)}
-            poolsCurrent={Maybe.of(selectedPair.data?.currentPoolPresent)}
             poolCounters={Maybe.of(selectedPair.data?.poolCounters)}
+            poolsCurrent={Maybe.of(selectedPair.data?.currentPoolPresent)}
+            poolTifs={Maybe.of(selectedPair.data?.tifs)}
             side={Maybe.of(state.type)}
             tokenA={state.a?.symbol}
+            tokenADecimals={state.a?.decimals}
             tokenAImage={state.a?.logoURI}
             tokenAMint={state.a?.address}
             tokenB={state.b?.symbol}

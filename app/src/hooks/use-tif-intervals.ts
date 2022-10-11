@@ -16,6 +16,8 @@ const fetcher = (provider: Provider, program: Program) => async (params) => {
 
   const intervals = new Map();
 
+  console.log("DD", currentPoolPresent, poolCounters, tifs);
+
   tifs.forEach((tif: number, index: number) => {
     if (tif === 0) return;
 
@@ -29,19 +31,45 @@ const fetcher = (provider: Provider, program: Program) => async (params) => {
     .filter(({ hasCurrentPool }) => hasCurrentPool)
     .map(({ tif, index }) => [tif, index]);
 
-  try {
-    if (poolsToFetch.length) {
-      const pools = await Promise.all(
-        poolsToFetch.map(([tif, index]) => {
-          return pool.getPool(tif, poolCounters[index]);
-        })
-      );
-    }
-  } catch (error) {
-    console.log(error);
+  console.log({ poolsToFetch }, poolCounters);
+
+  const availablePoolsRecords = new Map();
+
+  if (poolsToFetch.length) {
+    const pools = await Promise.allSettled(
+      poolsToFetch.map(([tif, index]) => {
+        return pool.getPool(tif, poolCounters[index]);
+      })
+    );
+
+    const indexedPools = poolsToFetch.map((poolToFetch, index) => {
+      return [pools[index], poolToFetch[1]];
+    });
+
+    const availablePools = indexedPools
+      .filter(([p]) => p.status === "fulfilled")
+      .map(([p, index]) => [p.value, index])
+      .map(([p, index]) => ({
+        tif: p.timeInForce,
+        left: p.expirationTime.toNumber(),
+        index,
+      }));
+
+    availablePools.forEach((apool) => {
+      availablePoolsRecords.set(apool.index, apool);
+    });
+
+    console.log("PP", indexedPools, availablePools, pools);
   }
 
-  return tifs;
+  const enrichedTifs = tifs.map((tif, index) => {
+    const record = availablePoolsRecords.get(index);
+    return { tif, index, left: record ? record.left : undefined };
+  });
+
+  console.log("PPP", enrichedTifs);
+
+  return enrichedTifs; //tifs;
 };
 
 export const useTIFIntervals = ({

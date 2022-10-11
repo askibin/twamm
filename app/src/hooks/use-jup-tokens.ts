@@ -1,6 +1,7 @@
 import type { Cluster } from "@solana/web3.js";
 import swr from "swr";
 import { TOKEN_LIST_URL } from "@jup-ag/core";
+import { NATIVE_MINT } from "@solana/spl-token";
 
 import type { APIHook } from "../utils/api";
 import { dedupeEach, revalOnFocus, retryFor } from "../utils/api";
@@ -14,7 +15,7 @@ const swrKey = (params: { moniker: Cluster }) => ({
 const hasTag = (t: JupToken, tag: string) => t.tags?.includes(tag);
 const isSTL = (t: JupToken) => hasTag(t, "stablecoin");
 const isSolana = (t: JupToken) => hasTag(t, "solana");
-const isWSol = (t: JupToken) => t.symbol === "SOL";
+const isWSol = (t: JupToken) => t.address === NATIVE_MINT.toBase58();
 
 const fetcher = async ({ params }: ReturnType<typeof swrKey>) => {
   const { moniker } = params;
@@ -25,8 +26,9 @@ const fetcher = async ({ params }: ReturnType<typeof swrKey>) => {
 
   const neededTokens = allTokens
     .filter((t) => isSTL(t) || isSolana(t) || isWSol(t))
-    .map(({ name, symbol, logoURI, address }) => ({
+    .map(({ address, decimals, logoURI, name, symbol }) => ({
       address,
+      decimals,
       logoURI,
       name,
       symbol,

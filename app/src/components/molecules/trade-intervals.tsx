@@ -11,9 +11,10 @@ import TimeInterval from "../atoms/time-interval";
 export type SelectedTif = [number];
 
 export interface Props {
+  intervals: TMaybe<any>;
   onSelect: (arg0: SelectedTif) => void;
   tifs?: number[];
-  intervals: TMaybe<any>;
+  value: number;
 }
 
 // TODO: finalize intervals

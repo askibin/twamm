@@ -4,6 +4,8 @@ const CLEAR = "CLEAR";
 
 const CLEAR_A = "CLEAR_A";
 
+const CLEAR_ALL = "CLEAR_ALL";
+
 const INIT = "INIT";
 
 const SELECT_A = "SELECT_A";
@@ -32,6 +34,11 @@ export const initialState = {
 
 const clear = (payload: { symbol: string }) => ({
   type: CLEAR,
+  payload,
+});
+
+const clearAll = (payload = {}) => ({
+  type: CLEAR_ALL,
   payload,
 });
 
@@ -172,6 +179,10 @@ export default <S extends Partial<State>, A extends Action<any>>(
       };
     }
 
+    case CLEAR_ALL: {
+      return { ...initialState };
+    }
+
     case SWAP: {
       const { a, b, type } = state;
 
@@ -190,4 +201,4 @@ export default <S extends Partial<State>, A extends Action<any>>(
   }
 };
 
-export const action = { clear, init, selectA, selectB, swap };
+export const action = { clearAll, clear, init, selectA, selectB, swap };

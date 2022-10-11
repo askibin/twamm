@@ -62,6 +62,7 @@ const findAssociatedTokenAddress = async (
   return address;
 };
 
+// TODO: improve to return instructions;
 const assureAccountIsCreated =
   (provider: any) => async (mint: PublicKey, accountAddress: PublicKey) => {
     try {
@@ -72,8 +73,6 @@ const assureAccountIsCreated =
       if (!accountInfo) {
         throw new Error("TokenAccountNotFoundError");
       }
-
-      console.log("accInfo", accountInfo);
     } catch (err: any) {
       console.log({ err });
       if (!err?.message.startsWith("TokenAccountNotFoundError")) {
@@ -88,7 +87,6 @@ const assureAccountIsCreated =
         provider.wallet.publicKey,
         mint,
       ];
-      console.log("acc", accounts);
 
       transaction.add(
         createAssociatedTokenAccountInstruction(
@@ -98,8 +96,6 @@ const assureAccountIsCreated =
           mint
         )
       );
-
-      console.log({ transaction });
 
       await provider.sendAll([{ tx: transaction }]);
     }
@@ -139,24 +135,24 @@ const getOrderKey =
 
 export const useScheduleOrder = () => {
   const { program, provider } = useProgram();
-  const { commit, provider: txProvider, setProvider } = useTxRunnerContext();
-
-  if (!txProvider) setProvider(provider);
+  const { commit } = useTxRunnerContext({ provider });
 
   const findProgramAddress = findAddress(program);
 
   async function execute({
-    amount,
-    side,
     aMint,
+    amount,
     bMint,
-    tif,
+    decimals,
     nextPool,
-    tifs,
     poolCounters,
+    side,
+    tif,
+    tifs,
   }: {
     amount: number;
-    side: "sell" | "buy";
+    decimals: number;
+    side: OrderType;
     aMint: string;
     bMint: string;
     tif: number;
@@ -167,17 +163,13 @@ export const useScheduleOrder = () => {
       []
     );
 
-    const aMintPublicKey = new PublicKey(aMint);
-    const bMintPublicKey = new PublicKey(bMint);
+    const aMintPublicKey = new PublicKey(side === "sell" ? aMint : bMint);
+    const bMintPublicKey = new PublicKey(side === "sell" ? bMint : aMint);
 
     const tokenPairAddress = await findProgramAddress("token_pair", [
       new PublicKey(aMint).toBuffer(),
       new PublicKey(bMint).toBuffer(),
     ]);
-
-    await commit([]);
-
-    return;
 
     const aCustody = await findAssociatedTokenAddress(
       transferAuthority,
@@ -209,7 +201,7 @@ export const useScheduleOrder = () => {
         SystemProgram.transfer({
           fromPubkey: provider.wallet.publicKey,
           toPubkey: aWallet,
-          lamports: Number(amount) * 1e9,
+          lamports: amount * 1e9,
         })
       );
       pre.push(Token.createSyncNativeInstruction(aWallet));
@@ -220,7 +212,7 @@ export const useScheduleOrder = () => {
         SystemProgram.transfer({
           fromPubkey: provider.wallet.publicKey,
           toPubkey: bWallet,
-          lamports: Number(amount) * 1e9,
+          lamports: amount * 1e9,
         })
       );
 
@@ -239,8 +231,6 @@ export const useScheduleOrder = () => {
     );
     const getPool = getPoolKey(findProgramAddress, aCustody, bCustody);
 
-    console.log("--", Number(amount) * 1e9);
-
     let result;
     try {
       result = await forit(
@@ -248,7 +238,7 @@ export const useScheduleOrder = () => {
           .placeOrder({
             side: side === "sell" ? { sell: {} } : { buy: {} },
             timeInForce: tif,
-            amount: new BN(Number(amount) * 1e9),
+            amount: new BN(amount * 10 ** decimals),
           })
           .accounts({
             owner: provider.wallet.publicKey,
