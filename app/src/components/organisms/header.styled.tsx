@@ -1,4 +1,5 @@
 import type { CardProps } from "@mui/material/Card";
+import type { Theme } from "@mui/material/styles";
 import Avatar from "@mui/material/Avatar";
 import Card from "@mui/material/Card";
 import Stack from "@mui/material/Stack";
@@ -7,6 +8,8 @@ import { styled } from "@mui/material/styles";
 
 interface ActiveCardProps extends CardProps {
   istxactive?: boolean;
+  istxerror?: boolean;
+  istxsuccess?: boolean;
 }
 
 export const Header = styled(Toolbar)`
@@ -33,9 +36,27 @@ export const UtilsControl = styled(Card)`
 
   ${(params: ActiveCardProps) =>
     params.istxactive &&
+    !params.istxerror &&
+    !params.istxsuccess &&
     `
     & > svg {
       animation: rotation infinite 2s linear;
     }
   `}
+
+  ${(params: ActiveCardProps & { theme: Theme }) =>
+    params.istxerror &&
+    `
+    & > svg {
+      color: ${params.theme.palette.error.main};
+    }
+  `}
+
+  ${(params: ActiveCardProps & { theme: Theme }) =>
+    params.istxsuccess &&
+    `
+    & > svg {
+      color: ${params.theme.palette.success.main};
+    }
+  `};
 `;

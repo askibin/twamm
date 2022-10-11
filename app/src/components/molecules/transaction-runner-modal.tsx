@@ -15,7 +15,7 @@ export interface Props {
 }
 
 export default ({ open, setOpen }: Props) => {
-  const { active, signature, viewExplorer } = useTxRunnerContext();
+  const { active, error, signature, viewExplorer } = useTxRunnerContext();
 
   const handleClose = () => setOpen(false);
 
@@ -23,12 +23,12 @@ export default ({ open, setOpen }: Props) => {
 
   const state = useMemo(
     () => ({
-      isReady: !active && !signature,
-      isLoading: active && !signature,
+      isReady: !error && !active && !signature,
+      isLoading: !error && active && !signature,
       isFinished: signature,
-      hasError: false,
+      hasError: error,
     }),
-    [active, signature]
+    [active, error, signature]
   );
 
   return (

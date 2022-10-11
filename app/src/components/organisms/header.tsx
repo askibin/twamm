@@ -1,9 +1,11 @@
 import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
+import CancelIcon from "@mui/icons-material/Cancel";
+import DoneIcon from "@mui/icons-material/Done";
 import RefreshIcon from "@mui/icons-material/Refresh";
 import TuneIcon from "@mui/icons-material/Tune";
 import UpdateIcon from "@mui/icons-material/Update";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
 
 import TransactionRunnerModal from "../molecules/transaction-runner-modal";
@@ -14,10 +16,17 @@ import { useTxRunnerContext } from "../../hooks/use-transaction-runner-context";
 
 export default () => {
   const { isDesktop } = useBreakpoints();
-  const { active } = useTxRunnerContext();
+  const { active, error, signature } = useTxRunnerContext();
 
   const [txOpen, setTxOpen] = useState<boolean>(false);
   const [cfgOpen, setCfgOpen] = useState<boolean>(false);
+
+  const txStateIcon = useMemo(() => {
+    if (error) return <CancelIcon />;
+    if (signature) return <DoneIcon />;
+    if (active) return <RefreshIcon />;
+    return <UpdateIcon />;
+  }, [active, error, signature]);
 
   return (
     <>
@@ -39,10 +48,12 @@ export default () => {
             </Box>
             <Box pr={2}>
               <Styled.UtilsControl
-                istxactive={active ? true : undefined}
+                istxactive={active}
+                istxerror={Boolean(error)}
+                istxsuccess={Boolean(signature)}
                 onClick={() => setTxOpen(true)}
               >
-                {active ? <RefreshIcon /> : <UpdateIcon />}
+                {txStateIcon}
               </Styled.UtilsControl>
             </Box>
             <WalletMultiButton />

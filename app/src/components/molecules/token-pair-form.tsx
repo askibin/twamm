@@ -10,6 +10,7 @@ import Maybe from "../../types/maybe";
 import InTokenField from "./in-token-field";
 import TokenSelect from "../atoms/token-select";
 import TradeIntervals from "./trade-intervals";
+import { forit } from "../../utils/forit";
 import { useScheduleOrder } from "../../hooks/use-schedule-order";
 import { useTIFIntervals } from "../../hooks/use-tif-intervals";
 
@@ -46,11 +47,11 @@ export default ({
   tokenBImage,
   tokenBMint,
 }: Props) => {
+  const { execute } = useScheduleOrder();
+
   const [amount, setAmount] = useState<number>(0);
   const [tif, setTif] = useState<number>();
   const [isSubmitting, setSubmitting] = useState(false);
-
-  const { execute } = useScheduleOrder();
 
   const tifs = defaultVal(undefined, mbTifs);
   const currentPoolPresent = defaultVal(undefined, mbPoolsCurrent);
@@ -80,7 +81,7 @@ export default ({
   );
 
   const onSubmit = useCallback(async () => {
-    // setSubmitting(true);
+    setSubmitting(true);
 
     console.log("SEND", {
       side,
@@ -92,7 +93,7 @@ export default ({
       tif,
     });
 
-    /*const r = await execute({
+    await execute({
       side,
       amount,
       aMint: tokenAMint,
@@ -100,12 +101,21 @@ export default ({
       tifs,
       poolCounters,
       tif,
-    });*/
+    });
 
-    console.log(r);
+    const [err, sig] = await forit(
+      new Promise((res, rej) => {
+        setTimeout(() => {
+          //res("123123");
+          rej(new Error("234234"));
+        }, 10000);
+      })
+    );
+
+    setSubmitting(false);
   }, [
     execute,
-    //setSubmitting,
+    setSubmitting,
     amount,
     side,
     tif,

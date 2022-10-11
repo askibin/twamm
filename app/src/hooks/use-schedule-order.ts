@@ -17,6 +17,7 @@ import * as Token from "@solana/spl-token";
 
 import { forit } from "../utils/forit";
 import { useProgram } from "./use-program";
+import { useTxRunnerContext } from "./use-transaction-runner-context";
 
 const SOL_ADDRESS = NATIVE_MINT.toBase58();
 
@@ -138,6 +139,9 @@ const getOrderKey =
 
 export const useScheduleOrder = () => {
   const { program, provider } = useProgram();
+  const { commit, provider: txProvider, setProvider } = useTxRunnerContext();
+
+  if (!txProvider) setProvider(provider);
 
   const findProgramAddress = findAddress(program);
 
@@ -170,6 +174,10 @@ export const useScheduleOrder = () => {
       new PublicKey(aMint).toBuffer(),
       new PublicKey(bMint).toBuffer(),
     ]);
+
+    await commit([]);
+
+    return;
 
     const aCustody = await findAssociatedTokenAddress(
       transferAuthority,
