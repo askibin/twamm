@@ -1,6 +1,11 @@
 .root {
-  min-width: var(--min-width, 375px);
-  min-height: var(--min-height, 545px);
+  --min-width: 430px;
+  --min-height: 545px;
+}
+
+.root {
+  min-width: var(--min-width);
+  min-height: var(--min-height);
 }
 
 .main {
