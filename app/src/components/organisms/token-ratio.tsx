@@ -22,8 +22,6 @@ export default function TokenRatio({ pairs }: Props) {
   const [curToken, setCurToken] = useState<number>();
   const [state, dispatch] = useReducer(availableTokens, initialState);
 
-  console.log("SIDE", state.type);
-
   const selectedPair = useTokenPair(
     state.a && state.b && { aToken: state.a, bToken: state.b }
   );

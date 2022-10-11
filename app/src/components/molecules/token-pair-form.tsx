@@ -10,7 +10,6 @@ import Maybe from "../../types/maybe";
 import InTokenField from "./in-token-field";
 import TokenSelect from "../atoms/token-select";
 import TradeIntervals from "./trade-intervals";
-import { forit } from "../../utils/forit";
 import { useScheduleOrder } from "../../hooks/use-schedule-order";
 import { useTIFIntervals } from "../../hooks/use-tif-intervals";
 
@@ -29,6 +28,8 @@ export interface Props {
   tokenBImage?: string;
   tokenBMint?: string;
 }
+
+type ValidationErrors = { a?: Error; b?: Error; amount?: Error };
 
 const defaultVal = Maybe.withDefault;
 
@@ -51,7 +52,6 @@ export default ({
 
   const [amount, setAmount] = useState<number>(0);
   const [tif, setTif] = useState<number>();
-  const [isSubmitting, setSubmitting] = useState(false);
 
   const tifs = defaultVal(undefined, mbTifs);
   const currentPoolPresent = defaultVal(undefined, mbPoolsCurrent);
@@ -80,9 +80,19 @@ export default ({
     [setTif]
   );
 
-  const onSubmit = useCallback(async () => {
-    setSubmitting(true);
+  const errors = useMemo<ValidationErrors>(() => {
+    const result: ValidationErrors = {};
 
+    if (!tokenA) result.a = new Error("Required");
+    if (!tokenB) result.b = new Error("Required");
+    if (!amount) result.amount = new Error("Specify the amount of token");
+    if (Number.isNaN(Number(amount)))
+      result.amount = new Error("Should be the number");
+
+    return result;
+  }, [tokenA, tokenB, amount]);
+
+  const onSubmit = useCallback(async () => {
     console.log("SEND", {
       side,
       amount,
@@ -93,6 +103,8 @@ export default ({
       tif,
     });
 
+    return false;
+
     await execute({
       side,
       amount,
@@ -102,28 +114,7 @@ export default ({
       poolCounters,
       tif,
     });
-
-    const [err, sig] = await forit(
-      new Promise((res, rej) => {
-        setTimeout(() => {
-          //res("123123");
-          rej(new Error("234234"));
-        }, 10000);
-      })
-    );
-
-    setSubmitting(false);
-  }, [
-    execute,
-    setSubmitting,
-    amount,
-    side,
-    tif,
-    tokenAMint,
-    tokenBMint,
-    tifs,
-    poolCounters,
-  ]);
+  }, [execute, amount, side, tif, tokenAMint, tokenBMint, tifs, poolCounters]);
 
   const schedule = useMemo(() => {
     if (!tifs) return undefined;
@@ -133,49 +124,54 @@ export default ({
   }, [tifs]);
 
   return (
-    <Form onSubmit={onSubmit}>
-      {({ handleSubmit }) => (
-        <form onSubmit={handleSubmit}>
-          <Styled.TokenLabelBox>You pay</Styled.TokenLabelBox>
-          <InTokenField
-            name={tokenA}
-            onChange={onChangeAmount}
-            src={tokenAImage}
-            onSelect={onASelect}
-          />
-          <Styled.OperationImage>
-            <Styled.OperationButton
-              disabled={!tokenA || !tokenB}
-              onClick={onABSwap}
-            >
-              <SyncAltIcon />
-            </Styled.OperationButton>
-          </Styled.OperationImage>
-          <Styled.TokenLabelBox>You receive</Styled.TokenLabelBox>
-          <Box pb={2}>
-            <TokenSelect
-              alt={tokenB}
-              disabled={!tokenA}
-              image={tokenBImage}
-              label={tokenB}
-              onClick={onBSelect}
+    <Form onSubmit={onSubmit} validate={() => errors}>
+      {({ handleSubmit, submitting, valid, ...args }) =>
+        console.log("args", args) || (
+          <form onSubmit={handleSubmit}>
+            <Styled.TokenLabelBox>You pay</Styled.TokenLabelBox>
+            <InTokenField
+              name={tokenA}
+              onChange={onChangeAmount}
+              src={tokenAImage}
+              onSelect={onASelect}
             />
-          </Box>
-          <Box py={2}>
-            <TradeIntervals
-              intervals={Maybe.of(intervals.data)}
-              tifs={schedule}
-              value={tif}
-              onSelect={onIntervalSelect}
-            />
-          </Box>
-          <Styled.ConnectBox py={3}>
-            <Styled.ConnectButton type="submit" disabled={isSubmitting}>
-              Schedule
-            </Styled.ConnectButton>
-          </Styled.ConnectBox>
-        </form>
-      )}
+            <Styled.OperationImage>
+              <Styled.OperationButton
+                disabled={!tokenA || !tokenB}
+                onClick={onABSwap}
+              >
+                <SyncAltIcon />
+              </Styled.OperationButton>
+            </Styled.OperationImage>
+            <Styled.TokenLabelBox>You receive</Styled.TokenLabelBox>
+            <Box pb={2}>
+              <TokenSelect
+                alt={tokenB}
+                disabled={!tokenA}
+                image={tokenBImage}
+                label={tokenB}
+                onClick={onBSelect}
+              />
+            </Box>
+            <Box py={2}>
+              <TradeIntervals
+                intervals={Maybe.of(intervals.data)}
+                tifs={schedule}
+                value={tif}
+                onSelect={onIntervalSelect}
+              />
+            </Box>
+            <Styled.ConnectBox py={3}>
+              <Styled.ConnectButton
+                type="submit"
+                disabled={!valid || submitting}
+              >
+                Schedule
+              </Styled.ConnectButton>
+            </Styled.ConnectBox>
+          </form>
+        )
+      }
     </Form>
   );
 };

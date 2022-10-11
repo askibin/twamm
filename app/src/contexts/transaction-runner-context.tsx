@@ -35,23 +35,6 @@ export const Provider: FC<{ children: ReactNode }> = ({ children }) => {
 
       if (!active) setActive(true);
 
-      console.log(123123, active);
-
-      const [a, b] = await forit(
-        new Promise((res, rej) => {
-          setTimeout(() => {
-            //res("123123");
-            rej(new Error("TransactionError"));
-          }, 3000);
-        })
-      );
-
-      console.log([a, b]);
-
-      if (a) setError(a); //setSignature("234234");
-
-      return undefined;
-
       const tx = new Transaction().add(...ti);
 
       const [err, signatures] = await forit(provider.sendAll([{ tx }]));
@@ -64,6 +47,7 @@ export const Provider: FC<{ children: ReactNode }> = ({ children }) => {
       }
 
       if (err) {
+        setActive(false);
         setError(err);
       }
 
