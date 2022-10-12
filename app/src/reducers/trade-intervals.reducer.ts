@@ -26,7 +26,10 @@ export const initialState = {
 
 // TODO: cover with better types & tests
 
-const setTifs = (payload: { indexedTifs: IndexedTIF[] }) => ({
+const setTifs = (payload: {
+  indexedTifs: IndexedTIF[];
+  selectedTif: [number | undefined, number | undefined];
+}) => ({
   type: SET_TIFS,
   payload,
 });
@@ -53,14 +56,25 @@ export default <S extends Partial<State>, A extends Action<any>>(
 
   switch (action.type) {
     case SET_TIFS: {
-      const { indexedTifs }: Parameters<typeof setTifs>[0] = action.payload;
+      const { indexedTifs, selectedTif }: Parameters<typeof setTifs>[0] =
+        action.payload;
 
       const tifsLeft = indexedTifs.map((d: IndexedTIF) => d.left);
 
+      let periodTifs;
+      let scheduledTif;
+      const tif = selectedTif ? selectedTif[1] : -1;
+      if (tif === noDelayTif) {
+        periodTifs = tifsLeft;
+      } else {
+        scheduledTif = indexedTifs?.find((d) => d.left === tif);
+        periodTifs = scheduledTif ? [scheduledTif.tif] : [];
+      }
+
       return {
         indexedTifs,
-        pairSelected: initialState.pairSelected,
-        periodTifs: sortTifs(tifsLeft),
+        pairSelected: selectedTif || initialState.pairSelected,
+        periodTifs: sortTifs(periodTifs),
         scheduleTifs: sortTifs([noDelayTif].concat(tifsLeft)),
         tifsLeft,
       };

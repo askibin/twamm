@@ -9,34 +9,42 @@ import intervalsReducer, {
 } from "../../reducers/trade-intervals.reducer";
 import TimeInterval from "../atoms/time-interval";
 
-export type SelectedTif = [number];
+export type SelectedTif = [number | undefined, number | undefined];
 
 export interface Props {
   indexedTifs: TMaybe<IndexedTIF[]>;
-  // onSelect: (arg0: SelectedTif) => void;
+  onSelect: (arg0: SelectedTif) => void;
+  selectedTif?: SelectedTif;
 }
 
-export default ({ indexedTifs }: Props) => {
+export default ({ indexedTifs, onSelect, selectedTif }: Props) => {
   // @ts-ignore
   const [state, dispatch] = useReducer(intervalsReducer, initialState);
 
   useEffect(() => {
     Maybe.andThen2<IndexedTIF[], void>((data) => {
       // @ts-ignore
-      dispatch(action.setTifs({ indexedTifs: data }));
+      dispatch(action.setTifs({ indexedTifs: data, selectedTif }));
     }, indexedTifs);
 
     return () => {};
-  }, [indexedTifs]);
+  }, [indexedTifs, selectedTif]);
 
   const onScheduleSelect = useCallback(
     (value: number) => {
       // @ts-ignore
       dispatch(action.setSchedule({ tif: value }));
 
-      // onSelect(state.pairSelected);
+      Maybe.tap((itifs) => {
+        onSelect([
+          value !== -1
+            ? itifs.find((itif) => itif.left === value)?.tif
+            : undefined,
+          value,
+        ]);
+      }, indexedTifs);
     },
-    [dispatch]
+    [dispatch, indexedTifs, onSelect]
   );
 
   const onPeriodSelect = useCallback(
@@ -44,9 +52,9 @@ export default ({ indexedTifs }: Props) => {
       // @ts-ignore
       dispatch(action.setPeriod({ tif: value }));
 
-      // onSelect(state.pairSelected);
+      onSelect([value, state.pairSelected[1]]);
     },
-    [dispatch]
+    [dispatch, onSelect, state.pairSelected]
   );
 
   const { pairSelected = [] } = state;

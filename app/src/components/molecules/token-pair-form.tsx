@@ -4,7 +4,7 @@ import { useCallback, useMemo, useState } from "react";
 import { Form } from "react-final-form";
 
 import type { Maybe as TMaybe } from "../../types/maybe.d";
-// import type { SelectedTif } from "./trade-intervals";
+import type { SelectedTif } from "./trade-intervals";
 import * as Styled from "./token-pair-form.styled";
 import Maybe from "../../types/maybe";
 import InTokenField from "./in-token-field";
@@ -31,7 +31,7 @@ export interface Props {
   tokenPair: TMaybe<TokenPair>;
 }
 
-type ValidationErrors = { a?: Error; b?: Error; amount?: Error };
+type ValidationErrors = { a?: Error; b?: Error; amount?: Error; tif?: Error };
 
 const defaultVal = Maybe.withDefault;
 
@@ -56,7 +56,7 @@ export default ({
 
   const [amount, setAmount] = useState<number>(0);
   const [submitting, setSubmitting] = useState<boolean>(false);
-  // const [tif, setTif] = useState<number>();
+  const [tif, setTif] = useState<SelectedTif>();
 
   const tifs = defaultVal(undefined, mbTifs);
   const currentPoolPresent = defaultVal(undefined, mbPoolsCurrent);
@@ -78,14 +78,9 @@ export default ({
     [setAmount]
   );
 
-  /*
-   *const onIntervalSelect = useCallback(
-   *  (selectedTif: SelectedTif) => {
-   *    setTif(selectedTif[0]);
-   *  },
-   *  [setTif]
-   *);
-   */
+  const onIntervalSelect = useCallback((selectedTif: SelectedTif) => {
+    setTif(selectedTif);
+  }, []);
 
   const errors = useMemo<ValidationErrors>(() => {
     const result: ValidationErrors = {};
@@ -95,9 +90,16 @@ export default ({
     if (!amount) result.amount = new Error("Specify the amount of token");
     if (Number.isNaN(Number(amount)))
       result.amount = new Error("Should be the number");
-
+    if (tif) {
+      const [timeInForce] = tif;
+      if (!timeInForce) {
+        result.tif = new Error("Should choose the interval");
+      }
+    } else if (!tif) {
+      result.tif = new Error("Should choose the interval");
+    }
     return result;
-  }, [tokenA, tokenB, amount]);
+  }, [amount, tif, tokenA, tokenB]);
 
   const onSubmit = useCallback(async () => {
     const params = {
@@ -111,6 +113,8 @@ export default ({
       poolCounters,
       // tif,
     };
+
+    console.log(params);
 
     return;
 
@@ -131,7 +135,7 @@ export default ({
     poolCounters,
   ]);
 
-  const isScheduled = false;
+  const isScheduled = tif && (tif[1] ?? -1) > 0;
 
   return (
     <Form onSubmit={onSubmit} validate={() => errors}>
@@ -165,7 +169,8 @@ export default ({
           <Box py={2}>
             <TradeIntervals
               indexedTifs={Maybe.of(intervalTifs.data)}
-              // onSelect={onIntervalSelect}
+              selectedTif={tif}
+              onSelect={onIntervalSelect}
             />
           </Box>
           <Styled.ConnectBox py={3}>
