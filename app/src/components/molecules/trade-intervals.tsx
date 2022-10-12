@@ -3,7 +3,6 @@ import { useCallback, useEffect, useReducer } from "react";
 
 import type { Maybe as TMaybe } from "../../types/maybe.d";
 import Maybe from "../../types/maybe";
-import type { TradeIntervals } from "../../hooks/use-tif-intervals";
 import intervalsReducer, {
   action,
   initialState,
@@ -14,13 +13,14 @@ export type SelectedTif = [number];
 
 export interface Props {
   indexedTifs: TMaybe<IndexedTIF[]>;
-  intervals: TMaybe<TradeIntervals>;
   onSelect: (arg0: SelectedTif) => void;
   value: number;
 }
 
-export default ({ onSelect, indexedTifs, intervals, value: tif }: Props) => {
+export default ({ onSelect, indexedTifs, value: tif }: Props) => {
   const [state, dispatch] = useReducer(intervalsReducer, initialState);
+
+  console.log({ indexedTifs });
 
   useEffect(() => {
     Maybe.andThen2<IndexedTIF[], void>((data) => {
@@ -33,7 +33,6 @@ export default ({ onSelect, indexedTifs, intervals, value: tif }: Props) => {
   const onScheduleSelect = useCallback(
     (value: number) => {
       dispatch(action.setSchedule({ tif: value }));
-      console.log("tif", { value }, state.pairSelected);
 
       // onSelect(state.pairSelected);
     },
@@ -43,7 +42,6 @@ export default ({ onSelect, indexedTifs, intervals, value: tif }: Props) => {
   const onPeriodSelect = useCallback(
     (value: number) => {
       dispatch(action.setPeriod({ tif: value }));
-      console.log("ptif", { value }, state.pairSelected);
 
       // onSelect(state.pairSelected);
     },

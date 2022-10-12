@@ -32,5 +32,6 @@ export default ({ children }: { children: ReactNode }) => {
     );
   }
 
-  return children;
+  // eslint-disable-next-line react/jsx-no-useless-fragment
+  return <>{children}</>;
 };

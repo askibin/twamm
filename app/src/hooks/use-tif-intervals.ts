@@ -4,14 +4,9 @@ import { Pool } from "@twamm/client.js";
 import { PublicKey } from "@solana/web3.js";
 import { zipWith } from "ramda";
 
-import type { APIHook } from "../utils/api";
 import { useProgram } from "./use-program";
 
-export type TradeIntervals = {
-  indexedTifs: IndexedTIF;
-  intervals: any;
-  tifs: number[];
-};
+export type TradeIntervals = IndexedTIF;
 
 type TokenPairPoolData = {
   buySide: {
@@ -147,14 +142,17 @@ const fetcher =
         );
       });
 
-      return { indexedTifs: allTifs, tifs };
+      return allTifs;
     }
 
-    return { indexedTifs, tifs };
+    return indexedTifs;
   };
 
-export const useTIFIntervals: APIHook<Params, TradeIntervals> = (
-  { tokenPair, currentPoolPresent, tifs, poolCounters } = {},
+export const useTIFIntervals = (
+  tokenPair: TokenPair | undefined,
+  tifs: number[] | undefined,
+  currentPoolPresent: boolean[] | undefined,
+  poolCounters: PoolCounter[] | undefined,
   options = {}
 ) => {
   const { program } = useProgram();
@@ -164,7 +162,13 @@ export const useTIFIntervals: APIHook<Params, TradeIntervals> = (
   const isValid = tokenPair && tifs && currentPoolPresent && poolCounters;
 
   return swr(
-    isValid && swrKey({ tokenPair, tifs, currentPoolPresent, poolCounters }),
+    isValid &&
+      swrKey({
+        tokenPair,
+        tifs,
+        currentPoolPresent,
+        poolCounters,
+      }),
     fetcher(program),
     opts
   );

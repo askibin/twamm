@@ -11,7 +11,7 @@ import styles from "./index.module.css";
 import Swap from "../src/components/ecosystems/swap";
 import TokenPairs from "../src/components/ecosystems/token-pairs";
 import WalletGuard from "../src/components/organisms/wallet-guard";
-import { localStorageProvider } from "../src/swr-cache";
+// import { localStorageProvider } from "../src/swr-cache";
 import { modes } from "../src/components/atoms/mode-toggle";
 
 const DEFAULT_MODE = modes.get("swap") as string;
@@ -19,7 +19,12 @@ const DEFAULT_MODE = modes.get("swap") as string;
 const Home: NextPage = () => {
   const [mode, setMode] = useState<string>(DEFAULT_MODE);
 
-  const provider = useMemo(() => ({ provider: localStorageProvider }), []);
+  const config = useMemo(
+    () => ({
+      /* provider: localStorageProvider */
+    }),
+    []
+  );
 
   const onModeChange = useCallback(
     (nextMode: string) => {
@@ -51,10 +56,7 @@ const Home: NextPage = () => {
         <title>Twamm</title>
       </Head>
       <div className={styles.root}>
-        {/*
-         *<SWRConfig value={provider}>
-         */}
-        <SWRConfig>
+        <SWRConfig value={config}>
           <OfflineOverlay />
           <Header />
           <Box className={styles.main} component="main" pt={10}>

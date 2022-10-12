@@ -65,17 +65,12 @@ export default ({
   const poolCounters = defaultVal(undefined, mbPoolCounters);
   const side = defaultVal(undefined, mbSide);
   const tokenPair = defaultVal(undefined, mbTokenPair);
-  const orderType = defaultVal(undefined, mbOrderType);
 
   const intervalTifs = useTIFIntervals(
-    tokenPair && tifs && currentPoolPresent && poolCounters
-      ? { tokenPair, tifs, currentPoolPresent, poolCounters }
-      : undefined
-  );
-
-  const { indexedTifs, intervals } = Maybe.withDefault(
-    { indexedTifs: undefined, intervals: [] },
-    Maybe.of(intervalTifs.data)
+    tokenPair,
+    tifs,
+    currentPoolPresent,
+    poolCounters
   );
 
   const onChangeAmount = useCallback(
@@ -117,8 +112,6 @@ export default ({
       tif,
     };
 
-    console.log("SEND", params);
-
     return;
 
     setSubmitting(true);
@@ -138,30 +131,7 @@ export default ({
     poolCounters,
   ]);
 
-  const schedule = useMemo(() => {
-    if (!tifs) return undefined;
-
-    let intervals2 = tifs.filter((tif) => tif !== 0);
-    return intervals2;
-  }, [tifs]);
-
   const isScheduled = false;
-
-  const readableIntervals = useMemo(() => {
-    if (!intervals) return undefined;
-
-    return intervals.map((interval) => {
-      const timeLeft = interval.left
-        ? Number(((interval.left * 1e3 - Date.now()) / 1e3).toFixed(0))
-        : interval.tif;
-
-      return { tif: timeLeft, index: interval.index };
-    });
-  }, [intervals]);
-
-  const intvals = !readableIntervals
-    ? schedule
-    : readableIntervals.filter(({ tif }) => tif).map((ri) => ri.tif);
 
   return (
     <Form onSubmit={onSubmit} validate={() => errors}>
@@ -194,8 +164,7 @@ export default ({
           </Box>
           <Box py={2}>
             <TradeIntervals
-              intervals={Maybe.of(intervals)}
-              indexedTifs={Maybe.of(indexedTifs)}
+              indexedTifs={Maybe.of(intervalTifs.data)}
               value={tif}
               onSelect={onIntervalSelect}
             />

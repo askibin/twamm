@@ -19,14 +19,14 @@ interface Props {
   searchBoxPlaceholderText?: string;
 }
 
-export default function ({
+export default ({
   filterColumnField,
   getRowId,
   gridProps,
   isUpdating = false,
   onRowClick = () => {},
   searchBoxPlaceholderText,
-}: Props) {
+}: Props) => {
   const [filterText, setFilterText] = useState("");
 
   const options = useMemo(() => ({ pagination: { pageSize: 10 } }), []);
@@ -88,4 +88,4 @@ export default function ({
       {isUpdating && <Typography variant="body1">Updating...</Typography>}
     </>
   );
-}
+};
