@@ -1,4 +1,3 @@
-import Box from "@mui/material/Box";
 import Container from "@mui/material/Container";
 
 import ModeToggle from "../atoms/mode-toggle";
@@ -15,28 +14,13 @@ export interface Props {
 export default ({ mode, onModeChange }: Props) => {
   const tokenPairs = useTokenPairsToSwap();
 
-  const { data } = {
-    data: {
-      tokenA: "RAY",
-      tokenB: "SOL",
-      tokenAValue: 1,
-      tokenBValue: 1,
-    },
-  };
-
   return (
     <Container maxWidth="sm">
-      <Box p={2.5} sx={{ display: "flex", justifyContent: "center" }}>
+      <Styled.ModeControl p={2}>
         <ModeToggle mode={mode} onChange={onModeChange} />
-      </Box>
+      </Styled.ModeControl>
       <Styled.Section>
-        <TokenRatio
-          pairs={Maybe.of(tokenPairs.data)}
-          tokenA={data.tokenA}
-          tokenB={data.tokenB}
-          tokenAValue={data.tokenAValue}
-          tokenBValue={data.tokenBValue}
-        />
+        <TokenRatio pairs={Maybe.of(tokenPairs.data)} />
       </Styled.Section>
     </Container>
   );

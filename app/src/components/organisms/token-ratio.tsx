@@ -11,10 +11,10 @@ import CoinPopover from "./coin-popover";
 import Loading from "../atoms/loading";
 import Maybe, { MaybeUtils } from "../../types/maybe";
 import TokenPairForm from "../molecules/token-pair-form";
-import { useTokenPair } from "../../hooks/use-token-pair-to-swap";
+import { useTokenPair } from "../../hooks/use-token-pair";
 
 export interface Props {
-  pairs: TMaybe<TokenPair[]>;
+  pairs: TMaybe<AddressPair[]>;
 }
 
 export default function TokenRatio({ pairs }: Props) {
@@ -30,7 +30,10 @@ export default function TokenRatio({ pairs }: Props) {
 
   useEffect(() => {
     if (MaybeUtils.isNothing(availableMaybe)) {
-      Maybe.tap<TokenPair[]>((p) => dispatch(action.init({ pairs: p })), pairs);
+      Maybe.tap<AddressPair[]>(
+        (p) => dispatch(action.init({ pairs: p })),
+        pairs
+      );
     }
 
     return () => {};
@@ -68,8 +71,9 @@ export default function TokenRatio({ pairs }: Props) {
     [curToken]
   );
 
-  if (MaybeUtils.isNothing(availableMaybe))
-    return MaybeUtils.nothing(Loading, availableMaybe);
+  if (MaybeUtils.isNothing(availableMaybe)) {
+    return <Loading />;
+  }
 
   const [tokenPair, orderType] = selectedPair.data?.exchangePair ?? [];
 

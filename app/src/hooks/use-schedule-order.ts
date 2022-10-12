@@ -74,7 +74,6 @@ const assureAccountIsCreated =
         throw new Error("TokenAccountNotFoundError");
       }
     } catch (err: any) {
-      console.log({ err });
       if (!err?.message.startsWith("TokenAccountNotFoundError")) {
         throw new Error("Unexpected error in getAccountInfo");
       }

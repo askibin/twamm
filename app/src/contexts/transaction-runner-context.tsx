@@ -8,7 +8,10 @@ import { forit } from "../utils/forit";
 
 export type TransactionRunnerContext = {
   readonly active: boolean;
-  readonly commit: (ti: TransactionInstruction[]) => Promise<string>;
+  readonly commit: (
+    p: AnchorProvider,
+    ti: TransactionInstruction[]
+  ) => Promise<string>;
   readonly error?: Error;
   readonly provider?: AnchorProvider;
   readonly setProvider: (p: AnchorProvider) => void;
@@ -27,8 +30,8 @@ export const Provider: FC<{ children: ReactNode }> = ({ children }) => {
   const [error, setError] = useState<Error>();
 
   const commit = useCallback(
-    async (provider: AnchorProvider, ti: TransactionInstruction[]) => {
-      if (!provider) {
+    async (p: AnchorProvider, ti: TransactionInstruction[]) => {
+      if (!p) {
         throw new Error("Can not run the transaction. Absent provider");
       }
       setSignature(undefined);
@@ -37,7 +40,7 @@ export const Provider: FC<{ children: ReactNode }> = ({ children }) => {
 
       const tx = new Transaction().add(...ti);
 
-      const [err, signatures] = await forit(provider.sendAll([{ tx }]));
+      const [err, signatures] = await forit(p.sendAll([{ tx }]));
 
       if (signatures) {
         setActive(false);
@@ -53,7 +56,7 @@ export const Provider: FC<{ children: ReactNode }> = ({ children }) => {
 
       return undefined;
     },
-    [active, provider, setActive]
+    [active, setActive]
   );
 
   const viewExplorer = useCallback(

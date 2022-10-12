@@ -111,8 +111,6 @@ const fetcher =
 
     const availablePoolsRecords = new Map();
 
-    console.log('fetch')
-
     if (poolsToFetch.length) {
       const pools: unknown = await Promise.allSettled(
         poolsToFetch.map(([tif, index]) =>

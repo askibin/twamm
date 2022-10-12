@@ -54,6 +54,16 @@ const andThen2 = <A, B>(f: (arg0: A) => B, m: Maybe<A>): Maybe<B> => {
   }
 };
 
+const consume = <A, B>(f: (arg0: A) => B, m: Maybe<A>): B | undefined => {
+  switch (m.type) {
+    case MaybeType.Just:
+      return f(m.value);
+    case MaybeType.Nothing:
+    default:
+      return undefined;
+  }
+};
+
 const of = <T>(value: T): Maybe<T> =>
   value === undefined || value === null ? NothingImpl() : JustImpl(value);
 
@@ -72,6 +82,7 @@ const MaybeImpl = {
   andThenC: curry(andThen),
   andThen,
   andThen2,
+  consume,
   of,
   tap, // uncurried due to unknown type
   withDefault, // uncurried,

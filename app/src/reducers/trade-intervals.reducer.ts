@@ -6,25 +6,21 @@ const SET_PERIOD = "SET_PERIOD";
 
 const noDelayTif = -1;
 
-interface State {
+export interface State {
   indexedTifs: IndexedTIF[];
-  pairSelected: [number | undefined, number | undefined];
+  pairSelected: [number | undefined, number];
   periodTifs: TIF[];
   scheduleTifs: TIF[];
-  //tifs: TIF[];
-  //tifScheduled: number;
-  //tifSelected: number;
   tifsLeft: TIF[];
 }
 
+const selectedPair: [number | undefined, number] = [undefined, -1];
+
 export const initialState = {
   indexedTifs: undefined,
-  pairSelected: [undefined, -1],
+  pairSelected: selectedPair,
   periodTifs: undefined,
   scheduleTifs: undefined,
-  //tifScheduled: undefined,
-  //tifSelected: undefined,
-  //tifs: undefined,
   tifsLeft: undefined,
 };
 
@@ -66,8 +62,6 @@ export default <S extends Partial<State>, A extends Action<any>>(
         pairSelected: initialState.pairSelected,
         periodTifs: sortTifs(tifsLeft),
         scheduleTifs: sortTifs([noDelayTif].concat(tifsLeft)),
-        //tifScheduled: noDelayTif,
-        //tifSelected: undefined,
         tifsLeft,
       };
     }
@@ -96,9 +90,6 @@ export default <S extends Partial<State>, A extends Action<any>>(
         pairSelected,
         periodTifs,
         scheduleTifs: [noDelayTif].concat(tifsLeft),
-        //tifs: state.tifs,
-        //tifScheduled: tif,
-        //tifSelected: undefined,
         tifsLeft: state.tifsLeft,
       };
     }
@@ -109,13 +100,7 @@ export default <S extends Partial<State>, A extends Action<any>>(
 
       const pairSelected = [tif, selected ? selected[1] : undefined];
 
-      console.log("selected", pairSelected);
-
-      return {
-        ...state,
-        pairSelected,
-        // tifSelected: tif
-      };
+      return { ...state, pairSelected };
     }
 
     default: {
