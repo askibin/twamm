@@ -75,7 +75,7 @@ export default function TokenRatio({ pairs }: Props) {
     return <Loading />;
   }
 
-  const [tokenPair, orderType] = selectedPair.data?.exchangePair ?? [];
+  const [tokenPair] = selectedPair.data?.exchangePair ?? [];
 
   return (
     <>
@@ -92,7 +92,6 @@ export default function TokenRatio({ pairs }: Props) {
             onABSwap={onTokenSwap}
             onASelect={onTokenAChoose}
             onBSelect={onTokenBChoose}
-            orderType={Maybe.of(orderType)}
             poolCounters={Maybe.of(selectedPair.data?.poolCounters)}
             poolsCurrent={Maybe.of(selectedPair.data?.currentPoolPresent)}
             poolTifs={Maybe.of(selectedPair.data?.tifs)}

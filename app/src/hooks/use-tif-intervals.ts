@@ -47,8 +47,6 @@ const swrKey = (params: {
   params,
 });
 
-type Params = Parameters<typeof swrKey>[0];
-
 const populateTokenPairPool = <A, B, C>(
   x: [A, B],
   y: SettledTokenPairPool<C>

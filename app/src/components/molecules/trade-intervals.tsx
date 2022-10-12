@@ -13,17 +13,16 @@ export type SelectedTif = [number];
 
 export interface Props {
   indexedTifs: TMaybe<IndexedTIF[]>;
-  onSelect: (arg0: SelectedTif) => void;
-  value: number;
+  // onSelect: (arg0: SelectedTif) => void;
 }
 
-export default ({ onSelect, indexedTifs, value: tif }: Props) => {
+export default ({ indexedTifs }: Props) => {
+  // @ts-ignore
   const [state, dispatch] = useReducer(intervalsReducer, initialState);
-
-  console.log({ indexedTifs });
 
   useEffect(() => {
     Maybe.andThen2<IndexedTIF[], void>((data) => {
+      // @ts-ignore
       dispatch(action.setTifs({ indexedTifs: data }));
     }, indexedTifs);
 
@@ -32,20 +31,22 @@ export default ({ onSelect, indexedTifs, value: tif }: Props) => {
 
   const onScheduleSelect = useCallback(
     (value: number) => {
+      // @ts-ignore
       dispatch(action.setSchedule({ tif: value }));
 
       // onSelect(state.pairSelected);
     },
-    [dispatch, onSelect, state.pairSelected]
+    [dispatch]
   );
 
   const onPeriodSelect = useCallback(
     (value: number) => {
+      // @ts-ignore
       dispatch(action.setPeriod({ tif: value }));
 
       // onSelect(state.pairSelected);
     },
-    [dispatch, onSelect, state.pairSelected]
+    [dispatch]
   );
 
   const { pairSelected = [] } = state;

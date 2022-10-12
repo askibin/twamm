@@ -1,3 +1,4 @@
+import type { Provider, Program } from "@project-serum/anchor";
 import { BN } from "@project-serum/anchor";
 import {
   PublicKey,
@@ -10,10 +11,9 @@ import {
   ASSOCIATED_TOKEN_PROGRAM_ID,
   NATIVE_MINT,
   TOKEN_PROGRAM_ID,
+  createSyncNativeInstruction,
 } from "@solana/spl-token";
 import { findAddress } from "@twamm/client.js/lib/program";
-
-import * as Token from "@solana/spl-token";
 
 import { forit } from "../utils/forit";
 import { useProgram } from "./use-program";
@@ -80,13 +80,6 @@ const assureAccountIsCreated =
 
       const transaction = new Transaction();
 
-      const accounts = [
-        provider.wallet.publicKey,
-        accountAddress,
-        provider.wallet.publicKey,
-        mint,
-      ];
-
       transaction.add(
         createAssociatedTokenAccountInstruction(
           provider.wallet.publicKey,
@@ -100,13 +93,18 @@ const assureAccountIsCreated =
     }
   };
 
-const getPoolKey =
-  (findProgramAddress, aCustody, bCustody) =>
-  async (tif: number, poolCounter: BN) => {
-    let tifBuf = Buffer.alloc(4);
+const getPoolKey = (
+  program: Program,
+  aCustody: PublicKey,
+  bCustody: PublicKey
+) => {
+  const findProgramAddress = findAddress(program);
+
+  return async (tif: number, poolCounter: BN) => {
+    const tifBuf = Buffer.alloc(4);
     tifBuf.writeUInt32LE(tif, 0);
 
-    let counterBuf = Buffer.alloc(8);
+    const counterBuf = Buffer.alloc(8);
     counterBuf.writeBigUInt64LE(BigInt(poolCounter.toString()), 0);
 
     return findProgramAddress("pool", [
@@ -116,12 +114,19 @@ const getPoolKey =
       counterBuf,
     ]);
   };
+};
 
-const getOrderKey =
-  (provider, findProgramAddress, aCustody, bCustody) =>
-  async (tif: number, poolCounter: BN) => {
+const getOrderKey = (
+  provider: Provider,
+  program: Program,
+  aCustody: PublicKey,
+  bCustody: PublicKey
+) => {
+  const findProgramAddress = findAddress(program);
+
+  return async (tif: number, poolCounter: BN) => {
     const poolKey = await getPoolKey(
-      findProgramAddress,
+      program,
       aCustody,
       bCustody
     )(tif, poolCounter);
@@ -131,6 +136,7 @@ const getOrderKey =
       poolKey.toBuffer(),
     ]);
   };
+};
 
 export const useScheduleOrder = () => {
   const { program, provider } = useProgram();
@@ -203,10 +209,10 @@ export const useScheduleOrder = () => {
           lamports: amount * 1e9,
         })
       );
-      pre.push(Token.createSyncNativeInstruction(aWallet));
+      pre.push(createSyncNativeInstruction(aWallet, NATIVE_MINT));
     }
 
-    if (side === "buy" && bMint == SOL_ADDRESS) {
+    if (side === "buy" && bMint === SOL_ADDRESS) {
       pre.push(
         SystemProgram.transfer({
           fromPubkey: provider.wallet.publicKey,
@@ -215,58 +221,42 @@ export const useScheduleOrder = () => {
         })
       );
 
-      pre.push(Token.createSyncNativeInstruction(bWallet));
+      pre.push(createSyncNativeInstruction(bWallet, NATIVE_MINT));
     }
 
     const index = tifs.indexOf(tif);
     if (index < 0) throw new Error("Invalid TIF");
     const counter = poolCounters[index];
 
-    const getOrder = getOrderKey(
-      provider,
-      findProgramAddress,
-      aCustody,
-      bCustody
+    const getOrder = getOrderKey(provider, program, aCustody, bCustody);
+    const getPool = getPoolKey(program, aCustody, bCustody);
+
+    const result = await forit(
+      program.methods
+        .placeOrder({
+          side: side === "sell" ? { sell: {} } : { buy: {} },
+          timeInForce: tif,
+          amount: new BN(amount * 10 ** decimals),
+        })
+        .accounts({
+          owner: provider.wallet.publicKey,
+          userAccountTokenA: aWallet,
+          userAccountTokenB: bWallet,
+          tokenPair: tokenPairAddress,
+          custodyTokenA: aCustody,
+          custodyTokenB: bCustody,
+          order: await getOrder(tif, counter), // nextPool ? counter + 1 : counter ),
+          currentPool: await getPool(tif, counter),
+          targetPool: await getPool(tif, counter), // nextPool ?...),
+          systemProgram: SystemProgram.programId,
+          tokenProgram: TOKEN_PROGRAM_ID,
+        })
+        .preInstructions(pre)
+        .rpc()
     );
-    const getPool = getPoolKey(findProgramAddress, aCustody, bCustody);
+    console.log("res", result); // eslint-diasble-line
 
-    let result;
-    try {
-      result = await forit(
-        program.methods
-          .placeOrder({
-            side: side === "sell" ? { sell: {} } : { buy: {} },
-            timeInForce: tif,
-            amount: new BN(amount * 10 ** decimals),
-          })
-          .accounts({
-            owner: provider.wallet.publicKey,
-            userAccountTokenA: aWallet,
-            userAccountTokenB: bWallet,
-            tokenPair: tokenPairAddress,
-            custodyTokenA: aCustody,
-            custodyTokenB: bCustody,
-            order: await getOrder(tif, counter), // nextPool ? counter + 1 : counter ),
-            currentPool: await getPool(tif, counter),
-            targetPool: await getPool(tif, counter), // nextPool ?...),
-            systemProgram: SystemProgram.programId,
-            tokenProgram: TOKEN_PROGRAM_ID,
-          })
-          .preInstructions(pre)
-          .rpc()
-          .catch((err) => {
-            console.warn(err);
-          })
-      );
-    } catch (erorr) {
-      console.log("eror", erorr);
-    }
-
-    console.log("executing");
-
-    console.log("res", result);
-
-    return result;
+    return result[1];
   }
 
   return { execute };

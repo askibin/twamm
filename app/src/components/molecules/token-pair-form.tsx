@@ -4,7 +4,7 @@ import { useCallback, useMemo, useState } from "react";
 import { Form } from "react-final-form";
 
 import type { Maybe as TMaybe } from "../../types/maybe.d";
-import type { SelectedTif } from "./trade-intervals";
+// import type { SelectedTif } from "./trade-intervals";
 import * as Styled from "./token-pair-form.styled";
 import Maybe from "../../types/maybe";
 import InTokenField from "./in-token-field";
@@ -17,7 +17,6 @@ export interface Props {
   onABSwap: () => void;
   onASelect: () => void;
   onBSelect: () => void;
-  orderType: TMaybe<OrderType>;
   poolCounters: TMaybe<PoolCounter[]>;
   poolsCurrent: TMaybe<boolean[]>;
   poolTifs: TMaybe<number[]>;
@@ -40,7 +39,6 @@ export default ({
   onABSwap,
   onASelect,
   onBSelect,
-  orderType: mbOrderType,
   poolCounters: mbPoolCounters,
   poolsCurrent: mbPoolsCurrent,
   poolTifs: mbTifs,
@@ -58,7 +56,7 @@ export default ({
 
   const [amount, setAmount] = useState<number>(0);
   const [submitting, setSubmitting] = useState<boolean>(false);
-  const [tif, setTif] = useState<number>();
+  // const [tif, setTif] = useState<number>();
 
   const tifs = defaultVal(undefined, mbTifs);
   const currentPoolPresent = defaultVal(undefined, mbPoolsCurrent);
@@ -80,12 +78,14 @@ export default ({
     [setAmount]
   );
 
-  const onIntervalSelect = useCallback(
-    (selectedTif: SelectedTif) => {
-      setTif(selectedTif[0]);
-    },
-    [setTif]
-  );
+  /*
+   *const onIntervalSelect = useCallback(
+   *  (selectedTif: SelectedTif) => {
+   *    setTif(selectedTif[0]);
+   *  },
+   *  [setTif]
+   *);
+   */
 
   const errors = useMemo<ValidationErrors>(() => {
     const result: ValidationErrors = {};
@@ -109,7 +109,7 @@ export default ({
       nextPool: undefined,
       tifs,
       poolCounters,
-      tif,
+      // tif,
     };
 
     return;
@@ -123,7 +123,7 @@ export default ({
     execute,
     amount,
     side,
-    tif,
+    // tif,
     tokenAMint,
     tokenADecimals,
     tokenBMint,
@@ -165,8 +165,7 @@ export default ({
           <Box py={2}>
             <TradeIntervals
               indexedTifs={Maybe.of(intervalTifs.data)}
-              value={tif}
-              onSelect={onIntervalSelect}
+              // onSelect={onIntervalSelect}
             />
           </Box>
           <Styled.ConnectBox py={3}>
