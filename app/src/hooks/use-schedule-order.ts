@@ -15,7 +15,6 @@ import {
 } from "@solana/spl-token";
 import { findAddress } from "@twamm/client.js/lib/program";
 
-import { forit } from "../utils/forit";
 import { useProgram } from "./use-program";
 import { useTxRunnerContext } from "./use-transaction-runner-context";
 
@@ -132,6 +131,7 @@ const getOrderKey = (
     )(tif, poolCounter);
 
     return findProgramAddress("order", [
+      // @ts-ignore
       provider.wallet.publicKey.toBuffer(),
       poolKey.toBuffer(),
     ]);
@@ -140,11 +140,11 @@ const getOrderKey = (
 
 export const useScheduleOrder = () => {
   const { program, provider } = useProgram();
-  const { commit } = useTxRunnerContext(/* { provider } */);
+  const { commit } = useTxRunnerContext();
 
   const findProgramAddress = findAddress(program);
 
-  async function execute({
+  const run = async function execute({
     aMint,
     amount,
     bMint,
@@ -161,15 +161,17 @@ export const useScheduleOrder = () => {
     aMint: string;
     bMint: string;
     tif: number;
-    nextPool?: number;
+    nextPool: boolean;
+    poolCounters: PoolCounter[];
+    tifs: number[];
   }) {
     const transferAuthority = await findProgramAddress(
       "transfer_authority",
       []
     );
 
-    const aMintPublicKey = new PublicKey(side === "sell" ? aMint : bMint);
-    const bMintPublicKey = new PublicKey(side === "sell" ? bMint : aMint);
+    const aMintPublicKey = new PublicKey(aMint); // side === "sell" ? aMint : bMint);
+    const bMintPublicKey = new PublicKey(bMint); // side === "sell" ? bMint : aMint);
 
     const tokenPairAddress = await findProgramAddress("token_pair", [
       new PublicKey(aMint).toBuffer(),
@@ -231,33 +233,39 @@ export const useScheduleOrder = () => {
     const getOrder = getOrderKey(provider, program, aCustody, bCustody);
     const getPool = getPoolKey(program, aCustody, bCustody);
 
-    const result = await forit(
-      program.methods
-        .placeOrder({
-          side: side === "sell" ? { sell: {} } : { buy: {} },
-          timeInForce: tif,
-          amount: new BN(amount * 10 ** decimals),
-        })
-        .accounts({
-          owner: provider.wallet.publicKey,
-          userAccountTokenA: aWallet,
-          userAccountTokenB: bWallet,
-          tokenPair: tokenPairAddress,
-          custodyTokenA: aCustody,
-          custodyTokenB: bCustody,
-          order: await getOrder(tif, counter), // nextPool ? counter + 1 : counter ),
-          currentPool: await getPool(tif, counter),
-          targetPool: await getPool(tif, counter), // nextPool ?...),
-          systemProgram: SystemProgram.programId,
-          tokenProgram: TOKEN_PROGRAM_ID,
-        })
-        .preInstructions(pre)
-        .rpc()
-    );
-    console.log("res", result); // eslint-diasble-line
+    const result = await program.methods
+      .placeOrder({
+        side: side === "sell" ? { sell: {} } : { buy: {} },
+        timeInForce: tif,
+        amount: new BN(amount * 10 ** decimals),
+      })
+      .accounts({
+        owner: provider.wallet.publicKey,
+        userAccountTokenA: aWallet,
+        userAccountTokenB: bWallet,
+        tokenPair: tokenPairAddress,
+        custodyTokenA: aCustody,
+        custodyTokenB: bCustody,
+        order: await getOrder(tif, nextPool ? Number(counter) + 1 : counter),
+        currentPool: await getPool(tif, counter),
+        targetPool: await getPool(
+          tif,
+          nextPool ? Number(counter) + 1 : counter
+        ),
+        systemProgram: SystemProgram.programId,
+        tokenProgram: TOKEN_PROGRAM_ID,
+      })
+      .preInstructions(pre)
+      .rpc();
 
-    return result[1];
-  }
+    return result;
+  };
 
-  return { execute };
+  return {
+    async execute(params: Parameters<typeof run>[0]) {
+      const result = await commit(run(params));
+
+      return result;
+    },
+  };
 };

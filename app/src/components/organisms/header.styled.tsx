@@ -7,9 +7,9 @@ import Toolbar from "@mui/material/Toolbar";
 import { styled } from "@mui/material/styles";
 
 interface ActiveCardProps extends CardProps {
-  istxactive?: boolean;
-  istxerror?: boolean;
-  istxsuccess?: boolean;
+  istxactive?: "true" | "false";
+  istxerror?: "true" | "false";
+  istxsuccess?: "true" | "false";
 }
 
 export const Header = styled(Toolbar)`
@@ -35,9 +35,9 @@ export const UtilsControl = styled(Card)`
   padding: 4px;
 
   ${(params: ActiveCardProps) =>
-    params.istxactive &&
-    !params.istxerror &&
-    !params.istxsuccess &&
+    params.istxactive === "true" &&
+    params.istxerror === "false" &&
+    params.istxsuccess === "false" &&
     `
     & > svg {
       animation: rotation infinite 2s linear;
@@ -45,7 +45,7 @@ export const UtilsControl = styled(Card)`
   `}
 
   ${(params: ActiveCardProps & { theme: Theme }) =>
-    params.istxerror &&
+    params.istxerror === "true" &&
     `
     & > svg {
       color: ${params.theme.palette.error.main};
@@ -53,7 +53,7 @@ export const UtilsControl = styled(Card)`
   `}
 
   ${(params: ActiveCardProps & { theme: Theme }) =>
-    params.istxsuccess &&
+    params.istxsuccess === "true" &&
     `
     & > svg {
       color: ${params.theme.palette.success.main};

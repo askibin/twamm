@@ -99,10 +99,8 @@ export default function TokenRatio({ pairs }: Props) {
             tokenA={state.a?.symbol}
             tokenADecimals={state.a?.decimals}
             tokenAImage={state.a?.logoURI}
-            tokenAMint={state.a?.address}
             tokenB={state.b?.symbol}
             tokenBImage={state.b?.logoURI}
-            tokenBMint={state.b?.address}
             tokenPair={Maybe.of(tokenPair)}
           />
         </Box>

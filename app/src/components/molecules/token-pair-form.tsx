@@ -24,10 +24,8 @@ export interface Props {
   tokenA?: string;
   tokenADecimals?: number;
   tokenAImage?: string;
-  tokenAMint?: string;
   tokenB?: string;
   tokenBImage?: string;
-  tokenBMint?: string;
   tokenPair: TMaybe<TokenPair>;
 }
 
@@ -46,10 +44,8 @@ export default ({
   tokenA,
   tokenADecimals,
   tokenAImage,
-  tokenAMint,
   tokenB,
   tokenBImage,
-  tokenBMint,
   tokenPair: mbTokenPair,
 }: Props) => {
   const { execute } = useScheduleOrder();
@@ -102,21 +98,29 @@ export default ({
   }, [amount, tif, tokenA, tokenB]);
 
   const onSubmit = useCallback(async () => {
+    if (!tokenPair) throw new Error("Pair is absent");
+    if (!tif) throw new Error("Please choose the intervals");
+    if (!tokenADecimals) throw new Error("Absent decimals");
+    if (!side) throw new Error("Absent side");
+    if (!poolCounters) throw new Error("Absent counters");
+    if (!tifs) throw new Error("Absent tifs");
+
+    const [a, b] = tokenPair;
+    const [timeInForce, nextPool] = tif ?? [];
+
+    if (!timeInForce) throw new Error("Absent tif");
+
     const params = {
       side,
       amount,
       decimals: tokenADecimals,
-      aMint: tokenAMint,
-      bMint: tokenBMint,
-      nextPool: undefined,
+      aMint: a.address,
+      bMint: b.address,
+      nextPool: nextPool ? nextPool > 0 : false,
       tifs,
       poolCounters,
-      // tif,
+      tif: timeInForce,
     };
-
-    console.log(params);
-
-    return;
 
     setSubmitting(true);
 
@@ -127,12 +131,11 @@ export default ({
     execute,
     amount,
     side,
-    // tif,
-    tokenAMint,
+    tif,
     tokenADecimals,
-    tokenBMint,
     tifs,
     poolCounters,
+    tokenPair,
   ]);
 
   const isScheduled = tif && (tif[1] ?? -1) > 0;

@@ -14,6 +14,30 @@ export interface Props {
   setOpen: (arg0: boolean) => void;
 }
 
+const Content = ({
+  isReady,
+  isLoading,
+  isFinished,
+  hasError,
+  signature,
+  viewExplorer,
+}: any) => {
+  if (isLoading) return <TxState.Progress />;
+
+  if (hasError) {
+    return <TxState.Error />;
+  }
+
+  if (isFinished)
+    return (
+      <TxState.Success signature={signature as string} view={viewExplorer} />
+    );
+
+  if (isReady) return <TxState.Empty />;
+
+  return <TxState.Empty />;
+};
+
 export default ({ open, setOpen }: Props) => {
   const { active, error, signature, viewExplorer } = useTxRunnerContext();
 
@@ -46,15 +70,14 @@ export default ({ open, setOpen }: Props) => {
             <CloseIcon />
           </Styled.Close>
           <Typography id="transaction-runner-modal-title" variant="h5" pb={2}>
-            {state.hasError && <TxState.Error />}
-            {state.isReady && <TxState.Empty />}
-            {state.isLoading && <TxState.Progress />}
-            {state.isFinished && (
-              <TxState.Success
-                signature={signature as string}
-                view={viewExplorer}
-              />
-            )}
+            <Content
+              hasError={state.hasError}
+              isReady={state.isReady}
+              isLoading={state.isLoading}
+              isFinished={state.isFinished}
+              signature={signature}
+              viewExplorer={viewExplorer}
+            />
           </Typography>
         </Styled.Inner>
       </Fade>
