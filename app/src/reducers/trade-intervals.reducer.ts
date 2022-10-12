@@ -8,20 +8,23 @@ const noDelayTif = -1;
 
 interface State {
   indexedTifs: IndexedTIF[];
+  pairSelected: [number | undefined, number | undefined];
   periodTifs: TIF[];
   scheduleTifs: TIF[];
-  tifs: TIF[];
-  tifScheduled: number;
-  tifSelected: number;
+  //tifs: TIF[];
+  //tifScheduled: number;
+  //tifSelected: number;
   tifsLeft: TIF[];
 }
 
 export const initialState = {
+  indexedTifs: undefined,
+  pairSelected: [undefined, -1],
   periodTifs: undefined,
   scheduleTifs: undefined,
-  tifScheduled: undefined,
-  tifSelected: undefined,
-  tifs: undefined,
+  //tifScheduled: undefined,
+  //tifSelected: undefined,
+  //tifs: undefined,
   tifsLeft: undefined,
 };
 
@@ -59,11 +62,12 @@ export default <S extends Partial<State>, A extends Action<any>>(
       const tifsLeft = indexedTifs.map((d: IndexedTIF) => d.left);
 
       return {
+        indexedTifs,
+        pairSelected: initialState.pairSelected,
         periodTifs: sortTifs(tifsLeft),
         scheduleTifs: sortTifs([noDelayTif].concat(tifsLeft)),
-        indexedTifs,
-        tifScheduled: noDelayTif,
-        tifSelected: undefined,
+        //tifScheduled: noDelayTif,
+        //tifSelected: undefined,
         tifsLeft,
       };
     }
@@ -77,27 +81,41 @@ export default <S extends Partial<State>, A extends Action<any>>(
       );
 
       let periodTifs;
+      let scheduledTif;
       if (tif === noDelayTif) {
         periodTifs = tifsLeft;
       } else {
-        const scheduledTif = indexedTifs?.find((d) => d.left === tif);
+        scheduledTif = indexedTifs?.find((d) => d.left === tif);
         periodTifs = scheduledTif ? [scheduledTif.tif] : [];
       }
 
+      const pairSelected = [scheduledTif?.tif, tif];
+
       return {
-        tifs: state.tifs,
-        tifsLeft: state.tifsLeft,
-        tifSelected: undefined,
-        tifScheduled: tif,
+        indexedTifs,
+        pairSelected,
         periodTifs,
         scheduleTifs: [noDelayTif].concat(tifsLeft),
+        //tifs: state.tifs,
+        //tifScheduled: tif,
+        //tifSelected: undefined,
+        tifsLeft: state.tifsLeft,
       };
     }
 
     case SET_PERIOD: {
+      const { pairSelected: selected } = state;
       const { tif }: Parameters<typeof setPeriod>[0] = action.payload;
 
-      return { ...state, tifSelected: tif };
+      const pairSelected = [tif, selected ? selected[1] : undefined];
+
+      console.log("selected", pairSelected);
+
+      return {
+        ...state,
+        pairSelected,
+        // tifSelected: tif
+      };
     }
 
     default: {

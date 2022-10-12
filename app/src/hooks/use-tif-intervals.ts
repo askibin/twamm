@@ -1,4 +1,4 @@
-import type { Provider, Program } from "@project-serum/anchor";
+import type { Program } from "@project-serum/anchor";
 import swr from "swr";
 import { Pool } from "@twamm/client.js";
 import { PublicKey } from "@solana/web3.js";
@@ -64,7 +64,10 @@ const populateTokenPairPool = <A, B, C>(
   data: y.status === "fulfilled" ? y.value : undefined,
 });
 
-const expirationTimeToInterval = (expirationTime: number, tif: number) => {
+const expirationTimeToInterval = (
+  expirationTime: number | undefined,
+  tif: number
+) => {
   if (!expirationTime) return tif;
 
   let delta = expirationTime * 1e3 - Date.now();
@@ -74,7 +77,7 @@ const expirationTimeToInterval = (expirationTime: number, tif: number) => {
 };
 
 const fetcher =
-  (provider: Provider, program: Program) =>
+  (program: Program) =>
   async ({ params }: ReturnType<typeof swrKey>) => {
     const { tokenPair, tifs, currentPoolPresent, poolCounters } = params;
     const [a, b] = tokenPair;
@@ -86,8 +89,6 @@ const fetcher =
     await pool.init();
 
     const intervals = new Map();
-
-    // console.log("DD", zip(tifs, currentPoolPresent));
 
     tifs.forEach((tif: number, index: number) => {
       if (tif === 0) return;
@@ -110,6 +111,8 @@ const fetcher =
 
     const availablePoolsRecords = new Map();
 
+    console.log('fetch')
+
     if (poolsToFetch.length) {
       const pools: unknown = await Promise.allSettled(
         poolsToFetch.map(([tif, index]) =>
@@ -118,11 +121,6 @@ const fetcher =
       );
 
       const fetchedPools = pools as Array<SettledTokenPairPool>;
-
-      const indexedPools = poolsToFetch.map((poolToFetch, index) => [
-        fetchedPools[index],
-        poolToFetch[1],
-      ]);
 
       const zippedPools: TifWithPool[] = zipWith(
         (x, y) => populateTokenPairPool(x, y),
@@ -143,7 +141,7 @@ const fetcher =
       });
 
       const allTifs: Array<{ tif: TIF; left: number; index: TIFIndex }> = [];
-      indexedTifs.forEach((indexedTif, index) => {
+      indexedTifs.forEach((indexedTif) => {
         allTifs.push(
           availablePoolsRecords.has(indexedTif.index)
             ? availablePoolsRecords.get(indexedTif.index)
@@ -154,11 +152,6 @@ const fetcher =
       return { indexedTifs: allTifs, tifs };
     }
 
-    const enrichedTifs = tifs.map((tif, index) => {
-      const record = availablePoolsRecords.get(index);
-      return { tif, index, left: record ? record.left : undefined };
-    });
-
     return { indexedTifs, tifs };
   };
 
@@ -166,16 +159,15 @@ export const useTIFIntervals: APIHook<Params, TradeIntervals> = (
   { tokenPair, currentPoolPresent, tifs, poolCounters } = {},
   options = {}
 ) => {
-  const { provider, program } = useProgram();
+  const { program } = useProgram();
 
-  const opts = { refreshInterval: 60e3, ...options };
+  const opts = { refreshInterval: 180e3, ...options };
 
-  const isValid =
-    tokenPair && tifs && currentPoolPresent && poolCounters ? true : undefined;
+  const isValid = tokenPair && tifs && currentPoolPresent && poolCounters;
 
   return swr(
     isValid && swrKey({ tokenPair, tifs, currentPoolPresent, poolCounters }),
-    fetcher(provider, program),
+    fetcher(program),
     opts
   );
 };

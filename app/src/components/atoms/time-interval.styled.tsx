@@ -22,6 +22,14 @@ export const Label = styled(Box)`
 
 export const ScheduleButton = styled(Button)`
   padding: 0 4px;
+
+  &.Mui-disabled {
+    color: ${({ theme }) => theme.palette.success.dark};
+    border-color: ${({ theme }) => theme.palette.success.dark};
+  }
+  &.Mui-disabled + * {
+    border-left-color: ${({ theme }) => theme.palette.success.dark};
+  }
 `;
 
 export const InfoControl = styled(IconButton)`

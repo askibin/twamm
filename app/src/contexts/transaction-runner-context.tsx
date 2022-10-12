@@ -27,7 +27,7 @@ export const Provider: FC<{ children: ReactNode }> = ({ children }) => {
   const [error, setError] = useState<Error>();
 
   const commit = useCallback(
-    async (ti: TransactionInstruction[]) => {
+    async (provider: AnchorProvider, ti: TransactionInstruction[]) => {
       if (!provider) {
         throw new Error("Can not run the transaction. Absent provider");
       }

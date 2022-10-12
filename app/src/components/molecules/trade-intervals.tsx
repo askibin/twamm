@@ -19,12 +19,7 @@ export interface Props {
   value: number;
 }
 
-export default ({
-  onSelect,
-  indexedTifs,
-  intervals,
-  value: tif,
-}: Props) => {
+export default ({ onSelect, indexedTifs, intervals, value: tif }: Props) => {
   const [state, dispatch] = useReducer(intervalsReducer, initialState);
 
   useEffect(() => {
@@ -37,22 +32,25 @@ export default ({
 
   const onScheduleSelect = useCallback(
     (value: number) => {
-      console.log("tif", intervals, { value });
       dispatch(action.setSchedule({ tif: value }));
+      console.log("tif", { value }, state.pairSelected);
 
-      onSelect([value]);
+      // onSelect(state.pairSelected);
     },
-    [dispatch, onSelect]
+    [dispatch, onSelect, state.pairSelected]
   );
 
   const onPeriodSelect = useCallback(
     (value: number) => {
       dispatch(action.setPeriod({ tif: value }));
+      console.log("ptif", { value }, state.pairSelected);
 
-      onSelect([value]);
+      // onSelect(state.pairSelected);
     },
-    [dispatch, onSelect]
+    [dispatch, onSelect, state.pairSelected]
   );
+
+  const { pairSelected = [] } = state;
 
   return (
     <>
@@ -60,9 +58,8 @@ export default ({
         <TimeInterval
           info=""
           label="Schedule Order"
-          intervals={intervals}
           values={state.scheduleTifs}
-          value={state.tifScheduled}
+          value={pairSelected[1]}
           onSelect={onScheduleSelect}
         />
       </Box>
@@ -70,9 +67,8 @@ export default ({
         <TimeInterval
           info=""
           label="Execution Period"
-          intervals={intervals}
           values={state.periodTifs}
-          value={state.tifSelected}
+          value={pairSelected[0]}
           onSelect={onPeriodSelect}
         />
       </Box>

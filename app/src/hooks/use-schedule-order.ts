@@ -135,7 +135,7 @@ const getOrderKey =
 
 export const useScheduleOrder = () => {
   const { program, provider } = useProgram();
-  const { commit } = useTxRunnerContext({ provider });
+  const { commit } = useTxRunnerContext(/* { provider } */);
 
   const findProgramAddress = findAddress(program);
 

@@ -78,8 +78,6 @@ export default ({
     Maybe.of(intervalTifs.data)
   );
 
-  console.log({ indexedTifs: indexedTifs, intervals });
-
   const onChangeAmount = useCallback(
     (value: number) => {
       setAmount(value);
