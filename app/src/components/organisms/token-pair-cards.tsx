@@ -1,4 +1,3 @@
-import type { PublicKey } from "@solana/web3.js";
 import { useMemo } from "react";
 
 import PairCard, { Blank } from "../atoms/pair-card";
@@ -10,10 +9,10 @@ export interface Props {
 
 type PairData = {
   configA: {
-    mint: PublicKey;
+    mint: string;
   };
   configB: {
-    mint: PublicKey;
+    mint: string;
   };
   // TODO: improve fee types
   feeNumerator: any;
@@ -45,10 +44,11 @@ export default ({ data }: Props) => {
     data.forEach((pair: PairData, i: number) => {
       const { configA, configB, feeNumerator, feeDenominator } = pair;
 
-      const aMint = configA.mint.toBase58();
-      const bMint = configB.mint.toBase58();
-      const numerator = feeNumerator.toNumber();
-      const denominator = feeDenominator.toNumber();
+      const aMint = configA.mint;
+      const bMint = configB.mint;
+
+      const numerator = feeNumerator;
+      const denominator = feeDenominator;
 
       const fee = numerator / denominator;
 

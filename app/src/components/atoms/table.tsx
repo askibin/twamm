@@ -1,36 +1,31 @@
 import { TextField, Typography } from "@mui/material";
 import Box from "@mui/material/Box";
-import Paper from "@mui/material/Paper";
 import { useCallback, useMemo, useState } from "react";
 import type {
-  DataGridProps,
+  DataGridProProps,
   GridRowIdGetter,
   GridRowParams,
-} from "@mui/x-data-grid";
+} from "@mui/x-data-grid-pro";
 import type { ChangeEvent, MouseEvent } from "react";
 
 import * as Styled from "./table.styled";
 
 interface Props {
-  description?: string;
   filterColumnField: string;
   getRowId?: GridRowIdGetter;
-  gridProps: DataGridProps;
+  gridProps: DataGridProProps;
   isUpdating?: boolean;
   onRowClick?: (arg0: GridRowParams, arg1: MouseEvent<HTMLElement>) => void;
   searchBoxPlaceholderText?: string;
-  title?: string;
 }
 
 export default ({
-  description,
   filterColumnField,
   getRowId,
   gridProps,
   isUpdating = false,
   onRowClick = () => {},
   searchBoxPlaceholderText,
-  title,
 }: Props) => {
   const [filterText, setFilterText] = useState("");
 
@@ -58,7 +53,7 @@ export default ({
   );
 
   return (
-    <Paper sx={{ padding: "24px" }}>
+    <>
       <Box
         sx={{
           alignItems: "center",
@@ -67,11 +62,6 @@ export default ({
           marginBottom: "24px",
         }}
       >
-        <Box>
-          {title && <Typography variant="h6">{title}</Typography>}
-          {description && <Typography color="gray">{description}</Typography>}
-        </Box>
-
         <TextField
           size="small"
           placeholder={searchBoxPlaceholderText ?? "Search"}
@@ -92,9 +82,10 @@ export default ({
         filterModel={filterModel}
         onRowClick={onRowClick}
         pagination
-        {...gridProps} /* eslint-disable-line react/jsx-props-no-spreading */
+        // eslint-disable-next-line react/jsx-props-no-spreading
+        {...gridProps}
       />
       {isUpdating && <Typography variant="body1">Updating...</Typography>}
-    </Paper>
+    </>
   );
 };

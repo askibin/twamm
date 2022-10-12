@@ -7,35 +7,64 @@ import TextField from "@mui/material/TextField";
 import { useCallback, useMemo, useState } from "react";
 
 import CoinSelect from "../molecules/coin-select";
-import CoinTags from "../molecules/coin-tags";
-import styles from "./coin-select.module.css";
-import { useCoins } from "../../hooks/use-coins";
+import TokenTags from "../atoms/token-tags";
+import { useJupTokensByMint } from "../../hooks/use-jup-tokens-by-mints";
+import * as Styled from "./coin-select.styled";
 
 export interface Props {
-  onSelect: (arg0: string) => void;
+  tokens?: string[];
+  selected?: string[];
+  onSelect: (arg0: JupToken) => void;
+  onDelete: (arg0: string) => void;
 }
 
-const STARRED_COINS = ["usdt", "usdc", "sol", "ray", "dai", "busd"];
+const STARRED_COINS = ["usdt", "usdc", "sol", "ray"];
 
-export default ({ onSelect = () => {} }: Props) => {
-  const { data, isValidating } = useCoins();
+const populateTokenRecords = (data?: JupToken[]) => {
+  if (!data) return {};
+
+  const records: Record<string, JupToken & { image: string }> = {};
+
+  data.forEach((token) => {
+    records[token.symbol.toLowerCase()] = {
+      ...token,
+      image: token.logoURI,
+    };
+  });
+
+  return records;
+};
+
+const Loading = () => <CircularProgress />;
+
+export default ({ onDelete, onSelect, selected, tokens }: Props) => {
   const [search, setSearch] = useState<string>();
 
-  const coinRecords = useMemo(() => {
-    if (!data) return {};
+  const { data, isLoading } = useJupTokensByMint(tokens);
+  const { data: selectedData } = useJupTokensByMint(selected);
 
-    return data;
-  }, [data]);
+  const coinRecords = useMemo(() => populateTokenRecords(data), [data]);
+  const selectedRecords = useMemo(
+    () => populateTokenRecords(selectedData),
+    [selectedData]
+  );
 
-  const starredCoins = STARRED_COINS.map(
+  const starredTokens = STARRED_COINS.map(
     (symbol) => coinRecords[symbol]
   ).filter((c) => c);
 
   const onCoinSelect = useCallback(
     (_: MouseEvent, symbol: string) => {
-      onSelect(symbol);
+      onSelect(coinRecords[symbol.toLowerCase()]);
     },
-    [onSelect]
+    [coinRecords, onSelect]
+  );
+
+  const onCoinDelete = useCallback(
+    (_: MouseEvent, symbol: string) => {
+      onDelete(symbol);
+    },
+    [onDelete]
   );
 
   const onSearch = useCallback((e: ChangeEvent<HTMLInputElement>) => {
@@ -44,11 +73,9 @@ export default ({ onSelect = () => {} }: Props) => {
     setSearch(value.toLowerCase());
   }, []);
 
-  const isLoading = !data && isValidating;
-
   return (
-    <Box className={styles.root}>
-      {isLoading && <CircularProgress />}
+    <Styled.Container>
+      {isLoading && <Loading />}
       <Box p={2}>
         <TextField
           fullWidth
@@ -62,15 +89,20 @@ export default ({ onSelect = () => {} }: Props) => {
           }}
         />
       </Box>
-      <Box px={2} pb={1}>
-        <CoinTags coins={starredCoins} onClick={onCoinSelect} />
-      </Box>
+      <Styled.Tags px={2} pb={1}>
+        <TokenTags
+          coins={Object.values(selectedRecords)}
+          onClick={onCoinDelete}
+          deletable
+        />
+        <TokenTags coins={starredTokens} onClick={onCoinSelect} />
+      </Styled.Tags>
       <Divider />
       <CoinSelect
         coins={coinRecords}
         filterCoin={search}
         onClick={onCoinSelect}
       />
-    </Box>
+    </Styled.Container>
   );
 };

@@ -1,22 +1,24 @@
-import type { Cluster as Clstr, Commitment as Cmtmnt } from "@solana/web3.js";
+import type { Cluster, Commitment as Cmtmnt } from "@solana/web3.js";
 import type { FC, ReactNode } from "react";
 import { clusterApiUrl, Connection } from "@solana/web3.js";
 import { createContext, useCallback, useMemo, useState } from "react";
 
-export type Cluster = {
+import { ClusterApiUrl } from "../env";
+
+export type ClusterInfo = {
   name: string;
   endpoint: string;
-  moniker?: Clstr;
+  moniker?: Cluster | "custom";
 };
 
 export type Commitment = "confirmed";
 
 export type BlockchainConnectionContextType = {
-  readonly cluster: Cluster;
-  readonly clusters: Cluster[];
+  readonly cluster: ClusterInfo;
+  readonly clusters: ClusterInfo[];
   readonly commitment: Commitment;
   readonly createConnection: (commitment?: Commitment) => Connection;
-  readonly setCluster: (cluster: Cluster) => void;
+  readonly setCluster: (cluster: ClusterInfo) => void;
 };
 
 export const BlockchainConnectionContext = createContext<
@@ -28,10 +30,10 @@ export const BlockchainConnectionProvider: FC<{ children: ReactNode }> = ({
 }) => {
   const [commitments] = useState<Commitment[]>(["confirmed"]);
 
-  const [clusters] = useState<Cluster[]>([
+  const [clusters] = useState<ClusterInfo[]>([
     {
       name: "Mainnet Beta",
-      endpoint: clusterApiUrl("mainnet-beta"),
+      endpoint: ClusterApiUrl || clusterApiUrl("mainnet-beta"),
       moniker: "mainnet-beta",
     },
     {
@@ -48,8 +50,21 @@ export const BlockchainConnectionProvider: FC<{ children: ReactNode }> = ({
 
   const initialCommitment = commitments[0];
 
+  let initialCluster: ClusterInfo = clusters[0];
+  if (globalThis.localStorage) {
+    const customEndpoint =
+      globalThis.localStorage?.getItem("twammClusterEndpoint") ??
+      clusters[0].endpoint;
+    // TODO: validate endpoint && handle custom outage gracefully
+    initialCluster = {
+      name: "Custom",
+      endpoint: customEndpoint,
+      moniker: "custom",
+    };
+  }
+
   const [commitment] = useState(initialCommitment);
-  const [cluster, setCluster] = useState(clusters[0]);
+  const [cluster, setCluster] = useState(initialCluster);
 
   const createConnection = useCallback(
     (commit: Cmtmnt = initialCommitment) =>

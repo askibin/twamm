@@ -1,4 +1,4 @@
-import type { GridColDef } from "@mui/x-data-grid";
+import type { GridColDef } from "@mui/x-data-grid-pro";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import { useMemo } from "react";
@@ -9,13 +9,14 @@ import { useAccountOrders } from "../../hooks/use-account-orders";
 export default () => {
   const { data, error, isValidating } = useAccountOrders();
 
-  const isLoading = !data && !error && isValidating;
+  const isLoading = !data && !error;
 
   const rows = useMemo(() => {
     if (!data) return [];
 
-    return data.map((_, i) => ({
+    return data.map(({ aName, bName }, i) => ({
       id: i,
+      name: `${aName}-${bName}`,
     }));
   }, [data]);
 
@@ -23,7 +24,7 @@ export default () => {
     () => [
       {
         headerName: "Name",
-        field: "id",
+        field: "name",
         flex: 2,
       },
     ],
@@ -32,7 +33,7 @@ export default () => {
 
   return (
     <Box>
-      <Typography pb={2} color="white" variant="h4">
+      <Typography pb={2} variant="h4">
         My Orders
       </Typography>
       <Box>
@@ -44,10 +45,9 @@ export default () => {
             loading: isLoading,
             rows,
           }}
-          filterColumnField="id"
+          filterColumnField="name"
           isUpdating={!isLoading && isValidating}
           searchBoxPlaceholderText="Search orders"
-          title="Orders"
         />
       </Box>
     </Box>

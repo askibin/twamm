@@ -1,28 +1,27 @@
 import Box from "@mui/material/Box";
-import SwipeableDrawer from "@mui/material/SwipeableDrawer";
 import { grey } from "@mui/material/colors";
 import { styled } from "@mui/material/styles";
-import { useCallback } from "react";
+import { useCallback, useMemo } from "react";
 
 import CoinSelect from "../organisms/coin-select";
-import styles from "./coin-drawer.module.css";
+import * as Styled from "./coin-drawer.styled";
 
 export interface Props {
-  onSelect: (arg0: string) => void;
+  onDeselect: (arg0: string) => void;
+  onSelect: (arg0: JupToken) => void;
   open: boolean;
   setOpen: (arg0: boolean) => void;
+  tokens?: string[];
+  tokensToDeselect?: string[];
 }
-
-const StyledBox = styled(Box)(({ theme }) => ({
-  backgroundColor: theme.palette.mode === "light" ? "#fff" : grey[800],
-}));
 
 const drawerBleeding = 56;
 
 const Puller = styled(Box)(({ theme }) => ({
   width: 30,
   height: 6,
-  backgroundColor: theme.palette.mode === "light" ? grey[300] : grey[900],
+  backgroundColor:
+    theme.palette.mode === "light" ? grey[300] : theme.palette.primary.main,
   borderRadius: 3,
   position: "absolute",
   top: 8,
@@ -30,36 +29,46 @@ const Puller = styled(Box)(({ theme }) => ({
 }));
 
 export default ({
-  onSelect: handleSelect = () => {},
+  onDeselect,
+  onSelect: handleSelect,
   open,
   setOpen,
+  tokens,
+  tokensToDeselect,
 }: Props) => {
   const toggleDrawer = (newOpen: boolean) => () => {
     setOpen(newOpen);
   };
 
-  const onSelect = useCallback(
+  const modalProps = useMemo(() => ({ keepMounted: true }), []);
+
+  const onCoinDelete = useCallback(
     (symbol: string) => {
       setOpen(false);
-      handleSelect(symbol);
+      onDeselect(symbol);
+    },
+    [onDeselect, setOpen]
+  );
+
+  const onCoinSelect = useCallback(
+    (token: JupToken) => {
+      setOpen(false);
+      handleSelect(token);
     },
     [handleSelect, setOpen]
   );
 
   return (
-    <SwipeableDrawer
+    <Styled.Drawer
       anchor="bottom"
-      className={styles.root}
-      open={open}
+      disableSwipeToOpen={false}
+      ModalProps={modalProps}
       onClose={toggleDrawer(false)}
       onOpen={toggleDrawer(true)}
+      open={open}
       swipeAreaWidth={drawerBleeding}
-      disableSwipeToOpen={false}
-      ModalProps={{
-        keepMounted: true,
-      }}
     >
-      <StyledBox
+      <Box
         sx={{
           top: -drawerBleeding,
           borderTopLeftRadius: 8,
@@ -71,16 +80,15 @@ export default ({
         }}
       >
         <Puller />
-      </StyledBox>
-      <StyledBox
-        className={styles.inner}
-        sx={{
-          height: "100%",
-          overflow: "auto",
-        }}
-      >
-        <CoinSelect onSelect={onSelect} />
-      </StyledBox>
-    </SwipeableDrawer>
+      </Box>
+      <Styled.Inner>
+        <CoinSelect
+          tokens={tokens}
+          selected={tokensToDeselect}
+          onDelete={onCoinDelete}
+          onSelect={onCoinSelect}
+        />
+      </Styled.Inner>
+    </Styled.Drawer>
   );
 };

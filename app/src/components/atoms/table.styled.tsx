@@ -1,9 +1,14 @@
+import Paper from "@mui/material/Paper";
+import { DataGridPro } from "@mui/x-data-grid-pro";
 import { styled } from "@mui/material/styles";
-import { DataGrid } from "@mui/x-data-grid";
 
-const styledGrid = styled(DataGrid);
+export const Container = styled(Paper)`
+  padding: ${({ theme }) => theme.spacing(2)};
+  color: #fff;
+  background-color: #1b202e;
+`;
 
-export const Grid = styledGrid`
+export const Grid = styled(DataGridPro)`
   & .MuiDataGrid-row {
     cursor: pointer;
   }

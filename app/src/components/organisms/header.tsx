@@ -1,28 +1,65 @@
-import Avatar from "@mui/material/Avatar";
 import AppBar from "@mui/material/AppBar";
-import Stack from "@mui/material/Stack";
-import Toolbar from "@mui/material/Toolbar";
+import Box from "@mui/material/Box";
+import CancelIcon from "@mui/icons-material/Cancel";
+import DoneIcon from "@mui/icons-material/Done";
+import RefreshIcon from "@mui/icons-material/Refresh";
+import TuneIcon from "@mui/icons-material/Tune";
+import UpdateIcon from "@mui/icons-material/Update";
+import { useMemo, useState } from "react";
 import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
 
-import styles from "./header.module.css";
+import TransactionRunnerModal from "../molecules/transaction-runner-modal";
+import SettingsModal from "../molecules/settings-modal";
+import * as Styled from "./header.styled";
 import { useBreakpoints } from "../../hooks/use-breakpoints";
+import { useTxRunnerContext } from "../../hooks/use-transaction-runner-context";
 
 export default () => {
   const { isDesktop } = useBreakpoints();
+  const { active, error, signature } = useTxRunnerContext();
+
+  const [txOpen, setTxOpen] = useState<boolean>(false);
+  const [cfgOpen, setCfgOpen] = useState<boolean>(false);
+
+  const txStateIcon = useMemo(() => {
+    if (error) return <CancelIcon />;
+    if (signature) return <DoneIcon />;
+    if (active) return <RefreshIcon />;
+    return <UpdateIcon />;
+  }, [active, error, signature]);
 
   return (
-    <AppBar aria-labelledby="header" position="static">
-      <Toolbar
-        className={styles.toolbar}
-        variant={isDesktop ? "dense" : undefined}
-      >
-        <Stack direction="row" className={styles.logo}>
-          <Avatar className={styles.avatar}>T</Avatar>
-          Solana TWAMM
-        </Stack>
+    <>
+      <TransactionRunnerModal open={txOpen} setOpen={setTxOpen} />
+      <SettingsModal open={cfgOpen} setOpen={setCfgOpen} />
 
-        <WalletMultiButton />
-      </Toolbar>
-    </AppBar>
+      <AppBar aria-labelledby="header" position="static">
+        <Styled.Header variant={isDesktop ? "dense" : undefined}>
+          <Styled.Logo direction="row" pr={2}>
+            <Styled.Image src="/images/solana-logo.png">Solana</Styled.Image>
+            TWAMM
+          </Styled.Logo>
+
+          <Styled.Controls direction="row">
+            <Box px={2}>
+              <Styled.UtilsControl onClick={() => setCfgOpen(true)}>
+                <TuneIcon />
+              </Styled.UtilsControl>
+            </Box>
+            <Box pr={2}>
+              <Styled.UtilsControl
+                istxactive={active ? "true" : "false"}
+                istxerror={error ? "true" : "false"}
+                istxsuccess={signature ? "true" : "false"}
+                onClick={() => setTxOpen(true)}
+              >
+                {txStateIcon}
+              </Styled.UtilsControl>
+            </Box>
+            <WalletMultiButton />
+          </Styled.Controls>
+        </Styled.Header>
+      </AppBar>
+    </>
   );
 };

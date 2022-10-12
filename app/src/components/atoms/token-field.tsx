@@ -1,34 +1,33 @@
-import type { MouseEvent } from "react";
-import Avatar from "@mui/material/Avatar";
-import Box from "@mui/material/Box";
-import Grid from "@mui/material/Grid";
-import Paper from "@mui/material/Paper";
-import TextField from "@mui/material/TextField";
+import type { ChangeEvent } from "react";
+import { useCallback, useState } from "react";
 
-import styles from "./token-field.module.css";
+import * as Styled from "./token-field.styled";
 
 export interface Props {
-  alt?: string;
-  image?: string;
-  label: string;
-  onClick: (e: MouseEvent) => void;
+  onChange: (arg0: number) => void;
 }
 
-export default ({ label, onClick, alt, image }: Props) => (
-  <Paper className={styles.tokenField} p={1} component={Box}>
-    <Grid container spacing={1}>
-      <Grid item xs={3}>
-        <TextField
-          className={styles.tokenSelect}
-          InputProps={{
-            startAdornment: <Avatar alt={alt} src={image} />,
-          }}
-          onClick={onClick}
-        />
-      </Grid>
-      <Grid item xs={9}>
-        <TextField fullWidth label={label} />
-      </Grid>
-    </Grid>
-  </Paper>
-);
+export default ({ onChange: handleChange }: Props) => {
+  const [amount, setAmount] = useState<number>(0);
+
+  const onChange = useCallback(
+    (e: ChangeEvent<HTMLInputElement>) => {
+      const next = Number(e.target.value);
+
+      setAmount(next);
+      handleChange(next);
+    },
+    [handleChange, setAmount]
+  );
+
+  return (
+    <Styled.TokenField>
+      <Styled.TokenAmountTextField
+        allowNegative={false}
+        value={amount}
+        onChange={onChange}
+      />
+      <Styled.TokenAmountInUSD>$0</Styled.TokenAmountInUSD>
+    </Styled.TokenField>
+  );
+};

@@ -6,11 +6,11 @@ import {
   PhantomWalletAdapter,
 } from "@solana/wallet-adapter-wallets";
 import { WalletModalProvider } from "@solana/wallet-adapter-react-ui";
-import { WalletProvider } from "@solana/wallet-adapter-react";
+import { WalletProvider as Provider } from "@solana/wallet-adapter-react";
 
 import { useSnackbar } from "./notification-context";
 
-const Wallet: FC<{ children: ReactNode }> = ({ children }) => {
+export const WalletProvider: FC<{ children: ReactNode }> = ({ children }) => {
   const { enqueueSnackbar } = useSnackbar();
 
   // @solana/wallet-adapter-wallets includes all the adapters but supports tree shaking and lazy loading --
@@ -31,10 +31,8 @@ const Wallet: FC<{ children: ReactNode }> = ({ children }) => {
   );
 
   return (
-    <WalletProvider wallets={wallets} onError={onError} autoConnect>
+    <Provider wallets={wallets} onError={onError} autoConnect>
       <WalletModalProvider>{children}</WalletModalProvider>
-    </WalletProvider>
+    </Provider>
   );
 };
-
-export default Wallet;

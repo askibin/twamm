@@ -1,34 +1,48 @@
 import type { Provider, Program } from "@project-serum/anchor";
 import swr from "swr";
-import { account } from "@twamm/client.js";
 
-import { dedupeEach, revalOnFocus } from "../utils/api";
+import type { APIHook } from "../utils/api";
+import { dedupeEach, refreshEach } from "../utils/api";
 import { useProgram } from "./use-program";
+import { resolveExchangePair } from "../utils/tokenpair-twamm-client";
+
+const swrKey = (params: { aToken: JupToken; bToken: JupToken }) => ({
+  key: "tokenPair",
+  params,
+});
+
+type Params = Parameters<typeof swrKey>[0];
 
 const fetcher = (provider: Provider, program: Program) => {
-  const data = account.getEncodedDiscriminator("TokenPair");
+  const resolvePair = resolveExchangePair(provider, program);
 
-  return async () => {
-    const pairs = await provider.connection.getProgramAccounts(
-      program.programId,
-      {
-        filters: [{ dataSize: 592 }, { memcmp: { bytes: data, offset: 0 } }],
-      }
-    );
+  return async ({ params }: ReturnType<typeof swrKey>) => {
+    const { aToken, bToken } = params;
+    const { tokenPairData, exchangePair } = await resolvePair([aToken, bToken]);
 
-    const fetchPair = (pair: any) =>
-      program.account.tokenPair.fetch(pair.pubkey);
+    const { currentPoolPresent, futurePoolPresent, poolCounters, tifs } =
+      tokenPairData;
 
-    const pairsData = await Promise.all(pairs.map(fetchPair));
+    const pair = {
+      currentPoolPresent,
+      futurePoolPresent,
+      poolCounters,
+      tifs,
+      exchangePair,
+    };
 
-    return pairsData;
+    return pair;
   };
 };
 
-export const useTokenPair = () => {
-  const { program, provider } = useProgram();
+export const useTokenPair: APIHook<Params, TokenPairData> = (
+  params,
+  options = {}
+) => {
+  const { provider, program } = useProgram();
 
-  const opts = { ...dedupeEach(5e3), ...revalOnFocus() };
+  const opts = { ...dedupeEach(30e3), ...refreshEach(), ...options };
 
-  return swr("TokenPair", fetcher(provider, program), opts);
+  return swr(params && swrKey(params), fetcher(provider, program), opts);
+  // Should continiously update the pair to fetch actual data
 };

@@ -28,7 +28,8 @@ export default ({ coins, filterCoin, onClick = () => {} }: Props) => {
     return values.filter(
       (coin) =>
         coin.name.toLowerCase().startsWith(filterCoin) ||
-        coin.symbol.startsWith(filterCoin)
+        coin.name.toLowerCase().includes(filterCoin) ||
+        coin.symbol.toLowerCase().startsWith(filterCoin)
     );
   }, [coins, filterCoin]);
 
@@ -54,7 +55,9 @@ export default ({ coins, filterCoin, onClick = () => {} }: Props) => {
               <Avatar
                 alt={coinRecords[index].symbol}
                 src={coinRecords[index].image}
-              />
+              >
+                T
+              </Avatar>
             </ListItemIcon>
             <ListItemText
               primary={coinRecords[index].symbol.toUpperCase()}

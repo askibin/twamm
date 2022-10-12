@@ -2,11 +2,11 @@ import Document, { Head, Html, Main, NextScript } from "next/document";
 import createEmotionServer from "@emotion/server/create-instance";
 
 import createEmotionCache from "../src/emotion-cache";
-import theme from "../src/theme";
+import { darkTheme } from "../src/theme";
 
 export default class PageDocument extends Document {
   render() {
-    const { main } = theme.palette.primary;
+    const { main } = darkTheme.palette.primary;
 
     return (
       <Html lang="en">

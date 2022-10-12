@@ -1,8 +1,10 @@
-import Box from "@mui/material/Box";
 import Container from "@mui/material/Container";
 
 import ModeToggle from "../atoms/mode-toggle";
 import TokenRatio from "../organisms/token-ratio";
+import Maybe from "../../types/maybe";
+import * as Styled from "./swap.styled";
+import { useTokenPairsToSwap } from "../../hooks/use-token-pairs-to-swap";
 
 export interface Props {
   mode: string;
@@ -10,25 +12,16 @@ export interface Props {
 }
 
 export default ({ mode, onModeChange }: Props) => {
-  const { data } = {
-    data: {
-      tokenA: "RAY",
-      tokenB: "SOL",
-      tokenAValue: 1,
-      tokenBValue: 1,
-    },
-  };
+  const tokenPairs = useTokenPairsToSwap();
+
   return (
     <Container maxWidth="sm">
-      <Box p={2.5} sx={{ display: "flex", justifyContent: "center" }}>
+      <Styled.ModeControl p={2}>
         <ModeToggle mode={mode} onChange={onModeChange} />
-      </Box>
-      <TokenRatio
-        tokenA={data.tokenA}
-        tokenB={data.tokenB}
-        tokenAValue={data.tokenAValue}
-        tokenBValue={data.tokenBValue}
-      />
+      </Styled.ModeControl>
+      <Styled.Section>
+        <TokenRatio pairs={Maybe.of(tokenPairs.data)} />
+      </Styled.Section>
     </Container>
   );
 };

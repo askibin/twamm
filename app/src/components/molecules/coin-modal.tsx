@@ -1,55 +1,69 @@
-import IconButton from "@mui/material/IconButton";
 import CloseIcon from "@mui/icons-material/Close";
 import Backdrop from "@mui/material/Backdrop";
 import Modal from "@mui/material/Modal";
 import Fade from "@mui/material/Fade";
-import Paper from "@mui/material/Paper";
 import { useCallback, useMemo } from "react";
 
 import CoinSelect from "../organisms/coin-select";
-import styles from "./coin-modal.module.css";
+import * as Styled from "./coin-modal.styled";
 
 export interface Props {
-  onSelect: (arg0: string) => void;
+  onDeselect: (arg0: string) => void;
+  onSelect: (arg0: JupToken) => void;
   open: boolean;
   setOpen: (arg0: boolean) => void;
+  tokens?: string[];
+  tokensToDeselect?: string[];
 }
 
-export default ({ onSelect = () => {}, open, setOpen }: Props) => {
+export default ({
+  onDeselect,
+  onSelect,
+  open,
+  setOpen,
+  tokens,
+  tokensToDeselect,
+}: Props) => {
   const handleClose = () => setOpen(false);
 
-  const p2 = useMemo(() => ({ p: 2 }), []);
+  const backdropProps = useMemo(() => ({ timeout: 500 }), []);
 
-  const onCoinSelect = useCallback(
+  const onCoinDelete = useCallback(
     (symbol: string) => {
       setOpen(false);
-      onSelect(symbol);
+      onDeselect(symbol.toLowerCase());
+    },
+    [onDeselect, setOpen]
+  );
+
+  const onCoinSelect = useCallback(
+    (token: JupToken) => {
+      setOpen(false);
+      onSelect(token);
     },
     [onSelect, setOpen]
   );
 
   return (
     <Modal
-      aria-describedby="transition-modal-description"
-      aria-labelledby="transition-modal-title"
       BackdropComponent={Backdrop}
-      BackdropProps={{ timeout: 500 }}
-      className={styles.root}
+      BackdropProps={backdropProps}
       closeAfterTransition
       onClose={handleClose}
       open={open}
     >
       <Fade in={open}>
-        <Paper sx={p2} className={styles.modalInner}>
-          <IconButton
-            aria-label="close"
-            className={styles.closeButton}
-            onClick={handleClose}
-          >
+        <Styled.Inner>
+          <Styled.Close aria-label="close" onClick={handleClose}>
             <CloseIcon />
-          </IconButton>
-          <CoinSelect onSelect={onCoinSelect} />
-        </Paper>
+          </Styled.Close>
+          <CoinSelect
+            tokens={tokens}
+            selected={tokensToDeselect}
+            onDelete={onCoinDelete}
+            onSelect={onCoinSelect}
+          />
+        </Styled.Inner>
       </Fade>
     </Modal>
   );

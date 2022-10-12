@@ -11,48 +11,113 @@ import CoinDrawer from "../molecules/coin-drawer";
 import { useBreakpoints } from "../../hooks/use-breakpoints";
 
 export interface Props {
-  // eslint-disable-next-line react/no-unused-prop-types
-  onChange?: (arg0: string) => void;
+  onChange: (arg0: JupToken) => void;
+  onDeselect: (arg0: string) => void;
+  tokens?: string[];
+  tokensToDeselect?: string[];
 }
 
-interface ModalProps extends Props {
-  onSelect: (arg0: string) => void;
+interface ModalProps extends Omit<Props, "onChange"> {
+  onSelect: (arg0: JupToken) => void;
   open: boolean;
   setOpen: (arg0: boolean) => void;
+  tokens?: string[];
 }
 
-const Modal = memo(({ onSelect, open, setOpen }: ModalProps) => (
-  <CoinModal open={open} setOpen={setOpen} onSelect={onSelect} />
-));
+const Modal = memo(
+  ({
+    onDeselect,
+    onSelect,
+    open,
+    setOpen,
+    tokens,
+    tokensToDeselect,
+  }: ModalProps) => (
+    <CoinModal
+      onDeselect={onDeselect}
+      onSelect={onSelect}
+      open={open}
+      setOpen={setOpen}
+      tokens={tokens}
+      tokensToDeselect={tokensToDeselect}
+    />
+  )
+);
 
-const Drawer = memo(({ onSelect, open, setOpen }: ModalProps) => (
-  <CoinDrawer onSelect={onSelect} open={open} setOpen={setOpen} />
-));
+const Drawer = memo(
+  ({
+    onDeselect,
+    onSelect,
+    open,
+    setOpen,
+    tokens,
+    tokensToDeselect,
+  }: ModalProps) => (
+    <CoinDrawer
+      onDeselect={onDeselect}
+      onSelect={onSelect}
+      open={open}
+      setOpen={setOpen}
+      tokens={tokens}
+      tokensToDeselect={tokensToDeselect}
+    />
+  )
+);
 
-export default forwardRef(({ onChange = () => {} }: Props, ref) => {
-  const { isMobile } = useBreakpoints();
-  const [open, setOpen] = useState(false);
+export default forwardRef(
+  (
+    { onDeselect: handleDeselect, onChange, tokens, tokensToDeselect }: Props,
+    ref
+  ) => {
+    const { isMobile } = useBreakpoints();
+    const [open, setOpen] = useState(false);
 
-  const onSelect = useCallback(
-    (symbol: string) => {
-      onChange(symbol);
-    },
-    [onChange]
-  );
+    const onDeselect = useCallback(
+      (symbol: string) => {
+        handleDeselect(symbol);
+      },
+      [handleDeselect]
+    );
 
-  useImperativeHandle(ref, () => ({
-    close() {
-      setOpen(false);
-    },
-    isOpened: open,
-    open() {
-      setOpen(true);
-    },
-  }));
+    const onSelect = useCallback(
+      (token: JupToken) => {
+        onChange(token);
+      },
+      [onChange]
+    );
 
-  if (isMobile) {
-    return <Drawer onSelect={onSelect} open={open} setOpen={setOpen} />;
+    useImperativeHandle(ref, () => ({
+      close() {
+        setOpen(false);
+      },
+      isOpened: open,
+      open() {
+        setOpen(true);
+      },
+    }));
+
+    if (isMobile) {
+      return (
+        <Drawer
+          onDeselect={onDeselect}
+          onSelect={onSelect}
+          open={open}
+          setOpen={setOpen}
+          tokens={tokens}
+          tokensToDeselect={tokensToDeselect}
+        />
+      );
+    }
+
+    return (
+      <Modal
+        onDeselect={onDeselect}
+        onSelect={onSelect}
+        open={open}
+        setOpen={setOpen}
+        tokens={tokens}
+        tokensToDeselect={tokensToDeselect}
+      />
+    );
   }
-
-  return <Modal onSelect={onSelect} open={open} setOpen={setOpen} />;
-});
+);
