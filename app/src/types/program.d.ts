@@ -2,6 +2,8 @@ declare type OrderType = "sell" | "buy";
 
 declare type PoolCounter = any;
 
+declare type ExchangePair = [TokenPair, OrderType];
+
 declare type TokenPairAccountData = {
   configA: {
     mint: string;
@@ -15,7 +17,9 @@ declare type TokenPairAccountData = {
   tifs: number[];
 };
 
+declare type TokenPairProgramData = TokenPairAccountData;
+
 declare type TokenPairData = Pick<
   TokenPairAccountData,
   "currentPoolPresent" | "futurePoolPresent" | "poolCounters" | "tifs"
->;
+> & { exchangePair: ExchangePair };

@@ -4,17 +4,16 @@ const SET_SCHEDULE = "SET_SCHEDULE";
 
 const SET_PERIOD = "SET_PERIOD";
 
-const CLEAR_TIFS = "CLEAR_TIFS";
-
 const noDelayTif = -1;
 
 interface State {
-  periodTifs: number[] | undefined;
-  scheduleTifs: number[] | undefined;
-  tifs: number[] | undefined;
-  tifScheduled: number | undefined;
-  tifSelected: number | undefined;
-  tifsLeft: number[] | undefined;
+  indexedTifs: IndexedTIF[];
+  periodTifs: TIF[];
+  scheduleTifs: TIF[];
+  tifs: TIF[];
+  tifScheduled: number;
+  tifSelected: number;
+  tifsLeft: TIF[];
 }
 
 export const initialState = {
@@ -28,69 +27,7 @@ export const initialState = {
 
 // TODO: cover with better types & tests
 
-export default <S extends State, A extends Action<any>>(
-  state: S,
-  action: A
-) => {
-  if (!action) return state;
-
-  switch (action.type) {
-    case CLEAR_TIFS: {
-      const { tifs, tifsLeft } = action.payload;
-
-      return {
-        periodTifs: tifsLeft,
-        scheduleTifs: tifsLeft,
-        tifs,
-        tifScheduled: noDelayTif,
-        tifSelected: undefined,
-        tifsLeft,
-      };
-    }
-
-    case SET_TIFS: {
-      const { tifs, tifsLeft } = action.payload;
-      return {
-        periodTifs: tifsLeft,
-        scheduleTifs: [noDelayTif].concat(tifsLeft),
-        tifs,
-        tifScheduled: noDelayTif,
-        tifSelected: undefined,
-        tifsLeft,
-      };
-    }
-
-    case SET_SCHEDULE: {
-      const { tif } = action.payload;
-
-      return {
-        tifs: state.tifs,
-        tifsLeft: state.tifsLeft,
-        tifSelected: undefined,
-        tifScheduled: tif,
-        periodTifs: state.tifsLeft,
-        scheduleTifs: [noDelayTif].concat(state.tifsLeft ?? []),
-      };
-    }
-
-    case SET_PERIOD: {
-      const { tif } = action.payload;
-
-      return { ...state, tifSelected: tif };
-    }
-
-    default: {
-      return state;
-    }
-  }
-};
-
-const clearTifs = (payload: { tifs: number[]; tifsLeft: number[] }) => ({
-  type: CLEAR_TIFS,
-  payload,
-});
-
-const setTifs = (payload: { tifs: number[]; tifsLeft: number[] }) => ({
+const setTifs = (payload: { indexedTifs: IndexedTIF[] }) => ({
   type: SET_TIFS,
   payload,
 });
@@ -106,3 +43,65 @@ const setPeriod = (payload: { tif: number }) => ({
 });
 
 export const action = { setTifs, setSchedule, setPeriod };
+
+const sortTifs = (tifs: number[]) => tifs.sort((a, b) => a - b);
+
+export default <S extends Partial<State>, A extends Action<any>>(
+  state: S,
+  action: A // eslint-disable-line @typescript-eslint/no-shadow
+) => {
+  if (!action) return state;
+
+  switch (action.type) {
+    case SET_TIFS: {
+      const { indexedTifs }: Parameters<typeof setTifs>[0] = action.payload;
+
+      const tifsLeft = indexedTifs.map((d: IndexedTIF) => d.left);
+
+      return {
+        periodTifs: sortTifs(tifsLeft),
+        scheduleTifs: sortTifs([noDelayTif].concat(tifsLeft)),
+        indexedTifs,
+        tifScheduled: noDelayTif,
+        tifSelected: undefined,
+        tifsLeft,
+      };
+    }
+
+    case SET_SCHEDULE: {
+      const { indexedTifs } = state;
+      const { tif }: Parameters<typeof setSchedule>[0] = action.payload;
+
+      const tifsLeft = sortTifs(
+        indexedTifs?.map((d: IndexedTIF) => d.left) ?? []
+      );
+
+      let periodTifs;
+      if (tif === noDelayTif) {
+        periodTifs = tifsLeft;
+      } else {
+        const scheduledTif = indexedTifs?.find((d) => d.left === tif);
+        periodTifs = scheduledTif ? [scheduledTif.tif] : [];
+      }
+
+      return {
+        tifs: state.tifs,
+        tifsLeft: state.tifsLeft,
+        tifSelected: undefined,
+        tifScheduled: tif,
+        periodTifs,
+        scheduleTifs: [noDelayTif].concat(tifsLeft),
+      };
+    }
+
+    case SET_PERIOD: {
+      const { tif }: Parameters<typeof setPeriod>[0] = action.payload;
+
+      return { ...state, tifSelected: tif };
+    }
+
+    default: {
+      return state;
+    }
+  }
+};

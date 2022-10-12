@@ -14,12 +14,13 @@ import { useScheduleOrder } from "../../hooks/use-schedule-order";
 import { useTIFIntervals } from "../../hooks/use-tif-intervals";
 
 export interface Props {
+  onABSwap: () => void;
   onASelect: () => void;
   onBSelect: () => void;
-  onABSwap: () => void;
-  poolTifs: TMaybe<number[]>;
-  poolsCurrent: TMaybe<boolean[]>;
+  orderType: TMaybe<OrderType>;
   poolCounters: TMaybe<PoolCounter[]>;
+  poolsCurrent: TMaybe<boolean[]>;
+  poolTifs: TMaybe<number[]>;
   side: TMaybe<OrderType>;
   tokenA?: string;
   tokenADecimals?: number;
@@ -28,6 +29,7 @@ export interface Props {
   tokenB?: string;
   tokenBImage?: string;
   tokenBMint?: string;
+  tokenPair: TMaybe<TokenPair>;
 }
 
 type ValidationErrors = { a?: Error; b?: Error; amount?: Error };
@@ -35,12 +37,13 @@ type ValidationErrors = { a?: Error; b?: Error; amount?: Error };
 const defaultVal = Maybe.withDefault;
 
 export default ({
+  onABSwap,
   onASelect,
   onBSelect,
-  onABSwap,
-  poolTifs: mbTifs,
-  poolsCurrent: mbPoolsCurrent,
+  orderType: mbOrderType,
   poolCounters: mbPoolCounters,
+  poolsCurrent: mbPoolsCurrent,
+  poolTifs: mbTifs,
   side: mbSide,
   tokenA,
   tokenADecimals,
@@ -49,24 +52,33 @@ export default ({
   tokenB,
   tokenBImage,
   tokenBMint,
+  tokenPair: mbTokenPair,
 }: Props) => {
   const { execute } = useScheduleOrder();
 
   const [amount, setAmount] = useState<number>(0);
+  const [submitting, setSubmitting] = useState<boolean>(false);
   const [tif, setTif] = useState<number>();
 
   const tifs = defaultVal(undefined, mbTifs);
   const currentPoolPresent = defaultVal(undefined, mbPoolsCurrent);
   const poolCounters = defaultVal(undefined, mbPoolCounters);
   const side = defaultVal(undefined, mbSide);
+  const tokenPair = defaultVal(undefined, mbTokenPair);
+  const orderType = defaultVal(undefined, mbOrderType);
 
-  const intervals = useTIFIntervals({
-    aMint: tokenAMint,
-    bMint: tokenBMint,
-    tifs,
-    currentPoolPresent,
-    poolCounters,
-  });
+  const intervalTifs = useTIFIntervals(
+    tokenPair && tifs && currentPoolPresent && poolCounters
+      ? { tokenPair, tifs, currentPoolPresent, poolCounters }
+      : undefined
+  );
+
+  const { indexedTifs, intervals } = Maybe.withDefault(
+    { indexedTifs: undefined, intervals: [] },
+    Maybe.of(intervalTifs.data)
+  );
+
+  console.log({ indexedTifs: indexedTifs, intervals });
 
   const onChangeAmount = useCallback(
     (value: number) => {
@@ -109,7 +121,13 @@ export default ({
 
     console.log("SEND", params);
 
+    return;
+
+    setSubmitting(true);
+
     await execute(params);
+
+    setSubmitting(false);
   }, [
     execute,
     amount,
@@ -125,16 +143,16 @@ export default ({
   const schedule = useMemo(() => {
     if (!tifs) return undefined;
 
-    let intervals = tifs.filter((tif) => tif !== 0);
-    return intervals;
+    let intervals2 = tifs.filter((tif) => tif !== 0);
+    return intervals2;
   }, [tifs]);
 
   const isScheduled = false;
 
   const readableIntervals = useMemo(() => {
-    if (!intervals.data) return undefined;
+    if (!intervals) return undefined;
 
-    return intervals.data.map((interval) => {
+    return intervals.map((interval) => {
       const timeLeft = interval.left
         ? Number(((interval.left * 1e3 - Date.now()) / 1e3).toFixed(0))
         : interval.tif;
@@ -143,15 +161,13 @@ export default ({
     });
   }, [intervals]);
 
-  console.log("RI", readableIntervals);
-
   const intvals = !readableIntervals
     ? schedule
     : readableIntervals.filter(({ tif }) => tif).map((ri) => ri.tif);
 
   return (
     <Form onSubmit={onSubmit} validate={() => errors}>
-      {({ handleSubmit, submitting, valid }) => (
+      {({ handleSubmit, valid }) => (
         <form onSubmit={handleSubmit}>
           <Styled.TokenLabelBox>You pay</Styled.TokenLabelBox>
           <InTokenField
@@ -180,8 +196,8 @@ export default ({
           </Box>
           <Box py={2}>
             <TradeIntervals
-              intervals={Maybe.of(intervals.data)}
-              tifs={intvals}
+              intervals={Maybe.of(intervals)}
+              indexedTifs={Maybe.of(indexedTifs)}
               value={tif}
               onSelect={onIntervalSelect}
             />

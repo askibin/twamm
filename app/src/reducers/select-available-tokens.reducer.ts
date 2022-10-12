@@ -19,7 +19,7 @@ interface State {
   available?: string[];
   b?: JupToken;
   cancellable?: string[];
-  pairs?: TokenPair[];
+  pairs?: AddressPair[];
   type?: OrderType;
 }
 
@@ -42,7 +42,7 @@ const clearAll = (payload = {}) => ({
   payload,
 });
 
-const init = (payload: { pairs: TokenPair[] }) => ({
+const init = (payload: { pairs: AddressPair[] }) => ({
   type: INIT,
   payload,
 });
@@ -62,10 +62,10 @@ const swap = (payload = {}) => ({
   payload,
 });
 
-const flattenPairs = (pairs: TokenPair[]) =>
+const flattenPairs = (pairs: AddressPair[]) =>
   Array.from(new Set(flatten(pairs)).values());
 
-const matchPairs = (pair: TokenPair, pairs: TokenPair[]) => {
+const matchPairs = (pair: AddressPair, pairs: AddressPair[]) => {
   const matchedPair = pairs.find(
     (tokenPair) => tokenPair.includes(pair[0]) && tokenPair.includes(pair[1])
   );
@@ -137,7 +137,7 @@ export default <S extends Partial<State>, A extends Action<any>>(
 
       let type;
       if (b && !shouldClearOpposite) {
-        const pair: TokenPair = [token.address, b.address];
+        const pair: AddressPair = [token.address, b.address];
         type = matchPairs(pair, pairs);
       }
 
@@ -159,7 +159,7 @@ export default <S extends Partial<State>, A extends Action<any>>(
 
       let type;
       if (a) {
-        const pair: TokenPair = [a.address, token.address];
+        const pair: AddressPair = [a.address, token.address];
         type = matchPairs(pair, pairs);
       }
 

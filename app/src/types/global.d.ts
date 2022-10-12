@@ -7,4 +7,16 @@ declare type JupToken = {
   tags: string[] | undefined;
 };
 
-declare type TokenPair = [string, string];
+declare type AddressPair = [string, string];
+
+declare type TokenPair = [JupToken, JupToken];
+
+declare type TIF = number;
+
+declare type TIFIndex = number;
+
+declare type IndexedTIF = {
+  tif: TIF;
+  index: TIFIndex;
+  left: number;
+};

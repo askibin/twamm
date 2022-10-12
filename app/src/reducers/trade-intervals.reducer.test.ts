@@ -5,7 +5,6 @@ const emptyState = {
   scheduleTifs: undefined,
   tifScheduled: undefined,
   tifSelected: undefined,
-  tifs: undefined,
   tifsLeft: undefined,
 };
 
@@ -15,18 +14,27 @@ describe("trade-intervals", () => {
 
     const pairTifs = [1, 2, 3];
 
-    expect(reducer(initialState, undefined)).toEqual({});
     expect(
       reducer(
         initialState,
-        action.setTifs({ tifs: pairTifs, tifsLeft: pairTifs })
+        action.setTifs({
+          indexedTifs: pairTifs.map((tif, index) => ({
+            tif,
+            left: tif,
+            index,
+          })),
+        })
       )
     ).toEqual({
+      indexedTifs: [
+        { tif: 1, left: 1, index: 0 },
+        { tif: 2, left: 2, index: 1 },
+        { tif: 3, left: 3, index: 2 },
+      ],
       periodTifs: [1, 2, 3],
       scheduleTifs: [-1, 1, 2, 3],
       tifScheduled: -1,
       tifSelected: undefined,
-      tifs: [1, 2, 3],
       tifsLeft: [1, 2, 3],
     });
   });
@@ -37,7 +45,6 @@ describe("trade-intervals", () => {
       scheduleTifs: [-1, 2, 3, 4],
       tifScheduled: -1,
       tifSelected: undefined,
-      tifs: [1, 2, 3],
       tifsLeft: [1, 2, 3],
     };
 

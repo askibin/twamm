@@ -71,7 +71,7 @@ export default function TokenRatio({ pairs }: Props) {
   if (MaybeUtils.isNothing(availableMaybe))
     return MaybeUtils.nothing(Loading, availableMaybe);
 
-  console.log({ selectedPair });
+  const [tokenPair, orderType] = selectedPair.data?.exchangePair ?? [];
 
   return (
     <>
@@ -88,6 +88,7 @@ export default function TokenRatio({ pairs }: Props) {
             onABSwap={onTokenSwap}
             onASelect={onTokenAChoose}
             onBSelect={onTokenBChoose}
+            orderType={Maybe.of(orderType)}
             poolCounters={Maybe.of(selectedPair.data?.poolCounters)}
             poolsCurrent={Maybe.of(selectedPair.data?.currentPoolPresent)}
             poolTifs={Maybe.of(selectedPair.data?.tifs)}
@@ -99,6 +100,7 @@ export default function TokenRatio({ pairs }: Props) {
             tokenB={state.b?.symbol}
             tokenBImage={state.b?.logoURI}
             tokenBMint={state.b?.address}
+            tokenPair={Maybe.of(tokenPair)}
           />
         </Box>
       </Styled.Swap>

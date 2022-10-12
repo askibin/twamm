@@ -2,6 +2,8 @@ import Box from "@mui/material/Box";
 import { useCallback, useEffect, useReducer } from "react";
 
 import type { Maybe as TMaybe } from "../../types/maybe.d";
+import Maybe from "../../types/maybe";
+import type { TradeIntervals } from "../../hooks/use-tif-intervals";
 import intervalsReducer, {
   action,
   initialState,
@@ -11,29 +13,31 @@ import TimeInterval from "../atoms/time-interval";
 export type SelectedTif = [number];
 
 export interface Props {
-  intervals: TMaybe<any>;
+  indexedTifs: TMaybe<IndexedTIF[]>;
+  intervals: TMaybe<TradeIntervals>;
   onSelect: (arg0: SelectedTif) => void;
-  tifs?: number[];
   value: number;
 }
 
-// TODO: finalize intervals
-
-export default ({ onSelect, tifs, intervals, value: tif }: Props) => {
+export default ({
+  onSelect,
+  indexedTifs,
+  intervals,
+  value: tif,
+}: Props) => {
   const [state, dispatch] = useReducer(intervalsReducer, initialState);
 
-  console.log("tif", tif, intervals);
-
   useEffect(() => {
-    if (tifs && tifs !== state.tifs) {
-      dispatch(action.setTifs({ tifs, tifsLeft: tifs }));
-    }
+    Maybe.andThen2<IndexedTIF[], void>((data) => {
+      dispatch(action.setTifs({ indexedTifs: data }));
+    }, indexedTifs);
 
     return () => {};
-  }, [state.tifs, tifs]);
+  }, [indexedTifs]);
 
   const onScheduleSelect = useCallback(
     (value: number) => {
+      console.log("tif", intervals, { value });
       dispatch(action.setSchedule({ tif: value }));
 
       onSelect([value]);
@@ -56,6 +60,7 @@ export default ({ onSelect, tifs, intervals, value: tif }: Props) => {
         <TimeInterval
           info=""
           label="Schedule Order"
+          intervals={intervals}
           values={state.scheduleTifs}
           value={state.tifScheduled}
           onSelect={onScheduleSelect}
@@ -65,6 +70,7 @@ export default ({ onSelect, tifs, intervals, value: tif }: Props) => {
         <TimeInterval
           info=""
           label="Execution Period"
+          intervals={intervals}
           values={state.periodTifs}
           value={state.tifSelected}
           onSelect={onPeriodSelect}

@@ -2,11 +2,11 @@ export declare type MaybeError = [Error, any];
 
 export declare type MaybeResult<T> = [undefined, T];
 
-interface IForIt<T> {
+interface IForIt<T = any> {
   (fn: Promise<T>): Promise<MaybeResult<T> | MaybeError>;
 }
 
-export const forit: IForIt<any> = async (fn) => {
+export const forit: IForIt = async (fn) => {
   try {
     if (!fn) throw new Error("Absent fn");
 

@@ -44,6 +44,16 @@ const andThen = <A, B>(f: (arg0: A) => Maybe<B>, m: Maybe<A>): Maybe<B> => {
   }
 };
 
+const andThen2 = <A, B>(f: (arg0: A) => B, m: Maybe<A>): Maybe<B> => {
+  switch (m.type) {
+    case MaybeType.Just:
+      return JustImpl(f(m.value));
+    case MaybeType.Nothing:
+    default:
+      return NothingImpl();
+  }
+};
+
 const of = <T>(value: T): Maybe<T> =>
   value === undefined || value === null ? NothingImpl() : JustImpl(value);
 
@@ -59,7 +69,9 @@ const withDefault = <T>(defaultValue: T, m: Maybe<T>): T => {
 
 const MaybeImpl = {
   andMap: curry(andMap),
-  andThen: curry(andThen),
+  andThenC: curry(andThen),
+  andThen,
+  andThen2,
   of,
   tap, // uncurried due to unknown type
   withDefault, // uncurried,
