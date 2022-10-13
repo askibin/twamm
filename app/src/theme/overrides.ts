@@ -201,5 +201,5 @@ export const dark = {
 
 export default (theme: Theme) =>
   view(lensMode, theme) === "light"
-    ? { ...theme, ...light }
+    ? { ...theme, ...dark }
     : { ...theme, ...dark };
