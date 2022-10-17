@@ -8,7 +8,7 @@ import { useCallback, useMemo, useState } from "react";
 
 import CoinSelect from "../molecules/coin-select";
 import TokenTags from "../atoms/token-tags";
-import { useJupTokensByMint } from "../../hooks/use-jup-tokens-by-mints";
+import { useJupTokensByMint } from "../../hooks/use-jup-tokens-by-mint";
 import * as Styled from "./coin-select.styled";
 
 export interface Props {

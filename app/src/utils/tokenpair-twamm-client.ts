@@ -49,3 +49,19 @@ export const resolveExchangePair = (provider: Provider, program: Program) => {
     };
   };
 };
+
+export const fetchOrderByPoolAddress = (
+  provider: Provider,
+  program: Program
+) => {
+  const findProgramAddress = findAddress(program);
+
+  return async (address: PublicKey) => {
+    const pool = await program.account.pool.fetch(address);
+
+    const pair = await program.account.tokenPair.fetch(pool.tokenPair);
+    const mints = [pair.configA.mint, pair.configB.mint];
+
+    return { mints };
+  };
+};

@@ -3,29 +3,75 @@ import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import { useMemo } from "react";
 
+import type { Maybe as TMaybe } from "../../types/maybe.d";
+import Maybe from "../../types/maybe";
 import Table from "../atoms/table";
-import { useAccountOrders } from "../../hooks/use-account-orders";
+import TokensCell from "../atoms/account-orders-tokens-cell";
 
-export default () => {
-  const { data, error, isValidating } = useAccountOrders();
+export interface Props {
+  data: TMaybe<OrderData[]>;
+  error: TMaybe<Error>;
+  loading: boolean;
+  updating: boolean;
+}
 
-  const isLoading = !data && !error;
+export default (props: Props) => {
+  const data = Maybe.withDefault([], props.data);
+  const error = Maybe.withDefault(undefined, props.error);
 
-  const rows = useMemo(() => {
-    if (!data) return [];
-
-    return data.map(({ aName, bName }, i) => ({
-      id: i,
-      name: `${aName}-${bName}`,
-    }));
-  }, [data]);
+  const rows = useMemo(
+    () =>
+      data.map(
+        (
+          {
+            pool,
+            ptif = 0,
+            orderTime = 0,
+            timeLeft = 0,
+            quantity = 0,
+            filledQuantity = 0,
+          },
+          i
+        ) => ({
+          id: i,
+          ptif,
+          pool,
+          orderTime,
+          timeLeft,
+          quantity,
+          filledQuantity,
+        })
+      ),
+    [data]
+  );
 
   const columns = useMemo<GridColDef[]>(
     () => [
       {
-        headerName: "Name",
-        field: "name",
-        flex: 2,
+        headerName: "Token Pair",
+        field: "pool",
+        flex: 5,
+        renderCell: TokensCell,
+      },
+      {
+        headerName: "Pool Time Frame",
+        field: "ptif",
+      },
+      {
+        headerName: "Order Time",
+        field: "orderTime",
+      },
+      {
+        headerName: "Time Left",
+        field: "timeLeft",
+      },
+      {
+        headerName: "Quantity",
+        field: "quantity",
+      },
+      {
+        headerName: "Filled Quantity",
+        field: "filledQuantity",
       },
     ],
     []
@@ -42,11 +88,11 @@ export default () => {
             autoHeight: true,
             columns,
             error,
-            loading: isLoading,
+            loading: props.loading,
             rows,
           }}
-          filterColumnField="name"
-          isUpdating={!isLoading && isValidating}
+          filterColumnField="pool"
+          isUpdating={props.updating}
           searchBoxPlaceholderText="Search orders"
         />
       </Box>

@@ -8,22 +8,6 @@ import { useProgram } from "./use-program";
 
 export type TradeIntervals = IndexedTIF;
 
-type TokenPairPoolData = {
-  buySide: {
-    maxFillPrice: number;
-    minFillPrice: number;
-  };
-  expirationTime: {
-    toNumber(): number;
-  };
-  sellSide: {
-    maxFillPrice: number;
-    minFillPrice: number;
-  };
-  timeInForce: number;
-  // status: { locked: {} }
-};
-
 type SettledTokenPairPool<T = TokenPairPoolData> =
   | PromiseSettledResult<T>
   | PromiseRejectedResult;
