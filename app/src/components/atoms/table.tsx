@@ -66,6 +66,7 @@ export default ({
           size="small"
           placeholder={searchBoxPlaceholderText ?? "Search"}
           onChange={onFilterChange}
+          disabled
         />
       </Box>
 
