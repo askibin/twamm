@@ -5,8 +5,13 @@ import { useMemo } from "react";
 
 import type { Maybe as TMaybe } from "../../types/maybe.d";
 import Maybe from "../../types/maybe";
+import PoolFilledQuantityCell from "../atoms/account-order-pool-filled-quantity-cell";
+import PoolOrderTimeCell from "../atoms/account-order-pool-order-time-cell";
+import PoolQuantityCell from "../atoms/account-order-pool-quantity-cell";
+import PoolTIFCell from "../atoms/account-order-pool-tif-cell";
+import PoolTIFLeftCell from "../atoms/account-order-pool-tif-left-cell";
 import Table from "../atoms/table";
-import TokensCell from "../atoms/account-orders-tokens-cell";
+import TokenPairCell from "../atoms/account-order-token-pair-cell";
 
 export interface Props {
   data: TMaybe<OrderData[]>;
@@ -21,27 +26,13 @@ export default (props: Props) => {
 
   const rows = useMemo(
     () =>
-      data.map(
-        (
-          {
-            pool,
-            ptif = 0,
-            orderTime = 0,
-            timeLeft = 0,
-            quantity = 0,
-            filledQuantity = 0,
-          },
-          i
-        ) => ({
-          id: i,
-          ptif,
-          pool,
-          orderTime,
-          timeLeft,
-          quantity,
-          filledQuantity,
-        })
-      ),
+      data.map(({ pool, side, time }) => ({
+        id: pool.toBase58(),
+        pool,
+        orderTime: time.toNumber(),
+        quantity: side,
+        filledQuantity: side,
+      })),
     [data]
   );
 
@@ -51,27 +42,38 @@ export default (props: Props) => {
         headerName: "Token Pair",
         field: "pool",
         flex: 5,
-        renderCell: TokensCell,
+        renderCell: TokenPairCell,
       },
       {
         headerName: "Pool Time Frame",
         field: "ptif",
+        renderCell: PoolTIFCell,
+        width: 80,
       },
       {
         headerName: "Order Time",
         field: "orderTime",
+        renderCell: PoolOrderTimeCell,
+        flex: 4,
       },
       {
         headerName: "Time Left",
         field: "timeLeft",
+        renderCell: PoolTIFLeftCell,
       },
       {
         headerName: "Quantity",
         field: "quantity",
+        width: 80,
+        resizable: false,
+        renderCell: PoolQuantityCell,
       },
       {
         headerName: "Filled Quantity",
         field: "filledQuantity",
+        width: 80,
+        resizable: false,
+        renderCell: PoolFilledQuantityCell,
       },
     ],
     []

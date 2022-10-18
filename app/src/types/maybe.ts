@@ -78,7 +78,8 @@ const withDefault = <T>(defaultValue: T, m: Maybe<T>): T => {
 };
 
 const MaybeImpl = {
-  andMap: curry(andMap),
+  andMap,
+  andMapC: curry(andMap),
   andThenC: curry(andThen),
   andThen,
   andThen2,
@@ -89,6 +90,38 @@ const MaybeImpl = {
 };
 
 export default MaybeImpl;
+
+const as = <A, B>(f: (arg0: Maybe<A>) => Maybe<B>, m: Maybe<A>): Maybe<B> => {
+  switch (m.type) {
+    case MaybeType.Just: {
+      return f(m);
+    }
+    case MaybeType.Nothing:
+    default:
+      return NothingImpl();
+  }
+};
+
+const combine = <A>(m: Array<Maybe<A>>): Maybe<Array<A>> => {
+  const list: Array<A> = [];
+  let isNothing = false;
+
+  m.forEach((mb) => {
+    if (isNothing) return;
+    const res = MaybeImpl.consume<A, A>((x) => x, mb);
+
+    if (!res) isNothing = true;
+    else list.push(res);
+  });
+
+  if (!isNothing) return JustImpl(list);
+  return NothingImpl();
+};
+
+export const Extra = {
+  as,
+  combine,
+};
 
 const isNothing = <T = any>(maybeNothing: Maybe<T> | any): boolean => {
   if (!maybeNothing.type) throw new Error("Not a Maybe type");

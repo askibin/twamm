@@ -1,6 +1,6 @@
 declare type OrderType = "sell" | "buy";
 
-declare type OrderTypeStruct<T = OrderType> = { [key: T]: {} };
+declare type OrderTypeStruct = { sell: {} } & { buy: {} };
 
 declare type PoolCounter = any;
 
@@ -39,16 +39,16 @@ declare type OrderData = {
   unsettledBalance: BN;
 };
 
+type OrderSide = {
+  maxFillPrice: number;
+  minFillPrice: number;
+  fillsVolume: BN;
+};
+
 declare type PoolData = {
-  buySide: {
-    maxFillPrice: number;
-    minFillPrice: number;
-  };
+  buySide: OrderSide;
   expirationTime: BN;
-  sellSide: {
-    maxFillPrice: number;
-    minFillPrice: number;
-  };
+  sellSide: OrderSide;
   timeInForce: number;
   tokenPair: BN;
   // status: { locked: {} }

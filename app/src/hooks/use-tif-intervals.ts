@@ -4,6 +4,7 @@ import { Pool } from "@twamm/client.js";
 import { PublicKey } from "@solana/web3.js";
 import { zipWith } from "ramda";
 
+import { expirationTimeToInterval } from "../utils/index";
 import { useProgram } from "./use-program";
 
 export type TradeIntervals = IndexedTIF;
@@ -40,18 +41,6 @@ const populateTokenPairPool = <A, B, C>(
   status: y.status,
   data: y.status === "fulfilled" ? y.value : undefined,
 });
-
-const expirationTimeToInterval = (
-  expirationTime: number | undefined,
-  tif: number
-) => {
-  if (!expirationTime) return tif;
-
-  let delta = expirationTime * 1e3 - Date.now();
-  delta = delta <= 0 ? 0 : Number((delta / 1e3).toFixed(0));
-
-  return delta;
-};
 
 const fetcher =
   (program: Program) =>
