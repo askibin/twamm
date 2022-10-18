@@ -1,7 +1,7 @@
-import type { GridColDef } from "@mui/x-data-grid-pro";
+import type { GridColDef, GridRowParams } from "@mui/x-data-grid-pro";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
-import { useMemo } from "react";
+import { useCallback, useMemo, useRef } from "react";
 
 import type { Maybe as TMaybe } from "../../types/maybe.d";
 import Maybe from "../../types/maybe";
@@ -12,6 +12,7 @@ import PoolTIFCell from "../atoms/account-order-pool-tif-cell";
 import PoolTIFLeftCell from "../atoms/account-order-pool-tif-left-cell";
 import Table from "../atoms/table";
 import TokenPairCell from "../atoms/account-order-token-pair-cell";
+import OrderDetails from "./account-order-details";
 
 export interface Props {
   data: TMaybe<OrderData[]>;
@@ -79,6 +80,13 @@ export default (props: Props) => {
     []
   );
 
+  const getDetailPanelContent = useCallback(
+    (props: GridRowParams) => console.log(props) || <OrderDetails />,
+    []
+  );
+
+  const getDetailPanelHeight = useRef(() => 56);
+
   return (
     <Box>
       <Typography pb={2} variant="h4">
@@ -90,6 +98,8 @@ export default (props: Props) => {
             autoHeight: true,
             columns,
             error,
+            getDetailPanelContent,
+            // getDetailPanelHeight: getDetailPanelHeight.current,
             loading: props.loading,
             rows,
           }}

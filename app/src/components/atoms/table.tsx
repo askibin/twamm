@@ -1,5 +1,4 @@
 import { TextField, Typography } from "@mui/material";
-import Box from "@mui/material/Box";
 import { useCallback, useMemo, useState } from "react";
 import type {
   DataGridProProps,
@@ -24,7 +23,7 @@ export default ({
   getRowId,
   gridProps,
   isUpdating = false,
-  onRowClick = () => {},
+  onRowClick,
   searchBoxPlaceholderText,
 }: Props) => {
   const [filterText, setFilterText] = useState("");
@@ -54,21 +53,14 @@ export default ({
 
   return (
     <>
-      <Box
-        sx={{
-          alignItems: "center",
-          display: "flex",
-          justifyContent: "space-between",
-          marginBottom: "24px",
-        }}
-      >
+      <Styled.Search>
         <TextField
           size="small"
           placeholder={searchBoxPlaceholderText ?? "Search"}
           onChange={onFilterChange}
           disabled
         />
-      </Box>
+      </Styled.Search>
 
       <Styled.Grid
         density="compact"
