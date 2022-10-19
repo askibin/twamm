@@ -1,7 +1,5 @@
-import swr from "swr";
+import useSWR from "swr";
 
-import type { APIHook } from "../utils/api";
-import { dedupeEach, revalOnFocus } from "../utils/api";
 import { useJupTokens } from "./use-jup-tokens";
 
 const swrKey = (params: { mints: string[] }) => ({
@@ -10,7 +8,7 @@ const swrKey = (params: { mints: string[] }) => ({
 });
 
 const fetcher =
-  (tokens?: JupToken[]) =>
+  (tokens?: JupTokenData[]) =>
   async ({ params }: ReturnType<typeof swrKey>) => {
     if (!tokens) return [];
 
@@ -23,12 +21,10 @@ const fetcher =
     return selectedTokens;
   };
 
-export const useJupTokensByMint: APIHook<string[], JupToken[]> = (mints) => {
+export const useJupTokensByMint = (mints: string[], options = {}) => {
   const jupTokens = useJupTokens();
-
-  const opts = { ...dedupeEach(60e3), ...revalOnFocus() };
 
   const isValid = jupTokens.data && mints;
 
-  return swr(isValid && swrKey({ mints }), fetcher(jupTokens.data), opts);
+  return useSWR(isValid && swrKey({ mints }), fetcher(jupTokens.data), options);
 };

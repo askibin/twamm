@@ -12,6 +12,7 @@ import Loading from "../atoms/loading";
 import Maybe, { MaybeUtils } from "../../types/maybe";
 import TokenPairForm from "../molecules/token-pair-form";
 import { useTokenPair } from "../../hooks/use-token-pair";
+import { refreshEach } from "../../swr-options";
 
 export interface Props {
   pairs: TMaybe<AddressPair[]>;
@@ -22,8 +23,10 @@ export default function TokenRatio({ pairs }: Props) {
   const [curToken, setCurToken] = useState<number>();
   const [state, dispatch] = useReducer(availableTokens, initialState);
 
+  // Should continiously update the pair to fetch actual data
   const selectedPair = useTokenPair(
-    state.a && state.b && { aToken: state.a, bToken: state.b }
+    state.a && state.b && { aToken: state.a, bToken: state.b },
+    refreshEach()
   );
 
   const availableMaybe = Maybe.of(state.available);

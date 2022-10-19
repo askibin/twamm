@@ -1,10 +1,9 @@
 import type { Program } from "@project-serum/anchor";
 import type { PublicKey } from "@solana/web3.js";
-import swr from "swr";
+import useSWR from "swr";
 import { useWallet } from "@solana/wallet-adapter-react";
 
 import type { APIHook } from "../utils/api";
-import { dedupeEach, revalOnFocus } from "../utils/api";
 import { useProgram } from "./use-program";
 
 const swrKey = (params: { account: PublicKey; address: PublicKey }) => ({
@@ -34,11 +33,9 @@ export const usePoolWithTokenPairByPoolAddress: APIHook<
   const { publicKey: account } = useWallet();
   const { program } = useProgram();
 
-  const opts = { ...dedupeEach(5e3), ...revalOnFocus(), ...options };
-
-  return swr(
+  return useSWR(
     address && account && swrKey({ address, account }),
     fetcher(program),
-    opts
+    options
   );
 };

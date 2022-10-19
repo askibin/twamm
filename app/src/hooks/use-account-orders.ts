@@ -1,11 +1,10 @@
 import type { Provider, Program } from "@project-serum/anchor";
 import type { PublicKey } from "@solana/web3.js";
-import swr from "swr";
+import useSWR from "swr";
 import { findAddress } from "@twamm/client.js/lib/program";
 import { useWallet } from "@solana/wallet-adapter-react";
 
 import type { APIHook } from "../utils/api";
-import { dedupeEach, revalOnFocus } from "../utils/api";
 import { fetchOrderByPoolAddress } from "../utils/tokenpair-twamm-client";
 import { useProgram } from "./use-program";
 import { useOrders } from "./use-orders";
@@ -54,12 +53,10 @@ export const useAccountOrders: APIHook<void, any> = (_, options = {}) => {
 
   const orders = useOrders();
 
-  const opts = { ...dedupeEach(5e3), ...revalOnFocus(), ...options };
-
-  const pair = swr(
+  const pair = useSWR(
     account && orders.data && swrKey({ account, orders: orders.data }),
     fetcher(provider, program),
-    opts
+    options
   );
 
   return swr(pair.data && "orderTokenPair");

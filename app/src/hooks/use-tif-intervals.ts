@@ -1,5 +1,5 @@
 import type { Program } from "@project-serum/anchor";
-import swr from "swr";
+import useSWR from "swr";
 import { Pool } from "@twamm/client.js";
 import { PublicKey } from "@solana/web3.js";
 import { zipWith } from "ramda";
@@ -128,11 +128,9 @@ export const useTIFIntervals = (
 ) => {
   const { program } = useProgram();
 
-  const opts = { refreshInterval: 180e3, ...options };
-
   const isValid = tokenPair && tifs && currentPoolPresent && poolCounters;
 
-  return swr(
+  return useSWR(
     isValid &&
       swrKey({
         tokenPair,
@@ -141,6 +139,6 @@ export const useTIFIntervals = (
         poolCounters,
       }),
     fetcher(program),
-    opts
+    options
   );
 };

@@ -7,6 +7,11 @@ declare type JupToken = {
   tags: string[] | undefined;
 };
 
+declare type JupTokenData = Pick<
+  JupToken,
+  "name" | "decimals" | "symbol" | "logoURI" | "address"
+>;
+
 declare type AddressPair = [string, string];
 
 declare type TokenPair = [JupToken, JupToken];

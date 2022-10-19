@@ -6,4 +6,4 @@ export const Container = styled(Box)`
   padding: ${({ theme }) => theme.spacing(2)};
 `;
 
-export const Stat = styled(Card)``
+export const Stat = styled(Card)``;

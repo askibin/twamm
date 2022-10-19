@@ -22,14 +22,9 @@ export default (params: Params) => {
   return (
     <Styled.Container>
       <WalletGuard>
-        <Styled.Stat>
-          234
-        </Styled.Stat>
+        <Styled.Stat>234</Styled.Stat>
 
-        <Styled.Stat>
-          234
-        </Styled.Stat>
-
+        <Styled.Stat>234</Styled.Stat>
       </WalletGuard>
     </Styled.Container>
   );

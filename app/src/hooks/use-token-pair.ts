@@ -1,8 +1,6 @@
 import type { Provider, Program } from "@project-serum/anchor";
-import swr from "swr";
+import useSWR from "swr";
 
-import type { APIHook } from "../utils/api";
-import { dedupeEach, refreshEach } from "../utils/api";
 import { useProgram } from "./use-program";
 import { resolveExchangePair } from "../utils/tokenpair-twamm-client";
 
@@ -35,14 +33,8 @@ const fetcher = (provider: Provider, program: Program) => {
   };
 };
 
-export const useTokenPair: APIHook<Params, TokenPairData> = (
-  params,
-  options = {}
-) => {
+export const useTokenPair = (params?: Params, options = {}) => {
   const { provider, program } = useProgram();
 
-  const opts = { ...dedupeEach(30e3), ...refreshEach(), ...options };
-
-  return swr(params && swrKey(params), fetcher(provider, program), opts);
-  // Should continiously update the pair to fetch actual data
+  return useSWR(params && swrKey(params), fetcher(provider, program), options);
 };
