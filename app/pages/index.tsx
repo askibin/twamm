@@ -1,5 +1,4 @@
 import type { NextPage } from "next";
-import type { SWRConfiguration } from "swr";
 import Box from "@mui/material/Box";
 import Head from "next/head";
 import { SWRConfig } from "swr";
