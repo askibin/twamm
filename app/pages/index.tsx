@@ -50,7 +50,7 @@ const Home: NextPage = () => {
         <title>Twamm</title>
       </Head>
       <div className={styles.root}>
-        <SWRConfig value={swrConfig as SWRConfiguration}>
+        <SWRConfig value={swrConfig}>
           <OfflineOverlay />
           <Header />
           <Box className={styles.main} component="main" pt={10}>

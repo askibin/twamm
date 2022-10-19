@@ -1,6 +1,6 @@
-type StorageMap = Map<any, any>;
+import type { Cache } from "swr";
 
-export function localStorageProvider(storage: StorageMap) {
+export function localStorageProvider(storage: Cache) {
   if (!globalThis.localStorage) return storage ?? new Map([]);
 
   const map = new Map<any, any>(

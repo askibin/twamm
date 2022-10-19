@@ -33,11 +33,11 @@ export const revalOnFocus = (revalidateOnFocus = false) => ({
 export const refreshEach = (refreshInterval = 5000) => ({ refreshInterval });
 
 interface ConfigurationWithProvider extends SWRConfiguration {
-  provider: typeof provider;
+  provider?: typeof provider;
 }
 
-export default (config: SWRConfiguration): ConfigurationWithProvider => ({
-  ...config,
+export default (config?: SWRConfiguration): ConfigurationWithProvider => ({
+  ...(config || {}),
   ...dedupeEach(20e3),
   ...revalOnFocus(),
   ...retryFor(),
