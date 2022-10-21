@@ -1,19 +1,24 @@
-/* eslint-disable */
-import {
-  PublicKey,
-  SystemProgram,
-  SYSVAR_RENT_PUBKEY,
-  Transaction,
-  TransactionInstruction,
-} from "@solana/web3.js";
-import * as Token from "@solana/spl-token";
+import type { Address, AccountNamespace } from "@project-serum/anchor";
+import type { PublicKey } from "@solana/web3.js";
+import { translateAddress } from "@project-serum/anchor";
 
-const DECIMALS = 9;
+export const address = (account: Address) => ({
+  toString() {
+    return translateAddress(account).toBase58();
+  },
+  toAddress() {
+    return translateAddress(account);
+  },
+});
 
-export const sellWrappedSolInstructions = (
-  from: PublicKey,
-  to: PublicKey,
-  uiAmount: number
-) => {
-  //const instructions =
-};
+export const poolClient = (account: AccountNamespace) => ({
+  async getPool(addr: PublicKey) {
+    return account.pool.fetch(addr);
+  },
+});
+
+export const tokenPairClient = (account: AccountNamespace) => ({
+  async getTokenPair(addr: PublicKey) {
+    return account.tokenPair.fetch(addr);
+  },
+});

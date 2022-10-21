@@ -66,7 +66,7 @@ const fetcher = (api: ReturnType<typeof useCoingeckoContractApi>) => {
   };
 };
 
-export const useTokensByMint: APIHook<string[], MaybeTokens> = (
+export const useTokensByMint: APIHook<string[] | undefined, MaybeTokens> = (
   params,
   options = {}
 ) => {

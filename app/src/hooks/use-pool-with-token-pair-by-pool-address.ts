@@ -4,6 +4,7 @@ import useSWR from "swr";
 import { useWallet } from "@solana/wallet-adapter-react";
 
 import type { APIHook } from "../utils/api";
+import { poolClient, tokenPairClient } from "../utils/twamm-client";
 import { useProgram } from "./use-program";
 
 const swrKey = (params: { account: PublicKey; address: PublicKey }) => ({
@@ -13,17 +14,20 @@ const swrKey = (params: { account: PublicKey; address: PublicKey }) => ({
 
 type Params = Parameters<typeof swrKey>[0];
 
-const fetcher =
-  (program: Program) =>
-  async ({ params: { address } }: ReturnType<typeof swrKey>) => {
-    const p: unknown = await program.account.pool.fetch(address);
+const fetcher = (program: Program) => {
+  const poolCli = poolClient(program.account);
+  const tokenPairCli = tokenPairClient(program.account);
+
+  return async ({ params: { address } }: ReturnType<typeof swrKey>) => {
+    const p: unknown = await poolCli.getPool(address);
     const pool = p as PoolData;
 
-    const tp: unknown = await program.account.tokenPair.fetch(pool.tokenPair);
+    const tp: unknown = await tokenPairCli.getTokenPair(pool.tokenPair);
     const tokenPair = tp as TokenPairAccountData;
 
     return { pool, pair: tokenPair };
   };
+};
 
 export const usePoolWithTokenPairByPoolAddress: APIHook<
   Pick<Params, "address">,

@@ -1,7 +1,7 @@
 import type { GridColDef, GridRowParams } from "@mui/x-data-grid-pro";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
-import { useCallback, useMemo, useRef } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 
 import type { Maybe as TMaybe } from "../../types/maybe.d";
 import Maybe from "../../types/maybe";
@@ -13,6 +13,7 @@ import PoolTIFLeftCell from "../atoms/account-order-pool-tif-left-cell";
 import Table from "../atoms/table";
 import TokenPairCell from "../atoms/account-order-token-pair-cell";
 import OrderDetails from "./account-order-details";
+import { address } from "../../utils/twamm-client";
 
 export interface Props {
   data: TMaybe<OrderData[]>;
@@ -27,13 +28,19 @@ export default (props: Props) => {
 
   const rows = useMemo(
     () =>
-      data.map(({ pool, side, time }) => ({
-        id: pool.toBase58(),
-        pool,
-        orderTime: time.toNumber(),
-        quantity: side,
-        filledQuantity: side,
-      })),
+      data.map(({ pool, side, time, ...args }, i) => {
+        if (i === 0) {
+          console.log({ pool, time, args });
+        }
+        return {
+          filledQuantity: side,
+          id: address(pool).toString(),
+          orderTime: time,
+          pool,
+          quantity: side,
+          side,
+        };
+      }),
     [data]
   );
 
@@ -81,25 +88,26 @@ export default (props: Props) => {
   );
 
   const getDetailPanelContent = useCallback(
-    (props: GridRowParams) => console.log(props) || <OrderDetails />,
+    (rowProps: GridRowParams) => <OrderDetails address={rowProps.row.pool} />,
     []
   );
 
-  const getDetailPanelHeight = useRef(() => 56);
+  const [detailsHeight] = useState(310);
+  const getDetailPanelHeight = useRef(() => detailsHeight);
 
   return (
     <Box>
       <Typography pb={2} variant="h4">
         My Orders
       </Typography>
-      <Box>
+      <Box minWidth="680px">
         <Table
           gridProps={{
             autoHeight: true,
             columns,
             error,
             getDetailPanelContent,
-            // getDetailPanelHeight: getDetailPanelHeight.current,
+            getDetailPanelHeight: getDetailPanelHeight.current,
             loading: props.loading,
             rows,
           }}

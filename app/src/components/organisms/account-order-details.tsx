@@ -1,30 +1,89 @@
 import type { PublicKey } from "@solana/web3.js";
-import type { GridColDef } from "@mui/x-data-grid-pro";
-import { useMemo } from "react";
+import Stack from "@mui/material/Stack";
+import Button from "@mui/material/Button";
+import Grid from "@mui/material/Grid";
+import { useCallback, useEffect, useMemo, useRef } from "react";
 
-import Table from "../atoms/table";
-import WalletGuard from "./wallet-guard";
+import type { Maybe as TMaybe } from "../../types/maybe.d";
 import * as Styled from "./account-order-details.styled";
+import Control from "../atoms/account-orders-details-control";
+import DataCard from "../atoms/details-card";
+import Loading from "../atoms/loading";
+import Maybe from "../../types/maybe";
+import WalletGuard from "./wallet-guard";
+import { usePoolDetails } from "../../hooks/use-pool-details";
+import { format } from "./account-order-details.helpers";
 
-export interface Params {
+export interface Props {
   address: PublicKey;
 }
 
-export default (params: Params) => {
-  const poolInception = { data: new Date() };
-  const poolExpiration = { data: new Date() };
-  const totalAssets = { data: [10, 100] };
-  const totalAssetsSymbols = { data: ["SOL", "USDC"] };
-  const prices = { data: [28.82, 30.12, 32.32] };
-  const accountAssets = { data: [9, 99] };
-  const accountAvgPrice = { data: [30.12] };
+export default ({ address }: Props) => {
+  const details = usePoolDetails(address);
+
+  const fields = useMemo(() => {
+    const data = Maybe.of(details.data);
+
+    return [
+      {
+        name: "Pool Inception",
+        data: format.inceptionTime(data),
+      },
+      {
+        name: "Pool Expiration",
+        data: format.expirationTime(data),
+      },
+      {
+        name: "Last Changed",
+        data: format.lastBalanceChangeTime(data),
+      },
+      {
+        name: "Total Assets",
+        data: format.totalAssets(data),
+      },
+      {
+        name: "Min/Avg/Max Price",
+        data: format.prices(data),
+      },
+    ];
+  }, [details.data]);
+
+  const sizes = useMemo(() => ({ xs: 4, sm: 4, md: 3 }), []);
+
+  const onCancelOrder = useCallback(() => {
+    console.log("onCancel");
+  }, []);
+
+  if (details.isLoading)
+    return (
+      <Styled.Container>
+        <Loading />
+      </Styled.Container>
+    );
 
   return (
     <Styled.Container>
       <WalletGuard>
-        <Styled.Stat>234</Styled.Stat>
-
-        <Styled.Stat>234</Styled.Stat>
+        <Stack direction="column" spacing={2}>
+          <Grid container spacing={2} wrap="wrap">
+            <Styled.Column item md={sizes.md} sm={sizes.sm} xs={sizes.xs}>
+              <DataCard data={fields[0].data} name={fields[0].name} />
+            </Styled.Column>
+            <Styled.Column item md={sizes.md} sm={sizes.sm} xs={sizes.xs}>
+              <DataCard data={fields[1].data} name={fields[1].name} />
+            </Styled.Column>
+            <Styled.Column item md={sizes.md} sm={sizes.sm} xs={sizes.xs}>
+              <DataCard data={fields[2].data} name={fields[2].name} />
+            </Styled.Column>
+            <Styled.Column item md={sizes.md} sm={sizes.sm} xs={sizes.xs}>
+              <DataCard data={fields[3].data} name={fields[3].name} />
+            </Styled.Column>
+            <Styled.Column item md={sizes.md} sm={sizes.sm} xs={sizes.xs}>
+              <DataCard data={fields[4].data} name={fields[4].name} />
+            </Styled.Column>
+          </Grid>
+          <Control details={Maybe.of(details.data)} onClick={onCancelOrder} />
+        </Stack>
       </WalletGuard>
     </Styled.Container>
   );
