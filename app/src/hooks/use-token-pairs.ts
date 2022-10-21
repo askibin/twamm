@@ -14,7 +14,7 @@ const swrKey = (params: { address: PublicKey }) => ({
 const fetcher = <T>(provider: Provider, program: Program) => {
   const data = account.getEncodedDiscriminator("TokenPair");
 
-  return async (): Promise<T> => {
+  return async () => {
     const pairs = await provider.connection.getProgramAccounts(
       program.programId,
       {
@@ -31,16 +31,13 @@ const fetcher = <T>(provider: Provider, program: Program) => {
   };
 };
 
-export const useTokenPairs = <T = TokenPairProgramData[]>(
-  _: void,
-  options = {}
-) => {
+export const useTokenPairs = (_: void, options = {}) => {
   const { program, provider } = useProgram();
   const { publicKey: address } = useWallet();
 
   return useSWR(
     address && swrKey({ address }),
-    fetcher<T>(provider, program),
+    fetcher<TokenPairProgramData[]>(provider, program),
     options
   );
 };

@@ -21,6 +21,8 @@ declare type TokenPairAccountData = {
   configA: PairTokenConfigData;
   configB: PairTokenConfigData;
   currentPoolPresent: boolean[];
+  feeDenominator: BN;
+  feeNumerator: BN;
   futurePoolPresent: boolean[];
   inceptionTime: BN;
   poolCounters: PoolCounter[];

@@ -5,8 +5,7 @@ import * as Styled from "./swap.styled";
 import Maybe from "../../types/maybe";
 import ModeToggle from "../atoms/mode-toggle";
 import TokenRatio from "../organisms/token-ratio";
-import { useTokenPairs } from "../../hooks/use-token-pairs";
-import { withKeypair } from "../../hooks/middlewares";
+import { useAddressPairs } from "../../hooks/use-address-pairs";
 
 export interface Props {
   mode: string;
@@ -14,9 +13,7 @@ export interface Props {
 }
 
 export default ({ mode, onModeChange }: Props) => {
-  const tokenPairs = useTokenPairs<AddressPair[]>(undefined, {
-    use: [withKeypair],
-  });
+  const tokenPairs = useAddressPairs();
 
   return (
     <Container maxWidth="sm">
