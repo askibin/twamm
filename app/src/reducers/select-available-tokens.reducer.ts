@@ -15,9 +15,9 @@ const SELECT_B = "SELECT_B";
 const SWAP = "SWAP";
 
 interface State {
-  a?: JupToken;
+  a?: TokenInfo;
   available?: string[];
-  b?: JupToken;
+  b?: TokenInfo;
   cancellable?: string[];
   pairs?: AddressPair[];
   type?: OrderType;
@@ -47,12 +47,12 @@ const init = (payload: { pairs: AddressPair[] }) => ({
   payload,
 });
 
-const selectA = (payload: { token: JupToken }) => ({
+const selectA = (payload: { token: TokenInfo }) => ({
   type: SELECT_A,
   payload,
 });
 
-const selectB = (payload: { token: JupToken }) => ({
+const selectB = (payload: { token: TokenInfo }) => ({
   type: SELECT_B,
   payload,
 });

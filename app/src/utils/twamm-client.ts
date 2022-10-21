@@ -13,12 +13,16 @@ export const address = (account: Address) => ({
 
 export const poolClient = (account: AccountNamespace) => ({
   async getPool(addr: PublicKey) {
-    return account.pool.fetch(addr);
+    const a: unknown = account.pool.fetch(addr);
+
+    return a as PoolData;
   },
 });
 
 export const tokenPairClient = (account: AccountNamespace) => ({
   async getTokenPair(addr: PublicKey) {
-    return account.tokenPair.fetch(addr);
+    const a: unknown = account.tokenPair.fetch(addr);
+
+    return a as TokenPairProgramData;
   },
 });

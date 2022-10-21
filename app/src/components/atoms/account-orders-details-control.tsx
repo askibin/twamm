@@ -1,6 +1,5 @@
 import Button from "@mui/material/Button";
 
-import type { PoolDetails } from "../../hooks/use-pool-details";
 import type { Maybe as TMaybe } from "../../types/maybe.d";
 import Maybe from "../../types/maybe";
 

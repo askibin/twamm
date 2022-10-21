@@ -28,19 +28,14 @@ export default (props: Props) => {
 
   const rows = useMemo(
     () =>
-      data.map(({ pool, side, time, ...args }, i) => {
-        if (i === 0) {
-          console.log({ pool, time, args });
-        }
-        return {
-          filledQuantity: side,
-          id: address(pool).toString(),
-          orderTime: time,
-          pool,
-          quantity: side,
-          side,
-        };
-      }),
+      data.map(({ pool, side, time }) => ({
+        filledQuantity: side,
+        id: address(pool).toString(),
+        orderTime: time,
+        pool,
+        quantity: side,
+        side,
+      })),
     [data]
   );
 

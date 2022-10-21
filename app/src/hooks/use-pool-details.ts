@@ -1,27 +1,13 @@
 import type { PublicKey } from "@solana/web3.js";
 import useSWR from "swr";
 
-import { address } from "../utils/twamm-client";
+import { address as addr } from "../utils/twamm-client";
 import { useJupTokensByMint } from "./use-jup-tokens-by-mint";
 import { usePoolWithTokenPairByPoolAddress } from "./use-pool-with-token-pair-by-pool-address";
 
-export interface PoolDetails {
-  expirationTime: Date;
-  expired: boolean;
-  inactive: boolean;
-  inceptionTime: Date;
-  lastBalanceChangeTime: Date;
-  lpSupply: number[];
-  lpSymbols: string[];
-  prices: string[];
-}
-
 const mintsKey = (pair?: TokenPairAccountData) =>
   pair
-    ? [
-        address(pair.configA.mint).toString(),
-        address(pair.configB.mint).toString(),
-      ]
+    ? [addr(pair.configA.mint).toString(), addr(pair.configB.mint).toString()]
     : undefined;
 
 export const usePoolDetails = (address: PublicKey) => {
@@ -66,8 +52,6 @@ export const usePoolDetails = (address: PublicKey) => {
         prices: [min.toFixed(2), ((max + min) / 2).toFixed(2), max.toFixed(2)],
         volume: statsA.orderVolumeUsd + statsB.orderVolumeUsd,
       };
-
-      console.log({ next });
 
       return next;
     }

@@ -67,7 +67,7 @@ export default function TokenRatio({ pairs }: Props) {
   }, []);
 
   const onCoinSelect = useCallback(
-    (token: JupToken) => {
+    (token: TokenInfo) => {
       if (curToken === 1) dispatch(action.selectA({ token }));
       if (curToken === 2) dispatch(action.selectB({ token }));
     },

@@ -1,9 +1,8 @@
 import type { Revalidator, RevalidatorOptions, SWRConfiguration } from "swr";
 
-// import { localStorageProvider as provider } from "./swr-cache";
+import { localStorageProvider as provider } from "./swr-cache";
 
 export const retryFor = (interval = 10000, retryAttempts = 5) => ({
-  refreshInterval: interval,
   onErrorRetry: (
     resp: Error,
     key: string,
@@ -30,7 +29,7 @@ export const revalOnFocus = (revalidateOnFocus = false) => ({
   revalidateOnFocus,
 });
 
-export const refreshEach = (refreshInterval = 5000) => ({ refreshInterval });
+export const refreshEach = (refreshInterval = 10000) => ({ refreshInterval });
 
 interface ConfigurationWithProvider extends SWRConfiguration {
   provider?: typeof provider;

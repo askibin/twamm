@@ -4,7 +4,6 @@ import useSWR from "swr";
 import { Order } from "@twamm/client.js";
 import { useWallet } from "@solana/wallet-adapter-react";
 
-import type { APIHook } from "../utils/api";
 import { useProgram } from "./use-program";
 
 const swrKey = (params: { account: PublicKey }) => ({
@@ -12,17 +11,17 @@ const swrKey = (params: { account: PublicKey }) => ({
   params,
 });
 
-const fetcher =
-  (provider: Provider, program: Program) =>
-  async ({ params: { account } }: ReturnType<typeof swrKey>) => {
-    const order = new Order(program, provider);
+const fetcher = (provider: Provider, program: Program) => {
+  const order = new Order(program, provider);
 
+  return async ({ params: { account } }: ReturnType<typeof swrKey>) => {
     const orders: unknown = await order.getOrders(account);
 
     return orders as OrderData[];
   };
+};
 
-export const useOrders: APIHook<void, OrderData[]> = (_, options = {}) => {
+export const useOrders = (_: void, options = {}) => {
   const { publicKey: account } = useWallet();
   const { program, provider } = useProgram();
 

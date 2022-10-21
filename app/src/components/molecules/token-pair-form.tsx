@@ -26,7 +26,7 @@ export interface Props {
   tokenAImage?: string;
   tokenB?: string;
   tokenBImage?: string;
-  tokenPair: TMaybe<TokenPair>;
+  tokenPair: TMaybe<TokenPair<JupToken>>;
 }
 
 type ValidationErrors = { a?: Error; b?: Error; amount?: Error; tif?: Error };

@@ -5,6 +5,7 @@ import AccountOrders from "../organisms/account-orders";
 import Maybe from "../../types/maybe";
 import * as Styled from "./orders.styled";
 import { useOrders } from "../../hooks/use-orders";
+import { refreshEach } from "../../swr-options";
 
 export interface Props {
   mode: string;
@@ -12,7 +13,7 @@ export interface Props {
 }
 
 export default ({ mode, onModeChange }: Props) => {
-  const orders = useOrders();
+  const orders = useOrders(undefined, refreshEach());
 
   return (
     <Container>

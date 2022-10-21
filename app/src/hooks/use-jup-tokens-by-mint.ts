@@ -21,7 +21,10 @@ const fetcher =
     return selectedTokens;
   };
 
-export const useJupTokensByMint = (mints: string[], options = {}) => {
+export const useJupTokensByMint = (
+  mints: string[] | undefined,
+  options = {}
+) => {
   const jupTokens = useJupTokens();
 
   const isValid = jupTokens.data && mints;

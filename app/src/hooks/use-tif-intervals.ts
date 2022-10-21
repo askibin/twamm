@@ -23,7 +23,7 @@ type FulfilledTifWithPool = {
 type TifWithPool = FulfilledTifWithPool;
 
 const swrKey = (params: {
-  tokenPair: TokenPair;
+  tokenPair: TokenPair<JupToken>;
   tifs: number[];
   currentPoolPresent: boolean[];
   poolCounters: PoolCounter[];
@@ -120,7 +120,7 @@ const fetcher =
   };
 
 export const useTIFIntervals = (
-  tokenPair: TokenPair | undefined,
+  tokenPair: TokenPair<JupToken> | undefined,
   tifs: number[] | undefined,
   currentPoolPresent: boolean[] | undefined,
   poolCounters: PoolCounter[] | undefined,

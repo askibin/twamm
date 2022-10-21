@@ -12,9 +12,11 @@ declare type JupTokenData = Pick<
   "name" | "decimals" | "symbol" | "logoURI" | "address"
 >;
 
+declare type TokenInfo = JupTokenData & { image: string };
+
 declare type AddressPair = [string, string];
 
-declare type TokenPair = [JupToken, JupToken];
+declare type TokenPair<T> = [T, T];
 
 declare type TIF = number;
 

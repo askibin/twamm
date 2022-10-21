@@ -2,20 +2,30 @@ declare type OrderType = "sell" | "buy";
 
 declare type OrderTypeStruct = { sell: {} } & { buy: {} };
 
+declare type PairPoolStatusStruct = { expired: {} } & { inactive: {} };
+
 declare type PoolCounter = any;
 
 declare type ExchangePair = [TokenPair, OrderType];
 
+declare type PairTokenStatsData = {
+  orderVolumeUsd: number;
+};
+
+declare type PairTokenConfigData = {
+  mint: PublicKey | string;
+  decimals: number;
+};
+
 declare type TokenPairAccountData = {
-  configA: {
-    mint: PublicKey | string;
-  };
-  configB: {
-    mint: PublicKey | string;
-  };
+  configA: PairTokenConfigData;
+  configB: PairTokenConfigData;
   currentPoolPresent: boolean[];
   futurePoolPresent: boolean[];
+  inceptionTime: BN;
   poolCounters: PoolCounter[];
+  statsA: PairTokenStatsData;
+  statsB: PairTokenStatsData;
   tifs: number[];
 };
 
@@ -39,19 +49,33 @@ declare type OrderData = {
   unsettledBalance: BN;
 };
 
-type OrderSide = {
+type OrderSideData = {
+  fillsVolume: BN;
+  lastBalanceChangeTime: BN;
+  lpSupply: BN;
   maxFillPrice: number;
   minFillPrice: number;
-  fillsVolume: BN;
 };
 
 declare type PoolData = {
-  buySide: OrderSide;
+  buySide: OrderSideData;
   expirationTime: BN;
-  sellSide: OrderSide;
+  sellSide: OrderSideData;
   timeInForce: number;
   tokenPair: BN;
   // status: { locked: {} }
+  status: PairPoolStatusStruct;
 };
 
 declare type TokenPairPoolData = PoolData;
+
+declare type PoolDetails = {
+  expirationTime: Date;
+  expired: boolean;
+  inactive: boolean;
+  inceptionTime: Date;
+  lastBalanceChangeTime: Date;
+  lpSupply: number[];
+  lpSymbols: string[];
+  prices: string[];
+};

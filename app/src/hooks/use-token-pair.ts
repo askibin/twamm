@@ -4,7 +4,7 @@ import useSWR from "swr";
 import { useProgram } from "./use-program";
 import { resolveExchangePair } from "../utils/tokenpair-twamm-client";
 
-const swrKey = (params: { aToken: JupToken; bToken: JupToken }) => ({
+const swrKey = (params: { aToken: TokenInfo; bToken: TokenInfo }) => ({
   key: "tokenPair",
   params,
 });

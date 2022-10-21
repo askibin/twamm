@@ -1,14 +1,6 @@
-import type {
-  Revalidator,
-  RevalidatorOptions,
-  SWRConfiguration,
-  SWRResponse,
-} from "swr";
+import type { SWRResponse } from "swr";
 
-import type { CoingeckoApiContextType } from "../contexts/coingecko-api-context";
 import { CoinsApi as Api } from "../api/coingecko/api";
-
-export declare type CoingeckoApi = CoingeckoApiContextType["api"];
 
 interface PromiseFulfilledResult<T> {
   status: "fulfilled";

@@ -11,14 +11,14 @@ import CoinDrawer from "../molecules/coin-drawer";
 import { useBreakpoints } from "../../hooks/use-breakpoints";
 
 export interface Props {
-  onChange: (arg0: JupToken) => void;
+  onChange: (arg0: TokenInfo) => void;
   onDeselect: (arg0: string) => void;
   tokens?: string[];
   tokensToDeselect?: string[];
 }
 
 interface ModalProps extends Omit<Props, "onChange"> {
-  onSelect: (arg0: JupToken) => void;
+  onSelect: (arg0: TokenInfo) => void;
   open: boolean;
   setOpen: (arg0: boolean) => void;
   tokens?: string[];
@@ -80,7 +80,7 @@ export default forwardRef(
     );
 
     const onSelect = useCallback(
-      (token: JupToken) => {
+      (token: TokenInfo) => {
         onChange(token);
       },
       [onChange]

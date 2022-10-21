@@ -1,10 +1,8 @@
 import type { PublicKey } from "@solana/web3.js";
 import Stack from "@mui/material/Stack";
-import Button from "@mui/material/Button";
 import Grid from "@mui/material/Grid";
-import { useCallback, useEffect, useMemo, useRef } from "react";
+import { useCallback, useMemo } from "react";
 
-import type { Maybe as TMaybe } from "../../types/maybe.d";
 import * as Styled from "./account-order-details.styled";
 import Control from "../atoms/account-orders-details-control";
 import DataCard from "../atoms/details-card";
@@ -51,7 +49,7 @@ export default ({ address }: Props) => {
   const sizes = useMemo(() => ({ xs: 4, sm: 4, md: 3 }), []);
 
   const onCancelOrder = useCallback(() => {
-    console.log("onCancel");
+    // console.log("onCancel");
   }, []);
 
   if (details.isLoading)
