@@ -116,23 +116,3 @@ export const Extra = {
   isJust: <T>(m: Maybe<T>): boolean => m.type === MaybeType.Just,
   isNothing: <T>(m: Maybe<T>): boolean => m.type === MaybeType.Nothing,
 };
-
-const isNothing = <T = any>(maybeNothing: Maybe<T> | any): boolean => {
-  if (!maybeNothing.type) throw new Error("Not a Maybe type");
-  return maybeNothing.type === NothingImpl().type;
-};
-
-const nothing = <A, B>(f: () => B, m: Maybe<A>): B | undefined => {
-  switch (m.type) {
-    case MaybeType.Nothing: {
-      return f();
-    }
-    default:
-      return undefined;
-  }
-};
-
-export const MaybeUtils = {
-  isNothing,
-  nothing,
-};

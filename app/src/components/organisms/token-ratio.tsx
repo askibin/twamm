@@ -9,7 +9,7 @@ import availableTokens, {
 } from "../../reducers/select-available-tokens.reducer";
 import CoinPopover from "./coin-popover";
 import Loading from "../atoms/loading";
-import Maybe, { MaybeUtils } from "../../types/maybe";
+import Maybe, { Extra } from "../../types/maybe";
 import TokenPairForm from "../molecules/token-pair-form";
 import { useTokenPair } from "../../hooks/use-token-pair";
 import { refreshEach } from "../../swr-options";
@@ -32,7 +32,7 @@ export default function TokenRatio({ pairs }: Props) {
   const availableMaybe = Maybe.of(state.available);
 
   useEffect(() => {
-    if (MaybeUtils.isNothing(availableMaybe)) {
+    if (Extra.isNothing(availableMaybe)) {
       Maybe.tap<AddressPair[]>(
         (p) => dispatch(action.init({ pairs: p })),
         pairs
@@ -74,7 +74,7 @@ export default function TokenRatio({ pairs }: Props) {
     [curToken]
   );
 
-  if (MaybeUtils.isNothing(availableMaybe)) {
+  if (Extra.isNothing(availableMaybe)) {
     return <Loading />;
   }
 
