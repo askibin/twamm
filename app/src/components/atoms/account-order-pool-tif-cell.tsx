@@ -1,13 +1,12 @@
 import type { PublicKey } from "@solana/web3.js";
-import type { GridRenderCellParams } from "@mui/x-data-grid-pro";
+import type { GridCellParams } from "@mui/x-data-grid-pro";
 import { lensPath, view } from "ramda";
 
 import Maybe from "../../types/maybe";
 import { formatInterval } from "../../utils/index";
 import { usePoolWithPair } from "../../hooks/use-pool-with-pair";
 
-export interface Params
-  extends GridRenderCellParams<any, { pool: PublicKey }> {}
+export interface Params extends GridCellParams<void, { pool: PublicKey }> {}
 
 const lensPoolTif = lensPath(["pool", "timeInForce"]);
 

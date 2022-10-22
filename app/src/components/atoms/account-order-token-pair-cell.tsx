@@ -7,10 +7,21 @@ import { address } from "../../utils/twamm-client";
 import { useTokenPairByPool } from "../../hooks/use-token-pair-by-pool";
 import { useTokensByMint } from "../../hooks/use-tokens-by-mint";
 
-export interface Params extends GridCellParams<PublicKey> {}
+export interface Params
+  extends GridCellParams<
+    void,
+    {
+      side: OrderTypeStruct;
+      pool: PublicKey;
+    }
+  > {}
 
-export default ({ value }: Pick<Params, "value">) => {
-  const tokenPair = useTokenPairByPool(value ? { address: value } : undefined);
+export default ({ row }: Pick<Params, "row">) => {
+  const { pool: poolAddress } = row;
+
+  const tokenPair = useTokenPairByPool(
+    poolAddress ? { address: poolAddress } : undefined
+  );
 
   const mints = useMemo(
     () =>

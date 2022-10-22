@@ -56,11 +56,6 @@ const consume = <A, B>(f: (arg0: A) => B, m: Maybe<A>): B | undefined => {
   }
 };
 
-//const of = <T>(value: T): Maybe<T> =>
-//value === undefined || value === null
-//? NothingImpl()
-//: (JustImpl(value) as Maybe<T>);
-
 const of = <T>(value?: T): Maybe<T> => {
   if (value === undefined) return NothingImpl();
   if (value === null) return NothingImpl();

@@ -1,8 +1,8 @@
-import type { GridRenderCellParams } from "@mui/x-data-grid-pro";
+import type { GridCellParams } from "@mui/x-data-grid-pro";
 
 import Maybe from "../../types/maybe";
 
-export interface Params extends GridRenderCellParams<number> {}
+export interface Params extends GridCellParams<number> {}
 
 export default ({ value }: Pick<Params, "value">) => {
   const data = Maybe.of(value);
