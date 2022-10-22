@@ -8,22 +8,22 @@ import { useCallback, useMemo, useState } from "react";
 
 import CoinSelect from "../molecules/coin-select";
 import TokenTags from "../atoms/token-tags";
-import { useJupTokensByMint } from "../../hooks/use-jup-tokens-by-mints";
+import { useJupTokensByMint } from "../../hooks/use-jup-tokens-by-mint";
 import * as Styled from "./coin-select.styled";
 
 export interface Props {
   tokens?: string[];
   selected?: string[];
-  onSelect: (arg0: JupToken) => void;
+  onSelect: (arg0: TokenInfo) => void;
   onDelete: (arg0: string) => void;
 }
 
 const STARRED_COINS = ["usdt", "usdc", "sol", "ray"];
 
-const populateTokenRecords = (data?: JupToken[]) => {
+const populateTokenRecords = (data?: JupTokenData[]) => {
   if (!data) return {};
 
-  const records: Record<string, JupToken & { image: string }> = {};
+  const records: Record<string, TokenInfo> = {};
 
   data.forEach((token) => {
     records[token.symbol.toLowerCase()] = {

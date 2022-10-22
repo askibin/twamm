@@ -22,7 +22,7 @@ export default ({ indexedTifs, onSelect, selectedTif }: Props) => {
   const [state, dispatch] = useReducer(intervalsReducer, initialState);
 
   useEffect(() => {
-    Maybe.andThen2<IndexedTIF[], void>((data) => {
+    Maybe.andMap<IndexedTIF[], void>((data) => {
       // @ts-ignore
       dispatch(action.setTifs({ indexedTifs: data, selectedTif }));
     }, indexedTifs);

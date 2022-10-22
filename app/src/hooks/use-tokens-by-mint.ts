@@ -1,7 +1,7 @@
-import swr from "swr";
+import useSWR from "swr";
 
 import type { APIHook } from "../utils/api";
-import { dedupeEach, fetchJSONFromAPI2, revalOnFocus } from "../utils/api";
+import { fetchJSONFromAPI2 } from "../utils/api";
 import { useCoingeckoContractApi } from "./use-coingecko-api";
 
 const swrKey = (params: { mints: string[] }) => ({
@@ -66,13 +66,11 @@ const fetcher = (api: ReturnType<typeof useCoingeckoContractApi>) => {
   };
 };
 
-export const useTokensByMint: APIHook<string[], MaybeTokens> = (
+export const useTokensByMint: APIHook<string[] | undefined, MaybeTokens> = (
   params,
   options = {}
 ) => {
   const api = useCoingeckoContractApi();
 
-  const opts = { ...dedupeEach(2e3), ...revalOnFocus(), ...options };
-
-  return swr(params && swrKey({ mints: params }), fetcher(api), opts);
+  return useSWR(params && swrKey({ mints: params }), fetcher(api), options);
 };

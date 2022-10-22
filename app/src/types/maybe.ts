@@ -3,6 +3,8 @@ import { curry } from "ramda";
 import type { Maybe, Just, Nothing } from "./maybe.d";
 import { MaybeType } from "./maybe.d";
 
+const plunge = <T = any>(a: T): T => a;
+
 const NothingImpl = (): Nothing => ({
   type: MaybeType.Nothing,
 });
@@ -44,16 +46,6 @@ const andThen = <A, B>(f: (arg0: A) => Maybe<B>, m: Maybe<A>): Maybe<B> => {
   }
 };
 
-const andThen2 = <A, B>(f: (arg0: A) => B, m: Maybe<A>): Maybe<B> => {
-  switch (m.type) {
-    case MaybeType.Just:
-      return JustImpl(f(m.value));
-    case MaybeType.Nothing:
-    default:
-      return NothingImpl();
-  }
-};
-
 const consume = <A, B>(f: (arg0: A) => B, m: Maybe<A>): B | undefined => {
   switch (m.type) {
     case MaybeType.Just:
@@ -64,8 +56,14 @@ const consume = <A, B>(f: (arg0: A) => B, m: Maybe<A>): B | undefined => {
   }
 };
 
-const of = <T>(value: T): Maybe<T> =>
-  value === undefined || value === null ? NothingImpl() : JustImpl(value);
+const of = <T>(value?: T): Maybe<T> => {
+  if (value === undefined) return NothingImpl();
+  if (value === null) return NothingImpl();
+
+  const val = value!;
+
+  return JustImpl(val);
+};
 
 const withDefault = <T>(defaultValue: T, m: Maybe<T>): T => {
   switch (m.type) {
@@ -78,10 +76,8 @@ const withDefault = <T>(defaultValue: T, m: Maybe<T>): T => {
 };
 
 const MaybeImpl = {
-  andMap: curry(andMap),
-  andThenC: curry(andThen),
+  andMap,
   andThen,
-  andThen2,
   consume,
   of,
   tap, // uncurried due to unknown type
@@ -90,22 +86,58 @@ const MaybeImpl = {
 
 export default MaybeImpl;
 
-const isNothing = <T = any>(maybeNothing: Maybe<T> | any): boolean => {
-  if (!maybeNothing.type) throw new Error("Not a Maybe type");
-  return maybeNothing.type === NothingImpl().type;
+export const MaybeC = {
+  andMapC: curry(andMap),
+  andThenC: curry(andThen),
 };
 
-const nothing = <A, B>(f: () => B, m: Maybe<A>): B | undefined => {
+const as = <A, B>(f: (arg0: Maybe<A>) => Maybe<B>, m: Maybe<A>): Maybe<B> => {
   switch (m.type) {
-    case MaybeType.Nothing: {
-      return f();
+    case MaybeType.Just: {
+      return f(m);
     }
+    case MaybeType.Nothing:
     default:
-      return undefined;
+      return NothingImpl();
   }
 };
 
-export const MaybeUtils = {
+const isJust = <T>(m: Maybe<T>): boolean => m.type === MaybeType.Just;
+
+const isNothing = <T>(m: Maybe<T>): boolean => m.type === MaybeType.Nothing;
+
+const combine = <A>(m: Array<Maybe<A>>): Maybe<Array<A>> => {
+  const list: Array<A> = [];
+  let isNoth = false;
+
+  m.forEach((mb) => {
+    if (isNoth) return;
+    const res = MaybeImpl.consume<A, A>((x) => x, mb);
+
+    if (!res) isNoth = true;
+    else list.push(res);
+  });
+
+  if (!isNoth) return JustImpl(list);
+  return NothingImpl();
+};
+
+const combine2 = <A, B>(m: [Maybe<A>, Maybe<B>]): Maybe<[A, B]> => {
+  const list: [any, any] = [undefined, undefined];
+  const [a, b] = m;
+
+  if (isNothing(a) || isNothing(b)) return NothingImpl();
+
+  list[0] = MaybeImpl.consume(plunge, a);
+  list[1] = MaybeImpl.consume(plunge, b);
+
+  return JustImpl<[A, B]>(list);
+};
+
+export const Extra = {
+  as,
+  combine,
+  combine2,
+  isJust,
   isNothing,
-  nothing,
 };

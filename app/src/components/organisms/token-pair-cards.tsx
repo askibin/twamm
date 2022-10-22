@@ -1,66 +1,57 @@
+import type { PublicKey } from "@solana/web3.js";
 import { useMemo } from "react";
 
-import PairCard, { Blank } from "../atoms/pair-card";
+import type { Maybe as TMaybe } from "../../types/maybe.d";
 import * as Styled from "./token-pair-cards.styled";
+import PairCard, { Blank } from "../atoms/pair-card";
+import Maybe, { Extra } from "../../types/maybe";
 
 export interface Props {
-  data?: Array<any>;
+  data: TMaybe<TokenPairProgramData[]>;
 }
 
-type PairData = {
-  configA: {
-    mint: string;
+const EmptyCards = () => (
+  <Styled.BlankCardList>
+    {new Array(3).fill(null).map((_, i) => (
+      // eslint-disable-next-line react/no-array-index-key
+      <li key={`blank-${i}`}>
+        <Blank />
+      </li>
+    ))}
+  </Styled.BlankCardList>
+);
+
+type PerfPair = {
+  aMint: PublicKey;
+  bMint: PublicKey;
+  id: string;
+  fee: number;
+};
+
+const populatePerfPair = (pair: TokenPairProgramData): PerfPair => {
+  const { configA, configB, feeNumerator, feeDenominator } = pair;
+  const aMint = configA.mint;
+  const bMint = configB.mint;
+  const fee = feeNumerator.toNumber() / feeDenominator.toNumber();
+
+  return {
+    aMint,
+    bMint,
+    fee,
+    id: `${aMint}-${bMint}`,
   };
-  configB: {
-    mint: string;
-  };
-  // TODO: improve fee types
-  feeNumerator: any;
-  feeDenominator: any;
 };
 
 export default ({ data }: Props) => {
-  if (!data) {
-    return (
-      <Styled.BlankCardList>
-        {new Array(3).fill(null).map((_, i) => (
-          // eslint-disable-next-line react/no-array-index-key
-          <li key={`blank-${i}`}>
-            <Blank />
-          </li>
-        ))}
-      </Styled.BlankCardList>
-    );
-  }
+  if (Extra.isNothing(data)) return <EmptyCards />;
 
   const tokenPairs = useMemo(() => {
-    const pairs: Array<{
-      aMint: string;
-      bMint: string;
-      id: string;
-      fee: number;
-    }> = [];
+    const programPairs = Maybe.andMap<TokenPairProgramData[], PerfPair[]>(
+      (pairs) => pairs.map(populatePerfPair),
+      data
+    );
 
-    data.forEach((pair: PairData, i: number) => {
-      const { configA, configB, feeNumerator, feeDenominator } = pair;
-
-      const aMint = configA.mint;
-      const bMint = configB.mint;
-
-      const numerator = feeNumerator;
-      const denominator = feeDenominator;
-
-      const fee = numerator / denominator;
-
-      pairs[i] = {
-        aMint,
-        bMint,
-        fee,
-        id: `${aMint}-${bMint}`,
-      };
-    });
-
-    return pairs;
+    return Maybe.withDefault([], programPairs);
   }, [data]);
 
   return (

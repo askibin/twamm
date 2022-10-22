@@ -1,30 +1,33 @@
 import type { Provider, Program } from "@project-serum/anchor";
-import swr from "swr";
-import { account } from "@twamm/client.js";
+import type { PublicKey } from "@solana/web3.js";
+import useSWR from "swr";
+import { Order } from "@twamm/client.js";
+import { useWallet } from "@solana/wallet-adapter-react";
 
-import { dedupeEach } from "../utils/api";
 import { useProgram } from "./use-program";
 
+const swrKey = (params: { account: PublicKey }) => ({
+  key: "orders",
+  params,
+});
+
 const fetcher = (provider: Provider, program: Program) => {
-  const data = account.getEncodedDiscriminator("Order");
+  const order = new Order(program, provider);
 
-  return async () => {
-    const pairs = await provider.connection.getProgramAccounts(
-      program.programId,
-      {
-        filters: [{ dataSize: 592 }, { memcmp: { bytes: data, offset: 0 } }],
-      }
-    );
+  return async ({ params: { account } }: ReturnType<typeof swrKey>) => {
+    const orders: unknown = await order.getOrders(account);
 
-    const fetchPair = (pair: any) =>
-      program.account.tokenPair.fetch(pair.pubkey);
-
-    return Promise.all(pairs.map(fetchPair));
+    return orders as OrderData[];
   };
 };
 
-export const useOrders = () => {
+export const useOrders = (_: void, options = {}) => {
+  const { publicKey: account } = useWallet();
   const { program, provider } = useProgram();
 
-  return swr("Orders", fetcher(provider, program), dedupeEach(20e3));
+  return useSWR(
+    account && swrKey({ account }),
+    fetcher(provider, program),
+    options
+  );
 };

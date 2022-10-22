@@ -1,10 +1,8 @@
 import type { Cluster } from "@solana/web3.js";
-import swr from "swr";
+import useSWR from "swr";
 import { TOKEN_LIST_URL } from "@jup-ag/core";
 import { NATIVE_MINT } from "@solana/spl-token";
 
-import type { APIHook } from "../utils/api";
-import { dedupeEach, revalOnFocus, retryFor } from "../utils/api";
 import { useBlockchainConnectionContext } from "./use-blockchain-connection-context";
 
 const swrKey = (params: { moniker: Cluster }) => ({
@@ -37,11 +35,9 @@ const fetcher = async ({ params }: ReturnType<typeof swrKey>) => {
   return neededTokens;
 };
 
-export const useJupTokens: APIHook<void, JupToken[]> = () => {
+export const useJupTokens = (_: void, options = {}) => {
   const { clusters } = useBlockchainConnectionContext();
   const moniker = clusters[0].moniker as "mainnet-beta";
 
-  const opts = { ...dedupeEach(60e3), ...revalOnFocus(), ...retryFor() };
-
-  return swr(swrKey({ moniker }), fetcher, opts);
+  return useSWR(swrKey({ moniker }), fetcher, options);
 };

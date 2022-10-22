@@ -8,6 +8,8 @@ const CLEAR_ALL = "CLEAR_ALL";
 
 const INIT = "INIT";
 
+const INIT_WITH_DEFAULT = "INIT_WITH_DEFAULT";
+
 const SELECT_A = "SELECT_A";
 
 const SELECT_B = "SELECT_B";
@@ -15,9 +17,9 @@ const SELECT_B = "SELECT_B";
 const SWAP = "SWAP";
 
 interface State {
-  a?: JupToken;
+  a?: TokenInfo;
   available?: string[];
-  b?: JupToken;
+  b?: TokenInfo;
   cancellable?: string[];
   pairs?: AddressPair[];
   type?: OrderType;
@@ -47,12 +49,22 @@ const init = (payload: { pairs: AddressPair[] }) => ({
   payload,
 });
 
-const selectA = (payload: { token: JupToken }) => ({
+const initWithDefault = (payload: {
+  pairs: AddressPair[];
+  a: TokenInfo;
+  b: TokenInfo;
+  type: OrderType;
+}) => ({
+  type: INIT_WITH_DEFAULT,
+  payload,
+});
+
+const selectA = (payload: { token: TokenInfo }) => ({
   type: SELECT_A,
   payload,
 });
 
-const selectB = (payload: { token: JupToken }) => ({
+const selectB = (payload: { token: TokenInfo }) => ({
   type: SELECT_B,
   payload,
 });
@@ -93,6 +105,23 @@ export default <S extends Partial<State>, A extends Action<any>>(
       const available = flattenPairs(pairs);
 
       return { ...initialState, available, pairs };
+    }
+
+    case INIT_WITH_DEFAULT: {
+      const {
+        payload: { a, b, pairs, type },
+      } = action as Action<ActionPayload<typeof initWithDefault>>;
+      const available = flattenPairs(pairs);
+
+      return {
+        ...initialState,
+        a,
+        b,
+        available,
+        pairs,
+        type,
+        cancellable: [a.address],
+      };
     }
 
     case CLEAR: {
@@ -155,7 +184,7 @@ export default <S extends Partial<State>, A extends Action<any>>(
       const {
         payload: { token },
       } = action as Action<ActionPayload<typeof selectB>>;
-      const { a, pairs = [] } = state;
+      const { a, pairs = [], cancellable } = state;
 
       let type;
       if (a) {
@@ -163,7 +192,15 @@ export default <S extends Partial<State>, A extends Action<any>>(
         type = matchPairs(pair, pairs);
       }
 
-      return { ...state, b: token, type };
+      const shouldClearOpposite = a?.address === token.address;
+
+      return {
+        ...state,
+        b: token,
+        a: shouldClearOpposite ? undefined : a,
+        type: shouldClearOpposite ? undefined : type,
+        cancellable: shouldClearOpposite ? undefined : cancellable,
+      };
     }
 
     case CLEAR_A: {
@@ -201,4 +238,12 @@ export default <S extends Partial<State>, A extends Action<any>>(
   }
 };
 
-export const action = { clearAll, clear, init, selectA, selectB, swap };
+export const action = {
+  clearAll,
+  clear,
+  init,
+  initWithDefault,
+  selectA,
+  selectB,
+  swap,
+};

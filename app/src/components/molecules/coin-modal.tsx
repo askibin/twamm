@@ -9,7 +9,7 @@ import * as Styled from "./coin-modal.styled";
 
 export interface Props {
   onDeselect: (arg0: string) => void;
-  onSelect: (arg0: JupToken) => void;
+  onSelect: (arg0: TokenInfo) => void;
   open: boolean;
   setOpen: (arg0: boolean) => void;
   tokens?: string[];
@@ -37,7 +37,7 @@ export default ({
   );
 
   const onCoinSelect = useCallback(
-    (token: JupToken) => {
+    (token: TokenInfo) => {
       setOpen(false);
       onSelect(token);
     },

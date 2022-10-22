@@ -9,35 +9,56 @@ import availableTokens, {
 } from "../../reducers/select-available-tokens.reducer";
 import CoinPopover from "./coin-popover";
 import Loading from "../atoms/loading";
-import Maybe, { MaybeUtils } from "../../types/maybe";
+import Maybe, { Extra } from "../../types/maybe";
+import { NativeToken } from "../../utils/twamm-client";
 import TokenPairForm from "../molecules/token-pair-form";
+import { useJupTokensByMint } from "../../hooks/use-jup-tokens-by-mint";
 import { useTokenPair } from "../../hooks/use-token-pair";
+import { refreshEach } from "../../swr-options";
 
 export interface Props {
   pairs: TMaybe<AddressPair[]>;
 }
+
+const DEFAULT_ADDRESSES: AddressPair = [
+  NativeToken.address,
+  "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+];
 
 export default function TokenRatio({ pairs }: Props) {
   const popoverRef = useRef<{ isOpened: boolean; open: () => void }>();
   const [curToken, setCurToken] = useState<number>();
   const [state, dispatch] = useReducer(availableTokens, initialState);
 
+  const defaultPair = useJupTokensByMint(DEFAULT_ADDRESSES);
+
+  // Should continiously update the pair to fetch actual data
   const selectedPair = useTokenPair(
-    state.a && state.b && { aToken: state.a, bToken: state.b }
+    state.a && state.b && { aToken: state.a, bToken: state.b },
+    refreshEach()
   );
 
   const availableMaybe = Maybe.of(state.available);
+  const availableDefault = Maybe.of(defaultPair.data);
 
   useEffect(() => {
-    if (MaybeUtils.isNothing(availableMaybe)) {
-      Maybe.tap<AddressPair[]>(
-        (p) => dispatch(action.init({ pairs: p })),
-        pairs
-      );
+    if (Extra.isNothing(availableMaybe)) {
+      Maybe.andMap(([p, dp]) => {
+        dispatch(
+          action.initWithDefault({
+            pairs: p,
+            // @ts-ignore
+            a: dp[1],
+            // @ts-ignore
+            b: dp[0],
+            type: "buy",
+          })
+        );
+      }, Extra.combine2([pairs, availableDefault]));
     }
 
     return () => {};
-  }, [availableMaybe, pairs]);
+  }, [availableDefault, availableMaybe, pairs]);
 
   const onTokenChoose = useCallback(
     (index: number) => {
@@ -64,14 +85,14 @@ export default function TokenRatio({ pairs }: Props) {
   }, []);
 
   const onCoinSelect = useCallback(
-    (token: JupToken) => {
+    (token: TokenInfo) => {
       if (curToken === 1) dispatch(action.selectA({ token }));
       if (curToken === 2) dispatch(action.selectB({ token }));
     },
     [curToken]
   );
 
-  if (MaybeUtils.isNothing(availableMaybe)) {
+  if (Extra.isNothing(availableMaybe)) {
     return <Loading />;
   }
 

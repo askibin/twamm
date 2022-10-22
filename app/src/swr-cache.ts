@@ -1,5 +1,7 @@
-export function localStorageProvider() {
-  if (!globalThis.localStorage) return new Map<any, any>([]);
+import type { Cache } from "swr";
+
+export function localStorageProvider(storage: Cache) {
+  if (!globalThis.localStorage) return storage ?? new Map([]);
 
   const map = new Map<any, any>(
     JSON.parse(globalThis.localStorage?.getItem("app-cache") || "[]")

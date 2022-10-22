@@ -1,28 +1,13 @@
 import type { Program } from "@project-serum/anchor";
-import swr from "swr";
+import useSWR from "swr";
 import { Pool } from "@twamm/client.js";
 import { PublicKey } from "@solana/web3.js";
 import { zipWith } from "ramda";
 
+import { expirationTimeToInterval } from "../utils/index";
 import { useProgram } from "./use-program";
 
 export type TradeIntervals = IndexedTIF;
-
-type TokenPairPoolData = {
-  buySide: {
-    maxFillPrice: number;
-    minFillPrice: number;
-  };
-  expirationTime: {
-    toNumber(): number;
-  };
-  sellSide: {
-    maxFillPrice: number;
-    minFillPrice: number;
-  };
-  timeInForce: number;
-  // status: { locked: {} }
-};
 
 type SettledTokenPairPool<T = TokenPairPoolData> =
   | PromiseSettledResult<T>
@@ -38,7 +23,7 @@ type FulfilledTifWithPool = {
 type TifWithPool = FulfilledTifWithPool;
 
 const swrKey = (params: {
-  tokenPair: TokenPair;
+  tokenPair: TokenPair<JupToken>;
   tifs: number[];
   currentPoolPresent: boolean[];
   poolCounters: PoolCounter[];
@@ -56,18 +41,6 @@ const populateTokenPairPool = <A, B, C>(
   status: y.status,
   data: y.status === "fulfilled" ? y.value : undefined,
 });
-
-const expirationTimeToInterval = (
-  expirationTime: number | undefined,
-  tif: number
-) => {
-  if (!expirationTime) return tif;
-
-  let delta = expirationTime * 1e3 - Date.now();
-  delta = delta <= 0 ? 0 : Number((delta / 1e3).toFixed(0));
-
-  return delta;
-};
 
 const fetcher =
   (program: Program) =>
@@ -147,7 +120,7 @@ const fetcher =
   };
 
 export const useTIFIntervals = (
-  tokenPair: TokenPair | undefined,
+  tokenPair: TokenPair<JupToken> | undefined,
   tifs: number[] | undefined,
   currentPoolPresent: boolean[] | undefined,
   poolCounters: PoolCounter[] | undefined,
@@ -155,11 +128,9 @@ export const useTIFIntervals = (
 ) => {
   const { program } = useProgram();
 
-  const opts = { refreshInterval: 180e3, ...options };
-
   const isValid = tokenPair && tifs && currentPoolPresent && poolCounters;
 
-  return swr(
+  return useSWR(
     isValid &&
       swrKey({
         tokenPair,
@@ -168,6 +139,6 @@ export const useTIFIntervals = (
         poolCounters,
       }),
     fetcher(program),
-    opts
+    options
   );
 };

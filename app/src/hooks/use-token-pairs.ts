@@ -1,14 +1,17 @@
 import type { Provider, Program } from "@project-serum/anchor";
-import swr from "swr";
+import type { PublicKey } from "@solana/web3.js";
+import useSWR from "swr";
 import { account } from "@twamm/client.js";
+import { useWallet } from "@solana/wallet-adapter-react";
 
-import type { APIHook } from "../utils/api";
-import { dedupeEach, revalOnFocus } from "../utils/api";
 import { useProgram } from "./use-program";
 
-const swrKey = () => ({ key: "tokenPairs" });
+const swrKey = (params: { address: PublicKey }) => ({
+  key: "tokenPairs",
+  params,
+});
 
-const fetcher = (provider: Provider, program: Program) => {
+const fetcher = <T>(provider: Provider, program: Program) => {
   const data = account.getEncodedDiscriminator("TokenPair");
 
   return async () => {
@@ -24,17 +27,17 @@ const fetcher = (provider: Provider, program: Program) => {
 
     const pairsData: unknown = await Promise.all(pairs.map(fetchPair));
 
-    return pairsData as TokenPairProgramData[];
+    return pairsData as T;
   };
 };
 
-export const useTokenPairs: APIHook<void, TokenPairProgramData[]> = (
-  _,
-  options = {}
-) => {
+export const useTokenPairs = (_: void, options = {}) => {
   const { program, provider } = useProgram();
+  const { publicKey: address } = useWallet();
 
-  const opts = { ...dedupeEach(20e3), ...revalOnFocus(), ...options };
-
-  return swr(swrKey(), fetcher(provider, program), opts);
+  return useSWR(
+    address && swrKey({ address }),
+    fetcher<TokenPairProgramData[]>(provider, program),
+    options
+  );
 };
