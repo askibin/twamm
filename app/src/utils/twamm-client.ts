@@ -37,6 +37,8 @@ export const findAssociatedTokenAddress = async (
 };
 
 export class NativeToken {
+  public static address = SOL_ADDRESS;
+
   public static isNative(addr: PublicKey) {
     return addr.toBase58() === SOL_ADDRESS;
   }

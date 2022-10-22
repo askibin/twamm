@@ -125,7 +125,6 @@ export default ({
     setSubmitting(true);
 
     await execute(params);
-
     setSubmitting(false);
   }, [
     execute,
