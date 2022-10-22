@@ -108,17 +108,17 @@ const isNothing = <T>(m: Maybe<T>): boolean => m.type === MaybeType.Nothing;
 
 const combine = <A>(m: Array<Maybe<A>>): Maybe<Array<A>> => {
   const list: Array<A> = [];
-  let isNothing = false;
+  let isNoth = false;
 
   m.forEach((mb) => {
-    if (isNothing) return;
+    if (isNoth) return;
     const res = MaybeImpl.consume<A, A>((x) => x, mb);
 
-    if (!res) isNothing = true;
+    if (!res) isNoth = true;
     else list.push(res);
   });
 
-  if (!isNothing) return JustImpl(list);
+  if (!isNoth) return JustImpl(list);
   return NothingImpl();
 };
 

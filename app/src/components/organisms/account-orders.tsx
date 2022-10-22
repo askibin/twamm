@@ -1,5 +1,9 @@
 import type { PublicKey } from "@solana/web3.js";
-import type { GridColDef, GridRowParams } from "@mui/x-data-grid-pro";
+import type {
+  GridColDef,
+  GridRowParams,
+  GridSelectionModel,
+} from "@mui/x-data-grid-pro";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Stack from "@mui/material/Stack";
@@ -45,7 +49,7 @@ export default (props: Props) => {
   const [, setAmount] = useState<number>();
   const [accounts, setAccounts] = useState<Partial<CancelData>>({});
   const [checkboxSelection, setCheckboxSelection] = useState<boolean>(false);
-  const [selectionModel, setSelectionModel] = useState<string[]>([]);
+  const [selectionModel, setSelectionModel] = useState<GridSelectionModel>([]);
 
   const { execute } = useCancelOrder();
 
@@ -161,17 +165,15 @@ export default (props: Props) => {
   );
 
   const onSelectionModelChange = useCallback(
-    (nextSelectionModel: string[]) => {
+    (nextSelectionModel: GridSelectionModel) => {
       setSelectionModel(nextSelectionModel);
     },
     [setSelectionModel]
   );
 
   const onCancelSelectedOrders = useCallback(async () => {
-    const selectedRows = rows.filter((row) => selectionModel.includes(row.id));
-
-    const params = selectedRows
-  }, [accounts, execute, rows]);
+    // const selectedRows = rows.filter((row) => selectionModel.includes(row.id));
+  }, [rows, selectionModel]); // eslint-disable-line
 
   const getDetailPanelContent = useCallback(
     (rowProps: GridRowParams) => (
