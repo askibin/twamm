@@ -8,6 +8,7 @@ import type { Maybe as TMaybe } from "../../types/maybe.d";
 import CancelOrder from "../molecules/cancel-order-modal";
 import Maybe from "../../types/maybe";
 import OrderDetails from "./account-order-details";
+import OrderTypeCell from "../atoms/account-order-type-cell";
 import PoolFilledQuantityCell from "../atoms/account-order-pool-filled-quantity-cell";
 import PoolOrderTimeCell from "../atoms/account-order-pool-order-time-cell";
 import PoolQuantityCell from "../atoms/account-order-pool-quantity-cell";
@@ -46,11 +47,9 @@ export default (props: Props) => {
   const rows = useMemo(
     () =>
       data.map(({ pool, side, time }) => ({
-        filledQuantity: side,
         id: address(pool).toString(),
         orderTime: time,
         pool,
-        quantity: side,
         side,
       })),
     [data]
@@ -63,6 +62,12 @@ export default (props: Props) => {
         field: "pool",
         flex: 5,
         renderCell: TokenPairCell,
+      },
+      {
+        headerName: "Type",
+        field: "orderType",
+        renderCell: OrderTypeCell,
+        width: 60,
       },
       {
         headerName: "Pool Time Frame",

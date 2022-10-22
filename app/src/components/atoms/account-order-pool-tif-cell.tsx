@@ -4,7 +4,7 @@ import { lensPath, view } from "ramda";
 
 import Maybe from "../../types/maybe";
 import { formatInterval } from "../../utils/index";
-import { usePoolWithTokenPairByPoolAddress } from "../../hooks/use-pool-with-token-pair-by-pool-address"; // eslint-disable-line max-len
+import { usePoolWithPair } from "../../hooks/use-pool-with-pair";
 
 export interface Params
   extends GridRenderCellParams<any, { pool: PublicKey }> {}
@@ -12,9 +12,7 @@ export interface Params
 const lensPoolTif = lensPath(["pool", "timeInForce"]);
 
 export default ({ row }: Pick<Params, "row">) => {
-  const tokenPair = usePoolWithTokenPairByPoolAddress(
-    row.pool ? { address: row.pool } : undefined
-  );
+  const tokenPair = usePoolWithPair(row.pool);
 
   const mb = Maybe.of(tokenPair.data);
   const mbTif = Maybe.andMap(view(lensPoolTif), mb);

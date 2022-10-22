@@ -3,12 +3,11 @@ import type { PublicKey } from "@solana/web3.js";
 import useSWR from "swr";
 import { useWallet } from "@solana/wallet-adapter-react";
 
-import type { APIHook } from "../utils/api";
 import { poolClient, tokenPairClient } from "../utils/twamm-client";
 import { useProgram } from "./use-program";
 
 const swrKey = (params: { account: PublicKey; address: PublicKey }) => ({
-  key: "poolWithPairByPoolAddress",
+  key: "poolWithPair",
   params,
 });
 
@@ -29,11 +28,7 @@ const fetcher = (program: Program) => {
   };
 };
 
-export const usePoolWithTokenPairByPoolAddress: APIHook<
-  Pick<Params, "address">,
-  { pool: PoolData; pair: TokenPairAccountData }
-> = (params, options = {}) => {
-  const { address } = params ?? {};
+export const usePoolWithPair = (address: Params["address"], options = {}) => {
   const { publicKey: account } = useWallet();
   const { program } = useProgram();
 

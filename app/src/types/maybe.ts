@@ -3,6 +3,8 @@ import { curry } from "ramda";
 import type { Maybe, Just, Nothing } from "./maybe.d";
 import { MaybeType } from "./maybe.d";
 
+const plunge = <T = any>(a: T): T => a;
+
 const NothingImpl = (): Nothing => ({
   type: MaybeType.Nothing,
 });
@@ -54,8 +56,19 @@ const consume = <A, B>(f: (arg0: A) => B, m: Maybe<A>): B | undefined => {
   }
 };
 
-const of = <T>(value: T): Maybe<T> =>
-  value === undefined || value === null ? NothingImpl() : JustImpl(value);
+//const of = <T>(value: T): Maybe<T> =>
+//value === undefined || value === null
+//? NothingImpl()
+//: (JustImpl(value) as Maybe<T>);
+
+const of = <T>(value?: T): Maybe<T> => {
+  if (value === undefined) return NothingImpl();
+  if (value === null) return NothingImpl();
+
+  const val = value!;
+
+  return JustImpl(val);
+};
 
 const withDefault = <T>(defaultValue: T, m: Maybe<T>): T => {
   switch (m.type) {
@@ -94,6 +107,10 @@ const as = <A, B>(f: (arg0: Maybe<A>) => Maybe<B>, m: Maybe<A>): Maybe<B> => {
   }
 };
 
+const isJust = <T>(m: Maybe<T>): boolean => m.type === MaybeType.Just;
+
+const isNothing = <T>(m: Maybe<T>): boolean => m.type === MaybeType.Nothing;
+
 const combine = <A>(m: Array<Maybe<A>>): Maybe<Array<A>> => {
   const list: Array<A> = [];
   let isNothing = false;
@@ -110,9 +127,22 @@ const combine = <A>(m: Array<Maybe<A>>): Maybe<Array<A>> => {
   return NothingImpl();
 };
 
+const combine2 = <A, B>(m: [Maybe<A>, Maybe<B>]): Maybe<[A, B]> => {
+  const list: [any, any] = [undefined, undefined];
+  const [a, b] = m;
+
+  if (isNothing(a) || isNothing(b)) return NothingImpl();
+
+  list[0] = MaybeImpl.consume(plunge, a);
+  list[1] = MaybeImpl.consume(plunge, b);
+
+  return JustImpl<[A, B]>(list);
+};
+
 export const Extra = {
   as,
   combine,
-  isJust: <T>(m: Maybe<T>): boolean => m.type === MaybeType.Just,
-  isNothing: <T>(m: Maybe<T>): boolean => m.type === MaybeType.Nothing,
+  combine2,
+  isJust,
+  isNothing,
 };

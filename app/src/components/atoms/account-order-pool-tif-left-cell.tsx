@@ -6,7 +6,7 @@ import { lensPath, view } from "ramda";
 import type { Maybe as TMaybe } from "../../types/maybe.d";
 import Maybe, { Extra } from "../../types/maybe";
 import { expirationTimeToInterval, formatInterval } from "../../utils/index";
-import { usePoolWithTokenPairByPoolAddress } from "../../hooks/use-pool-with-token-pair-by-pool-address"; // eslint-disable-line max-len
+import { usePoolWithPair } from "../../hooks/use-pool-with-pair";
 
 export interface Params
   extends GridRenderCellParams<any, { pool: PublicKey }> {}
@@ -34,9 +34,7 @@ const withFormattedExpTime = (data: TMaybe<{ pool: PoolData }>) => {
 };
 
 export default ({ row }: Pick<Params, "row">) => {
-  const tokenPair = usePoolWithTokenPairByPoolAddress(
-    row.pool ? { address: row.pool } : undefined
-  );
+  const tokenPair = usePoolWithPair(row.pool);
 
   const data = Maybe.of(tokenPair.data);
   const formattedData = Extra.as(withFormattedExpTime, data);

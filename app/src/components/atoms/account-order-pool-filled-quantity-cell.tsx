@@ -1,29 +1,38 @@
-import type { GridRenderCellParams } from "@mui/x-data-grid-pro";
+import type { PublicKey } from "@solana/web3.js";
+import type { GridCellParams } from "@mui/x-data-grid-pro";
 
-import Maybe from "../../types/maybe";
-import { usePoolWithTokenPairByPoolAddress } from "../../hooks/use-pool-with-token-pair-by-pool-address"; // eslint-disable-line max-len
+import Maybe, { Extra } from "../../types/maybe";
+import { usePoolWithPair } from "../../hooks/use-pool-with-pair";
 
-export interface Params extends GridRenderCellParams<OrderTypeStruct> {}
+export interface Params
+  extends GridCellParams<
+    void,
+    {
+      side: OrderTypeStruct;
+      pool: PublicKey;
+    }
+  > {}
 
-export default ({ row, value }: Pick<Params, "row" | "value">) => {
-  const tokenPair = usePoolWithTokenPairByPoolAddress(
-    row.pool ? { address: row.pool } : undefined
-  );
+export default ({ row }: Pick<Params, "row">) => {
+  const { pool: poolAddress, side } = row;
 
-  const data = Maybe.of(tokenPair.data?.pool);
+  const tokenPair = usePoolWithPair(poolAddress);
 
-  if (!value) return <>-</>;
+  const data = Extra.combine2([Maybe.of(tokenPair.data), Maybe.of(side)]);
 
-  const orderData = Maybe.andMap((pool) => {
-    if (!pool) return "-";
+  const quantity = Maybe.andMap<
+    [{ pool: PoolData; pair: TokenPairProgramData }, OrderTypeStruct],
+    string
+  >(([{ pool, pair }, s]) => {
+    const orderTypeData = s.sell ? pool.sellSide : pool.buySide;
 
-    const orderTypeData = value.sell ? pool.sellSide : pool.buySide;
+    const decimals = s.sell ? pair.configA.decimals : pair.configB.decimals;
 
-    return orderTypeData.fillsVolume.toNumber();
+    return String(orderTypeData.fillsVolume.toNumber() / 10 ** decimals);
   }, data);
 
-  const quantity = Maybe.withDefault("-", orderData);
+  const quantityValue = Maybe.withDefault("-", quantity);
 
   // eslint-disable-next-line react/jsx-no-useless-fragment
-  return <>{quantity}</>;
+  return <>{quantityValue}</>;
 };

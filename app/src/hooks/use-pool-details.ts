@@ -3,7 +3,7 @@ import useSWR from "swr";
 
 import { address as addr } from "../utils/twamm-client";
 import { useJupTokensByMint } from "./use-jup-tokens-by-mint";
-import { usePoolWithTokenPairByPoolAddress } from "./use-pool-with-token-pair-by-pool-address";
+import { usePoolWithPair } from "./use-pool-with-pair";
 
 const mintsKey = (pair?: TokenPairAccountData) =>
   pair
@@ -11,9 +11,7 @@ const mintsKey = (pair?: TokenPairAccountData) =>
     : undefined;
 
 export const usePoolDetails = (address: PublicKey) => {
-  const details = usePoolWithTokenPairByPoolAddress(
-    address ? { address } : undefined
-  );
+  const details = usePoolWithPair(address);
 
   const tokens = useJupTokensByMint(mintsKey(details.data?.pair));
 
