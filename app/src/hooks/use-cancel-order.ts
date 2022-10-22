@@ -158,5 +158,15 @@ export const useCancelOrder = () => {
 
       return result;
     },
+    async executeMany(params: Array<Parameters<typeof run>[0]>) {
+      let results = [];
+
+      params.forEach(async (data) => {
+        const result = await commit(run(data));
+        results.push(result);
+      });
+
+      return results;
+    },
   };
 };
