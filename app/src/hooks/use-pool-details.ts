@@ -39,6 +39,8 @@ export const usePoolDetails = (address: PublicKey) => {
       const max = maxSell || maxBuy;
 
       const next = {
+        aAddress: configA.mint,
+        bAddress: configB.mint,
         expirationTime: new Date(expirationTime.toNumber() * 1e3),
         expired: Boolean(status.expired),
         inactive: Boolean(status.inactive),
@@ -48,7 +50,12 @@ export const usePoolDetails = (address: PublicKey) => {
           sellSide.lpSupply.toNumber() / 10 ** configA.decimals,
           buySide.lpSupply.toNumber() / 10 ** configB.decimals,
         ],
+        lpSupplyRaw: [
+          sellSide.lpSupply.toNumber(),
+          buySide.lpSupply.toNumber(),
+        ],
         lpSymbols: [tokens.data[0].symbol, tokens.data[1].symbol],
+        poolAddress: address,
         prices: [min.toFixed(2), ((max + min) / 2).toFixed(2), max.toFixed(2)],
         volume: statsA.orderVolumeUsd + statsB.orderVolumeUsd,
       };

@@ -1,7 +1,7 @@
 import Button from "@mui/material/Button";
 
 import type { Maybe as TMaybe } from "../../types/maybe.d";
-import Maybe from "../../types/maybe";
+import Maybe, { Extra } from "../../types/maybe";
 
 export interface Props {
   details: TMaybe<Partial<PoolDetails>>;
@@ -9,16 +9,16 @@ export interface Props {
 }
 
 export default ({ details, onClick }: Props) => {
-  const { expired, inactive } = Maybe.withDefault(
-    { expired: false, inactive: false },
+  const action = Maybe.andMap(
+    ({ expired, inactive }) => (expired || inactive ? "Withdraw" : "Cancel"),
     details
   );
 
-  const action = expired || inactive ? "Withdraw" : "Cancel";
+  const actionName = Maybe.withDefault(null, action);
 
-  return (
+  return Extra.isNothing(action) ? null : (
     <Button variant="outlined" onClick={onClick}>
-      {action}
+      {actionName}
     </Button>
   );
 };

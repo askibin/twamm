@@ -14,9 +14,16 @@ import { format } from "./account-order-details.helpers";
 
 export interface Props {
   address: PublicKey;
+  onCancel: (arg0: {
+    aAddress: PublicKey;
+    bAddress: PublicKey;
+    lpAmount: number;
+    lpSupply: number[];
+    poolAddress: PublicKey;
+  }) => void;
 }
 
-export default ({ address }: Props) => {
+export default ({ address, onCancel }: Props) => {
   const details = usePoolDetails(address);
 
   const fields = useMemo(() => {
@@ -49,8 +56,16 @@ export default ({ address }: Props) => {
   const sizes = useMemo(() => ({ xs: 4, sm: 4, md: 3 }), []);
 
   const onCancelOrder = useCallback(() => {
-    // console.log("onCancel");
-  }, []);
+    const { lpSupplyRaw, poolAddress, aAddress, bAddress } = details.data ?? {};
+
+    onCancel({
+      aAddress,
+      bAddress,
+      lpAmount: 0,
+      lpSupply: lpSupplyRaw ?? [0, 0],
+      poolAddress,
+    });
+  }, [details.data, onCancel]);
 
   if (details.isLoading)
     return (

@@ -61,6 +61,7 @@ type OrderSideData = {
 
 declare type PoolData = {
   buySide: OrderSideData;
+  counter: BN;
   expirationTime: BN;
   sellSide: OrderSideData;
   timeInForce: number;
@@ -72,12 +73,16 @@ declare type PoolData = {
 declare type TokenPairPoolData = PoolData;
 
 declare type PoolDetails = {
+  aAddress: PublicKey;
+  bAddress: PublicKey;
   expirationTime: Date;
   expired: boolean;
   inactive: boolean;
   inceptionTime: Date;
   lastBalanceChangeTime: Date;
   lpSupply: number[];
+  lpSupplyRaw: number[];
   lpSymbols: string[];
+  poolAddress: PublicKey;
   prices: string[];
 };
