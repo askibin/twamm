@@ -11,7 +11,7 @@ export default () => {
   return (
     <Box>
       <Typography pb={2} variant="h4">
-        Performing Pairs
+        Top Pairs
       </Typography>
       <TokenPairCards data={Maybe.of(tokenPairs.data)} />
     </Box>
