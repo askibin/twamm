@@ -8,7 +8,6 @@ import { useBlockchainConnectionContext } from "./use-blockchain-connection-cont
 
 export const useProgram = () => {
   const { commitment, createConnection } = useBlockchainConnectionContext();
-  // const wallet: { publicKey: PublicKey | null } = useWallet();
   const wallet = useWallet();
 
   if (!programId) {
@@ -16,7 +15,7 @@ export const useProgram = () => {
   }
 
   if (!wallet.publicKey) {
-    throw new Error("Can not initialize. Absent wallet");
+    //  throw new Error("Can not initialize. Absent wallet");
   }
 
   const currentWallet: unknown = wallet;

@@ -7,14 +7,6 @@ export const CardList = styled(List)`
   flex-wrap: wrap;
 `;
 
-export const BlankCardList = styled(List)`
-  display: flex;
-  flex-wrap: wrap;
-  & > * {
-    margin: 8px 16px;
-  }
-`;
-
 export const CardListItem = styled(ListItem)`
   width: auto;
 `;

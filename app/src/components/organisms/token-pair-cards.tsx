@@ -1,9 +1,10 @@
+import Alert from "@mui/material/Alert";
 import { useMemo } from "react";
 
 import type { Maybe as TMaybe } from "../../types/maybe.d";
 import * as Styled from "./token-pair-cards.styled";
-import Maybe, { Extra } from "../../types/maybe";
-import PairCard, { Blank } from "../atoms/pair-card";
+import Maybe from "../../types/maybe";
+import PairCard from "../atoms/pair-card";
 import { populate } from "./token-pair-cards.helpers";
 
 export interface Props {
@@ -20,16 +21,11 @@ export default ({ data }: Props) => {
     return Maybe.withDefault([], programPairs);
   }, [data]);
 
-  if (Extra.isNothing(data))
+  if (!tokenPairs.length)
     return (
-      <Styled.BlankCardList>
-        {new Array(3).fill(null).map((_, i) => (
-          // eslint-disable-next-line react/no-array-index-key
-          <li key={`blank-${i}`}>
-            <Blank />
-          </li>
-        ))}
-      </Styled.BlankCardList>
+      <Styled.CardList>
+        <Alert severity="info">No Pairs Present</Alert>
+      </Styled.CardList>
     );
 
   return (

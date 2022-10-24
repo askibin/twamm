@@ -14,8 +14,8 @@ import TokenPairs from "../src/components/ecosystems/token-pairs";
 import WalletGuard from "../src/components/organisms/wallet-guard";
 import { modes } from "../src/components/atoms/mode-toggle";
 
-const DEFAULT_MODE = modes.get("swap") as string;
-
+//const DEFAULT_MODE = modes.get("swap") as string;
+const DEFAULT_MODE = modes.get("pools") as string;
 const Home: NextPage = () => {
   const [mode, setMode] = useState<string>(DEFAULT_MODE);
 
@@ -31,10 +31,18 @@ const Home: NextPage = () => {
       return <TokenPairs mode={mode} onModeChange={onModeChange} />;
 
     if (mode === modes.get("orders"))
-      return <Orders mode={mode} onModeChange={onModeChange} />;
+      return (
+        <WalletGuard>
+          <Orders mode={mode} onModeChange={onModeChange} />
+        </WalletGuard>
+      );
 
     if (mode === modes.get("swap"))
-      return <Swap mode={mode} onModeChange={onModeChange} />;
+      return (
+        <WalletGuard>
+          <Swap mode={mode} onModeChange={onModeChange} />
+        </WalletGuard>
+      );
 
     return null;
   }, [mode, onModeChange]);
@@ -53,7 +61,7 @@ const Home: NextPage = () => {
           <OfflineOverlay />
           <Header />
           <Box className={styles.main} component="main" pt={10}>
-            <WalletGuard>{component}</WalletGuard>
+            {component}
           </Box>
         </SWRConfig>
       </div>
