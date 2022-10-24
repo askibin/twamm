@@ -8,18 +8,33 @@ declare type PoolCounter = any;
 
 declare type ExchangePair = [TokenPair, OrderType];
 
+// TODO: remove type
 declare type PairTokenStatsData = {
   orderVolumeUsd: number;
+  settleVolumeUsd: number;
+  tradeVolumeUsd: number;
 };
 
+declare type PairStatsData = PairTokenStatsData;
+
+declare type PairStats = Pick<
+  PairStatsData,
+  "orderVolumeUsd" | "settleVolumeUsd" | "tradeVolumeUsd"
+>;
+
+// TODO: remove type
 declare type PairTokenConfigData = {
-  mint: PublicKey | string;
+  mint: PublicKey;
   decimals: number;
 };
 
+declare type PairConfigData = PairTokenConfigData;
+
+declare type PairConfig = Pick<PairConfigData, "mint" | "decimals">;
+
 declare type TokenPairAccountData = {
-  configA: PairTokenConfigData;
-  configB: PairTokenConfigData;
+  configA: PairConfigData;
+  configB: PairConfigData;
   currentPoolPresent: boolean[];
   feeDenominator: BN;
   feeNumerator: BN;
@@ -37,6 +52,16 @@ declare type TokenPairData = Pick<
   TokenPairAccountData,
   "currentPoolPresent" | "futurePoolPresent" | "poolCounters" | "tifs"
 > & { exchangePair: ExchangePair };
+
+declare type PerfPair = {
+  aMint: PublicKey;
+  bMint: PublicKey;
+  fee: number;
+  id: string;
+  orderVolume: number;
+  settleVolume: number;
+  tradeVolume: number;
+};
 
 declare type OrderData = {
   bump: number;
@@ -79,7 +104,7 @@ declare type PoolDetails = {
   expired: boolean;
   inactive: boolean;
   inceptionTime: Date;
-  lastBalanceChangeTime: Date;
+  lastBalanceChangeTime: Date | undefined;
   lpSupply: number[];
   lpSupplyRaw: number[];
   lpSymbols: string[];

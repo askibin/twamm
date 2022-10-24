@@ -1,24 +1,30 @@
 import type { PublicKey } from "@solana/web3.js";
 
 import * as Styled from "./pair-card.styled";
-import Metric from "./pair-card-metrics";
+import Metric, { formatDeposited } from "./pair-card-metrics";
 import TokenPairSymbols from "./pair-card-symbols";
 import { address } from "../../utils/twamm-client";
 import { useTokensByMint } from "../../hooks/use-tokens-by-mint";
 
-export interface FundPerf {
+export interface Props {
   aMint: PublicKey;
   bMint: PublicKey;
-  perf: number;
   fee: number;
+  orderVolume: number;
+  perf: number;
+  settleVolume: number;
+  tradeVolume: number;
 }
 
 export default ({
   aMint,
   bMint,
+  fee,
+  orderVolume,
   perf,
-  fee /* , deposited = 0 */,
-}: FundPerf) => {
+  settleVolume,
+  tradeVolume,
+}: Props) => {
   const { data } = useTokensByMint([
     address(aMint).toString(),
     address(bMint).toString(),
@@ -33,10 +39,9 @@ export default ({
           </Styled.FundName>
           <Styled.FundPerf>
             {perf ? (
-              <>
-                <Styled.FundPerfValue>{perf}%</Styled.FundPerfValue>{" "}
-                <span>7D Perf</span>
-              </>
+              <Styled.FundPerfValue>
+                ${formatDeposited(perf)}
+              </Styled.FundPerfValue>
             ) : (
               <Styled.FundPerfValue>-</Styled.FundPerfValue>
             )}
@@ -44,6 +49,9 @@ export default ({
         </Styled.Fund>
         <Styled.FundMetrics>
           <Metric formatted title="Fee" value={fee} />
+          <Metric formatted title="Order" value={orderVolume} />
+          <Metric formatted title="Settle" value={settleVolume} />
+          <Metric formatted title="Trade" value={tradeVolume} />
         </Styled.FundMetrics>
       </Styled.Card>
     </Styled.Root>
