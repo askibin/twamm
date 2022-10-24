@@ -11,11 +11,10 @@ import styles from "./index.module.css";
 import Swap from "../src/components/ecosystems/swap";
 import swrConfig from "../src/swr-options";
 import TokenPairs from "../src/components/ecosystems/token-pairs";
-import WalletGuard from "../src/components/organisms/wallet-guard";
 import { modes } from "../src/components/atoms/mode-toggle";
 
-//const DEFAULT_MODE = modes.get("swap") as string;
-const DEFAULT_MODE = modes.get("pools") as string;
+const DEFAULT_MODE = modes.get("swap") as string;
+
 const Home: NextPage = () => {
   const [mode, setMode] = useState<string>(DEFAULT_MODE);
 
@@ -31,18 +30,10 @@ const Home: NextPage = () => {
       return <TokenPairs mode={mode} onModeChange={onModeChange} />;
 
     if (mode === modes.get("orders"))
-      return (
-        <WalletGuard>
-          <Orders mode={mode} onModeChange={onModeChange} />
-        </WalletGuard>
-      );
+      return <Orders mode={mode} onModeChange={onModeChange} />;
 
     if (mode === modes.get("swap"))
-      return (
-        <WalletGuard>
-          <Swap mode={mode} onModeChange={onModeChange} />
-        </WalletGuard>
-      );
+      return <Swap mode={mode} onModeChange={onModeChange} />;
 
     return null;
   }, [mode, onModeChange]);

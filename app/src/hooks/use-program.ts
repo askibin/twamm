@@ -14,10 +14,6 @@ export const useProgram = () => {
     throw new Error("Can not start. Absent program address");
   }
 
-  if (!wallet.publicKey) {
-    //  throw new Error("Can not initialize. Absent wallet");
-  }
-
   const currentWallet: unknown = wallet;
 
   const preflightCommitment = { preflightCommitment: commitment };

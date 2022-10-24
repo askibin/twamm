@@ -7,9 +7,10 @@ import Maybe, { Extra } from "../../types/maybe";
 import TokenPairCards from "./token-pair-cards";
 import { ConnectWalletGuard } from "./wallet-guard";
 import { useTokenPairs } from "../../hooks/use-token-pairs";
+import { refreshEach } from "../../swr-options";
 
 export default () => {
-  const tokenPairs = useTokenPairs();
+  const tokenPairs = useTokenPairs(undefined, refreshEach(5 * 60000));
   const data = Maybe.of(tokenPairs.data);
 
   const content = useMemo(() => {
@@ -25,7 +26,7 @@ export default () => {
   }, [data]);
 
   return (
-    <Box>
+    <Box pb={2}>
       <Typography pb={2} variant="h4">
         Top Pairs
       </Typography>

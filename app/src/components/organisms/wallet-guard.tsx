@@ -41,7 +41,7 @@ export const ConnectWalletGuard = ({
   children,
   sx,
 }: {
-  children: ReactNode;
+  children?: ReactNode;
   sx?: SxProps<Theme>;
 }) => {
   const { connected, publicKey } = useWallet();

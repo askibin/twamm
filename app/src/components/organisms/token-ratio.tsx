@@ -8,7 +8,6 @@ import availableTokens, {
   initialState,
 } from "../../reducers/select-available-tokens.reducer";
 import CoinPopover from "./coin-popover";
-import Loading from "../atoms/loading";
 import Maybe, { Extra } from "../../types/maybe";
 import { NativeToken } from "../../utils/twamm-client";
 import TokenPairForm from "../molecules/token-pair-form";
@@ -91,10 +90,6 @@ export default function TokenRatio({ pairs }: Props) {
     },
     [curToken]
   );
-
-  if (Extra.isNothing(availableMaybe)) {
-    return <Loading />;
-  }
 
   const [tokenPair] = selectedPair.data?.exchangePair ?? [];
 
