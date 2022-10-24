@@ -28,7 +28,7 @@ export const format = {
       data
     );
 
-    return Maybe.withDefault("-", value);
+    return Maybe.withDefault<string>("-", value);
   },
 
   totalAssets(data: TMaybe<PoolDetails>) {
