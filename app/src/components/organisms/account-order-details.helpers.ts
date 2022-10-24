@@ -20,8 +20,11 @@ export const format = {
   },
 
   lastBalanceChangeTime(data: TMaybe<PoolDetails>) {
-    const value = Maybe.andMap(
-      (a) => a.lastBalanceChangeTime.toLocaleString(),
+    const value = Maybe.andThen(
+      (a) =>
+        a.lastBalanceChangeTime
+          ? Maybe.of(a.lastBalanceChangeTime.toLocaleString())
+          : Maybe.of(undefined),
       data
     );
 
