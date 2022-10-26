@@ -3,15 +3,28 @@ import Button from "@mui/material/Button";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
 import Typography from "@mui/material/Typography";
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 
 import * as Styled from "./cancel-order-modal.styled";
+import CancelOrderAmount from "./cancel-order-amount";
+import { isFloat } from "../../utils/index";
 
 export interface Props {
+  amount: number;
   onApprove: (arg0: number) => void;
 }
 
-export default ({ onApprove }: Props) => {
+const hydrateAmount = (a: number) => (isFloat(a) ? Number(a.toFixed(6)) : a);
+
+export default ({ amount: orderAmount, onApprove }: Props) => {
+  const [amount, setAmount] = useState<number>(orderAmount);
+
+  console.log({ orderAmount, amount });
+
+  const onAmountChange = useCallback((value: number) => {
+    setAmount(hydrateAmount(value * amount));
+  }, []);
+
   const onCancel = useCallback(() => {
     onApprove(0);
   }, [onApprove]);
@@ -22,9 +35,11 @@ export default ({ onApprove }: Props) => {
         Cancel Order
       </Typography>
       <Box p={2}>
-        <Card>
-          <CardContent>Tweak the amount section</CardContent>
-        </Card>
+        <CancelOrderAmount
+          amount={amount}
+          part={amount / orderAmount}
+          onChange={onAmountChange}
+        />
       </Box>
       <Box px={2}>
         <Button variant="contained" fullWidth onClick={onCancel}>

@@ -38,3 +38,5 @@ export const expirationTimeToInterval = (
 
   return delta;
 };
+
+export const isFloat = (n: any) => !Number.isNaN(n) && n % 1 !== 0;

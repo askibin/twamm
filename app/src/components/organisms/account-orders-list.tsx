@@ -186,8 +186,8 @@ export default (props: Props) => {
 
   return (
     <>
-      <UniversalPopover ref={popoverRef}>
-        <CancelOrder onApprove={onApproveCancel} />
+      <UniversalPopover _o ref={popoverRef}>
+        <CancelOrder amount={1000} onApprove={onApproveCancel} />
       </UniversalPopover>
 
       <Box py={2}>
