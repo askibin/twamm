@@ -140,6 +140,8 @@ export default (props: Props) => {
         poolAddress,
       });
 
+      console.log(lpSupply, lpAmount, aAddress, bAddress);
+
       popoverRef.current?.open();
     },
     [setAmount, setAccounts]
@@ -184,10 +186,18 @@ export default (props: Props) => {
   const [detailsHeight] = useState(310);
   const getDetailPanelHeight = useRef(() => detailsHeight);
 
+  const mints = accounts.aMint &&
+    accounts.bMint && [accounts.aMint, accounts.bMint];
+
   return (
     <>
-      <UniversalPopover _o ref={popoverRef}>
-        <CancelOrder amount={1000} onApprove={onApproveCancel} />
+      <UniversalPopover ref={popoverRef}>
+        <CancelOrder
+          amount={1000}
+          mints={mints}
+          onApprove={onApproveCancel}
+          supply={accounts.lpSupply}
+        />
       </UniversalPopover>
 
       <Box py={2}>
