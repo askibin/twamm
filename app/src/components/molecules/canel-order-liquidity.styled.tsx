@@ -28,6 +28,9 @@ export const TokenImage = styled(Avatar)`
 `;
 
 export const TokenName = styled(Box)`
+  color: ${(p) => p.theme.palette.text.primary};
+  font-weight: 600;
+  font-size: 20px;
   padding-left: ${(p) => p.theme.spacing(1)};
 `;
 

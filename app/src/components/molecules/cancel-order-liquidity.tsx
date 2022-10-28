@@ -1,20 +1,31 @@
 import Box from "@mui/material/Box";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
+import { useMemo } from "react";
 
 import * as Styled from "./canel-order-liquidity.styled";
 import { isFloat } from "../../utils/index";
 
 export interface Props {
-  rate: number;
+  ab: JupTokenData[];
+  rate?: number;
 }
 
 const formatRate = (a: number) => (!isFloat(a) ? a : Number(a).toFixed(2));
 
-export default ({ rate = 10.234 }: Props) => {
+export default ({ ab, rate = 10.234 }: Props) => {
   const a = { symbol: "SOL", amount: 2, image: "" };
   const b = { symbol: "USDT", amount: 60, image: "" };
-  const pair = [a, b];
+
+  console.log({ ab });
+
+  const pair = useMemo(() => {
+    return ab.map((token) => ({
+      symbol: token.symbol,
+      amount: 2,
+      image: token.logoURI,
+    }));
+  }, [ab]);
 
   return (
     <>
