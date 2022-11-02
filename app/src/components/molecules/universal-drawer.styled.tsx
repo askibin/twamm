@@ -8,6 +8,7 @@ export const Drawer = styled(SwipeableDrawer)`
 
 export const Inner = styled(Box)`
   height: 100%;
-  overflow: auto;
   min-width: 250px;
+  overflow: auto;
+  padding-bottom: ${(p) => p.theme.spacing(2)};
 `;

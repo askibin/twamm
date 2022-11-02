@@ -11,7 +11,6 @@ import styles from "./index.module.css";
 import Swap from "../src/components/ecosystems/swap";
 import swrConfig from "../src/swr-options";
 import TokenPairs from "../src/components/ecosystems/token-pairs";
-import WalletGuard from "../src/components/organisms/wallet-guard";
 import { modes } from "../src/components/atoms/mode-toggle";
 
 const DEFAULT_MODE = modes.get("swap") as string;
@@ -53,7 +52,7 @@ const Home: NextPage = () => {
           <OfflineOverlay />
           <Header />
           <Box className={styles.main} component="main" pt={10}>
-            <WalletGuard>{component}</WalletGuard>
+            {component}
           </Box>
         </SWRConfig>
       </div>

@@ -1,23 +1,43 @@
+import type { Maybe as TMaybe } from "easy-maybe";
+import Maybe from "easy-maybe/lib";
 import Skeleton from "@mui/material/Skeleton";
 
+import type { MaybeTokens } from "../../hooks/use-tokens-by-mint";
 import * as Styled from "./pair-card-symbols.styled";
 
-export interface PairSymbols {
-  data: any;
+export interface Props {
+  data: TMaybe<MaybeTokens>;
 }
 
-export default ({ data }: PairSymbols) => {
-  if (!data) return <Skeleton variant="rectangular">Loading...</Skeleton>;
+const TokenImage = ({ data }: { data: MaybeTokens[0] }) => {
+  if (data instanceof Error)
+    return (
+      <Styled.TokenAvatar alt="?" src="">
+        ?
+      </Styled.TokenAvatar>
+    );
 
-  const [a, b] = data;
+  return <Styled.TokenAvatar alt={data.symbol} src={data.imageSmall} />;
+};
+
+const TokenSymbol = ({ data }: { data: MaybeTokens[0] }) => (
+  <span>{data instanceof Error ? "Unknown" : data.symbol.toUpperCase()}</span>
+);
+
+export default ({ data }: Props) => {
+  const tokens = Maybe.withDefault<MaybeTokens | undefined>(undefined, data);
+
+  if (!tokens) return <Skeleton variant="rectangular">Loading...</Skeleton>;
+
+  const [a, b] = tokens;
 
   return (
     <Styled.Root>
       <Styled.TokenAvatarGroup max={2}>
-        <Styled.TokenAvatar alt={a.symbol} src={a.imageSmall} />
-        <Styled.TokenAvatar alt={b.symbol} src={b.imageSmall} />
+        <TokenImage data={a} />
+        <TokenImage data={b} />
       </Styled.TokenAvatarGroup>
-      {a.symbol.toUpperCase()}-{b.symbol.toUpperCase()}
+      <TokenSymbol data={a} />-<TokenSymbol data={b} />
     </Styled.Root>
   );
 };

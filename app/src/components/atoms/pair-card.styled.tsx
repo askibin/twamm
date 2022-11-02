@@ -24,7 +24,6 @@ export const Root = div`
   width: ${WIDTH}px;
   height: ${HEIGHT}px;
   border-radius: 20px;
-  background-color: #181f2b;
   color: #fff;
   background: linear-gradient(110.5deg, rgba(26, 31, 46, 0.4) 3.75%, rgba(36, 41, 57, 0.4) 117.62%);
   border: 1px solid rgba(255, 255, 255, 0.08);
@@ -32,6 +31,7 @@ export const Root = div`
 `;
 
 export const Card = styledCard`
+  overflow: hidden;
   padding: 8px 16px;
 `;
 

@@ -67,14 +67,14 @@ export const useCancelOrder = () => {
   const findProgramAddress = findAddress(program);
 
   const run = async function execute({
-    aMint,
-    bMint,
-    lpAmount,
+    a: aMint,
+    b: bMint,
+    amount: lpAmount,
     poolAddress,
   }: {
-    aMint: PublicKey;
-    bMint: PublicKey;
-    lpAmount: number;
+    a: PublicKey;
+    b: PublicKey;
+    amount: number;
     poolAddress: PublicKey;
   }) {
     const transferAuthority = await findProgramAddress(

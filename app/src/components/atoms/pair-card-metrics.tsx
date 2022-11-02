@@ -6,9 +6,10 @@ export interface MetricProps {
   formatted?: boolean;
 }
 
-const formatDeposited = (value: number): string => {
+export const formatDeposited = (value: number): string => {
   const RANKS = ["K", "M", "B", "T"];
   const TRESHOLD = 1e3;
+  const formatUnranked = (a: number) => (a === 0 ? a : a.toFixed(3));
 
   let idx = 0;
 
@@ -16,7 +17,9 @@ const formatDeposited = (value: number): string => {
   while (value >= TRESHOLD && ++idx <= RANKS.length) value /= TRESHOLD;
 
   return String(
-    idx === 0 ? value : value.toFixed(1).replace(/\.?0+$/, "") + RANKS[idx - 1]
+    idx === 0
+      ? formatUnranked(value)
+      : value.toFixed(1).replace(/\.?0+$/, "") + RANKS[idx - 1]
   );
 };
 

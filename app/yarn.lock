@@ -6338,6 +6338,11 @@ duplexer@^0.1.1, duplexer@~0.1.1:
   resolved "https://registry.yarnpkg.com/duplexer/-/duplexer-0.1.2.tgz#3abe43aef3835f8ae077d136ddce0f276b0400e6"
   integrity sha512-jtD6YG370ZCIi/9GTaJKQxWTZD045+4R4hTk/x1UyoqadyJ9x9CgSi1RlVDQF8U2sxLLSnFkCaMihqljHIWgMg==
 
+easy-maybe@0.0.5:
+  version "0.0.5"
+  resolved "https://registry.yarnpkg.com/easy-maybe/-/easy-maybe-0.0.5.tgz#b217ddf8b7ec6a49bf0887ad21411ad669dedc0e"
+  integrity sha512-3UWLWUSEmPQ5Kc6pVNZYQOLBQt75MMOVI6NQH8t4tU7+cn/iUSM677pC9GvL7bOK3vuQW94P2aq6rL57Q4fdGQ==
+
 eip1193-provider@^1.0.1:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/eip1193-provider/-/eip1193-provider-1.0.1.tgz#420d29cf4f6c443e3f32e718fb16fafb250637c3"
@@ -10289,6 +10294,13 @@ react-dom@18.2.0:
   dependencies:
     loose-envify "^1.1.0"
     scheduler "^0.23.0"
+
+react-error-boundary@^3.1.4:
+  version "3.1.4"
+  resolved "https://registry.yarnpkg.com/react-error-boundary/-/react-error-boundary-3.1.4.tgz#255db92b23197108757a888b01e5b729919abde0"
+  integrity sha512-uM9uPzZJTF6wRQORmSrvOIgt4lJ9MC1sNgEOj2XGsDTRE4kmpWxg7ENK9EWNKJRMAOY9z0MuF4yIfl6gp4sotA==
+  dependencies:
+    "@babel/runtime" "^7.12.5"
 
 react-final-form@^6.5.9:
   version "6.5.9"

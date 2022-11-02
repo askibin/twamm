@@ -1,58 +1,32 @@
-import type { PublicKey } from "@solana/web3.js";
+import Alert from "@mui/material/Alert";
 import { useMemo } from "react";
 
 import type { Maybe as TMaybe } from "../../types/maybe.d";
 import * as Styled from "./token-pair-cards.styled";
-import PairCard, { Blank } from "../atoms/pair-card";
-import Maybe, { Extra } from "../../types/maybe";
+import Maybe from "../../types/maybe";
+import PairCard from "../atoms/pair-card";
+import { populate } from "./token-pair-cards.helpers";
 
 export interface Props {
   data: TMaybe<TokenPairProgramData[]>;
 }
 
-const EmptyCards = () => (
-  <Styled.BlankCardList>
-    {new Array(3).fill(null).map((_, i) => (
-      // eslint-disable-next-line react/no-array-index-key
-      <li key={`blank-${i}`}>
-        <Blank />
-      </li>
-    ))}
-  </Styled.BlankCardList>
-);
-
-type PerfPair = {
-  aMint: PublicKey;
-  bMint: PublicKey;
-  id: string;
-  fee: number;
-};
-
-const populatePerfPair = (pair: TokenPairProgramData): PerfPair => {
-  const { configA, configB, feeNumerator, feeDenominator } = pair;
-  const aMint = configA.mint;
-  const bMint = configB.mint;
-  const fee = feeNumerator.toNumber() / feeDenominator.toNumber();
-
-  return {
-    aMint,
-    bMint,
-    fee,
-    id: `${aMint}-${bMint}`,
-  };
-};
-
 export default ({ data }: Props) => {
-  if (Extra.isNothing(data)) return <EmptyCards />;
-
   const tokenPairs = useMemo(() => {
     const programPairs = Maybe.andMap<TokenPairProgramData[], PerfPair[]>(
-      (pairs) => pairs.map(populatePerfPair),
+      (pairs) => pairs.map(populate),
       data
     );
 
     return Maybe.withDefault([], programPairs);
   }, [data]);
+
+  if (!tokenPairs.length)
+    return (
+      <Styled.CardList>
+        <Alert severity="info">No Pairs Present</Alert>
+      </Styled.CardList>
+    );
 
   return (
     <Styled.CardList>
@@ -61,8 +35,11 @@ export default ({ data }: Props) => {
           <PairCard
             aMint={tokenPair.aMint}
             bMint={tokenPair.bMint}
-            perf={0}
             fee={tokenPair.fee}
+            orderVolume={tokenPair.orderVolume}
+            perf={tokenPair.orderVolume}
+            settleVolume={tokenPair.settleVolume}
+            tradeVolume={tokenPair.tradeVolume}
           />
         </Styled.CardListItem>
       ))}

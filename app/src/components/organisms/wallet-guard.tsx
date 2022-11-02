@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import type { SxProps, Theme } from "@mui/material";
 import Typography from "@mui/material/Typography";
 import { useWallet } from "@solana/wallet-adapter-react";
 import { useMemo } from "react";
@@ -29,6 +30,39 @@ export default ({ children }: { children: ReactNode }) => {
           <WalletMultiButton />
         </Styled.Inner>
       </Styled.Container>
+    );
+  }
+
+  // eslint-disable-next-line react/jsx-no-useless-fragment
+  return <>{children}</>;
+};
+
+export const ConnectWalletGuard = ({
+  children,
+  sx,
+}: {
+  children?: ReactNode;
+  sx?: SxProps<Theme>;
+}) => {
+  const { connected, publicKey } = useWallet();
+
+  const isConnected = useMemo(
+    () => Boolean(connected) && publicKey !== null,
+    [connected, publicKey]
+  );
+  const address = useMemo(
+    () => (isConnected ? publicKey?.toBase58() : undefined),
+    [publicKey, isConnected]
+  );
+
+  if (!isConnected || !address) {
+    return (
+      <>
+        {children}
+        <Styled.ConnectBox sx={sx}>
+          <Styled.ConnectButton />
+        </Styled.ConnectBox>
+      </>
     );
   }
 

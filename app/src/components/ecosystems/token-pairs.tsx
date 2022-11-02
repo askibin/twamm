@@ -1,5 +1,8 @@
 import Container from "@mui/material/Container";
+import NoSsr from "@mui/material/NoSsr";
+import { ErrorBoundary } from "react-error-boundary";
 
+import ErrorFallback from "../atoms/error-fallback";
 import ModeToggle from "../atoms/mode-toggle";
 import TokenPairs from "../organisms/token-pairs";
 import * as Styled from "./token-pairs.styled";
@@ -14,6 +17,10 @@ export default ({ mode, onModeChange }: Props) => (
     <Styled.ModeControl p={2}>
       <ModeToggle mode={mode} onChange={onModeChange} />
     </Styled.ModeControl>
-    <TokenPairs />
+    <NoSsr>
+      <ErrorBoundary FallbackComponent={ErrorFallback}>
+        <TokenPairs />
+      </ErrorBoundary>
+    </NoSsr>
   </Container>
 );

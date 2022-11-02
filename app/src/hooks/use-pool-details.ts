@@ -36,6 +36,8 @@ export const usePoolDetails = (address: PublicKey) => {
       const min = minSell || minBuy;
       const max = maxSell || maxBuy;
 
+      const lastChanged = lastBalanceChangeTime.toNumber();
+
       const next = {
         aAddress: configA.mint,
         bAddress: configB.mint,
@@ -43,7 +45,9 @@ export const usePoolDetails = (address: PublicKey) => {
         expired: Boolean(status.expired),
         inactive: Boolean(status.inactive),
         inceptionTime: new Date(inceptionTime.toNumber() * 1e3),
-        lastBalanceChangeTime: new Date(lastBalanceChangeTime.toNumber() * 1e3),
+        lastBalanceChangeTime: !lastChanged
+          ? undefined
+          : new Date(lastChanged * 1e3),
         lpSupply: [
           sellSide.lpSupply.toNumber() / 10 ** configA.decimals,
           buySide.lpSupply.toNumber() / 10 ** configB.decimals,

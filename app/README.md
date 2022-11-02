@@ -3,10 +3,10 @@
 ### Coingecko
 
 ```
-docker run --rm -v ${PWD}:/local swaggerapi/swagger-codegen-cli generate \
-    -i https://www.coingecko.com/api/documentations/v3/swagger.json \
+SWAGGER_API_JSON=https://www.coingecko.com/api/documentations/v3/swagger.json SWAGGER_API_DEST=coingecko docker run --rm -v ${PWD}:/local swaggerapi/swagger-codegen-cli generate \
+    -i ${SWAGGER_API_JSON} \
     -l typescript-fetch \
-    -o /local/src/api/coingecko
+    -o /local/src/api/${SWAGGER_API_DEST}
 ```
 > to bootstrap api-client on arm64 try `parsertongue/swagger-codegen-cli`
 > reference: https://github.com/swagger-api/swagger-codegen/issues/11020#issuecomment-1022606350
