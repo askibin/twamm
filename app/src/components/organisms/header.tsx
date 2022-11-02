@@ -8,12 +8,12 @@ import UpdateIcon from "@mui/icons-material/Update";
 import { useEffect, useMemo, useState } from "react";
 import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
 
-import TransactionRunnerModal from "../molecules/transaction-runner-modal";
-import SettingsModal from "../molecules/settings-modal";
 import * as Styled from "./header.styled";
-import { useBreakpoints } from "../../hooks/use-breakpoints";
+import SettingsModal from "../molecules/settings-modal";
+import TransactionRunnerModal from "../molecules/transaction-runner-modal";
+import useBreakpoints from "../../hooks/use-breakpoints";
+import useTxRunnerContext from "../../hooks/use-transaction-runner-context";
 import { useSnackbar } from "../../contexts/notification-context";
-import { useTxRunnerContext } from "../../hooks/use-transaction-runner-context";
 
 export default () => {
   const { isDesktop } = useBreakpoints();

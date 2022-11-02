@@ -15,9 +15,9 @@ import CancelOrder from "../molecules/cancel-order-modal";
 import OrderDetails from "./account-order-details";
 import Table from "../atoms/table";
 import UniversalPopover from "../molecules/universal-popover";
+import useCancelOrder from "../../hooks/use-cancel-order";
 import { address } from "../../utils/twamm-client";
 import { columns as cols } from "./account-orders-list.helpers";
-import { useCancelOrder } from "../../hooks/use-cancel-order";
 
 export interface Props {
   data: Voidable<OrderData[]>;

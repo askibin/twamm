@@ -1,10 +1,10 @@
 import useSWR from "swr";
 import { useWallet } from "@solana/wallet-adapter-react";
 
+import useTokenPairs from "./use-token-pairs";
 import { address as addr } from "../utils/twamm-client";
-import { useTokenPairs } from "./use-token-pairs";
 
-export const useAddressPairs = (_: void, options = {}) => {
+export default (_: void, options = {}) => {
   const { data } = useTokenPairs();
   const { publicKey: address } = useWallet();
 

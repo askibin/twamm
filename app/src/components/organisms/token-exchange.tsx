@@ -1,8 +1,8 @@
 import Box from "@mui/material/Box";
 
 import TokenRatio from "./token-ratio";
+import useAddressPairs from "../../hooks/use-address-pairs";
 import { ConnectWalletGuard } from "./wallet-guard";
-import { useAddressPairs } from "../../hooks/use-address-pairs";
 
 export default () => {
   const tokenPairs = useAddressPairs();

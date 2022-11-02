@@ -2,7 +2,7 @@ import type { ReactElement } from "react";
 
 import BrowserOnly from "../ssr";
 import Overlay from "../molecules/offline-overlay";
-import { useNavigatorOnlineStatus } from "../../hooks/use-navigator-online-status";
+import useNavigatorOnlineStatus from "../../hooks/use-navigator-online-status";
 import { useSnackbar } from "../../contexts/notification-context";
 
 export type Props = {

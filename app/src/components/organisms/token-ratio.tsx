@@ -8,10 +8,10 @@ import availableTokens, {
   initialState,
 } from "../../reducers/select-available-tokens.reducer";
 import CoinPopover from "./coin-popover";
-import { NativeToken } from "../../utils/twamm-client";
 import TokenPairForm from "../molecules/token-pair-form";
-import { useJupTokensByMint } from "../../hooks/use-jup-tokens-by-mint";
-import { useTokenPair } from "../../hooks/use-token-pair";
+import useJupTokensByMint from "../../hooks/use-jup-tokens-by-mint";
+import useTokenPair from "../../hooks/use-token-pair";
+import { NativeToken } from "../../utils/twamm-client";
 import { refreshEach } from "../../swr-options";
 
 export interface Props {

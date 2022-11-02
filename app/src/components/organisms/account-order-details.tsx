@@ -9,8 +9,8 @@ import * as Styled from "./account-order-details.styled";
 import Control from "../atoms/account-orders-details-control";
 import Loading from "../atoms/loading";
 import Stats from "../atoms/account-orders-details-stats";
+import usePoolDetails from "../../hooks/use-pool-details";
 import WalletGuard from "./wallet-guard";
-import { usePoolDetails } from "../../hooks/use-pool-details";
 
 export interface Props {
   address: PublicKey;

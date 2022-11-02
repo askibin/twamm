@@ -4,9 +4,9 @@ import type { PublicKey } from "@solana/web3.js";
 import { useMemo } from "react";
 
 import PairCardSymbols from "./pair-card-symbols";
+import useTokenPairByPool from "../../hooks/use-token-pair-by-pool";
+import useTokensByMint from "../../hooks/use-tokens-by-mint";
 import { address } from "../../utils/twamm-client";
-import { useTokenPairByPool } from "../../hooks/use-token-pair-by-pool";
-import { useTokensByMint } from "../../hooks/use-tokens-by-mint";
 
 export interface Props
   extends GridCellParams<
@@ -18,11 +18,7 @@ export interface Props
   > {}
 
 export default ({ row }: Pick<Props, "row">) => {
-  const { pool: poolAddress } = row;
-
-  const tokenPair = useTokenPairByPool(
-    poolAddress ? { address: poolAddress } : undefined
-  );
+  const tokenPair = useTokenPairByPool(row.pool);
 
   const mints = useMemo(
     () =>

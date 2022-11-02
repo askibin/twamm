@@ -5,8 +5,8 @@ import type { PublicKey } from "@solana/web3.js";
 import Maybe, { Extra } from "easy-maybe/lib";
 import { lensPath, view } from "ramda";
 
+import usePoolWithPair from "../../hooks/use-pool-with-pair";
 import { expirationTimeToInterval, formatInterval } from "../../utils/index";
-import { usePoolWithPair } from "../../hooks/use-pool-with-pair";
 
 export interface Params extends GridCellParams<void, { pool: PublicKey }> {}
 

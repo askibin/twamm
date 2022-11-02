@@ -7,7 +7,7 @@ import { useMemo } from "react";
 
 import * as Styled from "./transaction-runner.styled";
 import * as TxState from "../atoms/transaction-runner";
-import { useTxRunnerContext } from "../../hooks/use-transaction-runner-context";
+import useTxRunnerContext from "../../hooks/use-transaction-runner-context";
 
 export interface Props {
   open: boolean;

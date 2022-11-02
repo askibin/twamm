@@ -4,8 +4,8 @@ import { PublicKey, TransactionInstruction } from "@solana/web3.js";
 import { TOKEN_PROGRAM_ID } from "@solana/spl-token";
 import { findAddress } from "@twamm/client.js/lib/program";
 
-import { useProgram } from "./use-program";
-import { useTxRunnerContext } from "./use-transaction-runner-context";
+import useProgram from "./use-program";
+import useTxRunnerContext from "./use-transaction-runner-context";
 import {
   findAssociatedTokenAddress,
   NativeToken,
@@ -58,7 +58,7 @@ const getOrderKey = (
   };
 };
 
-export const useCancelOrder = () => {
+export default () => {
   const { provider, program } = useProgram();
   const { commit } = useTxRunnerContext();
 

@@ -1,7 +1,7 @@
 import type { Provider, Program } from "@project-serum/anchor";
 import useSWR from "swr";
 
-import { useProgram } from "./use-program";
+import useProgram from "./use-program";
 import { resolveExchangePair } from "../utils/tokenpair-twamm-client";
 
 const swrKey = (params: { aToken: TokenInfo; bToken: TokenInfo }) => ({
@@ -33,7 +33,7 @@ const fetcher = (provider: Provider, program: Program) => {
   };
 };
 
-export const useTokenPair = (params?: Params, options = {}) => {
+export default (params?: Params, options = {}) => {
   const { provider, program } = useProgram();
 
   return useSWR(params && swrKey(params), fetcher(provider, program), options);

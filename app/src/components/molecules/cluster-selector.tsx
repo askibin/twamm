@@ -9,8 +9,8 @@ import { Form } from "react-final-form";
 import { TextField } from "mui-rff";
 import { useCallback } from "react";
 
+import useBlockchainConnectionContext from "../../hooks/use-blockchain-connection-context";
 import { clusterValidator } from "../../utils/validators";
-import { useBlockchainConnectionContext } from "../../hooks/use-blockchain-connection-context";
 
 export interface Props {
   handleClose?: () => void;

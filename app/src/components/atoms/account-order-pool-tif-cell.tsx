@@ -4,7 +4,7 @@ import Maybe from "easy-maybe/lib";
 import { lensPath, view } from "ramda";
 
 import { formatInterval } from "../../utils/index";
-import { usePoolWithPair } from "../../hooks/use-pool-with-pair";
+import usePoolWithPair from "../../hooks/use-pool-with-pair";
 
 export interface Params extends GridCellParams<void, { pool: PublicKey }> {}
 

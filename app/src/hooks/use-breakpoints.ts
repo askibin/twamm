@@ -1,6 +1,6 @@
 import { useMediaQuery, useTheme } from "@mui/material";
 
-export const useBreakpoints = () => {
+export default () => {
   const { breakpoints } = useTheme();
   const { desktop, tablet } = breakpoints.values;
 

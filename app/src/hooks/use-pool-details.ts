@@ -1,16 +1,16 @@
 import type { PublicKey } from "@solana/web3.js";
 import useSWR from "swr";
 
+import useJupTokensByMint from "./use-jup-tokens-by-mint";
+import usePoolWithPair from "./use-pool-with-pair";
 import { address as addr } from "../utils/twamm-client";
-import { useJupTokensByMint } from "./use-jup-tokens-by-mint";
-import { usePoolWithPair } from "./use-pool-with-pair";
 
 const mintsKey = (pair?: TokenPairAccountData) =>
   pair
     ? [addr(pair.configA.mint).toString(), addr(pair.configB.mint).toString()]
     : undefined;
 
-export const usePoolDetails = (address: PublicKey) => {
+export default (address: PublicKey) => {
   const details = usePoolWithPair(address);
 
   const tokens = useJupTokensByMint(mintsKey(details.data?.pair));

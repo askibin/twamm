@@ -1,9 +1,9 @@
 import type { ReactNode } from "react";
 import { forwardRef, memo, useImperativeHandle, useState } from "react";
 
-import UniversalModal from "./universal-modal";
 import UniversalDrawer from "./universal-drawer";
-import { useBreakpoints } from "../../hooks/use-breakpoints";
+import UniversalModal from "./universal-modal";
+import useBreakpoints from "../../hooks/use-breakpoints";
 
 export interface Props {
   children: ReactNode;

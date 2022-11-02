@@ -1,15 +1,13 @@
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
-import Maybe, { Extra } from "easy-maybe/lib";
 
 import AccountOrdersList from "./account-orders-list";
+import useOrders from "../../hooks/use-orders";
 import { ConnectWalletGuard } from "./wallet-guard";
 import { refreshEach } from "../../swr-options";
-import { useOrders } from "../../hooks/use-orders";
 
 export default () => {
   const orders = useOrders(undefined, refreshEach());
-  const data = Maybe.of(orders.data);
 
   return (
     <>
@@ -24,7 +22,7 @@ export default () => {
           updating={orders.isValidating}
         />
       </Box>
-      {Extra.isNothing(data) && <ConnectWalletGuard sx={{ py: 2 }} />}
+      {!orders.data && <ConnectWalletGuard sx={{ py: 2 }} />}
     </>
   );
 };

@@ -4,7 +4,7 @@ import useSWR from "swr";
 import { Order } from "@twamm/client.js";
 import { useWallet } from "@solana/wallet-adapter-react";
 
-import { useProgram } from "./use-program";
+import useProgram from "./use-program";
 
 const swrKey = (params: { account: PublicKey }) => ({
   key: "orders",
@@ -21,7 +21,7 @@ const fetcher = (provider: Provider, program: Program) => {
   };
 };
 
-export const useOrders = (_: void, options = {}) => {
+export default (_: void, options = {}) => {
   const { publicKey: account } = useWallet();
   const { program, provider } = useProgram();
 
