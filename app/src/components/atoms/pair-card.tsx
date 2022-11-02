@@ -1,8 +1,9 @@
 import type { PublicKey } from "@solana/web3.js";
+import Maybe from "easy-maybe/lib";
 
 import * as Styled from "./pair-card.styled";
 import Metric, { formatDeposited } from "./pair-card-metrics";
-import TokenPairSymbols from "./pair-card-symbols";
+import PairCardSymbols from "./pair-card-symbols";
 import { address } from "../../utils/twamm-client";
 import { useTokensByMint } from "../../hooks/use-tokens-by-mint";
 
@@ -25,17 +26,19 @@ export default ({
   settleVolume,
   tradeVolume,
 }: Props) => {
-  const { data } = useTokensByMint([
+  const tokens = useTokensByMint([
     address(aMint).toString(),
     address(bMint).toString(),
   ]);
+
+  const data = Maybe.of(tokens.data);
 
   return (
     <Styled.Root>
       <Styled.Card>
         <Styled.Fund>
           <Styled.FundName>
-            <TokenPairSymbols data={data} />
+            <PairCardSymbols data={data} />
           </Styled.FundName>
           <Styled.FundPerf>
             {perf ? (

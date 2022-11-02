@@ -1,13 +1,14 @@
-import type { PublicKey } from "@solana/web3.js";
+import Maybe from "easy-maybe/lib";
 import type { GridCellParams } from "@mui/x-data-grid-pro";
+import type { PublicKey } from "@solana/web3.js";
 import { useMemo } from "react";
 
-import TokenPairSymbols from "./pair-card-symbols";
+import PairCardSymbols from "./pair-card-symbols";
 import { address } from "../../utils/twamm-client";
 import { useTokenPairByPool } from "../../hooks/use-token-pair-by-pool";
 import { useTokensByMint } from "../../hooks/use-tokens-by-mint";
 
-export interface Params
+export interface Props
   extends GridCellParams<
     void,
     {
@@ -16,7 +17,7 @@ export interface Params
     }
   > {}
 
-export default ({ row }: Pick<Params, "row">) => {
+export default ({ row }: Pick<Props, "row">) => {
   const { pool: poolAddress } = row;
 
   const tokenPair = useTokenPairByPool(
@@ -36,5 +37,5 @@ export default ({ row }: Pick<Params, "row">) => {
 
   const tokens = useTokensByMint(mints);
 
-  return <TokenPairSymbols data={tokens.data} />;
+  return <PairCardSymbols data={Maybe.of(tokens.data)} />;
 };

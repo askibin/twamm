@@ -1,45 +1,49 @@
-import type { PublicKey } from "@solana/web3.js";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
+import Maybe, { Extra } from "easy-maybe/lib";
 import Typography from "@mui/material/Typography";
+import { BN } from "@project-serum/anchor";
 import { useCallback, useState } from "react";
-import Maybe from "easy-maybe/lib";
 
 import * as Styled from "./cancel-order-modal.styled";
 import CancelOrderAmount from "./cancel-order-amount";
 import CancelOrderDetails from "./cancel-order-details";
-import { isFloat } from "../../utils/index";
+import Loading from "../atoms/loading";
 import { useJupTokensByMint } from "../../hooks/use-jup-tokens-by-mint";
 
 export interface Props {
-  amount: number;
-  mints: [PublicKey, PublicKey];
-  onApprove: (arg0: number) => void;
-  supply: number[];
+  onApprove: (arg0: CancelOrderData) => void;
+  data: Voidable<CancelOrderData>;
 }
 
-const hydrateAmount = (a: number) => (isFloat(a) ? Number(a.toFixed(6)) : a);
-
-export default ({ amount: orderAmount, mints, onApprove, supply }: Props) => {
-  const [amount, setAmount] = useState<number>(orderAmount);
+export default ({ data, onApprove }: Props) => {
   const [percentage, setPercentage] = useState<number>(100);
   const [detailsOpen, setDetailsOpen] = useState<boolean>(false);
 
-  const tokens = useJupTokensByMint(mints && mints.map((m) => m.toBase58()));
+  const order = Maybe.of(data);
 
-  console.log(tokens.data);
-
-  const onAmountChange = useCallback(
-    (value: number) => {
-      setPercentage(value);
-      setAmount(hydrateAmount(value * amount));
-    },
-    [amount]
+  const mints = Maybe.withDefault(
+    undefined,
+    Maybe.andMap(({ a, b }) => [a.toBase58(), b.toBase58()], order)
   );
 
+  const tokens = useJupTokensByMint(mints);
+
+  const onAmountChange = useCallback((value: number) => {
+    setPercentage(value);
+  }, []);
+
   const onCancel = useCallback(() => {
-    onApprove(0);
-  }, [onApprove]);
+    Maybe.tap((cd) => {
+      const { supply } = cd;
+      const cancellableAmount = (supply.toNumber() * percentage) / 100;
+
+      onApprove({
+        ...cd,
+        supply: new BN(cancellableAmount),
+      });
+    }, order);
+  }, [onApprove, order, percentage]);
 
   const onToggleDetails = useCallback(() => {
     setDetailsOpen((prev) => !prev);
@@ -50,28 +54,31 @@ export default ({ amount: orderAmount, mints, onApprove, supply }: Props) => {
       <Typography pt={3} pb={2} align="center" variant="h4">
         Cancel Order
       </Typography>
-      <Box p={2}>
-        <CancelOrderAmount
-          percentage={percentage}
-          onChange={onAmountChange}
-          onToggleDetails={onToggleDetails}
-        />
-      </Box>
-      <CancelOrderDetails
-        data={Maybe.of(tokens.data)}
-        open={detailsOpen}
-        onToggle={onToggleDetails}
-      />
-      <Box p={2}>
-        <Button
-          disabled={!percentage}
-          variant="contained"
-          fullWidth
-          onClick={onCancel}
-        >
-          Approve
-        </Button>
-      </Box>
+      {Extra.isNothing(order) && <Loading />}
+      {Extra.isJust(order) && (
+        <>
+          <Box p={2}>
+            <CancelOrderAmount
+              percentage={percentage}
+              onChange={onAmountChange}
+              onToggleDetails={onToggleDetails}
+            />
+          </Box>
+          {detailsOpen && (
+            <CancelOrderDetails data={tokens.data} onToggle={onToggleDetails} />
+          )}
+          <Box p={2}>
+            <Button
+              disabled={!percentage}
+              variant="contained"
+              fullWidth
+              onClick={onCancel}
+            >
+              Approve
+            </Button>
+          </Box>
+        </>
+      )}
     </Styled.Container>
   );
 };

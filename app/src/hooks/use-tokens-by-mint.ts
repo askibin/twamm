@@ -27,7 +27,7 @@ type Contract = {
   contract_address: string;
 };
 
-type MaybeTokens = Array<Contract | Error>;
+export type MaybeTokens = Array<Contract | Error>;
 
 const fetcher = (api: ReturnType<typeof useCoingeckoContractApi>) => {
   const fetchFromAPI = fetchJSONFromAPI2(api);

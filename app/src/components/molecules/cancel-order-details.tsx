@@ -1,22 +1,32 @@
-import type { Maybe as TMaybe } from "easy-maybe";
 import Box from "@mui/material/Box";
 import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
 import Maybe from "easy-maybe/lib";
 
+import * as Styled from "./cancel-order-details.styled";
 import CancelOrderLiquidity from "./cancel-order-liquidity";
 import Loading from "../atoms/loading";
-import * as Styled from "./cancel-order-details.styled";
+import { refreshEach } from "../../swr-options";
+import { usePrice } from "../../hooks/use-price";
 
 export interface Props {
-  data: TMaybe<JupTokenData[]>;
+  data: Voidable<JupTokenData[]>;
   onToggle: () => void;
-  open: boolean;
 }
 
-export default ({ data, onToggle, open }: Props) => {
-  const tokens = Maybe.withDefault<JupTokenData[] | undefined>(undefined, data);
+export default ({ data, onToggle }: Props) => {
+  const d = Maybe.of(data);
 
-  if (!open) return null;
+  const tokens = Maybe.withDefault(undefined, d);
+  const priceParams = Maybe.withDefault(
+    undefined,
+    Maybe.andMap((t) => {
+      const [{ symbol: id }, { symbol: vsToken }] = t;
+      return { id, vsToken };
+    }, d)
+  );
+
+  const price = usePrice(priceParams, refreshEach(10000));
+
   if (!tokens) return <Loading />;
 
   return (
@@ -27,7 +37,11 @@ export default ({ data, onToggle, open }: Props) => {
         </Styled.OperationButton>
       </Styled.OperationImage>
       <Box p={2}>
-        <CancelOrderLiquidity ab={tokens} />
+        <CancelOrderLiquidity
+          ab={tokens}
+          errorData={price.error}
+          priceData={price.data}
+        />
       </Box>
     </>
   );

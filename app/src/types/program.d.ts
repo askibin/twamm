@@ -69,7 +69,7 @@ declare type OrderData = {
   lpBalance: BN;
   owner: PublicKey;
   pool: PublicKey;
-  settlementDebt: PublicKey;
+  settlementDebt: BN;
   side: OrderTypeStruct;
   time: BN;
   tokenDebt: BN;

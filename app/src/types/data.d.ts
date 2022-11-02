@@ -1,3 +1,5 @@
+declare type Voidable<T> = T | undefined;
+
 declare type Action<Payload> = { type: string; payload: Payload };
 
 declare type ActionPayload<Fn> = ReturnType<Fn>["payload"];

@@ -1,8 +1,8 @@
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
+import Maybe, { Extra } from "easy-maybe/lib";
 
 import AccountOrdersList from "./account-orders-list";
-import Maybe, { Extra } from "../../types/maybe";
 import { ConnectWalletGuard } from "./wallet-guard";
 import { refreshEach } from "../../swr-options";
 import { useOrders } from "../../hooks/use-orders";
@@ -18,8 +18,8 @@ export default () => {
           My Orders
         </Typography>
         <AccountOrdersList
-          data={data}
-          error={Maybe.of(orders.error)}
+          data={orders.data}
+          error={orders.error}
           loading={orders.isLoading}
           updating={orders.isValidating}
         />

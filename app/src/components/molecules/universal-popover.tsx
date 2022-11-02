@@ -26,9 +26,9 @@ const Drawer = memo(({ children, open, setOpen }: ModalProps) => (
   </UniversalDrawer>
 ));
 
-export default forwardRef(({ children, _o = true }: Props, ref) => {
+export default forwardRef(({ children }: Props, ref) => {
   const { isMobile } = useBreakpoints();
-  const [open, setOpen] = useState(_o); // ,false);
+  const [open, setOpen] = useState(false);
 
   useImperativeHandle(ref, () => ({
     close() {

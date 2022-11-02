@@ -1,3 +1,4 @@
+import type { BN } from "@project-serum/anchor";
 import type { PublicKey } from "@solana/web3.js";
 import type {
   GridColDef,
@@ -6,163 +7,95 @@ import type {
 } from "@mui/x-data-grid-pro";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
+import Maybe from "easy-maybe/lib";
 import Stack from "@mui/material/Stack";
-import { GRID_CHECKBOX_SELECTION_COL_DEF } from "@mui/x-data-grid-pro";
 import { useCallback, useMemo, useRef, useState } from "react";
 
-import type { Maybe as TMaybe } from "../../types/maybe.d";
 import CancelOrder from "../molecules/cancel-order-modal";
-import Maybe from "../../types/maybe";
 import OrderDetails from "./account-order-details";
-import OrderTypeCell from "../atoms/account-order-type-cell";
-import PoolFilledQuantityCell from "../atoms/account-order-pool-filled-quantity-cell";
-import PoolOrderTimeCell from "../atoms/account-order-pool-order-time-cell";
-import PoolQuantityCell from "../atoms/account-order-pool-quantity-cell";
-import PoolTIFCell from "../atoms/account-order-pool-tif-cell";
-import PoolTIFLeftCell from "../atoms/account-order-pool-tif-left-cell";
 import Table from "../atoms/table";
-import TokenPairCell from "../atoms/account-order-token-pair-cell";
 import UniversalPopover from "../molecules/universal-popover";
 import { address } from "../../utils/twamm-client";
+import { columns as cols } from "./account-orders-list.helpers";
 import { useCancelOrder } from "../../hooks/use-cancel-order";
 
 export interface Props {
-  data: TMaybe<OrderData[]>;
-  error: TMaybe<Error>;
+  data: Voidable<OrderData[]>;
+  error: Voidable<Error>;
   loading: boolean;
   updating: boolean;
 }
 
-type CancelData = {
-  aMint: PublicKey;
-  bMint: PublicKey;
-  lpSupply: number[];
-  poolAddress: PublicKey;
+type RowData = {
+  id: string;
+  orderTime: BN;
+  pool: PublicKey;
+  side: OrderTypeStruct;
+  supply: BN;
 };
 
 export default (props: Props) => {
-  const data = Maybe.withDefault([], props.data);
-  const error = Maybe.withDefault(undefined, props.error);
+  const data = Maybe.withDefault([], Maybe.of(props.data));
+  const error = Maybe.withDefault(undefined, Maybe.of(props.error));
 
   const popoverRef = useRef<{ close: () => void; open: () => void }>();
-  const [, setAmount] = useState<number>();
-  const [accounts, setAccounts] = useState<Partial<CancelData>>({});
+  const [accounts, setAccounts] = useState<CancelOrderData | undefined>();
   const [checkboxSelection, setCheckboxSelection] = useState<boolean>(false);
   const [selectionModel, setSelectionModel] = useState<GridSelectionModel>([]);
 
   const { execute } = useCancelOrder();
 
-  const rows = useMemo(
+  const columns = useMemo<GridColDef[]>(cols, [checkboxSelection]);
+
+  const rows: RowData[] = useMemo(
     () =>
-      data.map(({ pool, side, time }) => ({
-        id: address(pool).toString(),
-        orderTime: time,
-        pool,
-        side,
+      data.map((order) => ({
+        id: address(order.pool).toString(),
+        orderTime: order.time,
+        pool: order.pool,
+        side: order.side,
+        supply: order.lpBalance,
       })),
     [data]
   );
 
-  const columns = useMemo<GridColDef[]>(() => {
-    const cols = [
-      {
-        headerName: "Token Pair",
-        field: "pool",
-        width: 200,
-        renderCell: TokenPairCell,
-      },
-      {
-        headerName: "Type",
-        field: "orderType",
-        renderCell: OrderTypeCell,
-        width: 50,
-      },
-      {
-        headerName: "Pool Time Frame",
-        field: "ptif",
-        renderCell: PoolTIFCell,
-        width: 50,
-      },
-      {
-        headerName: "Quantity",
-        field: "quantity",
-        resizable: false,
-        renderCell: PoolQuantityCell,
-        flex: 120,
-      },
-      {
-        headerName: "Filled Quantity",
-        field: "filledQuantity",
-        resizable: false,
-        renderCell: PoolFilledQuantityCell,
-        flex: 120,
-      },
-      {
-        headerName: "Order Time",
-        field: "orderTime",
-        renderCell: PoolOrderTimeCell,
-        width: 200,
-      },
-      {
-        headerName: "Time Left",
-        field: "timeLeft",
-        renderCell: PoolTIFLeftCell,
-        width: 200,
-      },
-    ];
-
-    if (checkboxSelection) {
-      return [...cols, { ...GRID_CHECKBOX_SELECTION_COL_DEF, width: 80 }];
-    }
-
-    return cols;
-  }, [checkboxSelection]);
-
   const onCancelOrder = useCallback(
-    ({
-      aAddress,
-      bAddress,
-      lpAmount,
-      lpSupply,
-      poolAddress,
-    }: {
-      aAddress: PublicKey;
-      bAddress: PublicKey;
-      lpAmount: number;
-      lpSupply: number[];
-      poolAddress: PublicKey;
-    }) => {
-      setAmount(lpAmount);
-      setAccounts({
-        aMint: aAddress,
-        bMint: bAddress,
-        lpSupply,
-        poolAddress,
-      });
+    async (cd: CancelOrderData) => {
+      const { a, b, inactive, expired, poolAddress, supply } = cd;
 
-      console.log(lpSupply, lpAmount, aAddress, bAddress);
+      if (inactive || expired) {
+        const amount = supply.toNumber();
 
-      popoverRef.current?.open();
+        await execute({ a, b, poolAddress, amount });
+      } else {
+        setAccounts(cd);
+        popoverRef.current?.open();
+      }
     },
-    [setAmount, setAccounts]
+    [execute, setAccounts]
+  );
+
+  const getDetailPanelContent = useCallback(
+    (rowProps: GridRowParams<RowData>) => (
+      <OrderDetails
+        address={rowProps.row.pool}
+        onCancel={onCancelOrder}
+        side={rowProps.row.side}
+        supply={rowProps.row.supply}
+      />
+    ),
+    [onCancelOrder]
   );
 
   const onApproveCancel = useCallback(
-    async (lpAmount: number) => {
-      const { aMint, bMint, lpSupply, poolAddress } = accounts as CancelData;
-
-      setAmount(lpAmount);
-
-      await execute({
-        aMint,
-        bMint,
-        poolAddress,
-        lpAmount: lpSupply[0] + lpSupply[1],
-      });
+    async (cd: CancelOrderData) => {
+      const { a, b, poolAddress, supply } = cd;
+      const amount = supply.toNumber();
+      await execute({ a, b, poolAddress, amount });
 
       popoverRef.current?.close();
     },
-    [accounts, execute, setAmount]
+    [execute]
   );
 
   const onSelectionModelChange = useCallback(
@@ -176,28 +109,13 @@ export default (props: Props) => {
     // const selectedRows = rows.filter((row) => selectionModel.includes(row.id));
   }, [rows, selectionModel]); // eslint-disable-line
 
-  const getDetailPanelContent = useCallback(
-    (rowProps: GridRowParams) => (
-      <OrderDetails address={rowProps.row.pool} onCancel={onCancelOrder} />
-    ),
-    [onCancelOrder]
-  );
-
   const [detailsHeight] = useState(310);
   const getDetailPanelHeight = useRef(() => detailsHeight);
-
-  const mints = accounts.aMint &&
-    accounts.bMint && [accounts.aMint, accounts.bMint];
 
   return (
     <>
       <UniversalPopover ref={popoverRef}>
-        <CancelOrder
-          amount={1000}
-          mints={mints}
-          onApprove={onApproveCancel}
-          supply={accounts.lpSupply}
-        />
+        <CancelOrder onApprove={onApproveCancel} data={accounts} />
       </UniversalPopover>
 
       <Box py={2}>
