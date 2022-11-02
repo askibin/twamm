@@ -1,6 +1,5 @@
 import type { GridCellParams } from "@mui/x-data-grid-pro";
-
-import Maybe from "../../types/maybe";
+import Maybe from "easy-maybe/lib";
 
 export interface Params extends GridCellParams<number> {}
 

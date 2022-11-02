@@ -1,8 +1,8 @@
 import type { PublicKey } from "@solana/web3.js";
 import type { GridCellParams } from "@mui/x-data-grid-pro";
+import Maybe from "easy-maybe/lib";
 import { lensPath, view } from "ramda";
 
-import Maybe from "../../types/maybe";
 import { formatInterval } from "../../utils/index";
 import { usePoolWithPair } from "../../hooks/use-pool-with-pair";
 

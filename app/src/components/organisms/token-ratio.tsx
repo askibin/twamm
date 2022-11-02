@@ -1,14 +1,13 @@
 import Box from "@mui/material/Box";
+import Maybe, { Extra } from "easy-maybe/lib";
 import { useCallback, useEffect, useReducer, useRef, useState } from "react";
 
-import type { Maybe as TMaybe } from "../../types/maybe.d";
 import * as Styled from "./token-ratio.styled";
 import availableTokens, {
   action,
   initialState,
 } from "../../reducers/select-available-tokens.reducer";
 import CoinPopover from "./coin-popover";
-import Maybe, { Extra } from "../../types/maybe";
 import { NativeToken } from "../../utils/twamm-client";
 import TokenPairForm from "../molecules/token-pair-form";
 import { useJupTokensByMint } from "../../hooks/use-jup-tokens-by-mint";
@@ -16,7 +15,7 @@ import { useTokenPair } from "../../hooks/use-token-pair";
 import { refreshEach } from "../../swr-options";
 
 export interface Props {
-  pairs: TMaybe<AddressPair[]>;
+  pairs: Voidable<AddressPair[]>;
 }
 
 const DEFAULT_ADDRESSES: AddressPair = [
@@ -24,7 +23,8 @@ const DEFAULT_ADDRESSES: AddressPair = [
   "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
 ];
 
-export default function TokenRatio({ pairs }: Props) {
+export default ({ pairs: tokenPairs }: Props) => {
+  const pairs = Maybe.of(tokenPairs);
   const popoverRef = useRef<{ isOpened: boolean; open: () => void }>();
   const [curToken, setCurToken] = useState<number>();
   const [state, dispatch] = useReducer(availableTokens, initialState);
@@ -108,19 +108,19 @@ export default function TokenRatio({ pairs }: Props) {
             onABSwap={onTokenSwap}
             onASelect={onTokenAChoose}
             onBSelect={onTokenBChoose}
-            poolCounters={Maybe.of(selectedPair.data?.poolCounters)}
-            poolsCurrent={Maybe.of(selectedPair.data?.currentPoolPresent)}
-            poolTifs={Maybe.of(selectedPair.data?.tifs)}
-            side={Maybe.of(state.type)}
+            poolCounters={selectedPair.data?.poolCounters}
+            poolsCurrent={selectedPair.data?.currentPoolPresent}
+            poolTifs={selectedPair.data?.tifs}
+            side={state.type}
             tokenA={state.a?.symbol}
             tokenADecimals={state.a?.decimals}
             tokenAImage={state.a?.logoURI}
             tokenB={state.b?.symbol}
             tokenBImage={state.b?.logoURI}
-            tokenPair={Maybe.of(tokenPair)}
+            tokenPair={tokenPair}
           />
         </Box>
       </Styled.Swap>
     </>
   );
-}
+};

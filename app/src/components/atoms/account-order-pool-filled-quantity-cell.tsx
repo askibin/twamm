@@ -1,7 +1,7 @@
 import type { PublicKey } from "@solana/web3.js";
 import type { GridCellParams } from "@mui/x-data-grid-pro";
+import Maybe, { Extra } from "easy-maybe/lib";
 
-import Maybe, { Extra } from "../../types/maybe";
 import { usePoolWithPair } from "../../hooks/use-pool-with-pair";
 
 export interface Params

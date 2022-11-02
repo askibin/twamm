@@ -1,12 +1,11 @@
 import Box from "@mui/material/Box";
+import Maybe from "easy-maybe/lib";
 import SyncAltIcon from "@mui/icons-material/SyncAlt";
 import { useCallback, useMemo, useState } from "react";
 import { Form } from "react-final-form";
 
-import type { Maybe as TMaybe } from "../../types/maybe.d";
 import type { SelectedTif } from "./trade-intervals";
 import * as Styled from "./token-pair-form.styled";
-import Maybe from "../../types/maybe";
 import InTokenField from "./in-token-field";
 import TokenSelect from "../atoms/token-select";
 import TradeIntervals from "./trade-intervals";
@@ -17,36 +16,36 @@ export interface Props {
   onABSwap: () => void;
   onASelect: () => void;
   onBSelect: () => void;
-  poolCounters: TMaybe<PoolCounter[]>;
-  poolsCurrent: TMaybe<boolean[]>;
-  poolTifs: TMaybe<number[]>;
-  side: TMaybe<OrderType>;
+  poolCounters: Voidable<PoolCounter[]>;
+  poolsCurrent: Voidable<boolean[]>;
+  poolTifs: Voidable<number[]>;
+  side: Voidable<OrderType>;
   tokenA?: string;
   tokenADecimals?: number;
   tokenAImage?: string;
   tokenB?: string;
   tokenBImage?: string;
-  tokenPair: TMaybe<TokenPair<JupToken>>;
+  tokenPair: Voidable<TokenPair<JupToken>>;
 }
 
 type ValidationErrors = { a?: Error; b?: Error; amount?: Error; tif?: Error };
 
-const defaultVal = Maybe.withDefault;
+const { withDefault } = Maybe;
 
 export default ({
   onABSwap,
   onASelect,
   onBSelect,
-  poolCounters: mbPoolCounters,
-  poolsCurrent: mbPoolsCurrent,
-  poolTifs: mbTifs,
-  side: mbSide,
+  poolCounters: counters,
+  poolsCurrent,
+  poolTifs,
+  side: s,
   tokenA,
   tokenADecimals,
   tokenAImage,
   tokenB,
   tokenBImage,
-  tokenPair: mbTokenPair,
+  tokenPair: tp,
 }: Props) => {
   const { execute } = useScheduleOrder();
 
@@ -54,11 +53,20 @@ export default ({
   const [submitting, setSubmitting] = useState<boolean>(false);
   const [tif, setTif] = useState<SelectedTif>();
 
-  const tifs = defaultVal(undefined, mbTifs);
-  const currentPoolPresent = defaultVal(undefined, mbPoolsCurrent);
-  const poolCounters = defaultVal(undefined, mbPoolCounters);
-  const side = defaultVal(undefined, mbSide);
-  const tokenPair = defaultVal(undefined, mbTokenPair);
+  const tifs = withDefault<Voidable<number[]>>(undefined, Maybe.of(poolTifs));
+  const currentPoolPresent = withDefault<Voidable<boolean[]>>(
+    undefined,
+    Maybe.of(poolsCurrent)
+  );
+  const poolCounters = withDefault<Voidable<PoolCounter[]>>(
+    undefined,
+    Maybe.of(counters)
+  );
+  const side = withDefault<Voidable<OrderType>>(undefined, Maybe.of(s));
+  const tokenPair = withDefault<Voidable<TokenPair<JupToken>>>(
+    undefined,
+    Maybe.of(tp)
+  );
 
   const intervalTifs = useTIFIntervals(
     tokenPair,
@@ -170,7 +178,7 @@ export default ({
           </Box>
           <Box py={2}>
             <TradeIntervals
-              indexedTifs={Maybe.of(intervalTifs.data)}
+              indexedTifs={intervalTifs.data}
               selectedTif={tif}
               onSelect={onIntervalSelect}
             />

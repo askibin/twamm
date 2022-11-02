@@ -1,8 +1,7 @@
 import Box from "@mui/material/Box";
+import Maybe from "easy-maybe/lib";
 import { useCallback, useEffect, useReducer } from "react";
 
-import type { Maybe as TMaybe } from "../../types/maybe.d";
-import Maybe from "../../types/maybe";
 import intervalsReducer, {
   action,
   initialState,
@@ -12,12 +11,14 @@ import TimeInterval from "../atoms/time-interval";
 export type SelectedTif = [number | undefined, number | undefined];
 
 export interface Props {
-  indexedTifs: TMaybe<IndexedTIF[]>;
+  indexedTifs: Voidable<IndexedTIF[]>;
   onSelect: (arg0: SelectedTif) => void;
   selectedTif?: SelectedTif;
 }
 
-export default ({ indexedTifs, onSelect, selectedTif }: Props) => {
+export default ({ indexedTifs: tifs, onSelect, selectedTif }: Props) => {
+  const indexedTifs = Maybe.of(tifs);
+
   // @ts-ignore
   const [state, dispatch] = useReducer(intervalsReducer, initialState);
 

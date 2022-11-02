@@ -1,10 +1,10 @@
-import type { PublicKey } from "@solana/web3.js";
 import type { BN } from "@project-serum/anchor";
 import type { GridCellParams } from "@mui/x-data-grid-pro";
+import type { Maybe as TMaybe } from "easy-maybe";
+import type { PublicKey } from "@solana/web3.js";
+import Maybe, { Extra } from "easy-maybe/lib";
 import { lensPath, view } from "ramda";
 
-import type { Maybe as TMaybe } from "../../types/maybe.d";
-import Maybe, { Extra } from "../../types/maybe";
 import { expirationTimeToInterval, formatInterval } from "../../utils/index";
 import { usePoolWithPair } from "../../hooks/use-pool-with-pair";
 

@@ -3,7 +3,6 @@ import Typography from "@mui/material/Typography";
 import { useMemo } from "react";
 
 import BlankTokenPairs from "../atoms/token-pair-cards-blank";
-import Maybe, { Extra } from "../../types/maybe";
 import TokenPairCards from "./token-pair-cards";
 import { ConnectWalletGuard } from "./wallet-guard";
 import { useTokenPairs } from "../../hooks/use-token-pairs";
@@ -11,10 +10,9 @@ import { refreshEach } from "../../swr-options";
 
 export default () => {
   const tokenPairs = useTokenPairs(undefined, refreshEach(5 * 60000));
-  const data = Maybe.of(tokenPairs.data);
 
   const content = useMemo(() => {
-    if (Extra.isNothing(data)) {
+    if (!tokenPairs.data) {
       return (
         <ConnectWalletGuard sx={{ p: 2 }}>
           <BlankTokenPairs />
@@ -22,8 +20,8 @@ export default () => {
       );
     }
 
-    return <TokenPairCards data={data} />;
-  }, [data]);
+    return <TokenPairCards data={tokenPairs.data} />;
+  }, [tokenPairs.data]);
 
   return (
     <Box pb={2}>
