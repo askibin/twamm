@@ -1,14 +1,9 @@
-import Box from "@mui/material/Box";
 import Maybe from "easy-maybe/lib";
-import SyncAltIcon from "@mui/icons-material/SyncAlt";
 import { useCallback, useMemo, useState } from "react";
 import { Form } from "react-final-form";
 
 import type { SelectedTif } from "./trade-intervals";
-import * as Styled from "./token-pair-form.styled";
-import InTokenField from "./in-token-field";
-import TokenSelect from "../atoms/token-select";
-import TradeIntervals from "./trade-intervals";
+import TokenPairFormContent from "./token-pair-form-content";
 import useScheduleOrder from "../../hooks/use-schedule-order";
 import useTIFIntervals from "../../hooks/use-tif-intervals";
 
@@ -29,8 +24,6 @@ export interface Props {
 }
 
 type ValidationErrors = { a?: Error; b?: Error; amount?: Error; tif?: Error };
-
-const { withDefault } = Maybe;
 
 export default ({
   onABSwap,
@@ -53,17 +46,20 @@ export default ({
   const [submitting, setSubmitting] = useState<boolean>(false);
   const [tif, setTif] = useState<SelectedTif>();
 
-  const tifs = withDefault<Voidable<number[]>>(undefined, Maybe.of(poolTifs));
-  const currentPoolPresent = withDefault<Voidable<boolean[]>>(
+  const tifs = Maybe.withDefault<Voidable<number[]>>(
+    undefined,
+    Maybe.of(poolTifs)
+  );
+  const currentPoolPresent = Maybe.withDefault<Voidable<boolean[]>>(
     undefined,
     Maybe.of(poolsCurrent)
   );
-  const poolCounters = withDefault<Voidable<PoolCounter[]>>(
+  const poolCounters = Maybe.withDefault<Voidable<PoolCounter[]>>(
     undefined,
     Maybe.of(counters)
   );
-  const side = withDefault<Voidable<OrderType>>(undefined, Maybe.of(s));
-  const tokenPair = withDefault<Voidable<TokenPair<JupToken>>>(
+  const side = Maybe.withDefault<Voidable<OrderType>>(undefined, Maybe.of(s));
+  const tokenPair = Maybe.withDefault<Voidable<TokenPair<JupToken>>>(
     undefined,
     Maybe.of(tp)
   );
@@ -150,45 +146,23 @@ export default ({
   return (
     <Form onSubmit={onSubmit} validate={() => errors}>
       {({ handleSubmit, valid }) => (
-        <form onSubmit={handleSubmit}>
-          <Styled.TokenLabelBox>You pay</Styled.TokenLabelBox>
-          <InTokenField
-            name={tokenA}
-            onChange={onChangeAmount}
-            src={tokenAImage}
-            onSelect={onASelect}
-          />
-          <Styled.OperationImage>
-            <Styled.OperationButton
-              disabled={!tokenA || !tokenB}
-              onClick={onABSwap}
-            >
-              <SyncAltIcon />
-            </Styled.OperationButton>
-          </Styled.OperationImage>
-          <Styled.TokenLabelBox>You receive</Styled.TokenLabelBox>
-          <Box pb={2}>
-            <TokenSelect
-              alt={tokenB}
-              disabled={!tokenA}
-              image={tokenBImage}
-              label={tokenB}
-              onClick={onBSelect}
-            />
-          </Box>
-          <Box py={2}>
-            <TradeIntervals
-              indexedTifs={intervalTifs.data}
-              selectedTif={tif}
-              onSelect={onIntervalSelect}
-            />
-          </Box>
-          <Styled.ConnectBox py={3}>
-            <Styled.ConnectButton type="submit" disabled={!valid || submitting}>
-              {isScheduled ? "Schedule Order" : "Place Order"}
-            </Styled.ConnectButton>
-          </Styled.ConnectBox>
-        </form>
+        <TokenPairFormContent
+          handleSubmit={handleSubmit}
+          intervalTifs={intervalTifs.data}
+          isScheduled={isScheduled}
+          onABSwap={onABSwap}
+          onASelect={onASelect}
+          onBSelect={onBSelect}
+          onChangeAmount={onChangeAmount}
+          onIntervalSelect={onIntervalSelect}
+          submitting={submitting}
+          tif={tif}
+          tokenA={tokenA}
+          tokenAImage={tokenAImage}
+          tokenB={tokenB}
+          tokenBImage={tokenBImage}
+          valid={valid}
+        />
       )}
     </Form>
   );

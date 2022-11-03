@@ -1,6 +1,6 @@
 import Box from "@mui/material/Box";
 import Maybe from "easy-maybe/lib";
-import { useCallback, useEffect, useReducer } from "react";
+import { useCallback, useEffect, useMemo, useReducer } from "react";
 
 import intervalsReducer, {
   action,
@@ -17,7 +17,7 @@ export interface Props {
 }
 
 export default ({ indexedTifs: tifs, onSelect, selectedTif }: Props) => {
-  const indexedTifs = Maybe.of(tifs);
+  const indexedTifs = useMemo(() => Maybe.of(tifs), [tifs]);
 
   // @ts-ignore
   const [state, dispatch] = useReducer(intervalsReducer, initialState);
