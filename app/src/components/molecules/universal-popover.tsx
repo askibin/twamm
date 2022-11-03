@@ -7,6 +7,7 @@ import useBreakpoints from "../../hooks/use-breakpoints";
 
 export interface Props {
   children: ReactNode;
+  onClose?: () => void;
 }
 
 interface ModalProps extends Props {
@@ -14,19 +15,19 @@ interface ModalProps extends Props {
   setOpen: (arg0: boolean) => void;
 }
 
-const Modal = memo(({ children, open, setOpen }: ModalProps) => (
-  <UniversalModal open={open} setOpen={setOpen}>
+const Modal = memo(({ children, onClose, open, setOpen }: ModalProps) => (
+  <UniversalModal onClose={onClose} open={open} setOpen={setOpen}>
     {children}
   </UniversalModal>
 ));
 
-const Drawer = memo(({ children, open, setOpen }: ModalProps) => (
-  <UniversalDrawer open={open} setOpen={setOpen}>
+const Drawer = memo(({ children, onClose, open, setOpen }: ModalProps) => (
+  <UniversalDrawer onClose={onClose} open={open} setOpen={setOpen}>
     {children}
   </UniversalDrawer>
 ));
 
-export default forwardRef(({ children }: Props, ref) => {
+export default forwardRef(({ children, onClose }: Props, ref) => {
   const { isMobile } = useBreakpoints();
   const [open, setOpen] = useState(false);
 
@@ -42,14 +43,14 @@ export default forwardRef(({ children }: Props, ref) => {
 
   if (isMobile) {
     return (
-      <Drawer open={open} setOpen={setOpen}>
+      <Drawer onClose={onClose} open={open} setOpen={setOpen}>
         {children}
       </Drawer>
     );
   }
 
   return (
-    <Modal open={open} setOpen={setOpen}>
+    <Modal onClose={onClose} open={open} setOpen={setOpen}>
       {children}
     </Modal>
   );

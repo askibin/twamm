@@ -1,4 +1,3 @@
-import type { Maybe as TMaybe } from "easy-maybe";
 import Maybe from "easy-maybe/lib";
 import Skeleton from "@mui/material/Skeleton";
 
@@ -6,7 +5,7 @@ import type { MaybeTokens } from "../../hooks/use-tokens-by-mint";
 import * as Styled from "./pair-card-symbols.styled";
 
 export interface Props {
-  data: TMaybe<MaybeTokens>;
+  data: Voidable<MaybeTokens>;
 }
 
 const TokenImage = ({ data }: { data: MaybeTokens[0] }) => {
@@ -25,7 +24,8 @@ const TokenSymbol = ({ data }: { data: MaybeTokens[0] }) => (
 );
 
 export default ({ data }: Props) => {
-  const tokens = Maybe.withDefault<MaybeTokens | undefined>(undefined, data);
+  const mints = Maybe.of(data);
+  const tokens = Maybe.withDefault(undefined, mints);
 
   if (!tokens) return <Skeleton variant="rectangular">Loading...</Skeleton>;
 

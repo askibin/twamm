@@ -1,7 +1,9 @@
+import Grid from "@mui/material/Grid";
 import { useMemo } from "react";
 
-import * as Styled from "./account-orders-details-stats.styled";
-import DetailsCard from "./details-card";
+import StatsList from "./account-orders-details-stats-list";
+import StatsCards from "./account-orders-details-stats-cards";
+import useBreakpoints from "../../hooks/use-breakpoints";
 import { format } from "./account-orders-details-stats.helpers";
 
 export interface Props {
@@ -9,7 +11,9 @@ export interface Props {
 }
 
 export default ({ details }: Props) => {
-  const sizes = useMemo(() => ({ xs: 4, sm: 4, md: 3 }), []);
+  const { isMobile } = useBreakpoints();
+
+  const statsSizes = useMemo(() => ({ xs: 4, sm: 4, md: 3 }), []);
 
   const fields = useMemo(
     () => [
@@ -38,22 +42,12 @@ export default ({ details }: Props) => {
   );
 
   return (
-    <>
-      <Styled.Column item md={sizes.md} sm={sizes.sm} xs={sizes.xs}>
-        <DetailsCard data={fields[0].data} name={fields[0].name} />
-      </Styled.Column>
-      <Styled.Column item md={sizes.md} sm={sizes.sm} xs={sizes.xs}>
-        <DetailsCard data={fields[1].data} name={fields[1].name} />
-      </Styled.Column>
-      <Styled.Column item md={sizes.md} sm={sizes.sm} xs={sizes.xs}>
-        <DetailsCard data={fields[2].data} name={fields[2].name} />
-      </Styled.Column>
-      <Styled.Column item md={sizes.md} sm={sizes.sm} xs={sizes.xs}>
-        <DetailsCard data={fields[3].data} name={fields[3].name} />
-      </Styled.Column>
-      <Styled.Column item md={sizes.md} sm={sizes.sm} xs={sizes.xs}>
-        <DetailsCard data={fields[4].data} name={fields[4].name} />
-      </Styled.Column>
-    </>
+    <Grid container spacing={2}>
+      {isMobile ? (
+        <StatsList fields={fields} />
+      ) : (
+        <StatsCards fields={fields} sizes={statsSizes} />
+      )}
+    </Grid>
   );
 };

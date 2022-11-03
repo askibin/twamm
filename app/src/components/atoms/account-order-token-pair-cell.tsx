@@ -1,4 +1,3 @@
-import Maybe from "easy-maybe/lib";
 import type { GridCellParams } from "@mui/x-data-grid-pro";
 import type { PublicKey } from "@solana/web3.js";
 import { useMemo } from "react";
@@ -33,5 +32,5 @@ export default ({ row }: Pick<Props, "row">) => {
 
   const tokens = useTokensByMint(mints);
 
-  return <PairCardSymbols data={Maybe.of(tokens.data)} />;
+  return <PairCardSymbols data={tokens.data} />;
 };

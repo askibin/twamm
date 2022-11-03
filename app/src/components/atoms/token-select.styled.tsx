@@ -14,8 +14,7 @@ export const TokenField = styled(Stack)`
   flex-grow: 0;
   align-items: center;
   cursor: pointer;
-  ${(props: DisabledBoxProps) =>
-    props.disabled ? `cursor: not-allowed;` : undefined}
+  ${(p: DisabledBoxProps) => (p.disabled ? `cursor: not-allowed;` : undefined)}
 `;
 
 export const TokenIcon = styled(Avatar)`

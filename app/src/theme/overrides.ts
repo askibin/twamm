@@ -163,6 +163,10 @@ export const dark = {
             boxShadow: "0px 8px 32px rgba(0, 0, 0, 0.08)",
             borderRadius: "20px",
           },
+          "& .MuiCard-root": {
+            background: "transparent",
+            border: 0,
+          },
         },
       },
     },

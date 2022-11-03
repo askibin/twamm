@@ -3,18 +3,22 @@ import CloseIcon from "@mui/icons-material/Close";
 import Backdrop from "@mui/material/Backdrop";
 import Modal from "@mui/material/Modal";
 import Fade from "@mui/material/Fade";
-import { useMemo } from "react";
+import { useCallback, useMemo } from "react";
 
 import * as Styled from "./universal-modal.styled";
 
 export interface Props {
   children: ReactNode;
+  onClose?: () => void;
   open: boolean;
   setOpen: (arg0: boolean) => void;
 }
 
-export default ({ children, open, setOpen }: Props) => {
-  const handleClose = () => setOpen(false);
+export default ({ children, onClose, open, setOpen }: Props) => {
+  const handleClose = useCallback(() => {
+    setOpen(false);
+    if (onClose) onClose();
+  }, [onClose, setOpen]);
 
   const backdropProps = useMemo(() => ({ timeout: 500 }), []);
 

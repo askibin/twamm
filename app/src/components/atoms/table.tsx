@@ -15,6 +15,7 @@ interface Props {
   gridProps: DataGridProProps;
   isUpdating?: boolean;
   onRowClick?: (arg0: GridRowParams, arg1: MouseEvent<HTMLElement>) => void;
+  pagination: boolean;
   searchBoxPlaceholderText?: string;
 }
 
@@ -24,6 +25,7 @@ export default ({
   gridProps,
   isUpdating = false,
   onRowClick,
+  pagination = true,
   searchBoxPlaceholderText,
 }: Props) => {
   const [filterText, setFilterText] = useState("");
@@ -73,7 +75,7 @@ export default ({
         getRowId={getRowId}
         initialState={options}
         onRowClick={onRowClick}
-        pagination
+        pagination={pagination}
         rowsPerPageOptions={pages}
         // eslint-disable-next-line react/jsx-props-no-spreading
         {...gridProps}
