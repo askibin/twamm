@@ -15,7 +15,8 @@ interface Props {
   gridProps: DataGridProProps;
   isUpdating?: boolean;
   onRowClick?: (arg0: GridRowParams, arg1: MouseEvent<HTMLElement>) => void;
-  pagination: boolean;
+  pagination?: boolean;
+  search?: boolean;
   searchBoxPlaceholderText?: string;
 }
 
@@ -25,7 +26,8 @@ export default ({
   gridProps,
   isUpdating = false,
   onRowClick,
-  pagination = true,
+  pagination = false,
+  search = false,
   searchBoxPlaceholderText,
 }: Props) => {
   const [filterText, setFilterText] = useState("");
@@ -55,14 +57,16 @@ export default ({
 
   return (
     <>
-      <Styled.Search>
-        <TextField
-          size="small"
-          placeholder={searchBoxPlaceholderText ?? "Search"}
-          onChange={onFilterChange}
-          disabled
-        />
-      </Styled.Search>
+      {search && (
+        <Styled.Search>
+          <TextField
+            size="small"
+            placeholder={searchBoxPlaceholderText ?? "Search"}
+            onChange={onFilterChange}
+            disabled
+          />
+        </Styled.Search>
+      )}
 
       <Styled.Grid
         density="compact"

@@ -70,10 +70,20 @@ export const poolClient = (account: AccountNamespace) => ({
   },
 });
 
-export const tokenPairClient = (account: AccountNamespace) => ({
-  async getTokenPair(addr: PublicKey) {
-    const a: unknown = account.tokenPair.fetch(addr);
+export const tokenPairClient = (account: AccountNamespace) => {
+  const poolCli = poolClient(account);
 
-    return a as TokenPairProgramData;
-  },
-});
+  return {
+    async getTokenPair(addr: PublicKey) {
+      const a: unknown = account.tokenPair.fetch(addr);
+
+      return a as TokenPairProgramData;
+    },
+    async getByPoolAddress(addr: PublicKey) {
+      const p = await poolCli.getPool(addr);
+      const tp: unknown = await account.tokenPair.fetch(p.tokenPair);
+
+      return tp as TokenPairProgramData;
+    },
+  };
+};
