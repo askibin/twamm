@@ -3,7 +3,6 @@ import Box from "@mui/material/Box";
 import ButtonGroup from "@mui/material/ButtonGroup";
 import InfoIcon from "@mui/icons-material/Info";
 import Popover from "@mui/material/Popover";
-import Skeleton from "@mui/material/Skeleton";
 import { memo, useCallback, useState } from "react";
 
 import * as Styled from "./time-interval.styled";
@@ -27,7 +26,7 @@ const Intervals = memo(
     values?: number[];
     onSelect: (e: MouseEvent<HTMLElement>) => void;
   }) => {
-    if (!values) return <Skeleton variant="rectangular" />;
+    if (!values) return <Styled.BlankIntervals variant="rectangular" />;
 
     return (
       <ButtonGroup variant="outlined" aria-label="outlined button group">
