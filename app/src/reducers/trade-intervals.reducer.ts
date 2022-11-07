@@ -59,7 +59,12 @@ export default <S extends Partial<State>, A extends Action<any>>(
       const { indexedTifs, selectedTif }: Parameters<typeof setTifs>[0] =
         action.payload;
 
-      const tifsLeft = indexedTifs.map((d: IndexedTIF) => d.left);
+      const tifsLeft = indexedTifs.map((d: IndexedTIF) => {
+        // TODO: fix closed pools
+        // const isIntervalEnded = d.left === 0;
+
+        return d.left; // isIntervalEnded ? d.tif : d.left;
+      });
 
       let periodTifs;
       let scheduledTif;

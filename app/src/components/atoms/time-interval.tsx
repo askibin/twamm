@@ -30,16 +30,18 @@ const Intervals = memo(
 
     return (
       <ButtonGroup variant="outlined" aria-label="outlined button group">
-        {values.map((value: number) => (
-          <Styled.ScheduleButton
-            data-interval={value}
-            key={value}
-            onClick={onSelect}
-            disabled={value === selectedValue}
-          >
-            {formatInterval(value)}
-          </Styled.ScheduleButton>
-        ))}
+        {values
+          .filter((value: number) => value !== 0)
+          .map((value: number) => (
+            <Styled.ScheduleButton
+              data-interval={value}
+              key={value}
+              onClick={onSelect}
+              disabled={value === selectedValue}
+            >
+              {formatInterval(value)}
+            </Styled.ScheduleButton>
+          ))}
       </ButtonGroup>
     );
   }
