@@ -5,6 +5,7 @@ import Button from "@mui/material/Button";
 import FormControl from "@mui/material/FormControl";
 import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
+import Radio from "@mui/material/Radio";
 import { Form } from "react-final-form";
 import { TextField } from "mui-rff";
 import { useCallback } from "react";
@@ -61,17 +62,23 @@ export default function ClusterSelector({ handleClose = () => {} }: Props) {
       <FormControl>
         <List>
           {clusters.map(({ endpoint, name }) => (
-            <ListItem
-              data-endpoint={endpoint}
-              key={endpoint}
-              onClick={handleListItemClick}
-              selected={cluster.endpoint === endpoint}
-            >
-              {name}
-            </ListItem>
+            <>
+              <ListItem
+                data-endpoint={endpoint}
+                key={endpoint}
+                onClick={handleListItemClick}
+                selected={cluster.endpoint === endpoint}
+              >
+              <Radio />
+                {name}
+              </ListItem>
+            </>
           ))}
           <Form
-            initialValues={{ endpoint: cluster.endpoint }}
+            initialValues={{
+              endpoint:
+                cluster.moniker === "custom" ? undefined : cluster.endpoint,
+            }}
             onSubmit={handleFormSubmit}
             validate={clusterValidator(
               yup.object().shape({

@@ -1,20 +1,26 @@
 import type { ReactNode } from "react";
 import CloseIcon from "@mui/icons-material/Close";
 import Backdrop from "@mui/material/Backdrop";
-import Modal from "@mui/material/Modal";
 import Fade from "@mui/material/Fade";
 import { useCallback, useMemo } from "react";
 
 import * as Styled from "./universal-modal.styled";
 
 export interface Props {
+  arialLabelledBy?: string;
   children: ReactNode;
   onClose?: () => void;
   open: boolean;
   setOpen: (arg0: boolean) => void;
 }
 
-export default ({ children, onClose, open, setOpen }: Props) => {
+export default ({
+  ariaLabelledBy,
+  children,
+  onClose,
+  open,
+  setOpen,
+}: Props) => {
   const handleClose = useCallback(() => {
     setOpen(false);
     if (onClose) onClose();
@@ -23,7 +29,8 @@ export default ({ children, onClose, open, setOpen }: Props) => {
   const backdropProps = useMemo(() => ({ timeout: 500 }), []);
 
   return (
-    <Modal
+    <Styled.Popover
+      aria-labelledby={ariaLabelledBy || undefined}
       BackdropComponent={Backdrop}
       BackdropProps={backdropProps}
       closeAfterTransition
@@ -38,6 +45,6 @@ export default ({ children, onClose, open, setOpen }: Props) => {
           {children}
         </Styled.Inner>
       </Fade>
-    </Modal>
+    </Styled.Popover>
   );
 };

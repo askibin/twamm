@@ -6,8 +6,15 @@ import UniversalModal from "./universal-modal";
 import useBreakpoints from "../../hooks/use-breakpoints";
 
 export interface Props {
+  ariaLabelledBy?: string;
   children: ReactNode;
   onClose?: () => void;
+}
+
+export interface Ref {
+  close: () => void;
+  isOpened: boolean;
+  open: () => void;
 }
 
 interface ModalProps extends Props {
@@ -15,11 +22,18 @@ interface ModalProps extends Props {
   setOpen: (arg0: boolean) => void;
 }
 
-const Modal = memo(({ children, onClose, open, setOpen }: ModalProps) => (
-  <UniversalModal onClose={onClose} open={open} setOpen={setOpen}>
-    {children}
-  </UniversalModal>
-));
+const Modal = memo(
+  ({ ariaLabelledBy, children, onClose, open, setOpen }: ModalProps) => (
+    <UniversalModal
+      ariaLabelledBy={ariaLabelledBy}
+      onClose={onClose}
+      open={open}
+      setOpen={setOpen}
+    >
+      {children}
+    </UniversalModal>
+  )
+);
 
 const Drawer = memo(({ children, onClose, open, setOpen }: ModalProps) => (
   <UniversalDrawer onClose={onClose} open={open} setOpen={setOpen}>
@@ -27,31 +41,38 @@ const Drawer = memo(({ children, onClose, open, setOpen }: ModalProps) => (
   </UniversalDrawer>
 ));
 
-export default forwardRef(({ children, onClose }: Props, ref) => {
-  const { isMobile } = useBreakpoints();
-  const [open, setOpen] = useState(false);
+export default forwardRef(
+  ({ ariaLabelledBy, children, onClose }: Props, ref) => {
+    const { isMobile } = useBreakpoints();
+    const [open, setOpen] = useState(false);
 
-  useImperativeHandle(ref, () => ({
-    close() {
-      setOpen(false);
-    },
-    isOpened: open,
-    open() {
-      setOpen(true);
-    },
-  }));
+    useImperativeHandle(ref, () => ({
+      close() {
+        setOpen(false);
+      },
+      isOpened: open,
+      open() {
+        setOpen(true);
+      },
+    }));
 
-  if (isMobile) {
+    if (isMobile) {
+      return (
+        <Drawer onClose={onClose} open={open} setOpen={setOpen}>
+          {children}
+        </Drawer>
+      );
+    }
+
     return (
-      <Drawer onClose={onClose} open={open} setOpen={setOpen}>
+      <Modal
+        ariaLabelledBy={ariaLabelledBy}
+        onClose={onClose}
+        open={open}
+        setOpen={setOpen}
+      >
         {children}
-      </Drawer>
+      </Modal>
     );
   }
-
-  return (
-    <Modal onClose={onClose} open={open} setOpen={setOpen}>
-      {children}
-    </Modal>
-  );
-});
+);

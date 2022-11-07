@@ -1,74 +1,72 @@
 import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
-import CancelIcon from "@mui/icons-material/Cancel";
-import DoneIcon from "@mui/icons-material/Done";
-import RefreshIcon from "@mui/icons-material/Refresh";
 import TuneIcon from "@mui/icons-material/Tune";
-import UpdateIcon from "@mui/icons-material/Update";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
 
 import * as Styled from "./header.styled";
 import SettingsModal from "../molecules/settings-modal";
 import TransactionRunnerModal from "../molecules/transaction-runner-modal";
+import TransactionProgress from "./transaction-progress";
+import UniversalPopover, { Ref } from "../molecules/universal-popover";
 import useBreakpoints from "../../hooks/use-breakpoints";
-import useTxRunnerContext from "../../hooks/use-transaction-runner-context";
-import { useSnackbar } from "../../contexts/notification-context";
 
 export default () => {
-  const { isDesktop } = useBreakpoints();
-  const { active, error, signature } = useTxRunnerContext();
-  const { enqueueSnackbar } = useSnackbar();
+  const { isDesktop, isMobile } = useBreakpoints();
 
   const [txOpen, setTxOpen] = useState<boolean>(false);
   const [cfgOpen, setCfgOpen] = useState<boolean>(false);
 
-  const txStateIcon = useMemo(() => {
-    if (error) return <CancelIcon />;
-    if (signature) return <DoneIcon />;
-    if (active) return <RefreshIcon />;
-    return <UpdateIcon />;
-  }, [active, error, signature]);
+  const runnerRef = useRef<Ref>();
+  const settingsRef = useRef<Ref>();
 
-  useEffect(() => {
-    if (active) {
-      enqueueSnackbar("Transaction is in progress...", {
-        variant: "info",
-        autoHideDuration: 1e3,
-      });
-    }
-    return () => {};
-  }, [active, enqueueSnackbar]);
+  const onSettingsToggle = useCallback(
+    (flag: boolean) => {
+      setCfgOpen(flag);
+      if (flag) settingsRef.current?.open();
+      else settingsRef.current?.close();
+    },
+    [setCfgOpen]
+  );
+
+  const onTxStatusToggle = useCallback(
+    (flag: boolean) => {
+      setTxOpen(flag);
+      if (flag) runnerRef.current?.open();
+      else runnerRef.current?.close();
+    },
+    [setTxOpen]
+  );
 
   return (
     <>
-      <TransactionRunnerModal open={txOpen} setOpen={setTxOpen} />
-      <SettingsModal open={cfgOpen} setOpen={setCfgOpen} />
+      <UniversalPopover ariaLabelledBy="tx-runner-modal-title" ref={runnerRef}>
+        <TransactionRunnerModal id="tx-runner-modal-title" />
+      </UniversalPopover>
+
+      <UniversalPopover ariaLabelledBy="settings-modal-title" ref={settingsRef}>
+        <SettingsModal id="settings-modal-title" />
+      </UniversalPopover>
 
       <AppBar aria-labelledby="header" position="static">
         <Styled.Header variant={isDesktop ? "dense" : undefined}>
           <Styled.Logo direction="row" pr={2}>
             <Styled.Image src="/images/solana-logo.png">Solana</Styled.Image>
-            TWAMM
+            {isMobile ? null : "TWAMM"}
           </Styled.Logo>
 
           <Styled.Controls direction="row">
             <Box px={2}>
-              <Styled.UtilsControl onClick={() => setCfgOpen(true)}>
+              <Styled.UtilsControl onClick={() => onSettingsToggle(true)}>
                 <TuneIcon />
               </Styled.UtilsControl>
             </Box>
             <Box pr={2}>
-              <Styled.UtilsControl
-                istxactive={active ? "true" : "false"}
-                istxerror={error ? "true" : "false"}
-                istxsuccess={signature ? "true" : "false"}
-                onClick={() => setTxOpen(true)}
-              >
-                {txStateIcon}
-              </Styled.UtilsControl>
+              <TransactionProgress setOpen={() => onTxStatusToggle(true)} />
             </Box>
-            <WalletMultiButton />
+            <Box py={isDesktop ? 1 : 0}>
+              <WalletMultiButton />
+            </Box>
           </Styled.Controls>
         </Styled.Header>
       </AppBar>
