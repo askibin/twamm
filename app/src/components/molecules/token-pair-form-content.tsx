@@ -3,6 +3,7 @@ import SyncAltIcon from "@mui/icons-material/SyncAlt";
 
 import type { SelectedTif } from "./trade-intervals";
 import * as Styled from "./token-pair-form-content.styled";
+import ConnectButton from "../atoms/token-pair-form-content-button";
 import InTokenField from "./in-token-field";
 import TokenSelect from "../atoms/token-select";
 import TradeIntervals from "./trade-intervals";
@@ -72,10 +73,8 @@ export default ({
         onSelect={onIntervalSelect}
       />
     </Box>
-    <Styled.ConnectBox py={3}>
-      <Styled.ConnectButton type="submit" disabled={!valid || submitting}>
-        {isScheduled ? "Schedule Order" : "Place Order"}
-      </Styled.ConnectButton>
-    </Styled.ConnectBox>
+    <Box py={3}>
+      <ConnectButton scheduled={isScheduled} disabled={!valid || submitting} />
+    </Box>
   </form>
 );

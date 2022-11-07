@@ -15,7 +15,6 @@ import useBreakpoints from "../../hooks/use-breakpoints";
 import usePoolDetails from "../../hooks/use-pool-details";
 import useTokenPairByPool from "../../hooks/use-token-pair-by-pool";
 import useTokensByMint from "../../hooks/use-tokens-by-mint";
-import WalletGuard from "./wallet-guard";
 import { address as addr } from "../../utils/twamm-client";
 
 export interface Props {
@@ -34,19 +33,17 @@ const Content = ({
   onCancelOrder: () => void;
   tokens: Voidable<MaybeTokens>;
 }) => (
-  <WalletGuard>
-    <Stack direction="column" spacing={2}>
-      <Typography variant="h5">
-        <PairCardSymbols data={tokens} />
-      </Typography>
-      <Stats details={details} />
-      <Control
-        expired={details.expired}
-        inactive={details.inactive}
-        onClick={onCancelOrder}
-      />
-    </Stack>
-  </WalletGuard>
+  <Stack direction="column" spacing={2}>
+    <Typography variant="h5">
+      <PairCardSymbols data={tokens} />
+    </Typography>
+    <Stats details={details} />
+    <Control
+      expired={details.expired}
+      inactive={details.inactive}
+      onClick={onCancelOrder}
+    />
+  </Stack>
 );
 
 export default ({ address, onCancel, side, supply }: Props) => {
