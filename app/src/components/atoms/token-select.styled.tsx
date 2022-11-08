@@ -8,10 +8,6 @@ interface DisabledBoxProps extends BoxProps {
   disabled?: boolean;
 }
 
-interface TokenIconProps extends AvatarProps {
-  isMobile?: boolean;
-}
-
 export const TokenField = styled(Stack)`
   border-radius: 16px;
   display: flex;
@@ -26,14 +22,12 @@ export const TokenIcon = styled(Avatar)`
   width: 60px;
   height: 60px;
   margin-right: 12px;
+`;
 
-  ${(p: TokenIconProps) =>
-    p.isMobile &&
-    `
-      width: 30px;
-      height: 30px;
-      margin-right: 4px;
-    `}
+export const MobileTokenIcon = styled(Avatar)`
+  width: 30px;
+  height: 30px;
+  margin-right: 4px;
 `;
 
 export const TokenName = styled("span")`

@@ -39,7 +39,16 @@ export default ({ alt, disabled = false, image, label, onClick }: Props) => {
         onClick={disabled ? handlePopoverOpen : onClick}
         disabled={disabled}
       >
-        <Styled.TokenIcon isMobile={isMobile} alt={alt} src={image}>
+        {isMobile ? (
+          <Styled.MobileTokenIcon alt={alt} src={image}>
+            {disabled ? <CancelIcon /> : <QuestionMarkIcon />}
+          </Styled.MobileTokenIcon>
+        ) : (
+          <Styled.TokenIcon alt={alt} src={image}>
+            {disabled ? <CancelIcon /> : <QuestionMarkIcon />}
+          </Styled.TokenIcon>
+        )}
+        <Styled.TokenIcon alt={alt} src={image}>
           {disabled ? <CancelIcon /> : <QuestionMarkIcon />}
         </Styled.TokenIcon>
         <Styled.TokenName>{label ?? "-"}</Styled.TokenName>
