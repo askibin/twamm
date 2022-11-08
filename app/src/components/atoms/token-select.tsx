@@ -48,9 +48,6 @@ export default ({ alt, disabled = false, image, label, onClick }: Props) => {
             {disabled ? <CancelIcon /> : <QuestionMarkIcon />}
           </Styled.TokenIcon>
         )}
-        <Styled.TokenIcon alt={alt} src={image}>
-          {disabled ? <CancelIcon /> : <QuestionMarkIcon />}
-        </Styled.TokenIcon>
         <Styled.TokenName>{label ?? "-"}</Styled.TokenName>
         <Styled.TokenControl>
           <ArrowDropDownIcon />
