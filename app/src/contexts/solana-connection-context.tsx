@@ -3,50 +3,18 @@ import type { FC, ReactNode } from "react";
 import { clusterApiUrl, Connection } from "@solana/web3.js";
 import { createContext, useCallback, useMemo, useState } from "react";
 
+import endpointStorage from "../utils/cluster-endpoint-storage";
 import { ClusterApiUrl } from "../env";
 
-const clusterStorage = (function () {
-  const STORAGE_KEY = "twammClusterEndpoint";
-  const ENABLE_STORAGE_KEY = "twammEnableClusterEndpoint";
+const clusterStorage = endpointStorage();
 
-  const self = {
-    disable() {
-      if (global.localStorage) {
-        global.localStorage.removeItem(ENABLE_STORAGE_KEY);
-      }
-    },
-    enable() {
-      if (global.localStorage) {
-        global.localStorage.setItem(ENABLE_STORAGE_KEY, "1");
-      }
-    },
-    enabled() {
-      if (global.localStorage) {
-        return global.localStorage.getItem(ENABLE_STORAGE_KEY) === "1";
-      }
+export type Commitment = "confirmed";
 
-      return false;
-    },
-    get() {
-      if (global.localStorage) {
-        const uri = global.localStorage.getItem(STORAGE_KEY);
-        return uri ? decodeURI(uri) : undefined;
-      }
-      return undefined;
-    },
-    set(endpoint: string) {
-      if (globalThis.localStorage) {
-        self.enable();
-        globalThis.localStorage.setItem(
-          STORAGE_KEY,
-          encodeURI(endpoint.trim())
-        );
-      }
-    },
-  };
-
-  return self;
-})();
+export type CustomClusterInfo = {
+  name: "Custom";
+  endpoint: string;
+  moniker: "custom";
+};
 
 export type ClusterInfo = {
   name: string;
@@ -54,7 +22,18 @@ export type ClusterInfo = {
   moniker?: Cluster | "custom";
 };
 
-export type Commitment = "confirmed";
+export const endpoints: Record<string, ClusterInfo> = {
+  solana: {
+    name: "Solana",
+    endpoint: ClusterApiUrl || clusterApiUrl("mainnet-beta"),
+    moniker: "mainnet-beta",
+  },
+  custom: {
+    name: "Custom",
+    endpoint: clusterStorage.get() ?? "",
+    moniker: "custom",
+  },
+};
 
 export type BlockchainConnectionContextType = {
   readonly cluster: ClusterInfo;
@@ -73,30 +52,7 @@ export const BlockchainConnectionProvider: FC<{ children: ReactNode }> = ({
 }) => {
   const [commitments] = useState<Commitment[]>(["confirmed"]);
 
-  const [clusters] = useState<ClusterInfo[]>([
-    {
-      name: "Solana",
-      endpoint: ClusterApiUrl || clusterApiUrl("mainnet-beta"),
-      moniker: "mainnet-beta",
-    },
-    {
-      name: "Custom",
-      endpoint: ClusterApiUrl ?? '',
-      moniker: "custom",
-    },
-    /*
-     *{
-     *  name: "Testnet",
-     *  endpoint: clusterApiUrl("testnet"),
-     *  moniker: "testnet",
-     *},
-     *{
-     *  name: "Devnet",
-     *  endpoint: clusterApiUrl("devnet"),
-     *  moniker: "devnet",
-     *},
-     */
-  ]);
+  const [clusters] = useState([endpoints.solana, endpoints.custom]);
 
   const initialCommitment = commitments[0];
 
@@ -105,11 +61,7 @@ export const BlockchainConnectionProvider: FC<{ children: ReactNode }> = ({
     : undefined;
 
   const initialCluster: ClusterInfo = customEndpoint
-    ? {
-        name: "Custom",
-        endpoint: customEndpoint,
-        moniker: "custom",
-      }
+    ? endpoints.custom
     : clusters[0];
 
   const [commitment] = useState(initialCommitment);
@@ -117,7 +69,7 @@ export const BlockchainConnectionProvider: FC<{ children: ReactNode }> = ({
 
   const changeCluster = useCallback(
     (info: ClusterInfo) => {
-      if (info.moniker === "custom") {
+      if (info.moniker === endpoints.custom.moniker) {
         clusterStorage.enable();
         clusterStorage.set(info.endpoint);
       } else {
@@ -125,7 +77,7 @@ export const BlockchainConnectionProvider: FC<{ children: ReactNode }> = ({
       }
       setCluster(info);
     },
-    [clusterStorage, setCluster]
+    [setCluster]
   );
 
   const createConnection = useCallback(

@@ -11,16 +11,20 @@ export interface Props {
 
 export default ({ id }: Props) => (
   <Box p={2}>
-    <Typography id={id} variant="h5" pb={2}>
+    <Typography id={id} variant="h5" pb={1}>
       Settings
     </Typography>
-    <Styled.Setting direction="row" py={3}>
+    <Styled.Setting direction="row" py={1}>
       <Styled.SettingLabel variant="body2">Explorer</Styled.SettingLabel>
       <ExplorerSelector />
     </Styled.Setting>
-    <Styled.Line />
-    <Styled.ClusterSetting py={3}>
-      <Typography variant="body2">Cluster Selector</Typography>
+    <Box py={2}>
+      <Styled.Line />
+    </Box>
+    <Styled.ClusterSetting>
+      <Typography variant="body2" pb={1}>
+        Cluster Selector
+      </Typography>
       <ClusterSelector />
     </Styled.ClusterSetting>
   </Box>
