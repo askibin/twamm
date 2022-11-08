@@ -9,4 +9,5 @@ export const CardList = styled(List)`
 
 export const CardListItem = styled(ListItem)`
   width: auto;
+  padding-left: 0;
 `;
