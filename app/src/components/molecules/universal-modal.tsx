@@ -7,7 +7,7 @@ import { useCallback, useMemo } from "react";
 import * as Styled from "./universal-modal.styled";
 
 export interface Props {
-  arialLabelledBy?: string;
+  ariaLabelledBy?: string;
   children: ReactNode;
   onClose?: () => void;
   open: boolean;
@@ -30,7 +30,7 @@ export default ({
 
   return (
     <Styled.Popover
-      aria-labelledby={ariaLabelledBy || undefined}
+      aria-labelledby={ariaLabelledBy}
       BackdropComponent={Backdrop}
       BackdropProps={backdropProps}
       closeAfterTransition

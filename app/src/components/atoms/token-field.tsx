@@ -4,6 +4,7 @@ import { useCallback, useState } from "react";
 
 import * as Styled from "./token-field.styled";
 import usePrice from "../../hooks/use-price";
+import { isFloat } from "../../utils/index";
 
 export interface Props {
   name?: string;
@@ -37,7 +38,13 @@ export default ({ name, onChange: handleChange }: Props) => {
         value={amount}
         onChange={onChange}
       />
-      <Styled.TokenAmountInUSD>~${amountUsd}</Styled.TokenAmountInUSD>
+      <Styled.TokenAmountInUSD>
+        {amountUsd === "0"
+          ? `$0`
+          : `~$${
+              isFloat(amountUsd) ? Number(amountUsd).toFixed(2) : amountUsd
+            }`}
+      </Styled.TokenAmountInUSD>
     </Styled.TokenField>
   );
 };

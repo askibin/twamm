@@ -37,6 +37,10 @@ export default ({ details }: Props) => {
         name: "Min/Avg/Max Price",
         data: format.prices(details),
       },
+      {
+        name: "Your average price",
+        data: "?",
+      },
     ],
     [details]
   );

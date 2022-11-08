@@ -13,6 +13,7 @@ export const columns = () => {
       field: "pool",
       width: 200,
       renderCell: TokenPairCell,
+      // replace type with arrow & direction
     },
     {
       headerName: "Type",

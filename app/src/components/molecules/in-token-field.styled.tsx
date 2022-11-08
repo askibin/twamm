@@ -13,4 +13,5 @@ export const TokenTotal = styled(Box)`
   font-size: 13px;
   font-weight: 600;
   padding-top: 10px;
+  text-align: right;
 `;

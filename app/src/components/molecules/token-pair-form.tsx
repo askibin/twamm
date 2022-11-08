@@ -17,9 +17,7 @@ export interface Props {
   side: Voidable<OrderType>;
   tokenA?: string;
   tokenADecimals?: number;
-  tokenAImage?: string;
   tokenB?: string;
-  tokenBImage?: string;
   tokenPair: Voidable<TokenPair<JupToken>>;
 }
 
@@ -35,9 +33,7 @@ export default ({
   side: s,
   tokenA,
   tokenADecimals,
-  tokenAImage,
   tokenB,
-  tokenBImage,
   tokenPair: tp,
 }: Props) => {
   const { execute } = useScheduleOrder();
@@ -46,23 +42,14 @@ export default ({
   const [submitting, setSubmitting] = useState<boolean>(false);
   const [tif, setTif] = useState<SelectedTif>();
 
-  const tifs = Maybe.withDefault<Voidable<number[]>>(
-    undefined,
-    Maybe.of(poolTifs)
-  );
-  const currentPoolPresent = Maybe.withDefault<Voidable<boolean[]>>(
+  const tifs = Maybe.withDefault(undefined, Maybe.of(poolTifs));
+  const currentPoolPresent = Maybe.withDefault(
     undefined,
     Maybe.of(poolsCurrent)
   );
-  const poolCounters = Maybe.withDefault<Voidable<PoolCounter[]>>(
-    undefined,
-    Maybe.of(counters)
-  );
-  const side = Maybe.withDefault<Voidable<OrderType>>(undefined, Maybe.of(s));
-  const tokenPair = Maybe.withDefault<Voidable<TokenPair<JupToken>>>(
-    undefined,
-    Maybe.of(tp)
-  );
+  const poolCounters = Maybe.withDefault(undefined, Maybe.of(counters));
+  const side = Maybe.withDefault(undefined, Maybe.of(s));
+  const tokenPair = Maybe.withDefault(undefined, Maybe.of(tp));
 
   const intervalTifs = useTIFIntervals(
     tokenPair,
@@ -157,10 +144,8 @@ export default ({
           onIntervalSelect={onIntervalSelect}
           submitting={submitting}
           tif={tif}
-          tokenA={tokenA}
-          tokenAImage={tokenAImage}
-          tokenB={tokenB}
-          tokenBImage={tokenBImage}
+          tokenPair={tokenPair}
+          tradeSide={side}
           valid={valid}
         />
       )}

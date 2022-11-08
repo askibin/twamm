@@ -4,10 +4,12 @@ import FormControl from "@mui/material/FormControl";
 import Select, { SelectChangeEvent } from "@mui/material/Select";
 import { useState } from "react";
 
-const data = new Map([["solscan", "https://solscan.io?tx="]]);
+const data = {
+  solscan: { uri: "https://solscan.io?tx=" },
+};
 
 export default () => {
-  const [explorer, setExplorer] = useState<string>(data.get("solscan"));
+  const [explorer, setExplorer] = useState<string>(data.solscan.uri);
 
   const handleChange = (event: SelectChangeEvent) => {
     setExplorer(event.target.value);
@@ -23,7 +25,7 @@ export default () => {
         label="Explorer"
         onChange={handleChange}
       >
-        <MenuItem value={data.get("solscan")}>Solscan</MenuItem>
+        <MenuItem value={data.solscan.uri}>Solscan</MenuItem>
       </Select>
     </FormControl>
   );

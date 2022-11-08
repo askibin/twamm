@@ -114,9 +114,7 @@ export default ({ pairs: tokenPairs }: Props) => {
             side={state.type}
             tokenA={state.a?.symbol}
             tokenADecimals={state.a?.decimals}
-            tokenAImage={state.a?.logoURI}
             tokenB={state.b?.symbol}
-            tokenBImage={state.b?.logoURI}
             tokenPair={tokenPair}
           />
         </Box>

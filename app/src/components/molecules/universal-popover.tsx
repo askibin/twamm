@@ -6,7 +6,7 @@ import UniversalModal from "./universal-modal";
 import useBreakpoints from "../../hooks/use-breakpoints";
 
 export interface Props {
-  ariaLabelledBy?: string;
+  ariaLabelledBy?: string; // eslint-disable-line react/no-unused-prop-types
   children: ReactNode;
   onClose?: () => void;
 }

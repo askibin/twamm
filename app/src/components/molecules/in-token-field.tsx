@@ -5,18 +5,20 @@ import type { Props as SelectProps } from "../atoms/token-select";
 import * as Styled from "./in-token-field.styled";
 import TokenField from "../atoms/token-field";
 import TokenSelect from "../atoms/token-select";
+import useBalance from "../../hooks/use-balance";
 
 export interface Props {
+  address?: string;
   name?: string;
-  src?: string;
-  onSelect: SelectProps["onClick"];
   onChange: FieldProps["onChange"];
+  onSelect: SelectProps["onClick"];
+  src?: string;
 }
 
-export default ({ name, src, onSelect, onChange }: Props) => {
-  const { data: total } = { data: 0 };
+export default ({ address, name, onChange, onSelect, src }: Props) => {
+  const balance = useBalance(address);
 
-  const displayName = name ?? "-";
+  const displayName = name ?? "";
 
   return (
     <Styled.TokenField>
@@ -32,7 +34,7 @@ export default ({ name, src, onSelect, onChange }: Props) => {
         <Grid item xs={12} sm={8}>
           <TokenField name={name} onChange={onChange} />
           <Styled.TokenTotal>
-            {total ?? "-"} {displayName}
+            Your Balance: {balance.data ?? "..."} {displayName}
           </Styled.TokenTotal>
         </Grid>
       </Grid>
