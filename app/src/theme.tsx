@@ -2,11 +2,9 @@ import type { PaletteMode } from "@mui/material";
 import type { Theme } from "@mui/material/styles";
 import darkScrollbar from "@mui/material/darkScrollbar";
 import { grey } from "@mui/material/colors";
-import { lensPath, pipe, set, view } from "ramda";
+import { lensPath, pipe, set } from "ramda";
 
-// Temporary import theme from the separate package
-// eslint-disable-next-line import/no-relative-packages
-import { theme as kitTheme } from "../packages/material-kit-react/src/theme/index";
+import { theme as kitTheme } from "./theme/external-theme";
 import { components, palette } from "./theme/index";
 
 const lensScrollbar = lensPath([
@@ -34,46 +32,11 @@ const getOverrides = (theme: Theme, mode: PaletteMode) => {
   return setScrollbar(theme);
 };
 
-declare module "@mui/material/styles" {
-  interface BreakpointOverrides {
-    xs: true;
-    sm: true;
-    md: true;
-    lg: true;
-    xl: true;
-    mobile: true;
-    tablet: true;
-    laptop: true;
-    desktop: true;
-  }
-  interface ColorOverrides {
-    white: {
-      600: true;
-    };
-  }
-}
-
-const lensBreakpoints = lensPath(["breakpoints", "values"]);
-
-const getBreakpoints = (theme: Theme) => {
-  const values = view(lensBreakpoints, theme);
-  const setBreakpoints = set(lensBreakpoints, {
-    ...values,
-    mobile: 0,
-    tablet: 640,
-    laptop: 1024,
-    desktop: 1200,
-  });
-
-  return setBreakpoints(theme);
-};
-
 export const enhanceTheme = (theme: Theme) =>
   pipe(
     palette("background"),
     components,
-    palette("text"),
-    getBreakpoints
+    palette("text")
   )(getOverrides(theme, "dark"));
 
 export { kitTheme };
