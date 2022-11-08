@@ -1,5 +1,4 @@
 import type { BoxProps } from "@mui/material/Box";
-import type { AvatarProps } from "@mui/material/Avatar";
 import Avatar from "@mui/material/Avatar";
 import Stack from "@mui/material/Stack";
 import { styled } from "@mui/material/styles";

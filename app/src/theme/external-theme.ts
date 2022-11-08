@@ -256,7 +256,7 @@ export const theme = createTheme({
       fontWeight: 600,
     },
     fontFamily:
-      '"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji"',
+      '"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji"', // eslint-disable-line max-len
     body1: {
       fontSize: "1rem",
       fontWeight: 400,
