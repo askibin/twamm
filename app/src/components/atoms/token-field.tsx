@@ -27,7 +27,7 @@ export default ({ name, onChange: handleChange }: Props) => {
   );
 
   const amountUsd = Maybe.withDefault(
-    "-",
+    undefined,
     Maybe.andMap((p) => String(Math.round(p) * amount), Maybe.of(price.data))
   );
 
@@ -39,10 +39,10 @@ export default ({ name, onChange: handleChange }: Props) => {
         onChange={onChange}
       />
       <Styled.TokenAmountInUSD>
-        {amountUsd === "0"
+        {!amountUsd || amountUsd === "0"
           ? `$0`
           : `~$${
-              isFloat(amountUsd) ? Number(amountUsd).toFixed(2) : amountUsd
+              isFloat(amountUsd) ? Number(amountUsd).toFixed(2) : amountUsd ?? 0
             }`}
       </Styled.TokenAmountInUSD>
     </Styled.TokenField>
