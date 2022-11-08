@@ -6,6 +6,7 @@ import Popover from "@mui/material/Popover";
 import { memo, useCallback, useState } from "react";
 
 import * as Styled from "./time-interval.styled";
+import useBreakpoints from "../../hooks/use-breakpoints";
 import { formatInterval } from "../../utils/index";
 
 export interface Props {
@@ -26,22 +27,35 @@ const Intervals = memo(
     values?: number[];
     onSelect: (e: MouseEvent<HTMLElement>) => void;
   }) => {
+    const { isMobile } = useBreakpoints();
+
     if (!values) return <Styled.BlankIntervals variant="rectangular" />;
 
     return (
       <ButtonGroup variant="outlined" aria-label="outlined button group">
         {values
           .filter((value: number) => value !== 0)
-          .map((value: number) => (
-            <Styled.ScheduleButton
-              data-interval={value}
-              key={value}
-              onClick={onSelect}
-              disabled={value === selectedValue}
-            >
-              {formatInterval(value)}
-            </Styled.ScheduleButton>
-          ))}
+          .map((value: number) =>
+            isMobile ? (
+              <Styled.MobileScheduleButton
+                data-interval={value}
+                key={value}
+                onClick={onSelect}
+                disabled={value === selectedValue}
+              >
+                {formatInterval(value)}
+              </Styled.MobileScheduleButton>
+            ) : (
+              <Styled.ScheduleButton
+                data-interval={value}
+                key={value}
+                onClick={onSelect}
+                disabled={value === selectedValue}
+              >
+                {formatInterval(value)}
+              </Styled.ScheduleButton>
+            )
+          )}
       </ButtonGroup>
     );
   }

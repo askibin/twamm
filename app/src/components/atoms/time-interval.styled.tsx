@@ -39,6 +39,11 @@ export const ScheduleButton = styled(Button)`
   }
 `;
 
+export const MobileScheduleButton = styled(ScheduleButton)`
+  padding: 0 2px;
+  font-size: 12px;
+`;
+
 export const InfoControl = styled(IconButton)`
   padding: 0;
 `;

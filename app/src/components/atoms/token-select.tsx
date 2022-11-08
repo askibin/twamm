@@ -7,6 +7,7 @@ import QuestionMarkIcon from "@mui/icons-material/QuestionMark";
 import { useState } from "react";
 
 import * as Styled from "./token-select.styled";
+import useBreakpoints from "../../hooks/use-breakpoints";
 
 export interface Props {
   alt?: string;
@@ -19,6 +20,7 @@ export interface Props {
 export default ({ alt, disabled = false, image, label, onClick }: Props) => {
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
   const [open, setOpen] = useState<boolean>(false);
+  const { isMobile } = useBreakpoints();
 
   const handlePopoverOpen = (event: MouseEvent<HTMLElement>) => {
     setOpen(true);
@@ -37,7 +39,7 @@ export default ({ alt, disabled = false, image, label, onClick }: Props) => {
         onClick={disabled ? handlePopoverOpen : onClick}
         disabled={disabled}
       >
-        <Styled.TokenIcon alt={alt} src={image}>
+        <Styled.TokenIcon isMobile={isMobile} alt={alt} src={image}>
           {disabled ? <CancelIcon /> : <QuestionMarkIcon />}
         </Styled.TokenIcon>
         <Styled.TokenName>{label ?? "-"}</Styled.TokenName>

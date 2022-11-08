@@ -9,7 +9,7 @@ export const TokenField = styled(Box)`
 `;
 
 export const TokenTotal = styled(Box)`
-  color: ${({ theme }) => theme.palette.text.secondary};
+  color: ${(p) => p.theme.palette.text.secondary};
   font-size: 13px;
   font-weight: 600;
   padding-top: 10px;

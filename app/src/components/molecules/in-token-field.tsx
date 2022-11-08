@@ -2,9 +2,9 @@ import Grid from "@mui/material/Grid";
 
 import type { Props as FieldProps } from "../atoms/token-field";
 import type { Props as SelectProps } from "../atoms/token-select";
+import * as Styled from "./in-token-field.styled";
 import TokenField from "../atoms/token-field";
 import TokenSelect from "../atoms/token-select";
-import * as Styled from "./in-token-field.styled";
 
 export interface Props {
   name?: string;
@@ -19,10 +19,10 @@ export default ({ name = "-", src, onSelect, onChange }: Props) => {
   return (
     <Styled.TokenField>
       <Grid container spacing={1}>
-        <Grid item xs={4}>
+        <Grid item xs={12} sm={4}>
           <TokenSelect alt={name} image={src} label={name} onClick={onSelect} />
         </Grid>
-        <Grid item xs={8}>
+        <Grid item xs={12} sm={8}>
           <TokenField onChange={onChange} />
           <Styled.TokenTotal>
             {total ?? "-"} {name}
