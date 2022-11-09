@@ -4,6 +4,7 @@ import CircularProgress from "@mui/material/CircularProgress";
 import Divider from "@mui/material/Divider";
 import SearchIcon from "@mui/icons-material/Search";
 import TextField from "@mui/material/TextField";
+import Typography from "@mui/material/Typography";
 import { useCallback, useMemo, useState } from "react";
 
 import CoinSelect from "../molecules/coin-select";
@@ -12,10 +13,11 @@ import useJupTokensByMint from "../../hooks/use-jup-tokens-by-mint";
 import * as Styled from "./coin-select.styled";
 
 export interface Props {
-  tokens?: string[];
-  selected?: string[];
-  onSelect: (arg0: TokenInfo) => void;
+  id?: string;
   onDelete: (arg0: string) => void;
+  onSelect: (arg0: TokenInfo) => void;
+  selected?: string[];
+  tokens?: string[];
 }
 
 const STARRED_COINS = ["usdt", "usdc", "sol", "ray"];
@@ -37,7 +39,7 @@ const populateTokenRecords = (data?: JupTokenData[]) => {
 
 const Loading = () => <CircularProgress />;
 
-export default ({ onDelete, onSelect, selected, tokens }: Props) => {
+export default ({ id, onDelete, onSelect, selected, tokens }: Props) => {
   const [search, setSearch] = useState<string>();
 
   const { data, isLoading } = useJupTokensByMint(tokens);
@@ -98,6 +100,9 @@ export default ({ onDelete, onSelect, selected, tokens }: Props) => {
         <TokenTags coins={starredTokens} onClick={onCoinSelect} />
       </Styled.Tags>
       <Divider />
+      <Typography id={id} p={2} variant="h6">
+        Coins
+      </Typography>
       <CoinSelect
         coins={coinRecords}
         filterCoin={search}

@@ -7,8 +7,10 @@ import availableTokens, {
   action,
   initialState,
 } from "../../reducers/select-available-tokens.reducer";
-import CoinPopover from "./coin-popover";
+import CoinSelect from "./coin-select";
 import TokenPairForm from "../molecules/token-pair-form";
+import UniversalPopover, { Ref } from "../molecules/universal-popover";
+import useJupTokensByMint from "../../hooks/use-jup-tokens-by-mint";
 import useTokenPair from "../../hooks/use-token-pair";
 import { refreshEach } from "../../swr-options";
 
@@ -21,9 +23,9 @@ export default ({ pairs: tokenPairs, selectedPair: defaultPair }: Props) => {
   const pairs = Maybe.of(tokenPairs);
   const pair = Maybe.of(defaultPair);
 
-  const popoverRef = useRef<{ isOpened: boolean; open: () => void }>();
   const [curToken, setCurToken] = useState<number>();
   const [state, dispatch] = useReducer(availableTokens, initialState);
+  const selectCoinRef = useRef<Ref>();
 
   const selectedPair = useTokenPair(
     state.a && state.b && { aToken: state.a, bToken: state.b },
@@ -51,9 +53,9 @@ export default ({ pairs: tokenPairs, selectedPair: defaultPair }: Props) => {
   const onTokenChoose = useCallback(
     (index: number) => {
       setCurToken(index);
-      if (!popoverRef.current?.isOpened) popoverRef.current?.open();
+      if (!selectCoinRef.current?.isOpened) selectCoinRef.current?.open();
     },
-    [popoverRef, setCurToken]
+    [setCurToken]
   );
 
   const onTokenAChoose = useCallback(() => {
@@ -72,6 +74,7 @@ export default ({ pairs: tokenPairs, selectedPair: defaultPair }: Props) => {
 
   const onCoinSelect = useCallback(
     (token: TokenInfo) => {
+      if (selectCoinRef.current?.isOpened) selectCoinRef.current.close();
       if (curToken === 1) dispatch(action.selectA({ token }));
       if (curToken === 2) dispatch(action.selectB({ token }));
     },
@@ -82,13 +85,15 @@ export default ({ pairs: tokenPairs, selectedPair: defaultPair }: Props) => {
 
   return (
     <>
-      <CoinPopover
-        onDeselect={onCoinDeselect}
-        onChange={onCoinSelect}
-        ref={popoverRef}
-        tokens={curToken === 2 ? state.available : state.all}
-        tokensToDeselect={state.cancellable}
-      />
+      <UniversalPopover ariaLabelledBy="select-coin-title" ref={selectCoinRef}>
+        <CoinSelect
+          tokens={state.available}
+          selected={state.cancellable}
+          onDelete={onCoinDeselect}
+          onSelect={onCoinSelect}
+          id="select-coin-title"
+        />
+      </UniversalPopover>
       <Styled.Swap elevation={1}>
         <Box p={2}>
           <TokenPairForm

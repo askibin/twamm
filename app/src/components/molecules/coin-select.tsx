@@ -36,7 +36,7 @@ export default ({ coins, filterCoin, onClick = () => {} }: Props) => {
   return (
     <List className={styles.coins} dense={isMobile}>
       <FixedSizeList
-        height={400}
+        height={200}
         width="100%"
         itemSize={56}
         itemCount={coinRecords.length}
