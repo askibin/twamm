@@ -53,7 +53,8 @@ export default ({ pairs: tokenPairs, selectedPair: defaultPair }: Props) => {
   const onTokenChoose = useCallback(
     (index: number) => {
       setCurToken(index);
-      if (!selectCoinRef.current?.isOpened) selectCoinRef.current?.open();
+      if (selectCoinRef.current && !selectCoinRef.current?.isOpened)
+        selectCoinRef.current.open();
     },
     [setCurToken]
   );
@@ -87,11 +88,11 @@ export default ({ pairs: tokenPairs, selectedPair: defaultPair }: Props) => {
     <>
       <UniversalPopover ariaLabelledBy="select-coin-title" ref={selectCoinRef}>
         <CoinSelect
-          tokens={state.available}
-          selected={state.cancellable}
+          id="select-coin-title"
           onDelete={onCoinDeselect}
           onSelect={onCoinSelect}
-          id="select-coin-title"
+          selected={state.cancellable}
+          tokens={state.available}
         />
       </UniversalPopover>
       <Styled.Swap elevation={1}>
