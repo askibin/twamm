@@ -13,11 +13,7 @@ export default () => {
 
   const content = useMemo(() => {
     if (!tokenPairs.data) {
-      return (
-        <ConnectWalletGuard sx={{ p: 2 }}>
-          <BlankTokenPairs />
-        </ConnectWalletGuard>
-      );
+      return <BlankTokenPairs />;
     }
 
     return <TokenPairCards data={tokenPairs.data} />;
@@ -28,7 +24,7 @@ export default () => {
       <Typography pb={2} variant="h4">
         Top Pairs
       </Typography>
-      {content}
+      <ConnectWalletGuard sx={{ p: 2 }}>{content}</ConnectWalletGuard>
     </Box>
   );
 };
