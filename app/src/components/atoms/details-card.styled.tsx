@@ -1,14 +1,14 @@
-import Card from "@mui/material/Card";
-import CardContent from "@mui/material/CardContent";
+import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import { styled } from "@mui/material/styles";
 
-export const Container = styled(Card)`
+export const Container = styled(Box)`
   justify-content: center;
   min-width: 125px;
+  padding: ${(p) => p.theme.spacing(1)} ${(p) => p.theme.spacing(2)};
 `;
 
-export const Content = styled(CardContent)`
+export const Content = styled(Box)`
   padding: 2px;
   text-align: center;
   border: 0;

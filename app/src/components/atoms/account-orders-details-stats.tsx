@@ -1,4 +1,4 @@
-import Grid from "@mui/material/Grid";
+import Box from "@mui/material/Box";
 import { useMemo } from "react";
 
 import StatsList from "./account-orders-details-stats-list";
@@ -13,7 +13,7 @@ export interface Props {
 export default ({ details }: Props) => {
   const { isMobile } = useBreakpoints();
 
-  const statsSizes = useMemo(() => ({ xs: 4, sm: 4, md: 3 }), []);
+  const statsSizes = useMemo(() => ({ xs: 6, sm: 6, md: 4 }), []);
 
   const fields = useMemo(
     () => [
@@ -46,12 +46,12 @@ export default ({ details }: Props) => {
   );
 
   return (
-    <Grid container spacing={2}>
+    <Box>
       {isMobile ? (
         <StatsList fields={fields} />
       ) : (
         <StatsCards fields={fields} sizes={statsSizes} />
       )}
-    </Grid>
+    </Box>
   );
 };
