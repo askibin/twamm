@@ -1,21 +1,20 @@
 import Alert from "@mui/material/Alert";
+import Maybe from "easy-maybe/lib";
 import { useMemo } from "react";
 
-import type { Maybe as TMaybe } from "../../types/maybe.d";
 import * as Styled from "./token-pair-cards.styled";
-import Maybe from "../../types/maybe";
 import PairCard from "../atoms/pair-card";
 import { populate } from "./token-pair-cards.helpers";
 
 export interface Props {
-  data: TMaybe<TokenPairProgramData[]>;
+  data: Voidable<TokenPairProgramData[]>;
 }
 
 export default ({ data }: Props) => {
   const tokenPairs = useMemo(() => {
     const programPairs = Maybe.andMap<TokenPairProgramData[], PerfPair[]>(
       (pairs) => pairs.map(populate),
-      data
+      Maybe.of(data)
     );
 
     return Maybe.withDefault([], programPairs);

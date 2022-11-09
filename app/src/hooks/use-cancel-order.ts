@@ -4,12 +4,13 @@ import { PublicKey, TransactionInstruction } from "@solana/web3.js";
 import { TOKEN_PROGRAM_ID } from "@solana/spl-token";
 import { findAddress } from "@twamm/client.js/lib/program";
 
-import { useProgram } from "./use-program";
-import { useTxRunnerContext } from "./use-transaction-runner-context";
+import useProgram from "./use-program";
+import useTxRunnerContext from "./use-transaction-runner-context";
 import {
   findAssociatedTokenAddress,
   NativeToken,
   poolClient,
+  tokenPairClient,
 } from "../utils/twamm-client";
 
 const getPoolKey = (
@@ -58,11 +59,12 @@ const getOrderKey = (
   };
 };
 
-export const useCancelOrder = () => {
+export default () => {
   const { provider, program } = useProgram();
   const { commit } = useTxRunnerContext();
 
   const poolCli = poolClient(program.account);
+  const tpCli = tokenPairClient(program.account);
 
   const findProgramAddress = findAddress(program);
 
@@ -158,13 +160,24 @@ export const useCancelOrder = () => {
 
       return result;
     },
-    async executeMany(params: Array<Parameters<typeof run>[0]>) {
-      const results: Array<string | undefined> = [];
+    async executeMany(
+      params: Array<{ amount: number; poolAddress: PublicKey }>
+    ) {
+      const poolIds = params.map((data) => data.poolAddress);
 
-      params.forEach(async (data) => {
-        const result = await commit(run(data));
-        results.push(result);
-      });
+      const tokenPairs = await Promise.all(
+        poolIds.map((poolId) => tpCli.getByPoolAddress(poolId))
+      );
+
+      const cancelParams = params.map((data, i) => ({
+        ...data,
+        a: tokenPairs[i].configA.mint,
+        b: tokenPairs[i].configB.mint,
+      }));
+
+      const results: Array<string | undefined> = await Promise.all(
+        cancelParams.map((data) => commit(run(data)))
+      );
 
       return results;
     },

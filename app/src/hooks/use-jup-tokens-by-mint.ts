@@ -1,6 +1,6 @@
 import useSWR from "swr";
 
-import { useJupTokens } from "./use-jup-tokens";
+import useJupTokens from "./use-jup-tokens";
 
 const swrKey = (params: { mints: string[] }) => ({
   key: "jupTokensByMint",
@@ -21,10 +21,7 @@ const fetcher =
     return selectedTokens;
   };
 
-export const useJupTokensByMint = (
-  mints: string[] | undefined,
-  options = {}
-) => {
+export default (mints: string[] | undefined, options = {}) => {
   const jupTokens = useJupTokens();
 
   const isValid = jupTokens.data && mints;

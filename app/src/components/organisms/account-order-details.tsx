@@ -9,8 +9,7 @@ import * as Styled from "./account-order-details.styled";
 import Control from "../atoms/account-orders-details-control";
 import Loading from "../atoms/loading";
 import Stats from "../atoms/account-orders-details-stats";
-import WalletGuard from "./wallet-guard";
-import { usePoolDetails } from "../../hooks/use-pool-details";
+import usePoolDetails from "../../hooks/use-pool-details";
 
 export interface Props {
   address: PublicKey;
@@ -45,18 +44,16 @@ export default ({ address, onCancel, side, supply }: Props) => {
 
   return (
     <Styled.Container>
-      <WalletGuard>
-        <Stack direction="column" spacing={2}>
-          <Grid container spacing={2} wrap="wrap">
-            <Stats details={d} />
-          </Grid>
-          <Control
-            expired={d.expired}
-            inactive={d.inactive}
-            onClick={onCancelOrder}
-          />
-        </Stack>
-      </WalletGuard>
+      <Stack direction="column" spacing={2}>
+        <Grid container spacing={2} wrap="wrap">
+          <Stats details={d} />
+        </Grid>
+        <Control
+          expired={d.expired}
+          inactive={d.inactive}
+          onClick={onCancelOrder}
+        />
+      </Stack>
     </Styled.Container>
   );
 };

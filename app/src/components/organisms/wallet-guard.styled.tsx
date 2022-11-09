@@ -24,17 +24,17 @@ export const ConnectButton = styled(WalletMultiButton)`
   background: #4bbeff;
   border-radius: 40px;
   width: 100%;
+  color: #fff;
   display: flex;
   justify-content: center;
-  color: #000;
   &.wallet-adapter-button {
-    background-color: #4bbeff;
+    background-color: ${({ theme }) => theme.palette.primary.main};
     border-radius: 40px;
   }
-  &:hover,
-  &:focus,
-  &:active {
-    color: #fff;
-    background-color: ${({ theme }) => theme.palette.primary.main};
+  &.wallet-adapter-button:not([disabled]):hover,
+  &.wallet-adapter-button:focus,
+  &.wallet-adapter-button:active {
+    background-color: #4bbeff;
+    color: #000;
   }
 `;

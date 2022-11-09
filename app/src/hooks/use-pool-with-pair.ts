@@ -4,7 +4,7 @@ import useSWR from "swr";
 import { useWallet } from "@solana/wallet-adapter-react";
 
 import { poolClient, tokenPairClient } from "../utils/twamm-client";
-import { useProgram } from "./use-program";
+import useProgram from "./use-program";
 
 const swrKey = (params: { account: PublicKey; address: PublicKey }) => ({
   key: "poolWithPair",
@@ -28,7 +28,7 @@ const fetcher = (program: Program) => {
   };
 };
 
-export const usePoolWithPair = (address: Params["address"], options = {}) => {
+export default (address: Params["address"], options = {}) => {
   const { publicKey: account } = useWallet();
   const { program } = useProgram();
 

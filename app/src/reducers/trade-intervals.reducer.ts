@@ -59,6 +59,8 @@ export default <S extends Partial<State>, A extends Action<any>>(
       const { indexedTifs, selectedTif }: Parameters<typeof setTifs>[0] =
         action.payload;
 
+      // TODO: fix closed pools
+      // const isIntervalEnded = d.left === 0;
       const tifsLeft = indexedTifs.map((d: IndexedTIF) => d.left);
 
       let periodTifs;

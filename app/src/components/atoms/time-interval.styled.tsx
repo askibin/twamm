@@ -1,7 +1,14 @@
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import IconButton from "@mui/material/IconButton";
+import Skeleton from "@mui/material/Skeleton";
 import { styled } from "@mui/material/styles";
+
+export const BlankIntervals = styled(Skeleton)`
+  border-radius: 8px;
+  height: 26.5px;
+  width: 50%;
+`;
 
 export const Interval = styled(Box)`
   color: ${({ theme }) => theme.palette.text.primary};
@@ -30,6 +37,11 @@ export const ScheduleButton = styled(Button)`
   &.Mui-disabled + * {
     border-left-color: ${({ theme }) => theme.palette.success.dark};
   }
+`;
+
+export const MobileScheduleButton = styled(ScheduleButton)`
+  padding: 0 2px;
+  font-size: 12px;
 `;
 
 export const InfoControl = styled(IconButton)`

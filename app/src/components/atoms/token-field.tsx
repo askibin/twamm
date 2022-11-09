@@ -1,14 +1,20 @@
 import type { ChangeEvent } from "react";
+import Maybe from "easy-maybe/lib";
 import { useCallback, useState } from "react";
 
 import * as Styled from "./token-field.styled";
+import usePrice from "../../hooks/use-price";
+import { isFloat } from "../../utils/index";
 
 export interface Props {
+  name?: string;
   onChange: (arg0: number) => void;
 }
 
-export default ({ onChange: handleChange }: Props) => {
+export default ({ name, onChange: handleChange }: Props) => {
   const [amount, setAmount] = useState<number>(0);
+
+  const price = usePrice(name ? { id: name } : undefined);
 
   const onChange = useCallback(
     (e: ChangeEvent<HTMLInputElement>) => {
@@ -20,6 +26,11 @@ export default ({ onChange: handleChange }: Props) => {
     [handleChange, setAmount]
   );
 
+  const amountUsd = Maybe.withDefault(
+    undefined,
+    Maybe.andMap((p) => String(Math.round(p) * amount), Maybe.of(price.data))
+  );
+
   return (
     <Styled.TokenField>
       <Styled.TokenAmountTextField
@@ -27,7 +38,13 @@ export default ({ onChange: handleChange }: Props) => {
         value={amount}
         onChange={onChange}
       />
-      <Styled.TokenAmountInUSD>$0</Styled.TokenAmountInUSD>
+      <Styled.TokenAmountInUSD>
+        {!amountUsd || amountUsd === "0"
+          ? `$0`
+          : `~$${
+              isFloat(amountUsd) ? Number(amountUsd).toFixed(2) : amountUsd ?? 0
+            }`}
+      </Styled.TokenAmountInUSD>
     </Styled.TokenField>
   );
 };

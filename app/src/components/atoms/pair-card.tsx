@@ -1,11 +1,10 @@
 import type { PublicKey } from "@solana/web3.js";
-import Maybe from "easy-maybe/lib";
 
 import * as Styled from "./pair-card.styled";
 import Metric, { formatDeposited } from "./pair-card-metrics";
 import PairCardSymbols from "./pair-card-symbols";
+import useTokensByMint from "../../hooks/use-tokens-by-mint";
 import { address } from "../../utils/twamm-client";
-import { useTokensByMint } from "../../hooks/use-tokens-by-mint";
 
 export interface Props {
   aMint: PublicKey;
@@ -31,14 +30,12 @@ export default ({
     address(bMint).toString(),
   ]);
 
-  const data = Maybe.of(tokens.data);
-
   return (
     <Styled.Root>
       <Styled.Card>
         <Styled.Fund>
           <Styled.FundName>
-            <PairCardSymbols data={data} />
+            <PairCardSymbols data={tokens.data} />
           </Styled.FundName>
           <Styled.FundPerf>
             {perf ? (

@@ -5,8 +5,8 @@ import Maybe from "easy-maybe/lib";
 import * as Styled from "./cancel-order-details.styled";
 import CancelOrderLiquidity from "./cancel-order-liquidity";
 import Loading from "../atoms/loading";
+import usePrice from "../../hooks/use-price";
 import { refreshEach } from "../../swr-options";
-import { usePrice } from "../../hooks/use-price";
 
 export interface Props {
   data: Voidable<JupTokenData[]>;

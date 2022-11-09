@@ -1,25 +1,4 @@
-import type { SWRResponse } from "swr";
-
 import { CoinsApi as Api } from "../api/coingecko/api";
-
-interface PromiseFulfilledResult<T> {
-  status: "fulfilled";
-  value: T;
-}
-
-interface PromiseRejectedResult {
-  status: "rejected";
-  reason: any;
-}
-
-export declare type PromiseSettledResult<T> =
-  | PromiseFulfilledResult<T>
-  | PromiseRejectedResult;
-
-export declare interface APIHook<A, R, O = any> {
-  (arg0: A, options?: O): SWRResponse<R>;
-  (arg0?: A): SWRResponse<R>;
-}
 
 export function fetchJSONFromAPI<Key extends keyof Api>(api: Api) {
   return async function fetchFromAPI<T>(method: Key, ...args: any): Promise<T> {

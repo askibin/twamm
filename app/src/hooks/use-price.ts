@@ -1,6 +1,5 @@
 import type { Address } from "@project-serum/anchor";
 import useSWR from "swr";
-import type { APIHook } from "../utils/api";
 
 const ENDPOINT = "https://price.jup.ag/v1/price";
 // TODO: move addr to the env
@@ -45,10 +44,7 @@ const fetcher =
     return data.data.price;
   };
 
-export const usePrice: APIHook<Params | undefined, any> = (
-  params,
-  options = {}
-) => {
+export default (params: Voidable<Params>, options = {}) => {
   const opts = { endpoint: ENDPOINT };
 
   return useSWR(params && swrKey(params), fetcher(opts), options);

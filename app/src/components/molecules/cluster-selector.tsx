@@ -1,78 +1,92 @@
-import type { SyntheticEvent } from "react";
+import type { ChangeEvent } from "react";
 import * as yup from "yup";
 import Box from "@mui/material/Box";
-import Button from "@mui/material/Button";
 import FormControl from "@mui/material/FormControl";
-import List from "@mui/material/List";
-import ListItem from "@mui/material/ListItem";
+import FormControlLabel from "@mui/material/FormControlLabel";
+import Radio from "@mui/material/Radio";
+import RadioGroup from "@mui/material/RadioGroup";
 import { Form } from "react-final-form";
-import { TextField } from "mui-rff";
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 
+import type {
+  ClusterInfo,
+  CustomClusterInfo,
+} from "../../contexts/solana-connection-context";
+import * as Styled from "./cluster-selector.styled";
+import useBlockchainConnectionContext from "../../hooks/use-blockchain-connection-context";
 import { clusterValidator } from "../../utils/validators";
-import { useBlockchainConnectionContext } from "../../hooks/use-blockchain-connection-context";
+import { endpoints as info } from "../../contexts/solana-connection-context";
 
 export interface Props {
   handleClose?: () => void;
 }
 
-export default function ClusterSelector({ handleClose = () => {} }: Props) {
+export default function ClusterSelector({ handleClose }: Props) {
   const { cluster, clusters, setCluster } = useBlockchainConnectionContext();
+  const [clusterName, setClusterName] = useState<string>(cluster.name);
 
-  const onClusterSelect = useCallback(
-    (endpoint: string) => {
-      if (globalThis.localStorage) {
-        globalThis.localStorage.setItem("twammClusterEndpoint", endpoint);
-      }
-      handleClose();
-    },
-    [handleClose]
-  );
-
-  const handleListItemClick = useCallback(
-    (event: SyntheticEvent<HTMLLIElement>) => {
-      const { endpoint } = event.currentTarget.dataset;
-
-      if (endpoint) {
-        setCluster(clusters.find((item) => item.endpoint === endpoint)!);
-        onClusterSelect(endpoint);
-      }
-    },
-    [clusters, onClusterSelect, setCluster]
-  );
-
-  const handleFormSubmit = useCallback(
+  const onSaveCustomEndpoint = useCallback(
     async ({ endpoint }: { endpoint: string }) => {
-      const origin = clusters.find((item) => item.moniker === cluster.moniker)!;
+      const predefinedEndpoints = clusters
+        .filter((c) => c.moniker !== info.custom.moniker)
+        .map((c) => c.endpoint);
 
-      setCluster({
-        endpoint,
-        moniker: origin?.moniker ?? "custom",
-        name: origin?.name ?? "Custom",
-      });
+      const inputPredefinedEndpointIndex = predefinedEndpoints.findIndex(
+        (e) => e === endpoint
+      );
 
-      onClusterSelect(endpoint);
+      if (inputPredefinedEndpointIndex !== -1) {
+        setCluster(clusters[inputPredefinedEndpointIndex]);
+      } else {
+        const customCluster: CustomClusterInfo = {
+          endpoint,
+          name: "Custom",
+          moniker: "custom",
+        };
+        setCluster(customCluster);
+      }
+
+      if (handleClose) handleClose();
     },
-    [cluster, clusters, onClusterSelect, setCluster]
+    [clusters, handleClose, setCluster]
+  );
+
+  const onClusterChange = useCallback(
+    (event: ChangeEvent<HTMLInputElement>) => {
+      const { value } = event.target;
+
+      setClusterName(value);
+
+      if (value !== info.custom.name) {
+        setCluster(clusters.find((c) => c.name === value) as ClusterInfo);
+      }
+    },
+    [clusters, setCluster]
   );
 
   return (
     <Box>
       <FormControl>
-        <List>
-          {clusters.map(({ endpoint, name }) => (
-            <ListItem
-              data-endpoint={endpoint}
-              key={endpoint}
-              onClick={handleListItemClick}
-              selected={cluster.endpoint === endpoint}
-            >
-              {name}
-            </ListItem>
+        <RadioGroup
+          name="clusters"
+          value={clusterName}
+          onChange={onClusterChange}
+        >
+          {clusters.map(({ name }) => (
+            <FormControlLabel
+              key={name}
+              label={name === "mainnet-beta" ? "Solana" : name}
+              control={<Radio />}
+              value={name}
+            />
           ))}
+        </RadioGroup>
+        {clusterName === info.custom.name && (
           <Form
-            initialValues={{ endpoint: cluster.endpoint }}
-            onSubmit={handleFormSubmit}
+            initialValues={{
+              endpoint: info.custom.endpoint,
+            }}
+            onSubmit={onSaveCustomEndpoint}
             validate={clusterValidator(
               yup.object().shape({
                 endpoint: yup.string().required().url(),
@@ -81,33 +95,21 @@ export default function ClusterSelector({ handleClose = () => {} }: Props) {
           >
             {({ handleSubmit }) => (
               <form onSubmit={handleSubmit}>
-                <Box
-                  sx={{
-                    color: "text.neutral",
-                    alignItems: "flex-start",
-                    display: "flex",
-                    padding: "8px 16px",
-                  }}
-                >
-                  <TextField
+                <Styled.FormInner pt={2}>
+                  <Styled.FormField
                     label="RPC endpoint"
                     name="endpoint"
-                    InputProps={{ sx: { color: "#fff" } }}
                     size="small"
                     variant="outlined"
                   />
-                  <Button
-                    sx={{ marginLeft: "12px" }}
-                    type="submit"
-                    variant="contained"
-                  >
+                  <Styled.FormButton type="submit" variant="contained">
                     Switch
-                  </Button>
-                </Box>
+                  </Styled.FormButton>
+                </Styled.FormInner>
               </form>
             )}
           </Form>
-        </List>
+        )}
       </FormControl>
     </Box>
   );

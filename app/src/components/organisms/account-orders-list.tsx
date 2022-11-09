@@ -1,5 +1,4 @@
 import type { BN } from "@project-serum/anchor";
-import type { PublicKey } from "@solana/web3.js";
 import type {
   GridColDef,
   GridRowParams,
@@ -9,18 +8,18 @@ import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Maybe from "easy-maybe/lib";
 import Stack from "@mui/material/Stack";
+import { PublicKey } from "@solana/web3.js";
 import { useCallback, useMemo, useRef, useState } from "react";
 
 import CancelOrder from "../molecules/cancel-order-modal";
-import OrderDetails from "./account-order-details";
+import OrderDetailsModal from "./account-order-details-modal";
 import Table from "../atoms/table";
 import UniversalPopover from "../molecules/universal-popover";
-import { address } from "../../utils/twamm-client";
+import useCancelOrder from "../../hooks/use-cancel-order";
 import { columns as cols } from "./account-orders-list.helpers";
-import { useCancelOrder } from "../../hooks/use-cancel-order";
 
 export interface Props {
-  data: Voidable<OrderData[]>;
+  data: Voidable<Array<OrderData & { id: string }>>;
   error: Voidable<Error>;
   loading: boolean;
   updating: boolean;
@@ -34,23 +33,39 @@ type RowData = {
   supply: BN;
 };
 
-export default (props: Props) => {
-  const data = Maybe.withDefault([], Maybe.of(props.data));
-  const error = Maybe.withDefault(undefined, Maybe.of(props.error));
+type DetailsData = {
+  address: PublicKey;
+  side: OrderTypeStruct;
+  supply: BN;
+};
 
-  const popoverRef = useRef<{ close: () => void; open: () => void }>();
+const selectOrderData = (params: GridRowParams<RowData>) => ({
+  address: params.row.pool,
+  side: params.row.side,
+  supply: params.row.supply,
+});
+
+export default (props: Props) => {
+  const d = useMemo(() => Maybe.of(props.data), [props.data]);
+  const err = useMemo(() => Maybe.of(props.error), [props.error]);
+
+  const data = Maybe.withDefault([], d);
+  const error = Maybe.withDefault(undefined, err);
+
+  const cancelRef = useRef<{ close: () => void; open: () => void }>();
+  const detailsRef = useRef<{ open: () => void }>();
   const [accounts, setAccounts] = useState<CancelOrderData | undefined>();
-  const [checkboxSelection, setCheckboxSelection] = useState<boolean>(false);
+  const [details, setDetails] = useState<DetailsData>();
   const [selectionModel, setSelectionModel] = useState<GridSelectionModel>([]);
 
-  const { execute } = useCancelOrder();
+  const { execute, executeMany } = useCancelOrder();
 
-  const columns = useMemo<GridColDef[]>(cols, [checkboxSelection]);
+  const columns = useMemo<GridColDef[]>(cols, []);
 
   const rows: RowData[] = useMemo(
     () =>
       data.map((order) => ({
-        id: address(order.pool).toString(),
+        id: order.id,
         orderTime: order.time,
         pool: order.pool,
         side: order.side,
@@ -69,23 +84,23 @@ export default (props: Props) => {
         await execute({ a, b, poolAddress, amount });
       } else {
         setAccounts(cd);
-        popoverRef.current?.open();
+        cancelRef.current?.open();
       }
     },
     [execute, setAccounts]
   );
 
-  const getDetailPanelContent = useCallback(
-    (rowProps: GridRowParams<RowData>) => (
-      <OrderDetails
-        address={rowProps.row.pool}
-        onCancel={onCancelOrder}
-        side={rowProps.row.side}
-        supply={rowProps.row.supply}
-      />
-    ),
-    [onCancelOrder]
+  const onRowClick = useCallback(
+    (params: GridRowParams<RowData>) => {
+      setDetails(selectOrderData(params));
+      detailsRef.current?.open();
+    },
+    [setDetails]
   );
+
+  const onDetailsClose = useCallback(() => {
+    setDetails(undefined);
+  }, []);
 
   const onApproveCancel = useCallback(
     async (cd: CancelOrderData) => {
@@ -93,7 +108,7 @@ export default (props: Props) => {
       const amount = supply.toNumber();
       await execute({ a, b, poolAddress, amount });
 
-      popoverRef.current?.close();
+      cancelRef.current?.close();
     },
     [execute]
   );
@@ -106,30 +121,43 @@ export default (props: Props) => {
   );
 
   const onCancelSelectedOrders = useCallback(async () => {
-    // const selectedRows = rows.filter((row) => selectionModel.includes(row.id));
-  }, [rows, selectionModel]); // eslint-disable-line
+    if (!selectionModel.length) return;
 
-  const [detailsHeight] = useState(310);
-  const getDetailPanelHeight = useRef(() => detailsHeight);
+    const selectedRows = rows.filter((row) => selectionModel.includes(row.id));
+
+    const deletionRows = selectedRows.map((row) => ({
+      amount: Number.MAX_SAFE_INTEGER,
+      poolAddress: new PublicKey(row.id),
+    }));
+
+    await executeMany(deletionRows);
+
+    setSelectionModel([]);
+  }, [executeMany, rows, selectionModel, setSelectionModel]);
 
   return (
     <>
-      <UniversalPopover ref={popoverRef}>
+      <UniversalPopover ref={cancelRef}>
         <CancelOrder onApprove={onApproveCancel} data={accounts} />
+      </UniversalPopover>
+
+      <UniversalPopover onClose={onDetailsClose} ref={detailsRef}>
+        {details && (
+          <OrderDetailsModal
+            address={details.address}
+            onCancel={onCancelOrder}
+            side={details.side}
+            supply={details.supply}
+          />
+        )}
       </UniversalPopover>
 
       <Box py={2}>
         <Stack direction="row" spacing={2}>
           <Button
             variant="outlined"
-            onClick={() => setCheckboxSelection(!checkboxSelection)}
-          >
-            Bulk Action
-          </Button>
-          <Button
-            variant="outlined"
             onClick={onCancelSelectedOrders}
-            disabled={!(checkboxSelection && selectionModel?.length)}
+            disabled={!selectionModel?.length}
           >
             Cancel/Withdraw Selected
           </Button>
@@ -139,11 +167,9 @@ export default (props: Props) => {
         <Table
           gridProps={{
             autoHeight: true,
-            checkboxSelection,
+            checkboxSelection: true,
             columns,
             error,
-            getDetailPanelContent,
-            getDetailPanelHeight: getDetailPanelHeight.current,
             loading: props.loading,
             onSelectionModelChange,
             rows,
@@ -151,6 +177,7 @@ export default (props: Props) => {
           }}
           filterColumnField="pool"
           isUpdating={props.updating}
+          onRowClick={onRowClick}
           searchBoxPlaceholderText="Search orders"
         />
       </Box>

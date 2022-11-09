@@ -3,7 +3,7 @@ import useSWR from "swr";
 import { TOKEN_LIST_URL } from "@jup-ag/core";
 import { NATIVE_MINT } from "@solana/spl-token";
 
-import { useBlockchainConnectionContext } from "./use-blockchain-connection-context";
+import useBlockchainConnectionContext from "./use-blockchain-connection-context";
 
 const swrKey = (params: { moniker: Cluster }) => ({
   key: "JupTokens",
@@ -35,7 +35,7 @@ const fetcher = async ({ params }: ReturnType<typeof swrKey>) => {
   return neededTokens;
 };
 
-export const useJupTokens = (_: void, options = {}) => {
+export default (_: void, options = {}) => {
   const { clusters } = useBlockchainConnectionContext();
   const moniker = clusters[0].moniker as "mainnet-beta";
 

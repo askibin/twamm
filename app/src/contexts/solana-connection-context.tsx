@@ -3,7 +3,18 @@ import type { FC, ReactNode } from "react";
 import { clusterApiUrl, Connection } from "@solana/web3.js";
 import { createContext, useCallback, useMemo, useState } from "react";
 
+import endpointStorage from "../utils/cluster-endpoint-storage";
 import { ClusterApiUrl } from "../env";
+
+const clusterStorage = endpointStorage();
+
+export type Commitment = "confirmed";
+
+export type CustomClusterInfo = {
+  name: "Custom";
+  endpoint: string;
+  moniker: "custom";
+};
 
 export type ClusterInfo = {
   name: string;
@@ -11,7 +22,18 @@ export type ClusterInfo = {
   moniker?: Cluster | "custom";
 };
 
-export type Commitment = "confirmed";
+export const endpoints: Record<string, ClusterInfo> = {
+  solana: {
+    name: "Solana",
+    endpoint: ClusterApiUrl || clusterApiUrl("mainnet-beta"),
+    moniker: "mainnet-beta",
+  },
+  custom: {
+    name: "Custom",
+    endpoint: clusterStorage.get() ?? "",
+    moniker: "custom",
+  },
+};
 
 export type BlockchainConnectionContextType = {
   readonly cluster: ClusterInfo;
@@ -30,41 +52,33 @@ export const BlockchainConnectionProvider: FC<{ children: ReactNode }> = ({
 }) => {
   const [commitments] = useState<Commitment[]>(["confirmed"]);
 
-  const [clusters] = useState<ClusterInfo[]>([
-    {
-      name: "Mainnet Beta",
-      endpoint: ClusterApiUrl || clusterApiUrl("mainnet-beta"),
-      moniker: "mainnet-beta",
-    },
-    {
-      name: "Testnet",
-      endpoint: clusterApiUrl("testnet"),
-      moniker: "testnet",
-    },
-    {
-      name: "Devnet",
-      endpoint: clusterApiUrl("devnet"),
-      moniker: "devnet",
-    },
-  ]);
+  const [clusters] = useState([endpoints.solana, endpoints.custom]);
 
   const initialCommitment = commitments[0];
 
-  let initialCluster: ClusterInfo = clusters[0];
-  if (globalThis.localStorage) {
-    const customEndpoint =
-      globalThis.localStorage?.getItem("twammClusterEndpoint") ??
-      clusters[0].endpoint;
-    // TODO: validate endpoint && handle custom outage gracefully
-    initialCluster = {
-      name: "Custom",
-      endpoint: customEndpoint,
-      moniker: "custom",
-    };
-  }
+  const customEndpoint = clusterStorage.enabled()
+    ? clusterStorage.get()
+    : undefined;
+
+  const initialCluster: ClusterInfo = customEndpoint
+    ? endpoints.custom
+    : clusters[0];
 
   const [commitment] = useState(initialCommitment);
   const [cluster, setCluster] = useState(initialCluster);
+
+  const changeCluster = useCallback(
+    (info: ClusterInfo) => {
+      if (info.moniker === endpoints.custom.moniker) {
+        clusterStorage.enable();
+        clusterStorage.set(info.endpoint);
+      } else {
+        clusterStorage.disable();
+      }
+      setCluster(info);
+    },
+    [setCluster]
+  );
 
   const createConnection = useCallback(
     (commit: Cmtmnt = initialCommitment) =>
@@ -78,9 +92,9 @@ export const BlockchainConnectionProvider: FC<{ children: ReactNode }> = ({
       clusters,
       commitment,
       createConnection,
-      setCluster,
+      setCluster: changeCluster,
     }),
-    [cluster, clusters, commitment, createConnection, setCluster]
+    [cluster, clusters, changeCluster, commitment, createConnection]
   );
 
   return (

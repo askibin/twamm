@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 
-export const useNavigatorOnlineStatus = ({
+export default ({
   onOnline: handleOnline = () => {},
   onOffline: handleOffline = () => {},
 } = {}) => {

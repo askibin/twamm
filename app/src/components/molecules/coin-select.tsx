@@ -9,7 +9,7 @@ import { FixedSizeList } from "react-window";
 import { useMemo } from "react";
 
 import styles from "./coin-select.module.css";
-import { useBreakpoints } from "../../hooks/use-breakpoints";
+import useBreakpoints from "../../hooks/use-breakpoints";
 
 export interface Props {
   coins: Record<string, { symbol: string; image: string; name: string }>;

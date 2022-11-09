@@ -3,8 +3,7 @@ import type { PublicKey } from "@solana/web3.js";
 import useSWR from "swr";
 import { useWallet } from "@solana/wallet-adapter-react";
 
-import type { APIHook } from "../utils/api";
-import { useProgram } from "./use-program";
+import useProgram from "./use-program";
 
 const swrKey = (params: { account: PublicKey; address: PublicKey }) => ({
   key: "tokenPairByPool",
@@ -25,11 +24,7 @@ const fetcher =
     return tokenPair;
   };
 
-export const useTokenPairByPool: APIHook<
-  Pick<Params, "address">,
-  TokenPairAccountData
-> = (params, options = {}) => {
-  const { address } = params ?? {};
+export default (address: Params["address"], options = {}) => {
   const { publicKey: account } = useWallet();
   const { program } = useProgram();
 

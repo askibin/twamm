@@ -8,7 +8,7 @@ import {
 
 import CoinModal from "../molecules/coin-modal";
 import CoinDrawer from "../molecules/coin-drawer";
-import { useBreakpoints } from "../../hooks/use-breakpoints";
+import useBreakpoints from "../../hooks/use-breakpoints";
 
 export interface Props {
   onChange: (arg0: TokenInfo) => void;

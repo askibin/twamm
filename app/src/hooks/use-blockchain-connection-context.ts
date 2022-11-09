@@ -1,7 +1,7 @@
 import { useContext } from "react";
 import { BlockchainConnectionContext } from "../contexts/solana-connection-context";
 
-export const useBlockchainConnectionContext = () => {
+export default () => {
   const context = useContext(BlockchainConnectionContext);
   if (context === undefined) {
     throw new Error("Solana connection context required");

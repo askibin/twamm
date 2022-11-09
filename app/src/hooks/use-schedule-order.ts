@@ -15,8 +15,8 @@ import {
 } from "@solana/spl-token";
 import { findAddress } from "@twamm/client.js/lib/program";
 
-import { useProgram } from "./use-program";
-import { useTxRunnerContext } from "./use-transaction-runner-context";
+import useProgram from "./use-program";
+import useTxRunnerContext from "./use-transaction-runner-context";
 
 const SOL_ADDRESS = NATIVE_MINT.toBase58();
 
@@ -138,7 +138,7 @@ const getOrderKey = (
   };
 };
 
-export const useScheduleOrder = () => {
+export default () => {
   const { program, provider } = useProgram();
   const { commit } = useTxRunnerContext();
 

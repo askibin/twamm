@@ -4,14 +4,12 @@ import { Pool } from "@twamm/client.js";
 import { PublicKey } from "@solana/web3.js";
 import { zipWith } from "ramda";
 
+import useProgram from "./use-program";
 import { expirationTimeToInterval } from "../utils/index";
-import { useProgram } from "./use-program";
 
 export type TradeIntervals = IndexedTIF;
 
-type SettledTokenPairPool<T = TokenPairPoolData> =
-  | PromiseSettledResult<T>
-  | PromiseRejectedResult;
+type SettledTokenPairPool<T = TokenPairPoolData> = PromiseSettledResult<T>;
 
 type FulfilledTifWithPool = {
   tif: TIF;
@@ -119,7 +117,7 @@ const fetcher =
     return indexedTifs;
   };
 
-export const useTIFIntervals = (
+export default (
   tokenPair: TokenPair<JupToken> | undefined,
   tifs: number[] | undefined,
   currentPoolPresent: boolean[] | undefined,

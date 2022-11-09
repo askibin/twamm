@@ -1,4 +1,21 @@
-export const formatInterval = (value: number, max = 2) => {
+export const isFloat = (n: any) => !Number.isNaN(n) && n % 1 !== 0;
+
+type Options = Partial<{ max: number }>;
+
+const populateIntervals = (intervals: number[], options?: Options) => {
+  const { max = 2 } = options ?? {};
+  const formatted: string[] = [];
+  const literals = ["w", "d", "h", "m", "s"];
+
+  intervals.forEach((part, i) => {
+    if (part && formatted.length <= max - 1)
+      formatted.push(`${part}${literals[i]}`);
+  });
+
+  return formatted.join(" ");
+};
+
+const prepareIntervals = (value: number) => {
   const getIntervalValues = (
     interval: number,
     length: number
@@ -16,15 +33,7 @@ export const formatInterval = (value: number, max = 2) => {
   const [h, leftM] = getIntervalValues(leftH, 3600);
   const [m, s] = getIntervalValues(leftM, 60);
 
-  const parts = [w, d, h, m, s];
-  const literals = ["w", "d", "h", "m", "s"];
-  const formatted: string[] = [];
-
-  parts.forEach((part, i) => {
-    if (part && formatted.length < max) formatted.push(`${part}${literals[i]}`);
-  });
-
-  return formatted.join(" ");
+  return [w, d, h, m, s];
 };
 
 export const expirationTimeToInterval = (
@@ -39,4 +48,22 @@ export const expirationTimeToInterval = (
   return delta;
 };
 
-export const isFloat = (n: any) => !Number.isNaN(n) && n % 1 !== 0;
+export const formatIntervalTillS = (value: number) => {
+  const parts = prepareIntervals(value);
+
+  if (!Array.isArray(parts)) return parts;
+
+  return populateIntervals(parts);
+};
+
+export const formatIntervalTillM = (value: number) => {
+  const parts = prepareIntervals(value);
+
+  if (!Array.isArray(parts)) return parts;
+
+  const [w, d, h, m, s] = parts;
+
+  return populateIntervals([w, d, h, s > 30 ? m + 1 : m, 0]);
+};
+
+export const formatInterval = formatIntervalTillM;

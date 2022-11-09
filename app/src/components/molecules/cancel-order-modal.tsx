@@ -9,7 +9,7 @@ import * as Styled from "./cancel-order-modal.styled";
 import CancelOrderAmount from "./cancel-order-amount";
 import CancelOrderDetails from "./cancel-order-details";
 import Loading from "../atoms/loading";
-import { useJupTokensByMint } from "../../hooks/use-jup-tokens-by-mint";
+import useJupTokensByMint from "../../hooks/use-jup-tokens-by-mint";
 
 export interface Props {
   onApprove: (arg0: CancelOrderData) => void;

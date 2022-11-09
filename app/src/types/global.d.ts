@@ -1,3 +1,17 @@
+interface PromiseFulfilledResult<T> {
+  status: "fulfilled";
+  value: T;
+}
+
+interface PromiseRejectedResult {
+  status: "rejected";
+  reason: any;
+}
+
+declare type PromiseSettledResult<T> =
+  | PromiseFulfilledResult<T>
+  | PromiseRejectedResult;
+
 declare type JupToken = {
   name: string;
   decimals: number;
