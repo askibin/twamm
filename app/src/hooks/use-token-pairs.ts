@@ -1,12 +1,10 @@
 import type { Provider, Program } from "@project-serum/anchor";
-import type { PublicKey } from "@solana/web3.js";
 import useSWR from "swr";
 import { account } from "@twamm/client.js";
-import { useWallet } from "@solana/wallet-adapter-react";
 
 import useProgram from "./use-program";
 
-const swrKey = (params: { address: PublicKey }) => ({
+const swrKey = (params: {}) => ({
   key: "tokenPairs",
   params,
 });
@@ -33,10 +31,9 @@ const fetcher = <T>(provider: Provider, program: Program) => {
 
 export default (_: void, options = {}) => {
   const { program, provider } = useProgram();
-  const { publicKey: address } = useWallet();
 
   return useSWR(
-    address && swrKey({ address }),
+    swrKey({}),
     fetcher<TokenPairProgramData[]>(provider, program),
     options
   );

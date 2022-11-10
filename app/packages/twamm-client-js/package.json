@@ -3,8 +3,8 @@
   "publishConfig": {
     "access": "public"
   },
-  "version": "0.0.1",
-  "description": "> TODO: description",
+  "version": "0.0.2",
+  "description": "> Twamm Program Client",
   "homepage": "https://github.com/askibin/twamm#readme",
   "main": "lib/client.ts",
   "directories": {

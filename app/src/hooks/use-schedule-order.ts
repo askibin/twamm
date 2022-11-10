@@ -13,6 +13,7 @@ import {
   TOKEN_PROGRAM_ID,
   createSyncNativeInstruction,
 } from "@solana/spl-token";
+import { findAssociatedTokenAddress } from "@twamm/client.js";
 import { findAddress } from "@twamm/client.js/lib/program";
 
 import useProgram from "./use-program";
@@ -20,6 +21,7 @@ import useTxRunnerContext from "./use-transaction-runner-context";
 
 const SOL_ADDRESS = NATIVE_MINT.toBase58();
 
+// TODO: improve types as one for this helper is not exported
 const createAssociatedTokenAccountInstruction = (
   payer: PublicKey,
   associatedToken: PublicKey,
@@ -43,22 +45,6 @@ const createAssociatedTokenAccountInstruction = (
     programId: associatedTokenProgramId,
     data: Buffer.alloc(0),
   });
-};
-
-const findAssociatedTokenAddress = async (
-  walletAddress: PublicKey,
-  mintAddress: PublicKey
-) => {
-  const [address] = await PublicKey.findProgramAddress(
-    [
-      walletAddress.toBuffer(),
-      TOKEN_PROGRAM_ID.toBuffer(),
-      mintAddress.toBuffer(),
-    ],
-    ASSOCIATED_TOKEN_PROGRAM_ID
-  );
-
-  return address;
 };
 
 // TODO: improve to return instructions;

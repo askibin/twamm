@@ -31,9 +31,7 @@ export const Provider: FC<{ children: ReactNode }> = ({ children }) => {
 
       if (!active) setActive(true);
 
-      // const tx = new Transaction().add(...ti);
-
-      const [err, signatures] = await forit(operation); // await forit(p.sendAll([{ tx }]));
+      const [err, signatures] = await forit(operation);
 
       if (signatures) {
         setActive(false);

@@ -1,40 +1,13 @@
 import type { Provider, Program } from "@project-serum/anchor";
 import { BN } from "@project-serum/anchor";
+import { findAddress } from "@twamm/client.js/lib/program";
+import { findAssociatedTokenAddress, Pool, TokenPair } from "@twamm/client.js";
 import { PublicKey, TransactionInstruction } from "@solana/web3.js";
 import { TOKEN_PROGRAM_ID } from "@solana/spl-token";
-import { findAddress } from "@twamm/client.js/lib/program";
 
 import useProgram from "./use-program";
 import useTxRunnerContext from "./use-transaction-runner-context";
-import {
-  findAssociatedTokenAddress,
-  NativeToken,
-  poolClient,
-  tokenPairClient,
-} from "../utils/twamm-client";
-
-const getPoolKey = (
-  program: Program,
-  aCustody: PublicKey,
-  bCustody: PublicKey
-) => {
-  const findProgramAddress = findAddress(program);
-
-  return async (tif: number, poolCounter: BN) => {
-    const tifBuf = Buffer.alloc(4);
-    tifBuf.writeUInt32LE(tif, 0);
-
-    const counterBuf = Buffer.alloc(8);
-    counterBuf.writeBigUInt64LE(BigInt(poolCounter.toString()), 0);
-
-    return findProgramAddress("pool", [
-      aCustody.toBuffer(),
-      bCustody.toBuffer(),
-      tifBuf,
-      counterBuf,
-    ]);
-  };
-};
+import { NativeToken } from "../utils/twamm-client";
 
 const getOrderKey = (
   provider: Provider,
@@ -43,13 +16,15 @@ const getOrderKey = (
   bCustody: PublicKey
 ) => {
   const findProgramAddress = findAddress(program);
+  const pool = new Pool(program);
 
   return async (tif: number, poolCounter: BN) => {
-    const poolKey = await getPoolKey(
-      program,
+    const poolKey = await pool.getKeyByCustodies(
       aCustody,
-      bCustody
-    )(tif, poolCounter);
+      bCustody,
+      tif,
+      poolCounter
+    );
 
     return findProgramAddress("order", [
       // @ts-ignore
@@ -63,8 +38,8 @@ export default () => {
   const { provider, program } = useProgram();
   const { commit } = useTxRunnerContext();
 
-  const poolCli = poolClient(program.account);
-  const tpCli = tokenPairClient(program.account);
+  const poolClient = new Pool(program);
+  const pairClient = new TokenPair(program);
 
   const findProgramAddress = findAddress(program);
 
@@ -130,7 +105,7 @@ export default () => {
 
     const getOrder = getOrderKey(provider, program, aCustody, bCustody);
 
-    const pool = await poolCli.getPool(poolAddress);
+    const pool = (await poolClient.getPool(poolAddress)) as PoolData;
 
     const result = await program.methods
       .cancelOrder({
@@ -166,7 +141,11 @@ export default () => {
       const poolIds = params.map((data) => data.poolAddress);
 
       const tokenPairs = await Promise.all(
-        poolIds.map((poolId) => tpCli.getByPoolAddress(poolId))
+        poolIds.map((poolId) => {
+          const d: unknown = pairClient.getPairByPoolAddress(poolId);
+
+          return d as TokenPairProgramData;
+        })
       );
 
       const cancelParams = params.map((data, i) => ({

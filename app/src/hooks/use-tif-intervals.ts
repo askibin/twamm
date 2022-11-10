@@ -1,6 +1,6 @@
 import type { Program } from "@project-serum/anchor";
 import useSWR from "swr";
-import { Pool } from "@twamm/client.js";
+import { PoolAuthority } from "@twamm/client.js";
 import { PublicKey } from "@solana/web3.js";
 import { zipWith } from "ramda";
 
@@ -48,7 +48,7 @@ const fetcher =
 
     const aAddress = new PublicKey(a.address);
     const bAddress = new PublicKey(b.address);
-    const pool = new Pool(program, aAddress, bAddress);
+    const pool = new PoolAuthority(program, aAddress, bAddress);
 
     await pool.init();
 
@@ -78,7 +78,7 @@ const fetcher =
     if (poolsToFetch.length) {
       const pools: unknown = await Promise.allSettled(
         poolsToFetch.map(([tif, index]) =>
-          pool.getPool(tif, poolCounters[index])
+          pool.getPoolByTIF(tif, poolCounters[index])
         )
       );
 

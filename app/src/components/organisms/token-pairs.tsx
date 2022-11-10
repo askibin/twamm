@@ -5,7 +5,6 @@ import { useMemo } from "react";
 import BlankTokenPairs from "../atoms/token-pair-cards-blank";
 import TokenPairCards from "./token-pair-cards";
 import useTokenPairs from "../../hooks/use-token-pairs";
-import { ConnectWalletGuard } from "./wallet-guard";
 import { refreshEach } from "../../swr-options";
 
 export default () => {
@@ -13,11 +12,7 @@ export default () => {
 
   const content = useMemo(() => {
     if (!tokenPairs.data) {
-      return (
-        <ConnectWalletGuard sx={{ p: 2 }}>
-          <BlankTokenPairs />
-        </ConnectWalletGuard>
-      );
+      return <BlankTokenPairs />;
     }
 
     return <TokenPairCards data={tokenPairs.data} />;
