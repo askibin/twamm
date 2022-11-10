@@ -36,7 +36,6 @@ export default ({ data }: Props) => {
             bMint={tokenPair.bMint}
             fee={tokenPair.fee}
             orderVolume={tokenPair.orderVolume}
-            perf={tokenPair.orderVolume}
             settleVolume={tokenPair.settleVolume}
             tradeVolume={tokenPair.tradeVolume}
           />
