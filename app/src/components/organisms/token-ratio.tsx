@@ -9,36 +9,28 @@ import availableTokens, {
 } from "../../reducers/select-available-tokens.reducer";
 import CoinPopover from "./coin-popover";
 import TokenPairForm from "../molecules/token-pair-form";
-import useJupTokensByMint from "../../hooks/use-jup-tokens-by-mint";
 import useTokenPair from "../../hooks/use-token-pair";
-import { NativeToken } from "../../utils/twamm-client";
 import { refreshEach } from "../../swr-options";
 
 export interface Props {
   pairs: Voidable<AddressPair[]>;
+  selectedPair: Voidable<JupTokenData[]>;
 }
 
-const DEFAULT_ADDRESSES: AddressPair = [
-  NativeToken.address,
-  "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
-];
-
-export default ({ pairs: tokenPairs }: Props) => {
+export default ({ pairs: tokenPairs, selectedPair: defaultPair }: Props) => {
   const pairs = Maybe.of(tokenPairs);
+  const pair = Maybe.of(defaultPair);
+
   const popoverRef = useRef<{ isOpened: boolean; open: () => void }>();
   const [curToken, setCurToken] = useState<number>();
   const [state, dispatch] = useReducer(availableTokens, initialState);
 
-  const defaultPair = useJupTokensByMint(DEFAULT_ADDRESSES);
-
-  // Should continiously update the pair to fetch actual data
   const selectedPair = useTokenPair(
     state.a && state.b && { aToken: state.a, bToken: state.b },
     refreshEach()
   );
 
   const availableMaybe = Maybe.of(state.available);
-  const availableDefault = Maybe.of(defaultPair.data);
 
   useEffect(() => {
     if (Extra.isNothing(availableMaybe)) {
@@ -46,18 +38,15 @@ export default ({ pairs: tokenPairs }: Props) => {
         dispatch(
           action.initWithDefault({
             pairs: p,
-            // @ts-ignore
-            a: dp[1],
-            // @ts-ignore
-            b: dp[0],
+            pair: dp,
             type: "buy",
           })
         );
-      }, Extra.combine2([pairs, availableDefault]));
+      }, Extra.combine2([pairs, pair]));
     }
 
     return () => {};
-  }, [availableDefault, availableMaybe, pairs]);
+  }, [pair, availableMaybe, pairs]);
 
   const onTokenChoose = useCallback(
     (index: number) => {
@@ -79,9 +68,7 @@ export default ({ pairs: tokenPairs }: Props) => {
     dispatch(action.swap());
   };
 
-  const onCoinDeselect = useCallback((symbol: string) => {
-    dispatch(action.clear({ symbol }));
-  }, []);
+  const onCoinDeselect = useCallback(() => {}, []);
 
   const onCoinSelect = useCallback(
     (token: TokenInfo) => {
@@ -99,7 +86,7 @@ export default ({ pairs: tokenPairs }: Props) => {
         onDeselect={onCoinDeselect}
         onChange={onCoinSelect}
         ref={popoverRef}
-        tokens={state.available}
+        tokens={curToken === 2 ? state.available : state.all}
         tokensToDeselect={state.cancellable}
       />
       <Styled.Swap elevation={1}>
