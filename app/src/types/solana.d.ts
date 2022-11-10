@@ -7,8 +7,8 @@ import type {
 // enhance typings to cover actual helper
 declare module "@solana/spl-token" {
   function createSyncNativeInstruction(
-    programId: PublicKey,
-    nativeAccount: PublicKey
+    account: PublicKey,
+    programId?: PublicKey
   ): TransactionInstruction;
 
   function createCloseAccountInstruction(

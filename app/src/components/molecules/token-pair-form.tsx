@@ -99,7 +99,15 @@ export default ({
     const [a, b] = tokenPair;
     const [timeInForce, nextPool] = tif ?? [];
 
+    const realTif = intervalTifs.data?.find(
+      (itif: { tif: number; index: number; left: number }) =>
+        itif.left === timeInForce
+    );
+
+    console.log(side, tif, realTif?.tif, timeInForce, nextPool);
+
     if (!timeInForce) throw new Error("Absent tif");
+    if (!realTif) throw new Error("Wrong tif");
 
     const params = {
       side,
@@ -107,10 +115,10 @@ export default ({
       decimals: tokenADecimals,
       aMint: a.address,
       bMint: b.address,
-      nextPool: nextPool ? nextPool > 0 : false,
+      nextPool: realTif.tif !== realTif.left, // nextPool ? nextPool > 0 : false,
       tifs,
       poolCounters,
-      tif: timeInForce,
+      tif: realTif.tif,
     };
 
     setSubmitting(true);
@@ -118,13 +126,14 @@ export default ({
     await execute(params);
     setSubmitting(false);
   }, [
-    execute,
     amount,
+    execute,
+    intervalTifs.data,
+    poolCounters,
     side,
     tif,
-    tokenADecimals,
     tifs,
-    poolCounters,
+    tokenADecimals,
     tokenPair,
   ]);
 
