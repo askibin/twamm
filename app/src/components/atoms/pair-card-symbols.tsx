@@ -6,6 +6,8 @@ import * as Styled from "./pair-card-symbols.styled";
 
 export interface Props {
   data: Voidable<MaybeTokens>;
+  displayDirection?: boolean;
+  side?: OrderTypeStruct;
 }
 
 const TokenImage = ({ data }: { data: MaybeTokens[0] }) => {
@@ -23,7 +25,7 @@ const TokenSymbol = ({ data }: { data: MaybeTokens[0] }) => (
   <span>{data instanceof Error ? "Unknown" : data.symbol.toUpperCase()}</span>
 );
 
-export default ({ data }: Props) => {
+export default ({ data, displayDirection, side }: Props) => {
   const mints = Maybe.of(data);
   const tokens = Maybe.withDefault(undefined, mints);
 
@@ -31,13 +33,18 @@ export default ({ data }: Props) => {
 
   const [a, b] = tokens;
 
+  const displayTokens = side?.buy && displayDirection ? [b, a] : [a, b];
+  const direction = !displayDirection ? "-" : "→";
+
   return (
     <Styled.Root>
       <Styled.TokenAvatarGroup max={2}>
-        <TokenImage data={a} />
-        <TokenImage data={b} />
+        <TokenImage data={displayTokens[0]} />
+        <TokenImage data={displayTokens[1]} />
       </Styled.TokenAvatarGroup>
-      <TokenSymbol data={a} />-<TokenSymbol data={b} />
+      <TokenSymbol data={displayTokens[0]} />
+      {direction}
+      <TokenSymbol data={displayTokens[1]} />
     </Styled.Root>
   );
 };

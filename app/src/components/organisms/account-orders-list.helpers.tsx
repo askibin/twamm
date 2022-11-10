@@ -1,4 +1,3 @@
-import OrderTypeCell from "../atoms/account-order-type-cell";
 import PoolFilledQuantityCell from "../atoms/account-order-pool-filled-quantity-cell";
 import PoolOrderTimeCell from "../atoms/account-order-pool-order-time-cell";
 import PoolQuantityCell from "../atoms/account-order-pool-quantity-cell";
@@ -13,45 +12,39 @@ export const columns = () => {
       field: "pool",
       width: 200,
       renderCell: TokenPairCell,
-      // replace type with arrow & direction
-    },
-    {
-      headerName: "Type",
-      field: "orderType",
-      renderCell: OrderTypeCell,
-      width: 50,
     },
     {
       headerName: "Pool Time Frame",
       field: "ptif",
       renderCell: PoolTIFCell,
-      width: 50,
+      resizable: false,
+      width: 80,
     },
     {
       headerName: "Quantity",
       field: "quantity",
-      resizable: false,
       renderCell: PoolQuantityCell,
-      flex: 120,
+      flex: 200,
     },
     {
       headerName: "Filled Quantity",
       field: "filledQuantity",
-      resizable: false,
       renderCell: PoolFilledQuantityCell,
-      flex: 120,
+      flex: 200,
     },
     {
       headerName: "Order Time",
       field: "orderTime",
       renderCell: PoolOrderTimeCell,
-      width: 200,
+      resizable: false,
+      width: 180,
     },
     {
       headerName: "Time Left",
       field: "timeLeft",
       renderCell: PoolTIFLeftCell,
-      width: 200,
+      resizable: false,
+      width: 100,
     },
   ];
 

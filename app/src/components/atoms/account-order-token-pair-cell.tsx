@@ -32,5 +32,7 @@ export default ({ row }: Pick<Props, "row">) => {
 
   const tokens = useTokensByMint(mints);
 
-  return <PairCardSymbols data={tokens.data} />;
+  return (
+    <PairCardSymbols displayDirection data={tokens.data} side={row.side} />
+  );
 };

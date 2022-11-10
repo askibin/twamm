@@ -9,21 +9,17 @@ export interface Props {
 }
 
 export default ({ fields, sizes }: Props) => (
-  <Grid container py={2}>
-    <Styled.Column item md={sizes.md} sm={sizes.sm} xs={sizes.xs}>
-      <DetailsCard data={fields[0].data} name={fields[0].name} />
-    </Styled.Column>
-    <Styled.Column item md={sizes.md} sm={sizes.sm} xs={sizes.xs}>
-      <DetailsCard data={fields[1].data} name={fields[1].name} />
-    </Styled.Column>
-    <Styled.Column item md={sizes.md} sm={sizes.sm} xs={sizes.xs}>
-      <DetailsCard data={fields[2].data} name={fields[2].name} />
-    </Styled.Column>
-    <Styled.Column item md={sizes.md} sm={sizes.sm} xs={sizes.xs}>
-      <DetailsCard data={fields[3].data} name={fields[3].name} />
-    </Styled.Column>
-    <Styled.Column item md={sizes.md} sm={sizes.sm} xs={sizes.xs}>
-      <DetailsCard data={fields[4].data} name={fields[4].name} />
-    </Styled.Column>
+  <Grid container py={2} spacing={2}>
+    {fields.map((field) => (
+      <Styled.Column
+        key={field.name}
+        item
+        md={sizes.md}
+        sm={sizes.sm}
+        xs={sizes.xs}
+      >
+        <DetailsCard data={field.data} name={field.name} />
+      </Styled.Column>
+    ))}
   </Grid>
 );

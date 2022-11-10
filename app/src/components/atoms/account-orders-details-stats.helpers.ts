@@ -40,7 +40,7 @@ export const format = {
   },
 
   prices(data: PoolDetails) {
-    const value = data.prices.join("/");
+    const value = data.prices.join("|");
 
     return withDefault("-", of(value));
   },
