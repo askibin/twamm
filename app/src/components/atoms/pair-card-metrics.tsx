@@ -1,3 +1,7 @@
+import Box from "@mui/material/Box";
+import ClickAwayListener from "@mui/material/ClickAwayListener";
+import Tooltip from "@mui/material/Tooltip";
+import { useState } from "react";
 import * as Styled from "./pair-card-metrics.styled";
 
 export interface MetricProps {
@@ -23,11 +27,36 @@ export const formatDeposited = (value: number): string => {
   );
 };
 
-export default ({ formatted = false, title, value }: MetricProps) => (
-  <div>
-    <Styled.FundMetricName>{title}</Styled.FundMetricName>
-    <Styled.FundMetricValue>
-      {formatted ? `$${formatDeposited(value)}` : value}
-    </Styled.FundMetricValue>
-  </div>
-);
+export default ({ formatted = false, title, value }: MetricProps) => {
+  const [open, setOpen] = useState<boolean>(false);
+
+  const onClose = () => {
+    setOpen(false);
+  };
+
+  const onOpen = () => {
+    setOpen(true);
+  };
+
+  return (
+    <Box>
+      <Styled.Metric>
+        <Styled.FundMetricName>{title}</Styled.FundMetricName>
+        <ClickAwayListener onClickAway={onClose}>
+          <Tooltip
+            arrow
+            PopperProps={{ disablePortal: true }}
+            open={open}
+            onClose={onClose}
+            onClick={onOpen}
+            title={`$${value}`}
+          >
+            <Styled.FundMetricValue>
+              {formatted ? `$${formatDeposited(value)}` : value}
+            </Styled.FundMetricValue>
+          </Tooltip>
+        </ClickAwayListener>
+      </Styled.Metric>
+    </Box>
+  );
+};

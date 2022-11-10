@@ -3,7 +3,6 @@ import Skeleton from "@mui/material/Skeleton";
 import { styled } from "@mui/material/styles";
 
 const div = styled("div");
-const span = styled("span");
 
 const HEIGHT = 210;
 const WIDTH = 338;
@@ -37,7 +36,7 @@ export const Card = styledCard`
 
 export const Fund = div`
   margin: 0;
-  padding-bottom: 51px;
+  padding-bottom: 8px;
 `;
 
 export const FundName = div`
@@ -46,33 +45,22 @@ export const FundName = div`
   line-height: 1.35em;
 `;
 
-export const FundPerf = div`
-  color: #fff;
-  font-size: 20px;
-  font-weight: 400;
-`;
-
-export const FundPerfValue = span`
-  color: #70efcb;
-  font-size: 28px;
-  font-weight: 600;
-`;
+/*
+ *export const FundPerf = div`
+ *  color: #fff;
+ *  font-size: 20px;
+ *  font-weight: 400;
+ *`;
+ *
+ *export const FundPerfValue = span`
+ *  color: #70efcb;
+ *  font-size: 28px;
+ *  font-weight: 600;
+ *`;
+ */
 
 export const FundMetrics = div`
   display: flex;
   flex-direction: row;
   gap: 32px;
-`;
-
-export const FundMetricName = div`
-  font-size: 14px;
-  color: #a2a4a9;
-  font-weight: 500;
-  line-height: 1.35em;
-  padding-bottom: 8px;
-`;
-
-export const FundMetricValue = div`
-  font-size: 20px;
-  font-weight: 600;
 `;
