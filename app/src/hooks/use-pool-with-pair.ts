@@ -1,12 +1,11 @@
 import type { Program } from "@project-serum/anchor";
 import type { PublicKey } from "@solana/web3.js";
+import { Pool, TokenPair } from "@twamm/client.js";
 import useSWR from "swr";
-import { useWallet } from "@solana/wallet-adapter-react";
 
-import { poolClient, tokenPairClient } from "../utils/twamm-client";
 import useProgram from "./use-program";
 
-const swrKey = (params: { account: PublicKey; address: PublicKey }) => ({
+const swrKey = (params: { address: PublicKey }) => ({
   key: "poolWithPair",
   params,
 });
@@ -14,27 +13,21 @@ const swrKey = (params: { account: PublicKey; address: PublicKey }) => ({
 type Params = Parameters<typeof swrKey>[0];
 
 const fetcher = (program: Program) => {
-  const poolCli = poolClient(program.account);
-  const tokenPairCli = tokenPairClient(program.account);
+  const poolClient = new Pool(program);
+  const pairClient = new TokenPair(program);
 
   return async ({ params: { address } }: ReturnType<typeof swrKey>) => {
-    const p: unknown = await poolCli.getPool(address);
-    const pool = p as PoolData;
+    const pool = (await poolClient.getPool(address)) as PoolData;
 
-    const tp: unknown = await tokenPairCli.getTokenPair(pool.tokenPair);
-    const tokenPair = tp as TokenPairAccountData;
+    const tp: unknown = await pairClient.getPair(pool.tokenPair);
+    const tokenPair = tp as TokenPairProgramData;
 
     return { pool, pair: tokenPair };
   };
 };
 
 export default (address: Params["address"], options = {}) => {
-  const { publicKey: account } = useWallet();
   const { program } = useProgram();
 
-  return useSWR(
-    address && account && swrKey({ address, account }),
-    fetcher(program),
-    options
-  );
+  return useSWR(address && swrKey({ address }), fetcher(program), options);
 };

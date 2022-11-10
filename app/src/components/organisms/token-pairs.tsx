@@ -5,7 +5,6 @@ import { useMemo } from "react";
 import BlankTokenPairs from "../atoms/token-pair-cards-blank";
 import TokenPairCards from "./token-pair-cards";
 import useTokenPairs from "../../hooks/use-token-pairs";
-import { ConnectWalletGuard } from "./wallet-guard";
 import { refreshEach } from "../../swr-options";
 
 export default () => {
@@ -24,7 +23,7 @@ export default () => {
       <Typography pb={2} variant="h4">
         Top Pairs
       </Typography>
-      <ConnectWalletGuard sx={{ p: 2 }}>{content}</ConnectWalletGuard>
+      {content}
     </Box>
   );
 };

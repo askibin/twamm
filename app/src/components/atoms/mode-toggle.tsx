@@ -37,7 +37,7 @@ export default ({ mode, onChange: handleChange = () => {} }: Props) => {
         Trade
       </Styled.ModeButton>
       <Styled.ModeButton value={orders} aria-label={orders}>
-        My Orders
+        Orders
       </Styled.ModeButton>
       <Styled.ModeButton value={pools} aria-label={pools}>
         Stats

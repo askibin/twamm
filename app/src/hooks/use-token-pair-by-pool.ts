@@ -1,11 +1,10 @@
 import type { Program } from "@project-serum/anchor";
 import type { PublicKey } from "@solana/web3.js";
 import useSWR from "swr";
-import { useWallet } from "@solana/wallet-adapter-react";
 
 import useProgram from "./use-program";
 
-const swrKey = (params: { account: PublicKey; address: PublicKey }) => ({
+const swrKey = (params: { address: PublicKey }) => ({
   key: "tokenPairByPool",
   params,
 });
@@ -25,12 +24,7 @@ const fetcher =
   };
 
 export default (address: Params["address"], options = {}) => {
-  const { publicKey: account } = useWallet();
   const { program } = useProgram();
 
-  return useSWR(
-    address && account && swrKey({ address, account }),
-    fetcher(program),
-    options
-  );
+  return useSWR(address && swrKey({ address }), fetcher(program), options);
 };

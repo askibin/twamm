@@ -1,6 +1,8 @@
 import * as account from "./account";
 import * as program from "./program";
 import { Order } from "./order";
-import { Pool } from "./pool";
+import { Pool, PoolAuthority } from "./pool";
+import { TokenPair } from "./token-pair";
 
-export { account, program, Order, Pool };
+export { account, program, Order, Pool, PoolAuthority, TokenPair };
+export { findAssociatedTokenAddress } from "./find-associated-token-address";

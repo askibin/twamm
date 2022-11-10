@@ -1,11 +1,6 @@
-import type { Address, AccountNamespace } from "@project-serum/anchor";
-
-import {
-  ASSOCIATED_TOKEN_PROGRAM_ID,
-  NATIVE_MINT,
-  TOKEN_PROGRAM_ID,
-  createCloseAccountInstruction,
-} from "@solana/spl-token";
+import type { Address } from "@project-serum/anchor";
+import { NATIVE_MINT, createCloseAccountInstruction } from "@solana/spl-token";
+import { isNativeToken } from "@twamm/client.js/lib/program";
 import { PublicKey } from "@solana/web3.js";
 import { translateAddress } from "@project-serum/anchor";
 
@@ -20,28 +15,8 @@ export const address = (account: Address) => ({
   },
 });
 
-export const findAssociatedTokenAddress = async (
-  walletAddress: PublicKey,
-  mintAddress: PublicKey
-) => {
-  const [addr] = await PublicKey.findProgramAddress(
-    [
-      walletAddress.toBuffer(),
-      TOKEN_PROGRAM_ID.toBuffer(),
-      mintAddress.toBuffer(),
-    ],
-    ASSOCIATED_TOKEN_PROGRAM_ID
-  );
-
-  return addr;
-};
-
 export class NativeToken {
   public static address = SOL_ADDRESS;
-
-  public static isNative(addr: PublicKey) {
-    return addr.toBase58() === SOL_ADDRESS;
-  }
 
   public static closeAccountInstruction(
     mint: PublicKey,
@@ -50,7 +25,7 @@ export class NativeToken {
   ) {
     let result;
 
-    if (NativeToken.isNative(mint)) {
+    if (isNativeToken(mint)) {
       result = createCloseAccountInstruction(
         tokenAccountAddress,
         walletAddress,
@@ -61,29 +36,3 @@ export class NativeToken {
     return result;
   }
 }
-
-export const poolClient = (account: AccountNamespace) => ({
-  async getPool(addr: PublicKey) {
-    const a: unknown = account.pool.fetch(addr);
-
-    return a as PoolData;
-  },
-});
-
-export const tokenPairClient = (account: AccountNamespace) => {
-  const poolCli = poolClient(account);
-
-  return {
-    async getTokenPair(addr: PublicKey) {
-      const a: unknown = account.tokenPair.fetch(addr);
-
-      return a as TokenPairProgramData;
-    },
-    async getByPoolAddress(addr: PublicKey) {
-      const p = await poolCli.getPool(addr);
-      const tp: unknown = await account.tokenPair.fetch(p.tokenPair);
-
-      return tp as TokenPairProgramData;
-    },
-  };
-};

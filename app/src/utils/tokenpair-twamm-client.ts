@@ -3,11 +3,10 @@ import { findAddress } from "@twamm/client.js/lib/program";
 import { PublicKey } from "@solana/web3.js";
 
 import { forit } from "./forit";
-import { poolClient, tokenPairClient } from "./twamm-client";
 
 const addressToBuffer = (address: string) => new PublicKey(address).toBuffer();
 
-export const fetchTokenPair = (provider: Provider, program: Program) => {
+const fetchTokenPair = (provider: Provider, program: Program) => {
   const findProgramAddress = findAddress(program);
 
   return async (
@@ -49,22 +48,5 @@ export const resolveExchangePair = (provider: Provider, program: Program) => {
       tokenPairData: tokenPairProgramData as TokenPairProgramData,
       exchangePair,
     };
-  };
-};
-
-export const fetchOrderByPoolAddress = (
-  provider: Provider,
-  program: Program
-) => {
-  const tokenPairCli = tokenPairClient(program.account);
-  const poolCli = poolClient(program.account);
-
-  return async (address: PublicKey) => {
-    const pool = await poolCli.getPool(address);
-    const pair = await tokenPairCli.getTokenPair(pool.tokenPair);
-
-    const mints = [pair.configA.mint, pair.configB.mint];
-
-    return { mints };
   };
 };
