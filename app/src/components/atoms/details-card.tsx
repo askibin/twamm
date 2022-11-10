@@ -8,7 +8,7 @@ export interface Props {
 }
 
 export default ({ data, name }: Props) => (
-  <Styled.Container elevation={0}>
+  <Styled.Container>
     <Styled.Content>
       <Styled.Title color="text.secondary" gutterBottom>
         {name}
