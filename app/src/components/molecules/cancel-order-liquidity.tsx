@@ -10,24 +10,25 @@ import { isFloat } from "../../utils/index";
 
 export interface Props {
   ab: JupTokenData[];
+  amount: Array<number | string>;
   errorData: Voidable<Error>;
   priceData: Voidable<number>;
 }
 
 const formatRate = (a: number) => (!isFloat(a) ? a : Number(a).toFixed(2));
 
-export default ({ ab, errorData, priceData }: Props) => {
+export default ({ ab, amount, errorData, priceData }: Props) => {
   const data = Maybe.of(priceData);
   const error = Maybe.of(errorData);
 
   const pair = useMemo(
     () =>
-      ab.map((token) => ({
+      ab.map((token, i) => ({
         symbol: token.symbol,
-        amount: 2,
+        amount: amount[i],
         image: token.logoURI,
       })),
-    [ab]
+    [ab, amount]
   );
 
   const [a, b] = pair;
@@ -43,9 +44,9 @@ export default ({ ab, errorData, priceData }: Props) => {
     <>
       <Card>
         <CardContent>
-          {pair.map(({ amount, image, symbol }) => (
+          {pair.map(({ amount: amnt, image, symbol }) => (
             <Styled.LiquidityItem key={symbol}>
-              <Styled.ItemAmount>{amount}</Styled.ItemAmount>
+              <Styled.ItemAmount>{amnt}</Styled.ItemAmount>
               <Styled.ItemToken>
                 <Styled.TokenImage src={image}>{symbol[0]}</Styled.TokenImage>
                 <Styled.TokenName>{symbol.toUpperCase()}</Styled.TokenName>

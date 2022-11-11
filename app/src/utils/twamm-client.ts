@@ -1,4 +1,4 @@
-import type { Address } from "@project-serum/anchor";
+import type { Address, BN } from "@project-serum/anchor";
 import { NATIVE_MINT, createCloseAccountInstruction } from "@solana/spl-token";
 import { isNativeToken } from "@twamm/client.js/lib/program";
 import { PublicKey } from "@solana/web3.js";
@@ -37,15 +37,40 @@ export class NativeToken {
   }
 }
 
-export const withdrawAmount = (lpAmount, poolSide, order, tokenPair) => {
+export const lpAmount = (
+  poolSide: OrderSideData,
+  order: { side: OrderTypeStruct; lpBalance: BN; tokenDebt: BN }
+) => {
+  let result;
+
+  if (Number(poolSide.sourceBalance) === 0) {
+    result = Number(order.lpBalance);
+  } else {
+    result =
+      (Number(order.lpBalance) * Number(poolSide.lpSupply)) /
+      Number(poolSide.sourceBalance);
+  }
+
+  return result;
+};
+
+export const withdrawAmount = (
+  poolSide: OrderSideData,
+  order: { side: OrderTypeStruct; lpBalance: BN; tokenDebt: BN },
+  tokenPair: TokenPairProgramData
+) => {
+  const lpBalance = lpAmount(poolSide, order);
+
   const withdrawAmountSource =
-    (lpAmount * poolSide.sourceBalance) / poolSide.lpSupply;
+    (lpBalance * Number(poolSide.sourceBalance)) / Number(poolSide.lpSupply);
 
   let withdrawAmountTarget =
-    (lpAmount * (poolSide.targetBalance + poolSide.tokenDebtTotal)) /
-    poolSide.lpSupply;
+    (lpBalance *
+      (Number(poolSide.targetBalance) + Number(poolSide.tokenDebtTotal))) /
+    Number(poolSide.lpSupply);
 
-  const tokenDebtRemoved = (order.tokenDebt * lpAmount) / order.lpBalance;
+  const tokenDebtRemoved =
+    (Number(order.tokenDebt) * Number(lpBalance)) / Number(order.lpBalance);
 
   if (withdrawAmountTarget > tokenDebtRemoved) {
     withdrawAmountTarget -= tokenDebtRemoved;
@@ -57,7 +82,7 @@ export const withdrawAmount = (lpAmount, poolSide, order, tokenPair) => {
     (withdrawAmountTarget * tokenPair.feeNumerator) / tokenPair.feeDenominator;
 
   const [withdrawAmountA, withdrawAmountB] =
-    order.side === "sell"
+    order.side.sell !== undefined
       ? [withdrawAmountSource, withdrawAmountTarget - withdrawAmountFees]
       : [withdrawAmountTarget - withdrawAmountFees, withdrawAmountSource];
 

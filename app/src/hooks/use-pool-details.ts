@@ -1,42 +1,53 @@
 import type { PublicKey } from "@solana/web3.js";
+import type { BN } from "@project-serum/anchor";
 import useSWR from "swr";
 
 import useJupTokensByMint from "./use-jup-tokens-by-mint";
 import usePoolWithPair from "./use-pool-with-pair";
-import { address as addr } from "../utils/twamm-client";
+import {
+  address as addr,
+  lpAmount,
+  withdrawAmount,
+} from "../utils/twamm-client";
 
 const mintsKey = (pair?: TokenPairAccountData) =>
   pair
     ? [addr(pair.configA.mint).toString(), addr(pair.configB.mint).toString()]
     : undefined;
 
-export default (address: PublicKey) => {
-  const details = usePoolWithPair(address);
+export default (
+  poolAddress: PublicKey,
+  order: { side: OrderTypeStruct; tokenDebt: BN; lpBalance: BN }
+) => {
+  const details = usePoolWithPair(poolAddress);
 
   const tokens = useJupTokensByMint(mintsKey(details.data?.pair));
 
-  const isValid = address && details.data && tokens.data;
+  const isValid = poolAddress && details.data && tokens.data && order;
   return useSWR(
-    isValid && ["poolDetails", address],
+    isValid && ["poolDetails", poolAddress],
     async (): Promise<PoolDetails | undefined> => {
       if (!details.data) return undefined;
       if (!tokens.data) return undefined;
+
+      const { side } = order;
 
       const { pool, pair } = details.data;
 
       const { configA, configB, inceptionTime, statsA, statsB } = pair;
       const { buySide, expirationTime, sellSide, status } = pool;
-      const { maxFillPrice: maxBuy, minFillPrice: minBuy } = buySide;
+
+      const tradeSide = side.sell ? sellSide : buySide;
       const {
         lastBalanceChangeTime,
-        maxFillPrice: maxSell,
-        minFillPrice: minSell,
-      } = sellSide;
-
-      const min = minSell || minBuy;
-      const max = maxSell || maxBuy;
+        maxFillPrice: max,
+        minFillPrice: min,
+      } = tradeSide; // buySide;
 
       const lastChanged = lastBalanceChangeTime.toNumber();
+
+      const withdrawData = withdrawAmount(tradeSide, order, pair);
+      const lpAmountData = lpAmount(tradeSide, order);
 
       const next = {
         aAddress: configA.mint,
@@ -48,6 +59,7 @@ export default (address: PublicKey) => {
         lastBalanceChangeTime: !lastChanged
           ? undefined
           : new Date(lastChanged * 1e3),
+        lpAmount: lpAmountData,
         lpSupply: [
           sellSide.lpSupply.toNumber() / 10 ** configA.decimals,
           buySide.lpSupply.toNumber() / 10 ** configB.decimals,
@@ -57,9 +69,11 @@ export default (address: PublicKey) => {
           buySide.lpSupply.toNumber(),
         ],
         lpSymbols: [tokens.data[0].symbol, tokens.data[1].symbol],
-        poolAddress: address,
+        poolAddress,
         prices: [min.toFixed(2), ((max + min) / 2).toFixed(2), max.toFixed(2)],
+        side,
         volume: statsA.orderVolumeUsd + statsB.orderVolumeUsd,
+        withdrawData,
       };
 
       return next;

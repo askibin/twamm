@@ -151,8 +151,6 @@ export default () => {
       []
     );
 
-    console.log(aMint, bMint);
-
     const aMintPublicKey = new PublicKey(aMint);
     const bMintPublicKey = new PublicKey(bMint);
 

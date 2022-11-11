@@ -7,7 +7,8 @@ export interface Props {
 }
 
 export default ({ expired, inactive, onClick }: Props) => {
-  const actionName = expired || inactive ? "Withdraw" : "Cancel";
+  const actionName =
+    expired || inactive ? "Withdraw Liquidity" : "Cancel Order";
 
   return (
     <Button variant="outlined" onClick={onClick}>

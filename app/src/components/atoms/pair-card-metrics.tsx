@@ -38,6 +38,8 @@ export default ({ formatted = false, title, value }: MetricProps) => {
     setOpen(true);
   };
 
+  // TODO: format title
+
   return (
     <Box>
       <Styled.Metric>

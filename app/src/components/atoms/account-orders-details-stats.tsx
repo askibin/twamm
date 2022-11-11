@@ -39,7 +39,7 @@ export default ({ details }: Props) => {
       },
       {
         name: "Your average price",
-        data: "?",
+        data: format.userAveragePrice(details),
       },
     ],
     [details]

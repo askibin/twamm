@@ -27,6 +27,11 @@ export interface Props {
 
 type RowData = {
   id: string;
+  order: {
+    lpBalance: BN;
+    tokenDebt: BN;
+    side: OrderTypeStruct;
+  };
   orderTime: BN;
   pool: PublicKey;
   side: OrderTypeStruct;
@@ -34,13 +39,15 @@ type RowData = {
 };
 
 type DetailsData = {
-  address: PublicKey;
+  poolAddress: PublicKey;
   side: OrderTypeStruct;
   supply: BN;
+  order: RowData["order"];
 };
 
 const selectOrderData = (params: GridRowParams<RowData>) => ({
-  address: params.row.pool,
+  order: params.row.order,
+  poolAddress: params.row.pool,
   side: params.row.side,
   supply: params.row.supply,
 });
@@ -70,6 +77,11 @@ export default (props: Props) => {
         pool: order.pool,
         side: order.side,
         supply: order.lpBalance,
+        order: {
+          side: order.side,
+          tokenDebt: order.tokenDebt,
+          lpBalance: order.lpBalance,
+        },
       })),
     [data]
   );
@@ -138,14 +150,21 @@ export default (props: Props) => {
   return (
     <>
       <UniversalPopover ref={cancelRef}>
-        <CancelOrder onApprove={onApproveCancel} data={accounts} />
+        {details && (
+          <CancelOrder
+            data={accounts}
+            detailsData={details}
+            onApprove={onApproveCancel}
+          />
+        )}
       </UniversalPopover>
 
       <UniversalPopover onClose={onDetailsClose} ref={detailsRef}>
         {details && (
           <OrderDetailsModal
-            address={details.address}
             onCancel={onCancelOrder}
+            order={details.order}
+            poolAddress={details.poolAddress}
             side={details.side}
             supply={details.supply}
           />
