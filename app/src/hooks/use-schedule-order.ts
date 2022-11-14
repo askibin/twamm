@@ -216,10 +216,6 @@ export default () => {
     if (index < 0) throw new Error("Invalid TIF");
     const counter = poolCounters[index];
 
-    console.log(tif, tifs, { index }, counter.toNumber(), poolCounters);
-
-    console.log(poolCounters.map((a) => a.toNumber()));
-
     const getOrder = getOrderKey(provider, program, aCustody, bCustody);
     const getPool = getPoolKey(program, aCustody, bCustody);
 
@@ -239,8 +235,6 @@ export default () => {
       nextPool ? Number(counter) + 1 : counter
     );
 
-    console.log("oct", order, currentPool, targetPool);
-
     const result = await program.methods
       .placeOrder(orderParams)
       .accounts({
@@ -258,8 +252,6 @@ export default () => {
       })
       .preInstructions(pre)
       .rpc();
-
-    console.log(result);
 
     return result;
   };

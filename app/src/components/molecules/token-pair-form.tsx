@@ -97,14 +97,12 @@ export default ({
     if (!tifs) throw new Error("Absent tifs");
 
     const [a, b] = tokenPair;
-    const [timeInForce, nextPool] = tif ?? [];
+    const [timeInForce /* , nextPool */] = tif ?? [];
 
     const realTif = intervalTifs.data?.find(
       (itif: { tif: number; index: number; left: number }) =>
         itif.left === timeInForce
     );
-
-    console.log(side, tif, realTif?.tif, timeInForce, nextPool);
 
     if (!timeInForce) throw new Error("Absent tif");
     if (!realTif) throw new Error("Wrong tif");
