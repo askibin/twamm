@@ -1,6 +1,7 @@
 import Maybe from "easy-maybe/lib";
 import { zip } from "ramda";
 import { isFloat } from "../../utils/index";
+import { withdrawAmount } from "../../utils/twamm-client";
 
 const { withDefault, of } = Maybe;
 
@@ -48,9 +49,16 @@ export const format = {
   },
 
   userAveragePrice(data: PoolDetails) {
-    const value = (({ lpAmount, side, withdrawData }) => {
+    const value = (({ lpAmount, side, withdraw }) => {
       const baseTokenIndex = side.sell ? 0 : 1;
       const supplTokenIndex = side.sell ? 1 : 0;
+
+      const withdrawData = withdrawAmount(
+        withdraw.orderBalance.lpBalance,
+        withdraw.tradeSide,
+        withdraw.orderBalance,
+        withdraw.tokenPair
+      );
 
       if (!withdrawData[supplTokenIndex]) return undefined;
 

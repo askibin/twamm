@@ -73,6 +73,7 @@ export default ({ data, detailsData, onApprove }: Props) => {
               data={tokens.data}
               details={details.data}
               onToggle={onToggleDetails}
+              percentage={percentage}
             />
           )}
           <Box p={2}>
