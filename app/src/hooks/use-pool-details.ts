@@ -68,11 +68,11 @@ export default (
         lpSymbols: [tokens.data[0].symbol, tokens.data[1].symbol],
         poolAddress,
         prices: [
-          Number(minFillPrice).toFixed(2),
+          Number(minFillPrice),
           Number(fillsVolume)
-            ? (Number(weightedFillsSum) / Number(fillsVolume)).toFixed(2)
-            : "-",
-          Number(maxFillPrice).toFixed(2),
+            ? Number(weightedFillsSum) / Number(fillsVolume)
+            : -1,
+          Number(maxFillPrice),
         ],
         side,
         volume: statsA.orderVolumeUsd + statsB.orderVolumeUsd,

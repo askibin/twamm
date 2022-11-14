@@ -121,7 +121,7 @@ declare type PoolDetails = {
   lpSymbols: string[];
   side: OrderTypeStruct;
   poolAddress: PublicKey;
-  prices: string[];
+  prices: number[];
   volume: number;
   withdraw: {
     tradeSide: PoolTradeSideData;
