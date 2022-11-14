@@ -1,9 +1,12 @@
+import type { GridComparatorFn } from "@mui/x-data-grid-pro";
 import PoolFilledQuantityCell from "../atoms/account-order-pool-filled-quantity-cell";
 import PoolOrderTimeCell from "../atoms/account-order-pool-order-time-cell";
 import PoolQuantityCell from "../atoms/account-order-pool-quantity-cell";
 import PoolTIFCell from "../atoms/account-order-pool-tif-cell";
 import PoolTIFLeftCell from "../atoms/account-order-pool-tif-left-cell";
 import TokenPairCell from "../atoms/account-order-token-pair-cell";
+
+const sortByTokenPair: GridComparatorFn<any> = (a, b) => 0;
 
 export const columns = () => {
   const cols = [
@@ -12,6 +15,7 @@ export const columns = () => {
       field: "pool",
       width: 200,
       renderCell: TokenPairCell,
+      sortComparator: sortByTokenPair,
     },
     {
       headerName: "Pool Time Frame",

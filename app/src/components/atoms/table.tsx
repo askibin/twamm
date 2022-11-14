@@ -4,7 +4,9 @@ import type {
   DataGridProProps,
   GridRowIdGetter,
   GridRowParams,
+  GridSortModel,
 } from "@mui/x-data-grid-pro";
+import { DataGridPro } from "@mui/x-data-grid-pro";
 import type { ChangeEvent, MouseEvent } from "react";
 
 import * as Styled from "./table.styled";
@@ -18,6 +20,7 @@ interface Props {
   pagination?: boolean;
   search?: boolean;
   searchBoxPlaceholderText?: string;
+  sortModel: { field: string; sort: "asc" | "desc" }[];
 }
 
 export default ({
@@ -29,6 +32,7 @@ export default ({
   pagination = false,
   search = false,
   searchBoxPlaceholderText,
+  sortModel,
 }: Props) => {
   const [filterText, setFilterText] = useState("");
 
@@ -55,6 +59,8 @@ export default ({
     [filterColumnField, filterText]
   );
 
+  const sorting: Voidable<GridSortModel> = sortModel;
+
   return (
     <>
       {search && (
@@ -67,24 +73,26 @@ export default ({
           />
         </Styled.Search>
       )}
-
-      <Styled.Grid
-        density="compact"
-        disableColumnFilter
-        disableColumnMenu
-        disableColumnSelector
-        disableDensitySelector
-        disableSelectionOnClick
-        filterModel={filterModel}
-        getRowId={getRowId}
-        initialState={options}
-        onRowClick={onRowClick}
-        pagination={pagination}
-        rowsPerPageOptions={pages}
-        // eslint-disable-next-line react/jsx-props-no-spreading
-        {...gridProps}
-      />
-      {isUpdating && <Typography variant="body1">Updating...</Typography>}
+      <Styled.Grid>
+        <DataGridPro
+          density="compact"
+          disableColumnFilter
+          disableColumnMenu
+          disableColumnSelector
+          disableDensitySelector
+          disableSelectionOnClick
+          filterModel={filterModel}
+          getRowId={getRowId}
+          initialState={options}
+          onRowClick={onRowClick}
+          pagination={pagination}
+          rowsPerPageOptions={pages}
+          sortModel={sorting}
+          // eslint-disable-next-line react/jsx-props-no-spreading
+          {...gridProps}
+        />
+        {isUpdating && <Typography variant="body1">Updating...</Typography>}
+      </Styled.Grid>
     </>
   );
 };

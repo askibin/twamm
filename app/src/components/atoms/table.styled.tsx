@@ -1,5 +1,4 @@
 import Box from "@mui/material/Box";
-import { DataGridPro } from "@mui/x-data-grid-pro";
 import { styled } from "@mui/material/styles";
 
 export const Search = styled(Box)`
@@ -9,7 +8,7 @@ export const Search = styled(Box)`
   margin-bottom: 24px;
 `;
 
-export const Grid = styled(DataGridPro)`
+export const Grid = styled(Box)`
   & .MuiDataGrid-row {
     cursor: pointer;
   }

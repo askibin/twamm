@@ -198,6 +198,7 @@ export default (props: Props) => {
           isUpdating={props.updating}
           onRowClick={onRowClick}
           searchBoxPlaceholderText="Search orders"
+          sortModel={[{ field: "pool", sort: "asc" }]}
         />
       </Box>
     </>
