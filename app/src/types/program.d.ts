@@ -76,7 +76,7 @@ declare type OrderData = {
   unsettledBalance: BN;
 };
 
-type OrderSideData = {
+type PoolTradeSideData = {
   fillsVolume: BN;
   lastBalanceChangeTime: BN;
   lpSupply: BN;
@@ -85,13 +85,14 @@ type OrderSideData = {
   sourceBalance: BN;
   targetBalance: BN;
   tokenDebtTotal: BN;
+  weightedFillsSum: BN | number;
 };
 
 declare type PoolData = {
-  buySide: OrderSideData;
+  buySide: PoolTradeSideData;
   counter: BN;
   expirationTime: BN;
-  sellSide: OrderSideData;
+  sellSide: PoolTradeSideData;
   timeInForce: number;
   tokenPair: BN;
   // status: { locked: {} }

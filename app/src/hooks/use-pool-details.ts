@@ -39,14 +39,21 @@ export default (
 
       const tradeSide = side.sell ? sellSide : buySide;
       const {
+        fillsVolume,
         lastBalanceChangeTime,
-        maxFillPrice: max,
-        minFillPrice: min,
-      } = tradeSide; // buySide;
+        maxFillPrice,
+        minFillPrice,
+        weightedFillsSum,
+      } = tradeSide;
 
       const lastChanged = lastBalanceChangeTime.toNumber();
 
-      const withdrawData = withdrawAmount(tradeSide, order, pair);
+      const withdrawData = withdrawAmount(
+        Number(order.lpBalance),
+        tradeSide,
+        order,
+        pair
+      );
       const lpAmountData = lpAmount(tradeSide, order);
 
       const next = {
@@ -61,8 +68,10 @@ export default (
           : new Date(lastChanged * 1e3),
         lpAmount: lpAmountData,
         lpSupply: [
-          sellSide.lpSupply.toNumber() / 10 ** configA.decimals,
-          buySide.lpSupply.toNumber() / 10 ** configB.decimals,
+          Number(buySide.sourceBalance) / 10 ** configB.decimals +
+            Number(sellSide.targetBalance) / 10 ** configA.decimals,
+          Number(sellSide.sourceBalance) / 10 ** configA.decimals +
+            Number(buySide.targetBalance) / 10 ** configB.decimals,
         ],
         lpSupplyRaw: [
           sellSide.lpSupply.toNumber(),
@@ -70,7 +79,13 @@ export default (
         ],
         lpSymbols: [tokens.data[0].symbol, tokens.data[1].symbol],
         poolAddress,
-        prices: [min.toFixed(2), ((max + min) / 2).toFixed(2), max.toFixed(2)],
+        prices: [
+          Number(minFillPrice).toFixed(2),
+          Number(fillsVolume)
+            ? (Number(weightedFillsSum) / Number(fillsVolume)).toFixed(2)
+            : "-",
+          Number(maxFillPrice).toFixed(2),
+        ],
         side,
         volume: statsA.orderVolumeUsd + statsB.orderVolumeUsd,
         withdrawData,
