@@ -89,6 +89,8 @@ export default ({
   }, [amount, tif, tokenA, tokenB]);
 
   const onSubmit = useCallback(async () => {
+    const tifIntervals = Maybe.of(intervalTifs.data);
+
     if (!tokenPair) throw new Error("Pair is absent");
     if (!tif) throw new Error("Please choose the intervals");
     if (!tokenADecimals) throw new Error("Absent decimals");
@@ -99,13 +101,19 @@ export default ({
     const [a, b] = tokenPair;
     const [timeInForce /* , nextPool */] = tif ?? [];
 
-    const realTif = intervalTifs.data?.find(
-      (itif: { tif: number; index: number; left: number }) =>
-        itif.left === timeInForce
-    );
-
     if (!timeInForce) throw new Error("Absent tif");
-    if (!realTif) throw new Error("Wrong tif");
+
+    const selectedTif = Maybe.andMap((intervals) => {
+      const interval = intervals.find(
+        (itif: IndexedTIF) => itif.tif === timeInForce
+      );
+
+      return interval;
+    }, tifIntervals);
+
+    const finalTif = Maybe.withDefault(undefined, selectedTif);
+
+    if (!finalTif) throw new Error("Wrong tif");
 
     const params = {
       side,
@@ -113,11 +121,14 @@ export default ({
       decimals: tokenADecimals,
       aMint: a.address,
       bMint: b.address,
-      nextPool: realTif.tif !== realTif.left, // nextPool ? nextPool > 0 : false,
+      nextPool: finalTif.tif !== finalTif.left,
       tifs,
       poolCounters,
-      tif: realTif.tif,
+      tif: finalTif.tif,
     };
+
+    // FIXME: remove this 4 prod
+    console.info(params);
 
     setSubmitting(true);
 
