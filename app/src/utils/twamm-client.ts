@@ -1,4 +1,4 @@
-import type { Address } from "@project-serum/anchor";
+import type { Address, BN } from "@project-serum/anchor";
 import { NATIVE_MINT, createCloseAccountInstruction } from "@solana/spl-token";
 import { isNativeToken } from "@twamm/client.js/lib/program";
 import { PublicKey } from "@solana/web3.js";
@@ -36,3 +36,55 @@ export class NativeToken {
     return result;
   }
 }
+
+export const lpAmount = (
+  poolSide: OrderSideData,
+  order: { side: OrderTypeStruct; lpBalance: BN; tokenDebt: BN }
+) => {
+  let result;
+
+  if (Number(poolSide.sourceBalance) === 0) {
+    result = Number(order.lpBalance);
+  } else {
+    result =
+      (Number(order.lpBalance) * Number(poolSide.lpSupply)) /
+      Number(poolSide.sourceBalance);
+  }
+
+  return result;
+};
+
+export const withdrawAmount = (
+  poolSide: OrderSideData,
+  order: { side: OrderTypeStruct; lpBalance: BN; tokenDebt: BN },
+  tokenPair: TokenPairProgramData
+) => {
+  const lpBalance = lpAmount(poolSide, order);
+
+  const withdrawAmountSource =
+    (lpBalance * Number(poolSide.sourceBalance)) / Number(poolSide.lpSupply);
+
+  let withdrawAmountTarget =
+    (lpBalance *
+      (Number(poolSide.targetBalance) + Number(poolSide.tokenDebtTotal))) /
+    Number(poolSide.lpSupply);
+
+  const tokenDebtRemoved =
+    (Number(order.tokenDebt) * Number(lpBalance)) / Number(order.lpBalance);
+
+  if (withdrawAmountTarget > tokenDebtRemoved) {
+    withdrawAmountTarget -= tokenDebtRemoved;
+  } else {
+    withdrawAmountTarget = 0;
+  }
+
+  const withdrawAmountFees =
+    (withdrawAmountTarget * tokenPair.feeNumerator) / tokenPair.feeDenominator;
+
+  const [withdrawAmountA, withdrawAmountB] =
+    order.side.sell !== undefined
+      ? [withdrawAmountSource, withdrawAmountTarget - withdrawAmountFees]
+      : [withdrawAmountTarget - withdrawAmountFees, withdrawAmountSource];
+
+  return [withdrawAmountA, withdrawAmountB];
+};

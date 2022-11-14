@@ -4,7 +4,6 @@ import {
   PublicKey,
   SystemProgram,
   SYSVAR_RENT_PUBKEY,
-  Transaction,
   TransactionInstruction,
 } from "@solana/web3.js";
 import {
@@ -63,19 +62,15 @@ const assureAccountIsCreated =
         throw new Error("Unexpected error in getAccountInfo");
       }
 
-      const transaction = new Transaction();
-
-      transaction.add(
-        createAssociatedTokenAccountInstruction(
-          provider.wallet.publicKey,
-          accountAddress,
-          provider.wallet.publicKey,
-          mint
-        )
+      return createAssociatedTokenAccountInstruction(
+        provider.wallet.publicKey,
+        accountAddress,
+        provider.wallet.publicKey,
+        mint
       );
-
-      await provider.sendAll([{ tx: transaction }]);
     }
+
+    return undefined;
   };
 
 const getPoolKey = (
@@ -156,8 +151,8 @@ export default () => {
       []
     );
 
-    const aMintPublicKey = new PublicKey(aMint); // side === "sell" ? aMint : bMint);
-    const bMintPublicKey = new PublicKey(bMint); // side === "sell" ? bMint : aMint);
+    const aMintPublicKey = new PublicKey(aMint);
+    const bMintPublicKey = new PublicKey(bMint);
 
     const tokenPairAddress = await findProgramAddress("token_pair", [
       new PublicKey(aMint).toBuffer(),
@@ -184,11 +179,16 @@ export default () => {
       bMintPublicKey
     );
 
-    await assureAccountIsCreated(provider)(aMintPublicKey, aWallet);
-
-    await assureAccountIsCreated(provider)(bMintPublicKey, bWallet);
-
     const pre = [];
+
+    const i1 = await assureAccountIsCreated(provider)(aMintPublicKey, aWallet);
+
+    if (i1) pre.push(i1);
+
+    const i2 = await assureAccountIsCreated(provider)(bMintPublicKey, bWallet);
+
+    if (i2) pre.push(i2);
+
     if (side === "sell" && aMint === SOL_ADDRESS) {
       pre.push(
         SystemProgram.transfer({
@@ -197,7 +197,7 @@ export default () => {
           lamports: amount * 1e9,
         })
       );
-      pre.push(createSyncNativeInstruction(aWallet, NATIVE_MINT));
+      pre.push(createSyncNativeInstruction(aWallet, TOKEN_PROGRAM_ID));
     }
 
     if (side === "buy" && bMint === SOL_ADDRESS) {
@@ -209,7 +209,7 @@ export default () => {
         })
       );
 
-      pre.push(createSyncNativeInstruction(bWallet, NATIVE_MINT));
+      pre.push(createSyncNativeInstruction(bWallet, TOKEN_PROGRAM_ID));
     }
 
     const index = tifs.indexOf(tif);
@@ -219,12 +219,24 @@ export default () => {
     const getOrder = getOrderKey(provider, program, aCustody, bCustody);
     const getPool = getPoolKey(program, aCustody, bCustody);
 
+    const orderParams = {
+      side: side === "sell" ? { sell: {} } : { buy: {} },
+      timeInForce: tif,
+      amount: new BN(amount * 10 ** decimals),
+    };
+
+    const order = await getOrder(
+      tif,
+      nextPool ? counter.toNumber() + 1 : counter
+    );
+    const currentPool = await getPool(tif, counter);
+    const targetPool = await getPool(
+      tif,
+      nextPool ? Number(counter) + 1 : counter
+    );
+
     const result = await program.methods
-      .placeOrder({
-        side: side === "sell" ? { sell: {} } : { buy: {} },
-        timeInForce: tif,
-        amount: new BN(amount * 10 ** decimals),
-      })
+      .placeOrder(orderParams)
       .accounts({
         owner: provider.wallet.publicKey,
         userAccountTokenA: aWallet,
@@ -232,12 +244,9 @@ export default () => {
         tokenPair: tokenPairAddress,
         custodyTokenA: aCustody,
         custodyTokenB: bCustody,
-        order: await getOrder(tif, nextPool ? Number(counter) + 1 : counter),
-        currentPool: await getPool(tif, counter),
-        targetPool: await getPool(
-          tif,
-          nextPool ? Number(counter) + 1 : counter
-        ),
+        order,
+        currentPool,
+        targetPool,
         systemProgram: SystemProgram.programId,
         tokenProgram: TOKEN_PROGRAM_ID,
       })

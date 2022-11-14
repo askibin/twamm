@@ -82,6 +82,9 @@ type OrderSideData = {
   lpSupply: BN;
   maxFillPrice: number;
   minFillPrice: number;
+  sourceBalance: BN;
+  targetBalance: BN;
+  tokenDebtTotal: BN;
 };
 
 declare type PoolData = {
@@ -105,9 +108,24 @@ declare type PoolDetails = {
   inactive: boolean;
   inceptionTime: Date;
   lastBalanceChangeTime: Date | undefined;
+  lpAmount: number;
   lpSupply: number[];
   lpSupplyRaw: number[];
   lpSymbols: string[];
+  side: OrderTypeStruct;
   poolAddress: PublicKey;
   prices: string[];
+  volume: number;
+  withdrawData: number[];
+};
+
+declare type DetailsData = {
+  poolAddress: PublicKey;
+  side: OrderTypeStruct;
+  supply: BN;
+  order: {
+    lpBalance: BN;
+    tokenDebt: BN;
+    side: OrderTypeStruct;
+  };
 };

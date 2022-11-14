@@ -1,5 +1,6 @@
 import Maybe from "easy-maybe/lib";
 import { zip } from "ramda";
+import { isFloat } from "../../utils/index";
 
 const { withDefault, of } = Maybe;
 
@@ -39,8 +40,26 @@ export const format = {
     return withDefault("-", of(value));
   },
 
+  // TODO: rework splitting
   prices(data: PoolDetails) {
     const value = data.prices.join("|");
+
+    return withDefault("-", of(value));
+  },
+
+  userAveragePrice(data: PoolDetails) {
+    const value = (({ lpAmount, side, withdrawData }) => {
+      const baseTokenIndex = side.sell ? 0 : 1;
+      const supplTokenIndex = side.sell ? 1 : 0;
+
+      if (!withdrawData[supplTokenIndex]) return undefined;
+
+      const avg =
+        (lpAmount - withdrawData[baseTokenIndex]) /
+        withdrawData[supplTokenIndex];
+
+      return String(isFloat(avg) ? avg.toFixed(2) : avg);
+    })(data);
 
     return withDefault("-", of(value));
   },

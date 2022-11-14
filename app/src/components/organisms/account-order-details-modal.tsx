@@ -18,8 +18,9 @@ import useTokensByMint from "../../hooks/use-tokens-by-mint";
 import { address as addr } from "../../utils/twamm-client";
 
 export interface Props {
-  address: PublicKey;
+  poolAddress: PublicKey;
   onCancel: (arg0: CancelOrderData) => void;
+  order: { side: OrderTypeStruct; tokenDebt: BN; lpBalance: BN };
   side: OrderTypeStruct;
   supply: BN;
 }
@@ -46,11 +47,11 @@ const Content = ({
   </Stack>
 );
 
-export default ({ address, onCancel, side, supply }: Props) => {
-  const details = usePoolDetails(address);
+export default ({ order, poolAddress, onCancel, side, supply }: Props) => {
+  const details = usePoolDetails(poolAddress, order);
   const data = Maybe.of(details.data);
 
-  const tokenPair = useTokenPairByPool(address);
+  const tokenPair = useTokenPairByPool(poolAddress);
   const pairData = Maybe.of(tokenPair.data);
 
   const pairMints = Maybe.withDefault(
@@ -69,14 +70,14 @@ export default ({ address, onCancel, side, supply }: Props) => {
 
   const onCancelOrder = useCallback(() => {
     Maybe.tap((d) => {
-      const { aAddress, bAddress, expired, inactive, poolAddress } = d;
+      const { aAddress, bAddress, expired, inactive, poolAddress: a } = d;
 
       onCancel({
         a: aAddress,
         b: bAddress,
         expired,
         inactive,
-        poolAddress,
+        poolAddress: a,
         side,
         supply,
       });

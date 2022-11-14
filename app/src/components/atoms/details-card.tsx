@@ -9,7 +9,7 @@ export interface Props {
 }
 
 export default ({ data, name }: Props) => {
-  const dataArr = data.split("|");
+  const dataArr = data?.split("|") ?? [];
 
   return (
     <Styled.Container>
@@ -17,8 +17,8 @@ export default ({ data, name }: Props) => {
         <Styled.Title color="text.secondary" gutterBottom>
           {name}
         </Styled.Title>
-        {dataArr.length === 1 && (
-          <Typography variant="body2">{data}</Typography>
+        {dataArr.length <= 1 && (
+          <Typography variant="body2">{data ?? "-"}</Typography>
         )}
         {dataArr.length > 1 && (
           <Box>

@@ -10,13 +10,15 @@ import CancelOrderAmount from "./cancel-order-amount";
 import CancelOrderDetails from "./cancel-order-details";
 import Loading from "../atoms/loading";
 import useJupTokensByMint from "../../hooks/use-jup-tokens-by-mint";
+import usePoolDetails from "../../hooks/use-pool-details";
 
 export interface Props {
-  onApprove: (arg0: CancelOrderData) => void;
   data: Voidable<CancelOrderData>;
+  detailsData: DetailsData;
+  onApprove: (arg0: CancelOrderData) => void;
 }
 
-export default ({ data, onApprove }: Props) => {
+export default ({ data, detailsData, onApprove }: Props) => {
   const [percentage, setPercentage] = useState<number>(100);
   const [detailsOpen, setDetailsOpen] = useState<boolean>(false);
 
@@ -28,6 +30,8 @@ export default ({ data, onApprove }: Props) => {
   );
 
   const tokens = useJupTokensByMint(mints);
+
+  const details = usePoolDetails(detailsData.poolAddress, detailsData.order);
 
   const onAmountChange = useCallback((value: number) => {
     setPercentage(value);
@@ -65,7 +69,11 @@ export default ({ data, onApprove }: Props) => {
             />
           </Box>
           {detailsOpen && (
-            <CancelOrderDetails data={tokens.data} onToggle={onToggleDetails} />
+            <CancelOrderDetails
+              data={tokens.data}
+              details={details.data}
+              onToggle={onToggleDetails}
+            />
           )}
           <Box p={2}>
             <Button
