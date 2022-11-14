@@ -1,7 +1,6 @@
 import Maybe from "easy-maybe/lib";
 import { zip } from "ramda";
 import { isFloat } from "../../utils/index";
-import { withdrawAmount } from "../../utils/twamm-client";
 
 const { withDefault, of } = Maybe;
 
@@ -43,30 +42,37 @@ export const format = {
 
   // TODO: rework splitting
   prices(data: PoolDetails) {
-    const value = data.prices.join("|");
+    const value = data.prices
+      .map((price) => (price < 0 ? "-" : price.toFixed(2)))
+      .join("|");
 
     return withDefault("-", of(value));
   },
 
   userAveragePrice(data: PoolDetails) {
-    const value = (({ lpAmount, side, withdraw }) => {
-      const baseTokenIndex = side.sell ? 0 : 1;
-      const supplTokenIndex = side.sell ? 1 : 0;
+    const value = (({ prices }) => {
+      /*
+       *      const baseTokenIndex = side.sell ? 0 : 1;
+       *      const supplTokenIndex = side.sell ? 1 : 0;
+       *
+       *      const withdrawData = withdrawAmount(
+       *        withdraw.orderBalance.lpBalance,
+       *        withdraw.tradeSide,
+       *        withdraw.orderBalance,
+       *        withdraw.tokenPair
+       *      );
+       *
+       *      if (!withdrawData[supplTokenIndex]) return undefined;
+       *
+       *      const avg =
+       *        (lpAmount - withdrawData[baseTokenIndex]) /
+       *        withdrawData[supplTokenIndex];
+       *
+       *      return String(isFloat(avg) ? avg.toFixed(2) : avg);
+       */
+      const avg = isFloat(prices[1]) ? Number(prices[1]).toFixed(1) : prices[1];
 
-      const withdrawData = withdrawAmount(
-        withdraw.orderBalance.lpBalance,
-        withdraw.tradeSide,
-        withdraw.orderBalance,
-        withdraw.tokenPair
-      );
-
-      if (!withdrawData[supplTokenIndex]) return undefined;
-
-      const avg =
-        (lpAmount - withdrawData[baseTokenIndex]) /
-        withdrawData[supplTokenIndex];
-
-      return String(isFloat(avg) ? avg.toFixed(2) : avg);
+      return String(avg);
     })(data);
 
     return withDefault("-", of(value));
