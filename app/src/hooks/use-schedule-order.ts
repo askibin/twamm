@@ -235,7 +235,7 @@ export default () => {
       nextPool ? Number(counter) + 1 : counter
     );
 
-    let result = "wrwe";
+    let result = "";
     try {
       result = await program.methods
         .placeOrder(orderParams)
@@ -253,13 +253,10 @@ export default () => {
           tokenProgram: TOKEN_PROGRAM_ID,
         })
         .preInstructions(pre)
-        .simulate();
-      //.rpc();
-
-      //result;
-      console.log(result);
+        // .simulate();
+        .rpc();
     } catch (e) {
-      console.info(e);
+      console.error(e);
     }
 
     return result;

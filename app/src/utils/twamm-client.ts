@@ -38,7 +38,7 @@ export class NativeToken {
 }
 
 export const lpAmount = (
-  poolSide: OrderSideData,
+  poolSide: PoolTradeSideData,
   order: { side: OrderTypeStruct; lpBalance: BN; tokenDebt: BN }
 ) => {
   let result;
@@ -55,12 +55,11 @@ export const lpAmount = (
 };
 
 export const withdrawAmount = (
-  poolSide: OrderSideData,
+  lpBalance: number,
+  poolSide: PoolTradeSideData,
   order: { side: OrderTypeStruct; lpBalance: BN; tokenDebt: BN },
   tokenPair: TokenPairProgramData
 ) => {
-  const lpBalance = lpAmount(poolSide, order); // order.lpBalance * delta %
-
   const withdrawAmountSource =
     (lpBalance * Number(poolSide.sourceBalance)) / Number(poolSide.lpSupply);
 
