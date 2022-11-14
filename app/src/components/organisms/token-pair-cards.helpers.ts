@@ -2,33 +2,43 @@ import type { PublicKey } from "@solana/web3.js";
 import { lensPath, view } from "ramda";
 
 export const populate = (pair: TokenPairProgramData): PerfPair => {
-  const lensMint = lensPath(["mint"]);
-  const lensOrderVolume = lensPath(["orderVolumeUsd"]);
-  const lensSettleVolume = lensPath(["settleVolumeUsd"]);
-  const lensTradeVolume = lensPath(["tradeVolumeUsd"]);
+  const decimals = lensPath(["decimals"]);
+  const feesCollected = lensPath(["feesCollected"]);
+  const mint = lensPath(["mint"]);
+  const orderVolume = lensPath(["orderVolumeUsd"]);
+  const settleVolume = lensPath(["settleVolumeUsd"]);
+  const tradeVolume = lensPath(["tradeVolumeUsd"]);
+  const pendingWithdrawals = lensPath(["pendingWithdrawals"]);
 
-  const { feeNumerator, feeDenominator } = pair;
-  const fee = feeNumerator.toNumber() / feeDenominator.toNumber();
+  const fee =
+    Number(view(feesCollected, pair.statsA)) /
+      10 ** view(decimals, pair.configA) +
+    Number(view(pendingWithdrawals, pair.statsB)) /
+      10 ** view(decimals, pair.configB) +
+    Number(view(feesCollected, pair.statsA)) /
+      10 ** view(decimals, pair.configA) +
+    Number(view(pendingWithdrawals, pair.statsB)) /
+      10 ** view(decimals, pair.configB);
 
-  const aMint = view<PairConfig, PublicKey>(lensMint, pair.configA);
-  const bMint = view<PairConfig, PublicKey>(lensMint, pair.configB);
-  const orderVolume =
-    view<PairStats, number>(lensOrderVolume, pair.statsA) +
-    view<PairStats, number>(lensOrderVolume, pair.statsB);
-  const settleVolume =
-    view<PairStats, number>(lensSettleVolume, pair.statsA) +
-    view<PairStats, number>(lensSettleVolume, pair.statsB);
-  const tradeVolume =
-    view<PairStats, number>(lensTradeVolume, pair.statsA) +
-    view<PairStats, number>(lensTradeVolume, pair.statsB);
+  const aMint = view<PairConfig, PublicKey>(mint, pair.configA);
+  const bMint = view<PairConfig, PublicKey>(mint, pair.configB);
+  const orderVolumeValue =
+    view<PairStats, number>(orderVolume, pair.statsA) +
+    view<PairStats, number>(orderVolume, pair.statsB);
+  const settleVolumeValue =
+    view<PairStats, number>(settleVolume, pair.statsA) +
+    view<PairStats, number>(settleVolume, pair.statsB);
+  const tradeVolumeValue =
+    view<PairStats, number>(tradeVolume, pair.statsA) +
+    view<PairStats, number>(tradeVolume, pair.statsB);
 
   return {
     aMint,
     bMint,
     fee,
     id: `${aMint}-${bMint}`,
-    orderVolume,
-    settleVolume,
-    tradeVolume,
+    orderVolume: orderVolumeValue,
+    settleVolume: settleVolumeValue,
+    tradeVolume: tradeVolumeValue,
   };
 };

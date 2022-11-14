@@ -30,8 +30,6 @@ export default ({
     address(bMint).toString(),
   ]);
 
-  // Fee: collected fees: fees collcted & pending withdrawals
-
   return (
     <Styled.Root>
       <Styled.Card>
