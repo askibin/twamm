@@ -235,29 +235,23 @@ export default () => {
       nextPool ? Number(counter) + 1 : counter
     );
 
-    let result = "";
-    try {
-      result = await program.methods
-        .placeOrder(orderParams)
-        .accounts({
-          owner: provider.wallet.publicKey,
-          userAccountTokenA: aWallet,
-          userAccountTokenB: bWallet,
-          tokenPair: tokenPairAddress,
-          custodyTokenA: aCustody,
-          custodyTokenB: bCustody,
-          order,
-          currentPool,
-          targetPool,
-          systemProgram: SystemProgram.programId,
-          tokenProgram: TOKEN_PROGRAM_ID,
-        })
-        .preInstructions(pre)
-        // .simulate();
-        .rpc();
-    } catch (e) {
-      console.error(e);
-    }
+    const result = await program.methods
+      .placeOrder(orderParams)
+      .accounts({
+        owner: provider.wallet.publicKey,
+        userAccountTokenA: aWallet,
+        userAccountTokenB: bWallet,
+        tokenPair: tokenPairAddress,
+        custodyTokenA: aCustody,
+        custodyTokenB: bCustody,
+        order,
+        currentPool,
+        targetPool,
+        systemProgram: SystemProgram.programId,
+        tokenProgram: TOKEN_PROGRAM_ID,
+      })
+      .preInstructions(pre)
+      .rpc();
 
     return result;
   };
