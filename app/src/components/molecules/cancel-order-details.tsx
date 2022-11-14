@@ -7,14 +7,16 @@ import CancelOrderLiquidity from "./cancel-order-liquidity";
 import Loading from "../atoms/loading";
 import usePrice from "../../hooks/use-price";
 import { refreshEach } from "../../swr-options";
+import { withdrawAmount as calcWithdraw } from "../../utils/twamm-client";
 
 export interface Props {
   data: Voidable<JupTokenData[]>;
   details: Voidable<PoolDetails>;
   onToggle: () => void;
+  percentage: number;
 }
 
-export default ({ data, details, onToggle }: Props) => {
+export default ({ data, details, onToggle, percentage }: Props) => {
   const d = Maybe.of(data);
 
   const tokens = Maybe.withDefault(undefined, d);
@@ -27,10 +29,18 @@ export default ({ data, details, onToggle }: Props) => {
   );
   const withdrawAmount = Maybe.andMap(([td, det]) => {
     const [a, b] = td;
+    const { withdraw } = det;
+
+    const [wda, wdb] = calcWithdraw(
+      (withdraw.orderBalance.lpBalance * percentage) / 100,
+      withdraw.tradeSide,
+      withdraw.orderBalance,
+      withdraw.tokenPair
+    );
 
     const withdrawPair = [
-      det.withdrawData[0] * 10 ** (a.decimals * -1),
-      det.withdrawData[1] * 10 ** (b.decimals * -1),
+      wda * 10 ** (a.decimals * -1),
+      wdb * 10 ** (b.decimals * -1),
     ];
 
     return withdrawPair;

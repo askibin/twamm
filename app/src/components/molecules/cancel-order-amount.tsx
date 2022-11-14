@@ -31,7 +31,7 @@ export default memo(({ percentage, onChange, onToggleDetails }: Props) => {
   );
 
   const onPercentageChange = useCallback(
-    (e: Event, value: number | number[]) => {
+    (_: Event, value: number | number[]) => {
       if (Array.isArray(value)) {
         onChange(value[0]);
       } else {

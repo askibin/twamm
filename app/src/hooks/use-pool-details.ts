@@ -4,11 +4,7 @@ import useSWR from "swr";
 
 import useJupTokensByMint from "./use-jup-tokens-by-mint";
 import usePoolWithPair from "./use-pool-with-pair";
-import {
-  address as addr,
-  lpAmount,
-  withdrawAmount,
-} from "../utils/twamm-client";
+import { address as addr } from "../utils/twamm-client";
 
 const mintsKey = (pair?: TokenPairAccountData) =>
   pair
@@ -48,14 +44,6 @@ export default (
 
       const lastChanged = lastBalanceChangeTime.toNumber();
 
-      const withdrawData = withdrawAmount(
-        Number(order.lpBalance),
-        tradeSide,
-        order,
-        pair
-      );
-      const lpAmountData = lpAmount(tradeSide, order);
-
       const next = {
         aAddress: configA.mint,
         bAddress: configB.mint,
@@ -66,7 +54,7 @@ export default (
         lastBalanceChangeTime: !lastChanged
           ? undefined
           : new Date(lastChanged * 1e3),
-        lpAmount: lpAmountData,
+        lpAmount: Number(order.lpBalance),
         lpSupply: [
           Number(buySide.sourceBalance) / 10 ** configB.decimals +
             Number(sellSide.targetBalance) / 10 ** configA.decimals,
@@ -88,7 +76,7 @@ export default (
         ],
         side,
         volume: statsA.orderVolumeUsd + statsB.orderVolumeUsd,
-        withdrawData,
+        withdraw: { tradeSide, orderBalance: order, tokenPair: pair },
       };
 
       return next;

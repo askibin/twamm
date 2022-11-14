@@ -76,6 +76,12 @@ declare type OrderData = {
   unsettledBalance: BN;
 };
 
+declare type OrderBalanceData = {
+  side: OrderTypeStruct;
+  lpBalance: BN;
+  tokenDebt: BN;
+};
+
 type PoolTradeSideData = {
   fillsVolume: BN;
   lastBalanceChangeTime: BN;
@@ -117,7 +123,11 @@ declare type PoolDetails = {
   poolAddress: PublicKey;
   prices: string[];
   volume: number;
-  withdrawData: number[];
+  withdraw: {
+    tradeSide: PoolTradeSideData;
+    orderBalance: OrderBalanceData;
+    tokenPair: TokenPairProgramData;
+  };
 };
 
 declare type DetailsData = {
