@@ -46,6 +46,8 @@ export default (
 
       const lastChanged = lastBalanceChangeTime.toNumber();
 
+      // weightedfillsum / fillsVolume = avg
+
       const withdrawData = withdrawAmount(tradeSide, order, pair);
       const lpAmountData = lpAmount(tradeSide, order);
 
@@ -61,8 +63,8 @@ export default (
           : new Date(lastChanged * 1e3),
         lpAmount: lpAmountData,
         lpSupply: [
-          sellSide.lpSupply.toNumber() / 10 ** configA.decimals,
-          buySide.lpSupply.toNumber() / 10 ** configB.decimals,
+          sellSide.lpSupply.toNumber() / 10 ** configA.decimals, // sellSide.sourceBalance , buySide.targetBalance
+          buySide.lpSupply.toNumber() / 10 ** configB.decimals, // sellSide.targetBalance + buySide.sourceBalance
         ],
         lpSupplyRaw: [
           sellSide.lpSupply.toNumber(),

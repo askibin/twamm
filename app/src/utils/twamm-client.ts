@@ -59,7 +59,7 @@ export const withdrawAmount = (
   order: { side: OrderTypeStruct; lpBalance: BN; tokenDebt: BN },
   tokenPair: TokenPairProgramData
 ) => {
-  const lpBalance = lpAmount(poolSide, order);
+  const lpBalance = lpAmount(poolSide, order); // order.lpBalance * delta %
 
   const withdrawAmountSource =
     (lpBalance * Number(poolSide.sourceBalance)) / Number(poolSide.lpSupply);
