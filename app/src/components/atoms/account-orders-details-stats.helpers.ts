@@ -70,7 +70,12 @@ export const format = {
        *
        *      return String(isFloat(avg) ? avg.toFixed(2) : avg);
        */
-      const avg = isFloat(prices[1]) ? Number(prices[1]).toFixed(1) : prices[1];
+      // eslint-disable-next-line no-nested-ternary
+      const avg = isFloat(prices[1])
+        ? Number(prices[1]).toFixed(2)
+        : prices[1] < 0
+        ? "-"
+        : prices[1];
 
       return String(avg);
     })(data);

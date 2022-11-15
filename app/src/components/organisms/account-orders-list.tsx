@@ -1,8 +1,8 @@
-import type { BN } from "@project-serum/anchor";
 import type {
   GridColDef,
   GridRowParams,
   GridSelectionModel,
+  GridSortModel,
 } from "@mui/x-data-grid-pro";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
@@ -16,41 +16,22 @@ import OrderDetailsModal from "./account-order-details-modal";
 import Table from "../atoms/table";
 import UniversalPopover from "../molecules/universal-popover";
 import useCancelOrder from "../../hooks/use-cancel-order";
-import { columns as cols } from "./account-orders-list.helpers";
+import {
+  columns,
+  populateDetails,
+  populateRow,
+} from "./account-orders-list.helpers";
 
 export interface Props {
-  data: Voidable<Array<OrderData & { id: string }>>;
+  data: Voidable<OrderPoolRecord[]>;
   error: Voidable<Error>;
   loading: boolean;
   updating: boolean;
 }
 
-type RowData = {
-  id: string;
-  order: {
-    lpBalance: BN;
-    tokenDebt: BN;
-    side: OrderTypeStruct;
-  };
-  orderTime: BN;
-  pool: PublicKey;
-  side: OrderTypeStruct;
-  supply: BN;
-};
+type RowData = ReturnType<typeof populateRow>;
 
-type DetailsData = {
-  poolAddress: PublicKey;
-  side: OrderTypeStruct;
-  supply: BN;
-  order: RowData["order"];
-};
-
-const selectOrderData = (params: GridRowParams<RowData>) => ({
-  order: params.row.order,
-  poolAddress: params.row.pool,
-  side: params.row.side,
-  supply: params.row.supply,
-});
+type DetailsData = ReturnType<typeof populateDetails>;
 
 export default (props: Props) => {
   const d = useMemo(() => Maybe.of(props.data), [props.data]);
@@ -67,24 +48,15 @@ export default (props: Props) => {
 
   const { execute, executeMany } = useCancelOrder();
 
-  const columns = useMemo<GridColDef[]>(cols, []);
+  const cols = useMemo<GridColDef[]>(columns, []);
 
-  const rows: RowData[] = useMemo(
-    () =>
-      data.map((order) => ({
-        id: order.id,
-        orderTime: order.time,
-        pool: order.pool,
-        side: order.side,
-        supply: order.lpBalance,
-        order: {
-          side: order.side,
-          tokenDebt: order.tokenDebt,
-          lpBalance: order.lpBalance,
-        },
-      })),
-    [data]
-  );
+  const rows: RowData[] = useMemo(() => data.map(populateRow), [data]);
+
+  const [sortModel, setSortModel] = useState<GridSortModel>([
+    { field: "tokenPair", sort: "asc" },
+    { field: "tif", sort: "asc" },
+    { field: "orderTime", sort: "asc" },
+  ]);
 
   const onCancelOrder = useCallback(
     async (cd: CancelOrderData) => {
@@ -104,7 +76,7 @@ export default (props: Props) => {
 
   const onRowClick = useCallback(
     (params: GridRowParams<RowData>) => {
-      setDetails(selectOrderData(params));
+      setDetails(populateDetails(params));
       detailsRef.current?.open();
     },
     [setDetails]
@@ -187,7 +159,7 @@ export default (props: Props) => {
           gridProps={{
             autoHeight: true,
             checkboxSelection: true,
-            columns,
+            columns: cols,
             error,
             loading: props.loading,
             onSelectionModelChange,
@@ -198,6 +170,10 @@ export default (props: Props) => {
           isUpdating={props.updating}
           onRowClick={onRowClick}
           searchBoxPlaceholderText="Search orders"
+          sortModel={sortModel}
+          onSortModelChange={(newSortModel: GridSortModel) =>
+            setSortModel(newSortModel)
+          }
         />
       </Box>
     </>
