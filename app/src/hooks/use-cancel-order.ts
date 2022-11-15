@@ -1,5 +1,5 @@
-import type { Provider, Program } from "@project-serum/anchor";
-import { BN } from "@project-serum/anchor";
+import type { Program } from "@project-serum/anchor";
+import { BN, Provider } from "@project-serum/anchor";
 import { findAddress } from "@twamm/client.js/lib/program";
 import { findAssociatedTokenAddress, Pool, TokenPair } from "@twamm/client.js";
 import { PublicKey, TransactionInstruction } from "@solana/web3.js";

@@ -76,6 +76,10 @@ declare type OrderData = {
   unsettledBalance: BN;
 };
 
+declare type OrderRecord = OrderData & { id: string };
+
+declare type OrderPoolRecord = OrderRecord & { poolData: PoolData };
+
 declare type OrderBalanceData = {
   side: OrderTypeStruct;
   lpBalance: BN;

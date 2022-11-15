@@ -128,7 +128,7 @@ export default ({
     };
 
     // FIXME: remove this 4 prod
-    console.info(params);
+    console.info(params); // eslint-disable-line
 
     setSubmitting(true);
 

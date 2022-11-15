@@ -1,36 +1,38 @@
 import type { Provider, Program } from "@project-serum/anchor";
 import type { PublicKey } from "@solana/web3.js";
 import useSWR from "swr";
-import { Order } from "@twamm/client.js";
+import { Order, Pool } from "@twamm/client.js";
 import { useWallet } from "@solana/wallet-adapter-react";
 
 import useProgram from "./use-program";
-import { address } from "../utils/twamm-client";
 
 const swrKey = (params: { account: PublicKey | null }) => ({
   key: "orders",
   params,
 });
 
-const generateId = (arr: Array<any>) => arr[0].toString();
+const generateId = (arr: Array<string>) => arr[0];
 
 const fetcher = (provider: Provider, program: Program) => {
   const order = new Order(program, provider);
+  const pool = new Pool(program);
 
   return async ({ params: { account } }: ReturnType<typeof swrKey>) => {
     const orders: unknown = await order.getOrders(account);
 
     const list = orders as OrderData[];
 
-    const records = list.map((orderData) => {
-      const { pool } = orderData;
+    const pools = (await Promise.all(
+      list.map((o) => pool.getPool(o.pool))
+    )) as PoolData[];
 
-      const poolStr = address(pool);
+    const records = list.map((orderData, i) => {
+      const o = orderData as OrderPoolRecord;
 
-      return {
-        ...orderData,
-        id: generateId([poolStr]),
-      };
+      o.id = generateId([String(o.pool)]);
+      o.poolData = pools[i];
+
+      return o;
     });
 
     return records;

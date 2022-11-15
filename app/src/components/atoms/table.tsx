@@ -20,7 +20,8 @@ interface Props {
   pagination?: boolean;
   search?: boolean;
   searchBoxPlaceholderText?: string;
-  sortModel: { field: string; sort: "asc" | "desc" }[];
+  sortModel: GridSortModel;
+  onSortModelChange: (arg0: GridSortModel) => void;
 }
 
 export default ({
@@ -29,6 +30,7 @@ export default ({
   gridProps,
   isUpdating = false,
   onRowClick,
+  onSortModelChange,
   pagination = false,
   search = false,
   searchBoxPlaceholderText,
@@ -85,6 +87,7 @@ export default ({
           getRowId={getRowId}
           initialState={options}
           onRowClick={onRowClick}
+          onSortModelChange={onSortModelChange}
           pagination={pagination}
           rowsPerPageOptions={pages}
           sortModel={sorting}
