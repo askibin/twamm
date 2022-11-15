@@ -22,6 +22,8 @@ export default ({ indexedTifs: tifs, onSelect, selectedTif }: Props) => {
   // @ts-ignore
   const [state, dispatch] = useReducer(intervalsReducer, initialState);
 
+  // console.log(state.tifs, state.tifsLeft);
+
   useEffect(() => {
     Maybe.andMap<IndexedTIF[], void>((data) => {
       // @ts-ignore
@@ -50,15 +52,35 @@ export default ({ indexedTifs: tifs, onSelect, selectedTif }: Props) => {
 
   const onPeriodSelect = useCallback(
     (value: number) => {
+      const periodTif = state.indexedTifs.find(
+        (itif: IndexedTIF) => itif.left === value
+      );
+
+      const tifValue = periodTif.tif;
+
       // @ts-ignore
+      // dispatch(action.setPeriod({ tif: tifValue })); // value }));
       dispatch(action.setPeriod({ tif: value }));
 
       onSelect([value, state.pairSelected[1]]);
+      // onSelect([tifValue, state.pairSelected[1]]);
     },
-    [dispatch, onSelect, state.pairSelected]
+    [dispatch, onSelect, state.pairSelected, state.indexedTifs]
   );
 
   const { pairSelected = [] } = state;
+
+  const selectedPair = Maybe.withDefault(
+    [],
+    Maybe.andMap((data) => {
+      //console.log("psele", data, pairSelected);
+      const itif = data.find((d) => d.tif === pairSelected[0]);
+
+      if (!itif) return undefined;
+
+      return [itif.left, pairSelected[1]];
+    }, indexedTifs)
+  );
 
   return (
     <>
@@ -66,18 +88,18 @@ export default ({ indexedTifs: tifs, onSelect, selectedTif }: Props) => {
         <TimeInterval
           info=""
           label="Schedule Order"
-          values={state.scheduleTifs}
-          value={pairSelected[1]}
           onSelect={onScheduleSelect}
+          value={pairSelected[1]}
+          values={state.scheduleTifs}
         />
       </Box>
       <Box pb={2}>
         <TimeInterval
           info=""
           label="Execution Period"
-          values={state.periodTifs}
-          value={pairSelected[0]}
           onSelect={onPeriodSelect}
+          value={pairSelected[0]}
+          values={state.periodTifs}
         />
       </Box>
     </>

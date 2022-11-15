@@ -66,6 +66,7 @@ export default ({
   );
 
   const onIntervalSelect = useCallback((selectedTif: SelectedTif) => {
+    console.log("selected TIF", selectedTif);
     setTif(selectedTif);
   }, []);
 
@@ -99,21 +100,28 @@ export default ({
     if (!tifs) throw new Error("Absent tifs");
 
     const [a, b] = tokenPair;
-    const [timeInForce /* , nextPool */] = tif ?? [];
+    const [timeInForce, nextPool] = tif ?? [];
 
     if (!timeInForce) throw new Error("Absent tif");
 
-    const selectedTif = Maybe.andMap((intervals) => {
-      const interval = intervals.find(
-        (itif: IndexedTIF) => itif.tif === timeInForce
-      );
+    const finalTif = Maybe.withDefault(
+      undefined,
+      Maybe.andMap((intervals) => {
+        console.log({ intervals }, timeInForce);
+        const interval = intervals.find((itif: IndexedTIF) => {
+          if (nextPool !== -1) return itif.tif === timeInForce;
+          return itif.left === timeInForce; // itif.tif === timeInForce
+        });
 
-      return interval;
-    }, tifIntervals);
+        return interval;
+      }, tifIntervals)
+    );
 
-    const finalTif = Maybe.withDefault(undefined, selectedTif);
+    console.log({ finalTif }, nextPool);
 
     if (!finalTif) throw new Error("Wrong tif");
+    if (finalTif.left === 0)
+      throw new Error("Can not place order to the closed pool");
 
     const params = {
       side,
@@ -121,7 +129,7 @@ export default ({
       decimals: tokenADecimals,
       aMint: a.address,
       bMint: b.address,
-      nextPool: finalTif.tif !== finalTif.left,
+      nextPool: nextPool !== -1, // && finalTif.tif !== finalTif.left,
       tifs,
       poolCounters,
       tif: finalTif.tif,

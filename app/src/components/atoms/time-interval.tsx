@@ -11,6 +11,7 @@ import { formatInterval } from "../../utils/index";
 
 export interface Props {
   info?: string;
+  indexedValues?: IndexedTIF[];
   label: string;
   value?: number;
   values?: number[];
@@ -19,10 +20,12 @@ export interface Props {
 
 const Intervals = memo(
   ({
+    indexedValues,
     value: selectedValue,
     values,
     onSelect,
   }: {
+    indexedValues?: IndexedTIF[];
     value?: number;
     values?: number[];
     onSelect: (e: MouseEvent<HTMLElement>) => void;
@@ -35,13 +38,15 @@ const Intervals = memo(
       <ButtonGroup variant="outlined" aria-label="outlined button group">
         {values
           .filter((value: number) => value !== 0)
-          .map((value: number) =>
-            isMobile ? (
+          .map((value: number) => {
+            const disabled = value === selectedValue;
+
+            return isMobile ? (
               <Styled.MobileScheduleButton
                 data-interval={value}
                 key={value}
                 onClick={onSelect}
-                disabled={value === selectedValue}
+                disabled={disabled}
               >
                 {formatInterval(value)}
               </Styled.MobileScheduleButton>
@@ -50,18 +55,25 @@ const Intervals = memo(
                 data-interval={value}
                 key={value}
                 onClick={onSelect}
-                disabled={value === selectedValue}
+                disabled={disabled}
               >
                 {formatInterval(value)}
               </Styled.ScheduleButton>
-            )
-          )}
+            );
+          })}
       </ButtonGroup>
     );
   }
 );
 
-export default ({ info, label, value, values, onSelect }: Props) => {
+export default ({
+  info,
+  indexedValues,
+  label,
+  value,
+  values,
+  onSelect,
+}: Props) => {
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
 
   const handlePopoverOpen = (event: MouseEvent<HTMLElement>) => {
@@ -113,7 +125,12 @@ export default ({ info, label, value, values, onSelect }: Props) => {
           </Popover>
         )}
       </Box>
-      <Intervals value={value} values={values} onSelect={onIntervalSelect} />
+      <Intervals
+        indexedValues={indexedValues}
+        value={value}
+        values={values}
+        onSelect={onIntervalSelect}
+      />
     </Styled.Interval>
   );
 };

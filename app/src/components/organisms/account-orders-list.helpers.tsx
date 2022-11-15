@@ -37,12 +37,13 @@ export const populateRow = (data: OrderPoolRecord) => {
 
 export const populateDetails = (
   data: GridRowParams<ReturnType<typeof populateRow>>
-) => ({
-  order: data.row.order,
-  poolAddress: data.row.pool,
-  side: data.row.side,
-  supply: data.row.supply,
-});
+) =>
+  console.log(data.row.poolData) || {
+    order: data.row.order,
+    poolAddress: data.row.pool,
+    side: data.row.side,
+    supply: data.row.supply,
+  };
 
 export const columns = () => [
   {

@@ -14,7 +14,7 @@ import { useCallback, useMemo, useRef, useState } from "react";
 import CancelOrder from "../molecules/cancel-order-modal";
 import OrderDetailsModal from "./account-order-details-modal";
 import Table from "../atoms/table";
-import UniversalPopover from "../molecules/universal-popover";
+import UniversalPopover, { Ref } from "../molecules/universal-popover";
 import useCancelOrder from "../../hooks/use-cancel-order";
 import {
   columns,
@@ -40,8 +40,8 @@ export default (props: Props) => {
   const data = Maybe.withDefault([], d);
   const error = Maybe.withDefault(undefined, err);
 
-  const cancelRef = useRef<{ close: () => void; open: () => void }>();
-  const detailsRef = useRef<{ open: () => void }>();
+  const cancelRef = useRef<Ref>();
+  const detailsRef = useRef<Ref>();
   const [accounts, setAccounts] = useState<CancelOrderData | undefined>();
   const [details, setDetails] = useState<DetailsData>();
   const [selectionModel, setSelectionModel] = useState<GridSelectionModel>([]);
@@ -65,13 +65,15 @@ export default (props: Props) => {
       if (inactive || expired) {
         const amount = supply.toNumber();
 
+        detailsRef.current?.close();
+        console.log(23324, details);
         await execute({ a, b, poolAddress, amount });
       } else {
         setAccounts(cd);
         cancelRef.current?.open();
       }
     },
-    [execute, setAccounts]
+    [execute, setAccounts, details]
   );
 
   const onRowClick = useCallback(
@@ -90,9 +92,10 @@ export default (props: Props) => {
     async (cd: CancelOrderData) => {
       const { a, b, poolAddress, supply } = cd;
       const amount = supply.toNumber();
-      await execute({ a, b, poolAddress, amount });
 
       cancelRef.current?.close();
+      detailsRef.current?.close();
+      await execute({ a, b, poolAddress, amount });
     },
     [execute]
   );
@@ -114,6 +117,7 @@ export default (props: Props) => {
       poolAddress: new PublicKey(row.id),
     }));
 
+    cancelRef.current?.close();
     await executeMany(deletionRows);
 
     setSelectionModel([]);

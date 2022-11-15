@@ -1,13 +1,18 @@
 import type { Provider, Program } from "@project-serum/anchor";
 import { BN } from "@project-serum/anchor";
+import { NATIVE_MINT } from "@solana/spl-token";
 import { findAddress } from "@twamm/client.js/lib/program";
-import { findAssociatedTokenAddress, Pool, TokenPair } from "@twamm/client.js";
+import { findAssociatedTokenAddress, TokenPair } from "@twamm/client.js";
+import { Order } from "@twamm/client.js/lib/order";
+import { Pool } from "@twamm/client.js/lib/pool";
 import { PublicKey, TransactionInstruction } from "@solana/web3.js";
 import { TOKEN_PROGRAM_ID } from "@solana/spl-token";
 
 import useProgram from "./use-program";
 import useTxRunnerContext from "./use-transaction-runner-context";
 import { NativeToken } from "../utils/twamm-client";
+
+const SOL = NATIVE_MINT.toBase58();
 
 const getOrderKey = (
   provider: Provider,
@@ -38,6 +43,7 @@ export default () => {
   const { provider, program } = useProgram();
   const { commit } = useTxRunnerContext();
 
+  const orderClient = new Order(program, provider);
   const poolClient = new Pool(program);
   const pairClient = new TokenPair(program);
 
@@ -87,6 +93,9 @@ export default () => {
       bMintPublicKey
     );
 
+    console.log({ aMintPublicKey, bMintPublicKey })
+
+    // FIXME: move nativetoken to cli
     const closeANativeInstruction = NativeToken.closeAccountInstruction(
       aMintPublicKey,
       aWallet,
@@ -103,9 +112,27 @@ export default () => {
     if (closeANativeInstruction) postInstructions.push(closeANativeInstruction);
     if (closeBNativeInstruction) postInstructions.push(closeBNativeInstruction);
 
-    const getOrder = getOrderKey(provider, program, aCustody, bCustody);
+    //const getOrder = getOrderKey(provider, program, aCustody, bCustody);
+
+    console.log({ postInstructions });
 
     const pool = (await poolClient.getPool(poolAddress)) as PoolData;
+
+    const order = await orderClient.getKeyByCustodies(
+      aCustody,
+      bCustody,
+      pool.timeInForce,
+      pool.counter
+    );
+
+    console.info(
+      pool.timeInForce,
+      Number(pool.counter),
+      String(order),
+      String(poolAddress)
+    );
+
+    console.log(String(aWallet), String(bWallet));
 
     const result = await program.methods
       .cancelOrder({
@@ -119,12 +146,13 @@ export default () => {
         transferAuthority,
         custodyTokenA: aCustody,
         custodyTokenB: bCustody,
-        order: await getOrder(pool.timeInForce, pool.counter),
+        order,
         pool: poolAddress,
         tokenProgram: TOKEN_PROGRAM_ID,
       })
       .postInstructions(postInstructions)
-      .rpc();
+      .rpc()
+      .catch(console.error);
 
     return result;
   };
