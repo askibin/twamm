@@ -52,9 +52,11 @@ export default ({ indexedTifs: tifs, onSelect, selectedTif }: Props) => {
 
   const onPeriodSelect = useCallback(
     (value: number) => {
-      const periodTif = state.indexedTifs.find(
-        (itif: IndexedTIF) => itif.left === value
-      );
+      /*
+       *const periodTif = state.indexedTifs.find(
+       *  (itif: IndexedTIF) => itif.left === value
+       *);
+       */
 
       // const tifValue = periodTif.tif;
 
@@ -65,7 +67,7 @@ export default ({ indexedTifs: tifs, onSelect, selectedTif }: Props) => {
       onSelect([value, state.pairSelected[1]]);
       // onSelect([tifValue, state.pairSelected[1]]);
     },
-    [dispatch, onSelect, state.pairSelected, state.indexedTifs]
+    [dispatch, onSelect, state.pairSelected]
   );
 
   const { pairSelected = [] } = state;

@@ -11,7 +11,6 @@ import { formatInterval } from "../../utils/index";
 
 export interface Props {
   info?: string;
-  indexedValues?: IndexedTIF[];
   label: string;
   value?: number;
   values?: number[];
@@ -20,12 +19,10 @@ export interface Props {
 
 const Intervals = memo(
   ({
-    indexedValues,
     value: selectedValue,
     values,
     onSelect,
   }: {
-    indexedValues?: IndexedTIF[];
     value?: number;
     values?: number[];
     onSelect: (e: MouseEvent<HTMLElement>) => void;
@@ -66,14 +63,7 @@ const Intervals = memo(
   }
 );
 
-export default ({
-  info,
-  indexedValues,
-  label,
-  value,
-  values,
-  onSelect,
-}: Props) => {
+export default ({ info, label, value, values, onSelect }: Props) => {
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
 
   const handlePopoverOpen = (event: MouseEvent<HTMLElement>) => {
@@ -125,12 +115,7 @@ export default ({
           </Popover>
         )}
       </Box>
-      <Intervals
-        indexedValues={indexedValues}
-        value={value}
-        values={values}
-        onSelect={onIntervalSelect}
-      />
+      <Intervals value={value} values={values} onSelect={onIntervalSelect} />
     </Styled.Interval>
   );
 };

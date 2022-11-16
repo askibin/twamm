@@ -1,10 +1,5 @@
 import type { Address, BN } from "@project-serum/anchor";
-import { NATIVE_MINT, createCloseAccountInstruction } from "@solana/spl-token";
-import { isNativeToken } from "@twamm/client.js/lib/program";
-import { PublicKey } from "@solana/web3.js";
 import { translateAddress } from "@project-serum/anchor";
-
-const SOL_ADDRESS = NATIVE_MINT.toBase58();
 
 export const address = (account: Address) => ({
   toString() {
@@ -14,28 +9,6 @@ export const address = (account: Address) => ({
     return translateAddress(account);
   },
 });
-
-export class NativeToken {
-  public static address = SOL_ADDRESS;
-
-  public static closeAccountInstruction(
-    mint: PublicKey,
-    tokenAccountAddress: PublicKey,
-    walletAddress: PublicKey
-  ) {
-    let result;
-
-    if (isNativeToken(mint)) {
-      result = createCloseAccountInstruction(
-        tokenAccountAddress,
-        walletAddress,
-        walletAddress
-      );
-    }
-
-    return result;
-  }
-}
 
 export const lpAmount = (
   poolSide: PoolTradeSideData,

@@ -8,7 +8,6 @@ import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Maybe from "easy-maybe/lib";
 import Stack from "@mui/material/Stack";
-import { PublicKey } from "@solana/web3.js";
 import { useCallback, useMemo, useRef, useState } from "react";
 
 import CancelOrder from "../molecules/cancel-order-modal";
@@ -72,7 +71,7 @@ export default (props: Props) => {
         cancelRef.current?.open();
       }
     },
-    [execute, setAccounts, details]
+    [execute, setAccounts]
   );
 
   const onRowClick = useCallback(
