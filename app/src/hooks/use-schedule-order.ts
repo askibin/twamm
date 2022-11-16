@@ -79,25 +79,30 @@ export default () => {
       bMintPublicKey
     );
 
-    const preInstructions = [
+    let preInstructions = [
       await assureAccountCreated(provider, aMintPublicKey, aWallet),
       await assureAccountCreated(provider, bMintPublicKey, bWallet),
-    ]
-      .concat(
+    ];
+
+    const isSell = side === "sell";
+    const isBuy = side === "buy";
+
+    if (isSell)
+      preInstructions = preInstructions.concat(
         await createTransferNativeTokenInstructions(
           provider,
           aMintPublicKey,
           aWallet,
-          "sell",
           amount
         )
-      )
-      .concat(
+      );
+
+    if (isBuy)
+      preInstructions = preInstructions.concat(
         await createTransferNativeTokenInstructions(
           provider,
           bMintPublicKey,
           bWallet,
-          "buy",
           amount
         )
       );
