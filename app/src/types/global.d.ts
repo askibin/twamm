@@ -41,13 +41,3 @@ declare type IndexedTIF = {
   index: TIFIndex;
   left: number;
 };
-
-declare type CancelOrderData = {
-  a: PublicKey;
-  b: PublicKey;
-  expired: boolean;
-  inactive: boolean;
-  poolAddress: PublicKey;
-  side: OrderTypeStruct;
-  supply: BN;
-};

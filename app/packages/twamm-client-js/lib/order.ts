@@ -20,6 +20,17 @@ export class Order {
     this.provider = provider;
   }
 
+  async getAddressByPool(poolAddress: PublicKey) {
+    const { wallet } = this.provider as WalletProvider;
+
+    if (!wallet) throw new Error("Absent wallet");
+
+    return findAddress(this.program)("order", [
+      wallet.publicKey.toBuffer(),
+      poolAddress.toBuffer(),
+    ]);
+  }
+
   async getKeyByCustodies(
     aCustody: PublicKey,
     bCustody: PublicKey,
@@ -27,7 +38,7 @@ export class Order {
     poolCounter: BN
   ) {
     const pool = new Pool(this.program);
-    const poolKey = await pool.getKeyByCustodies(
+    const poolAddress = await pool.getKeyByCustodies(
       aCustody,
       bCustody,
       tif,
@@ -40,7 +51,7 @@ export class Order {
 
     return findAddress(this.program)("order", [
       wallet.publicKey.toBuffer(),
-      poolKey.toBuffer(),
+      poolAddress.toBuffer(),
     ]);
   }
 

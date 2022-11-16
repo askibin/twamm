@@ -56,7 +56,7 @@ export default ({ indexedTifs: tifs, onSelect, selectedTif }: Props) => {
         (itif: IndexedTIF) => itif.left === value
       );
 
-      const tifValue = periodTif.tif;
+      // const tifValue = periodTif.tif;
 
       // @ts-ignore
       // dispatch(action.setPeriod({ tif: tifValue })); // value }));
@@ -70,17 +70,19 @@ export default ({ indexedTifs: tifs, onSelect, selectedTif }: Props) => {
 
   const { pairSelected = [] } = state;
 
-  const selectedPair = Maybe.withDefault(
-    [],
-    Maybe.andMap((data) => {
-      //console.log("psele", data, pairSelected);
-      const itif = data.find((d) => d.tif === pairSelected[0]);
-
-      if (!itif) return undefined;
-
-      return [itif.left, pairSelected[1]];
-    }, indexedTifs)
-  );
+  /*
+   *  const selectedPair = Maybe.withDefault(
+   *    [],
+   *    Maybe.andMap((data) => {
+   *      //console.log("psele", data, pairSelected);
+   *      const itif = data.find((d) => d.tif === pairSelected[0]);
+   *
+   *      if (!itif) return undefined;
+   *
+   *      return [itif.left, pairSelected[1]];
+   *    }, indexedTifs)
+   *  );
+   */
 
   return (
     <>

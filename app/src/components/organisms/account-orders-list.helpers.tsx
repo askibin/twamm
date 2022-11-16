@@ -17,13 +17,17 @@ const sortByTokenPair: GridComparatorFn<PublicKey> = (a, b) => {
 
 export const populateRow = (data: OrderPoolRecord) => {
   const order = {
+    address: data.order,
     lpBalance: data.lpBalance,
     side: data.side,
     tokenDebt: data.tokenDebt,
   };
+
   return {
     id: data.id,
+    // FIXME: replace data with address V
     order,
+    orderData: order,
     orderTime: data.time,
     pool: data.pool,
     poolData: data.poolData,
@@ -37,13 +41,12 @@ export const populateRow = (data: OrderPoolRecord) => {
 
 export const populateDetails = (
   data: GridRowParams<ReturnType<typeof populateRow>>
-) =>
-  console.log(data.row.poolData) || {
-    order: data.row.order,
-    poolAddress: data.row.pool,
-    side: data.row.side,
-    supply: data.row.supply,
-  };
+) => ({
+  order: data.row.orderData,
+  poolAddress: data.row.pool,
+  side: data.row.side,
+  supply: data.row.supply,
+});
 
 export const columns = () => [
   {

@@ -66,7 +66,7 @@ export default ({
   );
 
   const onIntervalSelect = useCallback((selectedTif: SelectedTif) => {
-    console.log("selected TIF", selectedTif);
+    // FIXME: console.log("selected TIF", selectedTif);
     setTif(selectedTif);
   }, []);
 
@@ -107,7 +107,7 @@ export default ({
     const finalTif = Maybe.withDefault(
       undefined,
       Maybe.andMap((intervals) => {
-        console.log({ intervals }, timeInForce);
+        // console.log({ intervals }, timeInForce);
         const interval = intervals.find((itif: IndexedTIF) => {
           if (nextPool !== -1) return itif.tif === timeInForce;
           return itif.left === timeInForce; // itif.tif === timeInForce
@@ -117,7 +117,7 @@ export default ({
       }, tifIntervals)
     );
 
-    console.log({ finalTif }, nextPool);
+    // console.log({ finalTif }, nextPool);
 
     if (!finalTif) throw new Error("Wrong tif");
     if (finalTif.left === 0)

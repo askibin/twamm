@@ -60,14 +60,13 @@ export default (props: Props) => {
 
   const onCancelOrder = useCallback(
     async (cd: CancelOrderData) => {
-      const { a, b, inactive, expired, poolAddress, supply } = cd;
+      const { a, b, inactive, expired, orderAddress, poolAddress, supply } = cd;
 
       if (inactive || expired) {
         const amount = supply.toNumber();
 
         detailsRef.current?.close();
-        console.log(23324, details);
-        await execute({ a, b, poolAddress, amount });
+        await execute({ a, b, orderAddress, poolAddress, amount });
       } else {
         setAccounts(cd);
         cancelRef.current?.open();
@@ -90,12 +89,12 @@ export default (props: Props) => {
 
   const onApproveCancel = useCallback(
     async (cd: CancelOrderData) => {
-      const { a, b, poolAddress, supply } = cd;
+      const { a, b, orderAddress, poolAddress, supply } = cd;
       const amount = supply.toNumber();
 
       cancelRef.current?.close();
       detailsRef.current?.close();
-      await execute({ a, b, poolAddress, amount });
+      await execute({ a, b, orderAddress, poolAddress, amount });
     },
     [execute]
   );
@@ -114,7 +113,8 @@ export default (props: Props) => {
 
     const deletionRows = selectedRows.map((row) => ({
       amount: Number.MAX_SAFE_INTEGER,
-      poolAddress: new PublicKey(row.id),
+      orderAddress: row.order.address,
+      poolAddress: row.pool,
     }));
 
     cancelRef.current?.close();
