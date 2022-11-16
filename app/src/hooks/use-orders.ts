@@ -26,11 +26,16 @@ const fetcher = (provider: Provider, program: Program) => {
       list.map((o) => pool.getPool(o.pool))
     )) as PoolData[];
 
+    const orderAddresses = await Promise.all(
+      list.map((o) => order.getAddressByPool(o.pool))
+    );
+
     const records = list.map((orderData, i) => {
       const o = orderData as OrderPoolRecord;
 
       o.id = generateId([String(o.pool)]);
       o.poolData = pools[i];
+      o.order = orderAddresses[i];
 
       return o;
     });

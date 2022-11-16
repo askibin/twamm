@@ -1,13 +1,13 @@
 import Box from "@mui/material/Box";
+import { address } from "@twamm/client.js";
 
 import Loading from "../atoms/loading";
 import TokenRatio from "./token-ratio";
 import useAddressPairs from "../../hooks/use-address-pairs";
 import useJupTokensByMint from "../../hooks/use-jup-tokens-by-mint";
-import { NativeToken } from "../../utils/twamm-client";
 
 const DEFAULT_PAIR: AddressPair = [
-  NativeToken.address,
+  address.NATIVE_TOKEN_ADDRESS,
   "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
 ];
 

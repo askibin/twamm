@@ -12,6 +12,7 @@ export interface State {
   periodTifs: TIF[];
   scheduleTifs: TIF[];
   tifsLeft: TIF[];
+  tifs: TIF[];
 }
 
 const selectedPair: [number | undefined, number] = [undefined, -1];
@@ -22,6 +23,7 @@ export const initialState = {
   periodTifs: undefined,
   scheduleTifs: undefined,
   tifsLeft: undefined,
+  tifs: undefined,
 };
 
 // TODO: cover with better types & tests
@@ -62,6 +64,7 @@ export default <S extends Partial<State>, A extends Action<any>>(
       // TODO: fix closed pools
       // const isIntervalEnded = d.left === 0;
       const tifsLeft = indexedTifs.map((d: IndexedTIF) => d.left);
+      const tifs = indexedTifs.map((d: IndexedTIF) => d.tif);
 
       let periodTifs;
       let scheduledTif;
@@ -79,6 +82,7 @@ export default <S extends Partial<State>, A extends Action<any>>(
         periodTifs: sortTifs(periodTifs),
         scheduleTifs: sortTifs([noDelayTif].concat(tifsLeft)),
         tifsLeft,
+        tifs,
       };
     }
 

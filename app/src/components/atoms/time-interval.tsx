@@ -35,13 +35,15 @@ const Intervals = memo(
       <ButtonGroup variant="outlined" aria-label="outlined button group">
         {values
           .filter((value: number) => value !== 0)
-          .map((value: number) =>
-            isMobile ? (
+          .map((value: number) => {
+            const disabled = value === selectedValue;
+
+            return isMobile ? (
               <Styled.MobileScheduleButton
                 data-interval={value}
                 key={value}
                 onClick={onSelect}
-                disabled={value === selectedValue}
+                disabled={disabled}
               >
                 {formatInterval(value)}
               </Styled.MobileScheduleButton>
@@ -50,12 +52,12 @@ const Intervals = memo(
                 data-interval={value}
                 key={value}
                 onClick={onSelect}
-                disabled={value === selectedValue}
+                disabled={disabled}
               >
                 {formatInterval(value)}
               </Styled.ScheduleButton>
-            )
-          )}
+            );
+          })}
       </ButtonGroup>
     );
   }

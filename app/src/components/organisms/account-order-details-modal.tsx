@@ -20,7 +20,7 @@ import { address as addr } from "../../utils/twamm-client";
 export interface Props {
   poolAddress: PublicKey;
   onCancel: (arg0: CancelOrderData) => void;
-  order: { side: OrderTypeStruct; tokenDebt: BN; lpBalance: BN };
+  order: OrderBalanceData;
   side: OrderTypeStruct;
   supply: BN;
 }
@@ -77,12 +77,13 @@ export default ({ order, poolAddress, onCancel, side, supply }: Props) => {
         b: bAddress,
         expired,
         inactive,
+        orderAddress: order.address,
         poolAddress: a,
         side,
         supply,
       });
     }, data);
-  }, [data, onCancel, side, supply]);
+  }, [data, onCancel, order, side, supply]);
 
   if (details.isLoading || Extra.isNothing(data)) return <Loading />;
 

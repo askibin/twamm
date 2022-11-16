@@ -1,57 +1,34 @@
-import type { Provider, Program } from "@project-serum/anchor";
+import { assureAccountCreated } from "@twamm/client.js/lib/assure-account-created";
 import { BN } from "@project-serum/anchor";
+import { createCloseNativeTokenAccountInstruction } from "@twamm/client.js/lib/create-close-native-token-account-instruction"; // eslint-disable-line max-len
 import { findAddress } from "@twamm/client.js/lib/program";
-import { findAssociatedTokenAddress, Pool, TokenPair } from "@twamm/client.js";
+import { findAssociatedTokenAddress, TokenPair } from "@twamm/client.js";
 import { PublicKey, TransactionInstruction } from "@solana/web3.js";
 import { TOKEN_PROGRAM_ID } from "@solana/spl-token";
+import { isNil } from "ramda";
 
 import useProgram from "./use-program";
 import useTxRunnerContext from "./use-transaction-runner-context";
-import { NativeToken } from "../utils/twamm-client";
-
-const getOrderKey = (
-  provider: Provider,
-  program: Program,
-  aCustody: PublicKey,
-  bCustody: PublicKey
-) => {
-  const findProgramAddress = findAddress(program);
-  const pool = new Pool(program);
-
-  return async (tif: number, poolCounter: BN) => {
-    const poolKey = await pool.getKeyByCustodies(
-      aCustody,
-      bCustody,
-      tif,
-      poolCounter
-    );
-
-    return findProgramAddress("order", [
-      // @ts-ignore
-      provider.wallet.publicKey.toBuffer(),
-      poolKey.toBuffer(),
-    ]);
-  };
-};
 
 export default () => {
   const { provider, program } = useProgram();
   const { commit } = useTxRunnerContext();
 
-  const poolClient = new Pool(program);
   const pairClient = new TokenPair(program);
 
   const findProgramAddress = findAddress(program);
 
   const run = async function execute({
     a: aMint,
-    b: bMint,
     amount: lpAmount,
+    b: bMint,
+    orderAddress,
     poolAddress,
   }: {
     a: PublicKey;
-    b: PublicKey;
     amount: number;
+    b: PublicKey;
+    orderAddress: PublicKey;
     poolAddress: PublicKey;
   }) {
     const transferAuthority = await findProgramAddress(
@@ -59,53 +36,50 @@ export default () => {
       []
     );
 
-    const aMintPublicKey = new PublicKey(aMint);
-    const bMintPublicKey = new PublicKey(bMint);
-
     const tokenPairAddress = await findProgramAddress("token_pair", [
       new PublicKey(aMint).toBuffer(),
       new PublicKey(bMint).toBuffer(),
     ]);
 
-    const aCustody = await findAssociatedTokenAddress(
-      transferAuthority,
-      aMintPublicKey
-    );
+    const aCustody = await findAssociatedTokenAddress(transferAuthority, aMint);
 
-    const bCustody = await findAssociatedTokenAddress(
-      transferAuthority,
-      bMintPublicKey
-    );
+    const bCustody = await findAssociatedTokenAddress(transferAuthority, bMint);
 
     const aWallet = await findAssociatedTokenAddress(
       provider.wallet.publicKey,
-      aMintPublicKey
+      aMint
     );
 
     const bWallet = await findAssociatedTokenAddress(
       provider.wallet.publicKey,
-      bMintPublicKey
+      bMint
     );
 
-    const closeANativeInstruction = NativeToken.closeAccountInstruction(
-      aMintPublicKey,
-      aWallet,
-      provider.wallet.publicKey
+    const preInstructions = [
+      await assureAccountCreated(provider, aMint, aWallet),
+      await assureAccountCreated(provider, bMint, bWallet),
+    ];
+
+    const pre = preInstructions.filter(
+      (i): i is TransactionInstruction => !isNil(i)
     );
 
-    const closeBNativeInstruction = NativeToken.closeAccountInstruction(
-      bMintPublicKey,
-      bWallet,
-      provider.wallet.publicKey
+    const postInstructions = [
+      await createCloseNativeTokenAccountInstruction(
+        aMint,
+        aWallet,
+        provider.wallet.publicKey
+      ),
+      await createCloseNativeTokenAccountInstruction(
+        bMint,
+        bWallet,
+        provider.wallet.publicKey
+      ),
+    ];
+
+    const post = postInstructions.filter(
+      (i): i is TransactionInstruction => !isNil(i)
     );
-
-    const postInstructions: TransactionInstruction[] = [];
-    if (closeANativeInstruction) postInstructions.push(closeANativeInstruction);
-    if (closeBNativeInstruction) postInstructions.push(closeBNativeInstruction);
-
-    const getOrder = getOrderKey(provider, program, aCustody, bCustody);
-
-    const pool = (await poolClient.getPool(poolAddress)) as PoolData;
 
     const result = await program.methods
       .cancelOrder({
@@ -119,12 +93,17 @@ export default () => {
         transferAuthority,
         custodyTokenA: aCustody,
         custodyTokenB: bCustody,
-        order: await getOrder(pool.timeInForce, pool.counter),
+        order: orderAddress,
         pool: poolAddress,
         tokenProgram: TOKEN_PROGRAM_ID,
       })
-      .postInstructions(postInstructions)
-      .rpc();
+      .preInstructions(pre)
+      .postInstructions(post)
+      .rpc()
+      .catch((e: Error) => {
+        console.error(e); // eslint-disable-line no-console
+        throw e;
+      });
 
     return result;
   };
@@ -136,7 +115,11 @@ export default () => {
       return result;
     },
     async executeMany(
-      params: Array<{ amount: number; poolAddress: PublicKey }>
+      params: Array<{
+        amount: number;
+        orderAddress: PublicKey;
+        poolAddress: PublicKey;
+      }>
     ) {
       const poolIds = params.map((data) => data.poolAddress);
 

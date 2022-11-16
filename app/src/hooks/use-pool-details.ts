@@ -1,5 +1,4 @@
 import type { PublicKey } from "@solana/web3.js";
-import type { BN } from "@project-serum/anchor";
 import useSWR from "swr";
 
 import useJupTokensByMint from "./use-jup-tokens-by-mint";
@@ -11,10 +10,7 @@ const mintsKey = (pair?: TokenPairAccountData) =>
     ? [addr(pair.configA.mint).toString(), addr(pair.configB.mint).toString()]
     : undefined;
 
-export default (
-  poolAddress: PublicKey,
-  order: { side: OrderTypeStruct; tokenDebt: BN; lpBalance: BN }
-) => {
+export default (poolAddress: PublicKey, order: OrderBalanceData) => {
   const details = usePoolWithPair(poolAddress);
 
   const tokens = useJupTokensByMint(mintsKey(details.data?.pair));

@@ -1,129 +1,29 @@
-import type { Provider, Program } from "@project-serum/anchor";
 import { BN } from "@project-serum/anchor";
 import {
   PublicKey,
-  SystemProgram,
-  SYSVAR_RENT_PUBKEY,
   TransactionInstruction,
+  SystemProgram,
 } from "@solana/web3.js";
-import {
-  ASSOCIATED_TOKEN_PROGRAM_ID,
-  NATIVE_MINT,
-  TOKEN_PROGRAM_ID,
-  createSyncNativeInstruction,
-} from "@solana/spl-token";
-import { findAssociatedTokenAddress } from "@twamm/client.js";
+import { TOKEN_PROGRAM_ID } from "@solana/spl-token";
+import { assureAccountCreated } from "@twamm/client.js/lib/assure-account-created";
+import { createTransferNativeTokenInstructions } from "@twamm/client.js";
+import { findAssociatedTokenAddress } from "@twamm/client.js/lib/find-associated-token-address";
 import { findAddress } from "@twamm/client.js/lib/program";
+import { Order } from "@twamm/client.js/lib/order";
+import { Pool } from "@twamm/client.js/lib/pool";
+import { isNil } from "ramda";
 
 import useProgram from "./use-program";
 import useTxRunnerContext from "./use-transaction-runner-context";
-
-const SOL_ADDRESS = NATIVE_MINT.toBase58();
-
-// TODO: improve types as one for this helper is not exported
-const createAssociatedTokenAccountInstruction = (
-  payer: PublicKey,
-  associatedToken: PublicKey,
-  owner: PublicKey,
-  mint: PublicKey,
-  programId = TOKEN_PROGRAM_ID,
-  associatedTokenProgramId = ASSOCIATED_TOKEN_PROGRAM_ID
-): TransactionInstruction => {
-  const keys = [
-    { pubkey: payer, isSigner: true, isWritable: true },
-    { pubkey: associatedToken, isSigner: false, isWritable: true },
-    { pubkey: owner, isSigner: false, isWritable: false },
-    { pubkey: mint, isSigner: false, isWritable: false },
-    { pubkey: SystemProgram.programId, isSigner: false, isWritable: false },
-    { pubkey: programId, isSigner: false, isWritable: false },
-    { pubkey: SYSVAR_RENT_PUBKEY, isSigner: false, isWritable: false },
-  ];
-
-  return new TransactionInstruction({
-    keys,
-    programId: associatedTokenProgramId,
-    data: Buffer.alloc(0),
-  });
-};
-
-// TODO: improve to return instructions;
-const assureAccountIsCreated =
-  (provider: any) => async (mint: PublicKey, accountAddress: PublicKey) => {
-    try {
-      const accountInfo = await provider.connection.getAccountInfo(
-        accountAddress
-      );
-
-      if (!accountInfo) {
-        throw new Error("TokenAccountNotFoundError");
-      }
-    } catch (err: any) {
-      if (!err?.message.startsWith("TokenAccountNotFoundError")) {
-        throw new Error("Unexpected error in getAccountInfo");
-      }
-
-      return createAssociatedTokenAccountInstruction(
-        provider.wallet.publicKey,
-        accountAddress,
-        provider.wallet.publicKey,
-        mint
-      );
-    }
-
-    return undefined;
-  };
-
-const getPoolKey = (
-  program: Program,
-  aCustody: PublicKey,
-  bCustody: PublicKey
-) => {
-  const findProgramAddress = findAddress(program);
-
-  return async (tif: number, poolCounter: BN) => {
-    const tifBuf = Buffer.alloc(4);
-    tifBuf.writeUInt32LE(tif, 0);
-
-    const counterBuf = Buffer.alloc(8);
-    counterBuf.writeBigUInt64LE(BigInt(poolCounter.toString()), 0);
-
-    return findProgramAddress("pool", [
-      aCustody.toBuffer(),
-      bCustody.toBuffer(),
-      tifBuf,
-      counterBuf,
-    ]);
-  };
-};
-
-const getOrderKey = (
-  provider: Provider,
-  program: Program,
-  aCustody: PublicKey,
-  bCustody: PublicKey
-) => {
-  const findProgramAddress = findAddress(program);
-
-  return async (tif: number, poolCounter: BN) => {
-    const poolKey = await getPoolKey(
-      program,
-      aCustody,
-      bCustody
-    )(tif, poolCounter);
-
-    return findProgramAddress("order", [
-      // @ts-ignore
-      provider.wallet.publicKey.toBuffer(),
-      poolKey.toBuffer(),
-    ]);
-  };
-};
 
 export default () => {
   const { program, provider } = useProgram();
   const { commit } = useTxRunnerContext();
 
   const findProgramAddress = findAddress(program);
+
+  const pool = new Pool(program);
+  const order = new Order(program, provider);
 
   const run = async function execute({
     aMint,
@@ -179,45 +79,36 @@ export default () => {
       bMintPublicKey
     );
 
-    const pre = [];
-
-    const i1 = await assureAccountIsCreated(provider)(aMintPublicKey, aWallet);
-
-    if (i1) pre.push(i1);
-
-    const i2 = await assureAccountIsCreated(provider)(bMintPublicKey, bWallet);
-
-    if (i2) pre.push(i2);
-
-    if (side === "sell" && aMint === SOL_ADDRESS) {
-      pre.push(
-        SystemProgram.transfer({
-          fromPubkey: provider.wallet.publicKey,
-          toPubkey: aWallet,
-          lamports: amount * 1e9,
-        })
-      );
-      pre.push(createSyncNativeInstruction(aWallet, TOKEN_PROGRAM_ID));
-    }
-
-    if (side === "buy" && bMint === SOL_ADDRESS) {
-      pre.push(
-        SystemProgram.transfer({
-          fromPubkey: provider.wallet.publicKey,
-          toPubkey: bWallet,
-          lamports: amount * 1e9,
-        })
+    const preInstructions = [
+      await assureAccountCreated(provider, aMintPublicKey, aWallet),
+      await assureAccountCreated(provider, bMintPublicKey, bWallet),
+    ]
+      .concat(
+        await createTransferNativeTokenInstructions(
+          provider,
+          aMintPublicKey,
+          aWallet,
+          "sell",
+          amount
+        )
+      )
+      .concat(
+        await createTransferNativeTokenInstructions(
+          provider,
+          bMintPublicKey,
+          bWallet,
+          "buy",
+          amount
+        )
       );
 
-      pre.push(createSyncNativeInstruction(bWallet, TOKEN_PROGRAM_ID));
-    }
+    const pre = preInstructions.filter(
+      (i): i is TransactionInstruction => !isNil(i)
+    );
 
     const index = tifs.indexOf(tif);
     if (index < 0) throw new Error("Invalid TIF");
     const counter = poolCounters[index];
-
-    const getOrder = getOrderKey(provider, program, aCustody, bCustody);
-    const getPool = getPoolKey(program, aCustody, bCustody);
 
     const orderParams = {
       side: side === "sell" ? { sell: {} } : { buy: {} },
@@ -225,14 +116,26 @@ export default () => {
       amount: new BN(amount * 10 ** decimals),
     };
 
-    const order = await getOrder(
+    const poolCounter = nextPool ? Number(counter) + 1 : counter;
+
+    const targetOrder = await order.getKeyByCustodies(
+      aCustody,
+      bCustody,
       tif,
-      nextPool ? counter.toNumber() + 1 : counter
+      poolCounter
     );
-    const currentPool = await getPool(tif, counter);
-    const targetPool = await getPool(
+
+    const currentPool = await pool.getKeyByCustodies(
+      aCustody,
+      bCustody,
       tif,
-      nextPool ? Number(counter) + 1 : counter
+      counter
+    );
+    const targetPool = await pool.getKeyByCustodies(
+      aCustody,
+      bCustody,
+      tif,
+      poolCounter
     );
 
     const result = await program.methods
@@ -244,14 +147,18 @@ export default () => {
         tokenPair: tokenPairAddress,
         custodyTokenA: aCustody,
         custodyTokenB: bCustody,
-        order,
+        order: targetOrder,
         currentPool,
         targetPool,
         systemProgram: SystemProgram.programId,
         tokenProgram: TOKEN_PROGRAM_ID,
       })
       .preInstructions(pre)
-      .rpc();
+      .rpc()
+      .catch((e: Error) => {
+        console.error(e); // eslint-disable-line no-console
+        throw e;
+      });
 
     return result;
   };

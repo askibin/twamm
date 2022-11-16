@@ -8,13 +8,12 @@ import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Maybe from "easy-maybe/lib";
 import Stack from "@mui/material/Stack";
-import { PublicKey } from "@solana/web3.js";
 import { useCallback, useMemo, useRef, useState } from "react";
 
 import CancelOrder from "../molecules/cancel-order-modal";
 import OrderDetailsModal from "./account-order-details-modal";
 import Table from "../atoms/table";
-import UniversalPopover from "../molecules/universal-popover";
+import UniversalPopover, { Ref } from "../molecules/universal-popover";
 import useCancelOrder from "../../hooks/use-cancel-order";
 import {
   columns,
@@ -40,8 +39,8 @@ export default (props: Props) => {
   const data = Maybe.withDefault([], d);
   const error = Maybe.withDefault(undefined, err);
 
-  const cancelRef = useRef<{ close: () => void; open: () => void }>();
-  const detailsRef = useRef<{ open: () => void }>();
+  const cancelRef = useRef<Ref>();
+  const detailsRef = useRef<Ref>();
   const [accounts, setAccounts] = useState<CancelOrderData | undefined>();
   const [details, setDetails] = useState<DetailsData>();
   const [selectionModel, setSelectionModel] = useState<GridSelectionModel>([]);
@@ -60,12 +59,13 @@ export default (props: Props) => {
 
   const onCancelOrder = useCallback(
     async (cd: CancelOrderData) => {
-      const { a, b, inactive, expired, poolAddress, supply } = cd;
+      const { a, b, inactive, expired, orderAddress, poolAddress, supply } = cd;
 
       if (inactive || expired) {
         const amount = supply.toNumber();
 
-        await execute({ a, b, poolAddress, amount });
+        detailsRef.current?.close();
+        await execute({ a, b, orderAddress, poolAddress, amount });
       } else {
         setAccounts(cd);
         cancelRef.current?.open();
@@ -88,11 +88,12 @@ export default (props: Props) => {
 
   const onApproveCancel = useCallback(
     async (cd: CancelOrderData) => {
-      const { a, b, poolAddress, supply } = cd;
+      const { a, b, orderAddress, poolAddress, supply } = cd;
       const amount = supply.toNumber();
-      await execute({ a, b, poolAddress, amount });
 
       cancelRef.current?.close();
+      detailsRef.current?.close();
+      await execute({ a, b, orderAddress, poolAddress, amount });
     },
     [execute]
   );
@@ -111,9 +112,11 @@ export default (props: Props) => {
 
     const deletionRows = selectedRows.map((row) => ({
       amount: Number.MAX_SAFE_INTEGER,
-      poolAddress: new PublicKey(row.id),
+      orderAddress: row.order.address,
+      poolAddress: row.pool,
     }));
 
+    cancelRef.current?.close();
     await executeMany(deletionRows);
 
     setSelectionModel([]);

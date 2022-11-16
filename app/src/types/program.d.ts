@@ -78,12 +78,27 @@ declare type OrderData = {
 
 declare type OrderRecord = OrderData & { id: string };
 
-declare type OrderPoolRecord = OrderRecord & { poolData: PoolData };
+declare type OrderPoolRecord = OrderRecord & {
+  poolData: PoolData;
+  order: PublicKey;
+};
 
 declare type OrderBalanceData = {
-  side: OrderTypeStruct;
+  address: PublicKey;
   lpBalance: BN;
+  side: OrderTypeStruct;
   tokenDebt: BN;
+};
+
+declare type CancelOrderData = {
+  a: PublicKey;
+  b: PublicKey;
+  expired: boolean;
+  inactive: boolean;
+  orderAddress: PublicKey;
+  poolAddress: PublicKey;
+  side: OrderTypeStruct;
+  supply: BN;
 };
 
 type PoolTradeSideData = {
@@ -138,9 +153,5 @@ declare type DetailsData = {
   poolAddress: PublicKey;
   side: OrderTypeStruct;
   supply: BN;
-  order: {
-    lpBalance: BN;
-    tokenDebt: BN;
-    side: OrderTypeStruct;
-  };
+  order: OrderBalanceData;
 };
