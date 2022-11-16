@@ -16,37 +16,21 @@ export const createTransferNativeTokenInstructions = async (
   provider: Provider,
   mint: PublicKey,
   address: PublicKey,
-  side: "sell" | "buy",
   uiAmount: number
 ) => {
-  const instructions = [];
+  let instructions;
   const { wallet } = provider as WalletProvider;
 
-  if (side === "sell" && mint.toBase58() === SOL_ADDRESS) {
-    instructions.push(
+  if (mint.toBase58() === SOL_ADDRESS) {
+    instructions = [
       SystemProgram.transfer({
         fromPubkey: wallet.publicKey,
         toPubkey: address,
         lamports: uiAmount * 1e9,
-      })
-    );
-    instructions.push(createSyncNativeInstruction(address, TOKEN_PROGRAM_ID));
-    return instructions;
+      }),
+      createSyncNativeInstruction(address, TOKEN_PROGRAM_ID),
+    ];
   }
 
-  if (side === "buy" && mint.toBase58() === SOL_ADDRESS) {
-    instructions.push(
-      SystemProgram.transfer({
-        fromPubkey: wallet.publicKey,
-        toPubkey: address,
-        lamports: uiAmount * 1e9,
-      })
-    );
-
-    instructions.push(createSyncNativeInstruction(address, TOKEN_PROGRAM_ID));
-
-    return instructions;
-  }
-
-  return undefined;
+  return instructions;
 };
