@@ -59,7 +59,7 @@ export default forwardRef(
     if (isMobile) {
       return (
         <Drawer onClose={onClose} open={open} setOpen={setOpen}>
-          {children}
+          {open ? children : null}
         </Drawer>
       );
     }
@@ -71,7 +71,7 @@ export default forwardRef(
         open={open}
         setOpen={setOpen}
       >
-        {children}
+        {open ? children : null}
       </Modal>
     );
   }

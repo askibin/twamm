@@ -2,7 +2,7 @@ import Box from "@mui/material/Box";
 import { address } from "@twamm/client.js";
 
 import Loading from "../atoms/loading";
-import TokenRatio from "./token-ratio";
+import OrderEditor from "./order-editor";
 import useAddressPairs from "../../hooks/use-address-pairs";
 import useJupTokensByMint from "../../hooks/use-jup-tokens-by-mint";
 
@@ -19,7 +19,7 @@ export default () => {
 
   return (
     <Box pb={2}>
-      <TokenRatio pairs={tokenPairs.data} selectedPair={tokenPair.data} />
+      <OrderEditor pairs={tokenPairs.data} selectedPair={tokenPair.data} />
     </Box>
   );
 };
