@@ -20,6 +20,6 @@ jobs:
 
       - name: Testing
         run: |
-          npm test -- --passWithNoTests
+          yarn test -- --passWithNoTests
         working-directory: ./app
         timeout-minutes: 5
