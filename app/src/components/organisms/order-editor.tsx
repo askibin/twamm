@@ -2,7 +2,7 @@ import Box from "@mui/material/Box";
 import Maybe, { Extra } from "easy-maybe/lib";
 import { useCallback, useEffect, useReducer, useRef, useState } from "react";
 
-import * as Styled from "./token-ratio.styled";
+import * as Styled from "./order-editor.styled";
 import availableTokens, {
   action,
   initialState,
@@ -10,7 +10,6 @@ import availableTokens, {
 import CoinSelect from "./coin-select";
 import TokenPairForm from "../molecules/token-pair-form";
 import UniversalPopover, { Ref } from "../molecules/universal-popover";
-import useJupTokensByMint from "../../hooks/use-jup-tokens-by-mint";
 import useTokenPair from "../../hooks/use-token-pair";
 import { refreshEach } from "../../swr-options";
 
