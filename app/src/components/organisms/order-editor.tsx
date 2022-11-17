@@ -1,6 +1,13 @@
 import Box from "@mui/material/Box";
 import Maybe, { Extra } from "easy-maybe/lib";
-import { useCallback, useEffect, useReducer, useRef, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useReducer,
+  useRef,
+  useState,
+} from "react";
 
 import * as Styled from "./order-editor.styled";
 import availableTokens, {
@@ -8,19 +15,21 @@ import availableTokens, {
   initialState,
 } from "../../reducers/select-available-tokens.reducer";
 import CoinSelect from "./coin-select";
+import Loading from "../atoms/loading";
 import TokenPairForm from "../molecules/token-pair-form";
 import UniversalPopover, { Ref } from "../molecules/universal-popover";
 import useTokenPair from "../../hooks/use-token-pair";
 import { refreshEach } from "../../swr-options";
 
 export interface Props {
-  pairs: Voidable<AddressPair[]>;
-  selectedPair: Voidable<JupTokenData[]>;
+  tokenPairs: Voidable<AddressPair[]>;
+  tokenPair: Voidable<JupTokenData[]>;
+  tradeSide: OrderType;
 }
 
-export default ({ pairs: tokenPairs, selectedPair: defaultPair }: Props) => {
-  const pairs = Maybe.of(tokenPairs);
-  const pair = Maybe.of(defaultPair);
+export default ({ tokenPairs, tokenPair, tradeSide }: Props) => {
+  const pairs = useMemo(() => Maybe.of(tokenPairs), [tokenPairs]);
+  const pair = useMemo(() => Maybe.of(tokenPair), [tokenPair]);
 
   const [curToken, setCurToken] = useState<number>();
   const [state, dispatch] = useReducer(availableTokens, initialState);
@@ -40,14 +49,14 @@ export default ({ pairs: tokenPairs, selectedPair: defaultPair }: Props) => {
           action.initWithDefault({
             pairs: p,
             pair: dp,
-            type: "buy",
+            type: tradeSide,
           })
         );
       }, Extra.combine2([pairs, pair]));
     }
 
     return () => {};
-  }, [pair, availableMaybe, pairs]);
+  }, [pair, availableMaybe, pairs, tradeSide]);
 
   const onTokenChoose = useCallback(
     (index: number) => {
@@ -81,7 +90,9 @@ export default ({ pairs: tokenPairs, selectedPair: defaultPair }: Props) => {
     [curToken]
   );
 
-  const [tokenPair] = selectedPair.data?.exchangePair ?? [];
+  const [exchangePair] = selectedPair.data?.exchangePair ?? [];
+
+  if (Extra.isNothing(pair) || Extra.isNothing(pairs)) return <Loading />;
 
   return (
     <>
@@ -107,7 +118,7 @@ export default ({ pairs: tokenPairs, selectedPair: defaultPair }: Props) => {
             tokenA={state.a?.symbol}
             tokenADecimals={state.a?.decimals}
             tokenB={state.b?.symbol}
-            tokenPair={tokenPair}
+            tokenPair={exchangePair}
           />
         </Box>
       </Styled.Swap>
