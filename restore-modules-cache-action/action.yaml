@@ -24,20 +24,20 @@ runs:
         key: ${{ runner.os }}-node-modules-${{ hashFiles('**/package-lock.json') }}
 
     - name: Get NPM cache directory
-      id: npm-cache-dir-path
+      id: yarn-cache-dir-path
       shell: bash
-      run: echo "::set-output name=dir::$(npm config get cache)"
+      run: echo "::set-output name=dir::$(yarn cache dir)"
 
     - uses: actions/cache@v3
-      id: npm-cache
+      id: yarn-cache
       with:
-        path: "${{ steps.npm-cache-dir-path.outputs.dir }}"
-        key: ${{ runner.os }}-npm-${{ inputs.suffix }}-${{ hashFiles('**/package-lock.json') }}
+        path: "${{ steps.yarn-cache-dir-path.outputs.dir }}"
+        key: ${{ runner.os }}-yarn-${{ inputs.suffix }}-${{ hashFiles('**/package-lock.json') }}
         restore-keys: |
-          ${{ runner.os }}-npm-${{ inputs.suffix }}-
+          ${{ runner.os }}-yarn-${{ inputs.suffix }}-
 
     - name: Make install
       shell: bash
       if: steps.node-modules-cache.outputs.cache-hit != 'true'
-      run: npm ci
+      run: yarn install
       working-directory: "${{ inputs.working_directory }}"
