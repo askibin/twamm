@@ -21,9 +21,9 @@ runs:
       id: node-modules-cache
       with:
         path: "${{ inputs.working_directory }}/node_modules"
-        key: ${{ runner.os }}-node-modules-${{ hashFiles('**/package-lock.json') }}
+        key: ${{ runner.os }}-node-modules-${{ hashFiles('**/yarn.lock') }}
 
-    - name: Get NPM cache directory
+    - name: Get Package Manager cache directory
       id: yarn-cache-dir-path
       shell: bash
       run: echo "::set-output name=dir::$(yarn cache dir)"
@@ -32,7 +32,7 @@ runs:
       id: yarn-cache
       with:
         path: "${{ steps.yarn-cache-dir-path.outputs.dir }}"
-        key: ${{ runner.os }}-yarn-${{ inputs.suffix }}-${{ hashFiles('**/package-lock.json') }}
+        key: ${{ runner.os }}-yarn-${{ inputs.suffix }}-${{ hashFiles('**/yarn.lock') }}
         restore-keys: |
           ${{ runner.os }}-yarn-${{ inputs.suffix }}-
 
