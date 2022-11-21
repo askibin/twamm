@@ -1,11 +1,10 @@
 import type { PublicKey } from "@solana/web3.js";
 import type { GridRowParams, GridComparatorFn } from "@mui/x-data-grid-pro";
-import PoolFilledQuantityCell from "../atoms/account-order-pool-filled-quantity-cell";
 import PoolOrderTimeCell from "../atoms/account-order-pool-order-time-cell";
-import PoolQuantityCell from "../atoms/account-order-pool-quantity-cell";
 import PoolTIFCell from "../atoms/account-order-pool-tif-cell";
 import PoolTIFLeftCell from "../atoms/account-order-pool-tif-left-cell";
 import TokenPairCell from "../atoms/account-order-token-pair-cell";
+import { filledQuantity, quantity } from "../../domain/order-details";
 
 const sortByTokenPair: GridComparatorFn<PublicKey> = (a, b) => {
   const aKey = String(a);
@@ -23,15 +22,24 @@ export const populateRow = (data: OrderPoolRecord) => {
     tokenDebt: data.tokenDebt,
   };
 
+  const amount = quantity(data.tokenPairData, data.poolData, data.side);
+  const filledAmount = filledQuantity(
+    data.tokenPairData,
+    data.poolData,
+    data.side
+  );
+
   return {
     id: data.id,
     // FIXME: replace data with address V
+    filledQuantity: filledAmount,
     order,
     orderData: order,
     orderTime: data.time,
     pool: data.pool,
     poolData: data.poolData,
     // TODO: check availability to remove the field
+    quantity: amount,
     side: data.side,
     supply: data.lpBalance,
     tif: data.poolData.timeInForce,
@@ -55,6 +63,7 @@ export const columns = () => [
     width: 200,
     renderCell: TokenPairCell,
     sortComparator: sortByTokenPair,
+    sortable: false,
   },
   {
     headerName: "Time Frame",
@@ -66,14 +75,12 @@ export const columns = () => [
   {
     headerName: "Quantity",
     field: "quantity",
-    renderCell: PoolQuantityCell,
     flex: 200,
   },
   {
     headerName: "Filled Quantity",
     field: "filledQuantity",
-    renderCell: PoolFilledQuantityCell,
-    flex: 200,
+    flex: 150,
   },
   {
     headerName: "Order Time",
@@ -87,6 +94,7 @@ export const columns = () => [
     field: "timeLeft",
     renderCell: PoolTIFLeftCell,
     resizable: false,
+    sortable: false,
     width: 90,
   },
 ];

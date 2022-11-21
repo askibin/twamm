@@ -18,7 +18,7 @@ import CoinSelect from "./coin-select";
 import Loading from "../atoms/loading";
 import TokenPairForm from "../molecules/token-pair-form";
 import UniversalPopover, { Ref } from "../molecules/universal-popover";
-import useTokenPair from "../../hooks/use-token-pair";
+import useTokenPairByTokens from "../../hooks/use-token-pair-by-tokens";
 import { refreshEach } from "../../swr-options";
 
 export interface Props {
@@ -35,7 +35,7 @@ export default ({ tokenPairs, tokenPair, tradeSide }: Props) => {
   const [state, dispatch] = useReducer(availableTokens, initialState);
   const selectCoinRef = useRef<Ref>();
 
-  const selectedPair = useTokenPair(
+  const selectedPair = useTokenPairByTokens(
     state.a && state.b && { aToken: state.a, bToken: state.b },
     refreshEach()
   );

@@ -32,6 +32,8 @@ type RowData = ReturnType<typeof populateRow>;
 
 type DetailsData = ReturnType<typeof populateDetails>;
 
+const initialSortModel: GridSortModel = [{ field: "orderTime", sort: "asc" }];
+
 export default (props: Props) => {
   const d = useMemo(() => Maybe.of(props.data), [props.data]);
   const err = useMemo(() => Maybe.of(props.error), [props.error]);
@@ -51,11 +53,7 @@ export default (props: Props) => {
 
   const rows: RowData[] = useMemo(() => data.map(populateRow), [data]);
 
-  const [sortModel, setSortModel] = useState<GridSortModel>([
-    { field: "tokenPair", sort: "asc" },
-    { field: "tif", sort: "asc" },
-    { field: "orderTime", sort: "asc" },
-  ]);
+  const [sortModel, setSortModel] = useState<GridSortModel>(initialSortModel);
 
   const onCancelOrder = useCallback(
     async (cd: CancelOrderData) => {
@@ -175,7 +173,19 @@ export default (props: Props) => {
           searchBoxPlaceholderText="Search orders"
           sortModel={sortModel}
           onSortModelChange={(newSortModel: GridSortModel) =>
-            setSortModel(newSortModel)
+            setSortModel(() => {
+              if (!newSortModel.length) return initialSortModel;
+
+              const [defaultField] = initialSortModel;
+              const map = new Map([]);
+              newSortModel.forEach((model) => {
+                map.set(model.field, model);
+              });
+              if (!map.get(defaultField.field))
+                map.set(defaultField.field, defaultField);
+
+              return [...map.values()] as GridSortModel;
+            })
           }
         />
       </Box>

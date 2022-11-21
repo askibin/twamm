@@ -81,6 +81,7 @@ declare type OrderRecord = OrderData & { id: string };
 declare type OrderPoolRecord = OrderRecord & {
   poolData: PoolData;
   order: PublicKey;
+  tokenPairData: TokenPairProgramData;
 };
 
 declare type OrderBalanceData = {
@@ -119,8 +120,7 @@ declare type PoolData = {
   expirationTime: BN;
   sellSide: PoolTradeSideData;
   timeInForce: number;
-  tokenPair: BN;
-  // status: { locked: {} }
+  tokenPair: PublicKey;
   status: PairPoolStatusStruct;
 };
 
