@@ -87,6 +87,6 @@ export const columns = () => [
     field: "timeLeft",
     renderCell: PoolTIFLeftCell,
     resizable: false,
-    width: 100,
+    width: 90,
   },
 ];
