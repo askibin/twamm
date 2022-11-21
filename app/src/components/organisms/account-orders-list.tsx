@@ -5,7 +5,6 @@ import type {
   GridSortModel,
 } from "@mui/x-data-grid-pro";
 import Box from "@mui/material/Box";
-import Button from "@mui/material/Button";
 import Maybe from "easy-maybe/lib";
 import Stack from "@mui/material/Stack";
 import { useCallback, useMemo, useRef, useState } from "react";
@@ -20,6 +19,7 @@ import {
   populateDetails,
   populateRow,
 } from "./account-orders-list.helpers";
+import * as Styled from "./account-orders-list.styled";
 
 export interface Props {
   data: Voidable<OrderPoolRecord[]>;
@@ -148,13 +148,13 @@ export default (props: Props) => {
 
       <Box py={2}>
         <Stack direction="row" spacing={2}>
-          <Button
+          <Styled.ControlButton
             variant="outlined"
             onClick={onCancelSelectedOrders}
             disabled={!selectionModel?.length}
           >
-            Cancel/Withdraw Selected
-          </Button>
+            Cancel / Withdraw Selected
+          </Styled.ControlButton>
         </Stack>
       </Box>
       <Box minWidth="680px">

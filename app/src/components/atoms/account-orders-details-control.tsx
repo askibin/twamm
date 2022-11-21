@@ -1,4 +1,4 @@
-import Button from "@mui/material/Button";
+import * as Styled from "./account-orders-details-control.styled";
 
 export interface Props {
   expired: boolean;
@@ -11,8 +11,8 @@ export default ({ expired, inactive, onClick }: Props) => {
     expired || inactive ? "Withdraw Liquidity" : "Cancel Order";
 
   return (
-    <Button variant="outlined" onClick={onClick}>
+    <Styled.ControlButton variant="outlined" onClick={onClick}>
       {actionName}
-    </Button>
+    </Styled.ControlButton>
   );
 };
