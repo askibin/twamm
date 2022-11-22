@@ -28,7 +28,7 @@ export default ({ name, onChange: handleChange }: Props) => {
 
   const amountUsd = Maybe.withDefault(
     undefined,
-    Maybe.andMap((p) => String(Math.round(p) * amount), Maybe.of(price.data))
+    Maybe.andMap((p) => String(p * amount), Maybe.of(price.data))
   );
 
   return (

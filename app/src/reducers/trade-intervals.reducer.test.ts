@@ -1,5 +1,12 @@
 import reducer, { action, initialState } from "./trade-intervals.reducer";
 
+const populateIndexedTIFs = (tifs: TIF[], left = []) =>
+  tifs.map((tif, index) => ({
+    tif,
+    left: left[index] ?? tif,
+    index,
+  }));
+
 describe("trade-intervals", () => {
   it("should init", () => {
     const pairTifs = [1, 2, 3];
@@ -8,11 +15,7 @@ describe("trade-intervals", () => {
       reducer(
         initialState,
         action.setTifs({
-          indexedTifs: pairTifs.map((tif, index) => ({
-            tif,
-            left: tif,
-            index,
-          })),
+          indexedTifs: populateIndexedTIFs(pairTifs),
           selectedTif: [undefined, -1],
         })
       )
@@ -25,20 +28,29 @@ describe("trade-intervals", () => {
       pairSelected: [undefined, -1],
       periodTifs: [1, 2, 3],
       scheduleTifs: [-1, 1, 2, 3],
+      tifs: [1, 2, 3],
       tifsLeft: [1, 2, 3],
     });
   });
 
   it("should change intervals", () => {
+    const pairSelected: [number | undefined, number] = [undefined, -1];
     const state = {
-      pairSelected: [2, undefined],
-      periodTifs: [1, 2, 3],
+      indexedTifs: populateIndexedTIFs([1, 2, 3]),
+      pairSelected,
       scheduleTifs: [-1, 2, 3, 4],
+      periodTifs: [1, 2, 3],
+      tifs: [1, 2, 3],
       tifsLeft: [1, 2, 3],
     };
 
     expect(reducer(state, action.setPeriod({ tif: 2 }))).toEqual({
-      ...state,
+      indexedTifs: populateIndexedTIFs([1, 2, 3]),
+      pairSelected: [2, -1],
+      periodTifs: [1, 2, 3],
+      scheduleTifs: [-1, 2, 3, 4],
+      tifs: [1, 2, 3],
+      tifsLeft: [1, 2, 3],
     });
   });
 });

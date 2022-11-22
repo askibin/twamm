@@ -24,7 +24,7 @@ const withFormattedExpTime = (data: TMaybe<{ pool: PoolData }>) => {
   const timeLeft = Maybe.andMap(([a, b]) => {
     const left = expirationTimeToInterval(a, b);
 
-    if (!left) return "Expired";
+    if (!left) return "Done";
 
     return formatInterval(left);
   }, expTif);

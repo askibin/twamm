@@ -5,7 +5,6 @@ import type {
   GridSortModel,
 } from "@mui/x-data-grid-pro";
 import Box from "@mui/material/Box";
-import Button from "@mui/material/Button";
 import Maybe from "easy-maybe/lib";
 import Stack from "@mui/material/Stack";
 import { useCallback, useMemo, useRef, useState } from "react";
@@ -20,6 +19,7 @@ import {
   populateDetails,
   populateRow,
 } from "./account-orders-list.helpers";
+import * as Styled from "./account-orders-list.styled";
 
 export interface Props {
   data: Voidable<OrderPoolRecord[]>;
@@ -31,6 +31,8 @@ export interface Props {
 type RowData = ReturnType<typeof populateRow>;
 
 type DetailsData = ReturnType<typeof populateDetails>;
+
+const initialSortModel: GridSortModel = [{ field: "orderTime", sort: "asc" }];
 
 export default (props: Props) => {
   const d = useMemo(() => Maybe.of(props.data), [props.data]);
@@ -51,11 +53,7 @@ export default (props: Props) => {
 
   const rows: RowData[] = useMemo(() => data.map(populateRow), [data]);
 
-  const [sortModel, setSortModel] = useState<GridSortModel>([
-    { field: "tokenPair", sort: "asc" },
-    { field: "tif", sort: "asc" },
-    { field: "orderTime", sort: "asc" },
-  ]);
+  const [sortModel, setSortModel] = useState<GridSortModel>(initialSortModel);
 
   const onCancelOrder = useCallback(
     async (cd: CancelOrderData) => {
@@ -148,13 +146,13 @@ export default (props: Props) => {
 
       <Box py={2}>
         <Stack direction="row" spacing={2}>
-          <Button
+          <Styled.ControlButton
             variant="outlined"
             onClick={onCancelSelectedOrders}
             disabled={!selectionModel?.length}
           >
-            Cancel/Withdraw Selected
-          </Button>
+            Cancel / Withdraw Selected
+          </Styled.ControlButton>
         </Stack>
       </Box>
       <Box minWidth="680px">
@@ -175,7 +173,19 @@ export default (props: Props) => {
           searchBoxPlaceholderText="Search orders"
           sortModel={sortModel}
           onSortModelChange={(newSortModel: GridSortModel) =>
-            setSortModel(newSortModel)
+            setSortModel(() => {
+              if (!newSortModel.length) return initialSortModel;
+
+              const [defaultField] = initialSortModel;
+              const map = new Map([]);
+              newSortModel.forEach((model) => {
+                map.set(model.field, model);
+              });
+              if (!map.get(defaultField.field))
+                map.set(defaultField.field, defaultField);
+
+              return [...map.values()] as GridSortModel;
+            })
           }
         />
       </Box>
