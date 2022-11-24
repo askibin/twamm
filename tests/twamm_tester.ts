@@ -622,6 +622,7 @@ export class TwammTester {
         lpAmount: new anchor.BN(lpAmount),
       })
       .accounts({
+        payer: this.users[userId].publicKey,
         owner: this.users[userId].publicKey,
         userAccountTokenA: this.tokenAWallets[userId],
         userAccountTokenB: this.tokenBWallets[userId],

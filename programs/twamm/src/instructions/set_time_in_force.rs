@@ -12,7 +12,6 @@ use {
 };
 
 #[derive(Accounts)]
-#[instruction(params: SetTimeInForceParams)]
 pub struct SetTimeInForce<'info> {
     #[account(mut)]
     pub admin: Signer<'info>,

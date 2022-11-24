@@ -17,7 +17,11 @@ use {
 #[derive(Accounts)]
 pub struct CancelOrder<'info> {
     #[account(mut)]
-    pub owner: Signer<'info>,
+    pub payer: Signer<'info>,
+
+    /// CHECK: user's wallet
+    #[account()]
+    pub owner: AccountInfo<'info>,
 
     #[account(
         mut, constraint = user_account_token_a.mint == custody_token_a.mint,
@@ -79,8 +83,16 @@ pub fn cancel_order(ctx: Context<CancelOrder>, params: &CancelOrderParams) -> Re
         TwammError::WithdrawalsNotAllowed
     );
 
+    // check if order is being canceled by the owner or pool is complete
+    // and then cancel can be permissionless
+    let current_time = token_pair.get_time()?;
+    let pool_complete = ctx.accounts.pool.is_complete(current_time)?;
+    if ctx.accounts.owner.key() != ctx.accounts.payer.key() && !pool_complete {
+        return Err(ProgramError::IllegalOwner.into());
+    }
+
     let order = ctx.accounts.order.as_mut();
-    let lp_amount = if params.lp_amount > order.lp_balance {
+    let lp_amount = if params.lp_amount > order.lp_balance || pool_complete {
         order.lp_balance
     } else {
         params.lp_amount
@@ -151,7 +163,6 @@ pub fn cancel_order(ctx: Context<CancelOrder>, params: &CancelOrderParams) -> Re
         order.token_debt = math::checked_sub(order.token_debt, token_debt_removed)?;
     }
 
-    let current_time = token_pair.get_time()?;
     order.settlement_debt = order.get_unsettled_amount(expiration_time, current_time)?;
     order.unsettled_balance = math::checked_sub(order.unsettled_balance, withdraw_amount_source)?;
     order.last_balance_change_time = current_time;
