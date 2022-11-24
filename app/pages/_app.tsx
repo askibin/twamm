@@ -1,3 +1,4 @@
+import "../src/why-did-you-render";
 import "@solana/wallet-adapter-react-ui/styles.css";
 import type { AppProps } from "next/app";
 import { CacheProvider, EmotionCache } from "@emotion/react";
