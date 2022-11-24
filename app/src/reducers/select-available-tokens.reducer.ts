@@ -47,7 +47,7 @@ const selectB = (payload: { token: TokenInfo }) => ({
   payload,
 });
 
-const swap = (payload = {}) => ({
+const swap = (payload: { price?: number }) => ({
   type: SWAP,
   payload,
 });

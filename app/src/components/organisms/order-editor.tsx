@@ -40,19 +40,16 @@ export default ({ tokenPairs, tokenPair, tradeSide }: Props) => {
   const [state, dispatch] = useReducer(availableTokens, initialState);
   const selectCoinRef = useRef<Ref>();
 
-  {
-    /*
-     *const priceParams = withDefault(
-     *  undefined,
-     *  andMap(
-     *    ([a, b]) => ({ id: a.address, vsToken: b.address }),
-     *    combine2([of(state.a), of(state.b)])
-     *  )
-     *);
-     */
-  }
+  const tokenPairPrice = usePrice(
+    withDefault(
+      undefined,
+      andMap(
+        ([a, b]) => ({ id: a.address, vsToken: b.address }),
+        combine2([of(state.a), of(state.b)])
+      )
+    )
+  );
 
-  // const tokenPairPrice = usePrice(priceParams);
   const selectedPair = useTokenPairByTokens(
     state.a && state.b && { aToken: state.a, bToken: state.b },
     refreshEach()
@@ -94,8 +91,8 @@ export default ({ tokenPairs, tokenPair, tradeSide }: Props) => {
   }, [onTokenChoose]);
 
   const onTokenSwap = useCallback(() => {
-    dispatch(action.swap());
-  }, []);
+    dispatch(action.swap({ price: tokenPairPrice.data }));
+  }, [tokenPairPrice.data]);
 
   const onCoinDeselect = useCallback(() => {}, []);
 
