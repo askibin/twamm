@@ -18,15 +18,27 @@ const fetcher = (program: Program) => {
     const { aToken, bToken } = params;
     const { tokenPairData, exchangePair } = await resolvePair([aToken, bToken]);
 
-    const { currentPoolPresent, futurePoolPresent, poolCounters, tifs } =
-      tokenPairData;
-
-    const pair = {
+    const {
+      configA,
+      configB,
       currentPoolPresent,
       futurePoolPresent,
       poolCounters,
+      statsA,
+      statsB,
       tifs,
+    } = tokenPairData;
+
+    const pair = {
+      configA,
+      configB,
+      currentPoolPresent,
       exchangePair,
+      futurePoolPresent,
+      poolCounters,
+      statsA,
+      statsB,
+      tifs,
     };
 
     return pair;
