@@ -93,7 +93,10 @@ export default (props: Props) => {
       <Styled.Info pt={2}>
         <Stack direction="row" spacing="1">
           <Box mr={1} mt={0.25}>
-            <IntervalProgress interval={REFRESH_INTERVAL} />
+            <IntervalProgress
+              interval={REFRESH_INTERVAL}
+              refresh={tokenPairPrice.isValidating}
+            />
           </Box>
           <Box>Price Info</Box>
           <Styled.Toggle onClick={() => setOpen(!open)}>
