@@ -47,7 +47,10 @@ export default (props: Props) => {
   const tokenPairPrice = usePrice(
     withDefault(
       undefined,
-      andMap(([c, d]) => ({ id: c.address, vsToken: d.address }), pair)
+      andMap(
+        ([p]) => ({ id: p[0].address, vsToken: p[1].address }),
+        combine2([pair, of(open ? true : undefined)]) // Nothing unless open
+      )
     ),
     refreshEach(REFRESH_INTERVAL)
   );
@@ -94,7 +97,7 @@ export default (props: Props) => {
         <Stack direction="row" spacing="1">
           <Box mr={1} mt={0.25}>
             <IntervalProgress
-              interval={REFRESH_INTERVAL}
+              interval={open ? REFRESH_INTERVAL : 0}
               refresh={tokenPairPrice.isValidating}
             />
           </Box>
