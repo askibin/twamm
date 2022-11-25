@@ -6,6 +6,7 @@ import type { SelectedTif } from "./trade-intervals";
 import TokenPairFormContent from "./token-pair-form-content";
 import useScheduleOrder from "../../hooks/use-schedule-order";
 import useTIFIntervals from "../../hooks/use-tif-intervals";
+import { refreshEach } from "../../swr-options";
 
 export interface Props {
   onABSwap: () => void;
@@ -55,7 +56,8 @@ export default ({
     tokenPair,
     tifs,
     currentPoolPresent,
-    poolCounters
+    poolCounters,
+    { ...refreshEach(50e3) }
   );
 
   const onChangeAmount = useCallback(
