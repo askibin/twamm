@@ -10,7 +10,7 @@ export interface Props {
 
 export const modes = new Map([
   ["pools", "pools"],
-  ["swap", "swap"],
+  ["exchange", "exchange"],
   ["orders", "orders"],
 ]);
 
@@ -23,7 +23,7 @@ export default ({ mode, onChange: handleChange = () => {} }: Props) => {
   );
 
   const pools = modes.get("pools") as string;
-  const swap = modes.get("swap") as string;
+  const exchange = modes.get("exchange") as string;
   const orders = modes.get("orders") as string;
 
   return (
@@ -33,7 +33,7 @@ export default ({ mode, onChange: handleChange = () => {} }: Props) => {
       onChange={onChange}
       aria-label="mode"
     >
-      <Styled.ModeButton value={swap} aria-label={swap}>
+      <Styled.ModeButton value={exchange} aria-label={exchange}>
         Trade
       </Styled.ModeButton>
       <Styled.ModeButton value={orders} aria-label={orders}>

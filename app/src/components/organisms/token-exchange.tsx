@@ -1,25 +1,29 @@
-import { address } from "@twamm/client.js";
-
 import OrderEditor from "./order-editor";
 import useAddressPairs from "../../hooks/use-address-pairs";
 import useJupTokensByMint from "../../hooks/use-jup-tokens-by-mint";
 
-const DEFAULT_PAIR: AddressPair = [
-  address.NATIVE_TOKEN_ADDRESS,
-  "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
-];
+export type TradeStruct = {
+  amount: number;
+  pair: AddressPair;
+  type: OrderType;
+};
 
-const DEFAULT_SIDE = "buy";
+export interface Props {
+  onTradeChange: (arg0: TradeStruct) => void;
+  trade: TradeStruct;
+}
 
-export default () => {
+export default (props: Props) => {
   const tokenPairs = useAddressPairs();
-  const tokenPair = useJupTokensByMint(DEFAULT_PAIR);
+  const tokenPair = useJupTokensByMint(props.trade.pair);
 
   return (
     <OrderEditor
+      onTradeChange={props.onTradeChange}
       tokenPairs={tokenPairs.data}
       tokenPair={tokenPair.data}
-      tradeSide={DEFAULT_SIDE}
+      trade={props.trade}
+      tradeSide={props.trade.type}
     />
   );
 };

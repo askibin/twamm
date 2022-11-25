@@ -4,9 +4,11 @@ import type { AppProps } from "next/app";
 import { CacheProvider, EmotionCache } from "@emotion/react";
 import { LicenseInfo } from "@mui/x-license-pro";
 import { StrictMode } from "react";
+import { SWRConfig } from "swr";
 
 import "../styles/globals.css";
 import createEmotionCache from "../src/emotion-cache";
+import swrConfig from "../src/swr-options";
 import { BlockchainConnectionProvider } from "../src/contexts/solana-connection-context";
 import { CoingeckoApiProvider } from "../src/contexts/coingecko-api-context";
 import { NotificationProvider } from "../src/contexts/notification-context";
@@ -35,10 +37,12 @@ const App = ({
           <CoingeckoApiProvider>
             <BlockchainConnectionProvider>
               <WalletProvider>
-                <TxProvider>
-                  {/* eslint-disable-next-line react/jsx-props-no-spreading */}
-                  <Component {...pageProps} />
-                </TxProvider>
+                <SWRConfig value={swrConfig}>
+                  <TxProvider>
+                    {/* eslint-disable-next-line react/jsx-props-no-spreading */}
+                    <Component {...pageProps} />
+                  </TxProvider>
+                </SWRConfig>
               </WalletProvider>
             </BlockchainConnectionProvider>
           </CoingeckoApiProvider>
