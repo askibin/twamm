@@ -11,6 +11,7 @@ import { useCallback, useMemo, useRef, useState } from "react";
 
 import CancelOrder from "../molecules/cancel-order-modal";
 import OrderDetailsModal from "./account-order-details-modal";
+import RowColumnList from "./row-column-list";
 import Table from "../atoms/table";
 import UniversalPopover, { Ref } from "../molecules/universal-popover";
 import useCancelOrder from "../../hooks/use-cancel-order";
@@ -154,6 +155,9 @@ export default (props: Props) => {
             Cancel / Withdraw Selected
           </Styled.ControlButton>
         </Stack>
+      </Box>
+      <Box>
+        <RowColumnList data={data} rows={rows} columns={columns} />
       </Box>
       <Box minWidth="680px">
         <Table
