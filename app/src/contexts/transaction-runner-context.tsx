@@ -4,11 +4,19 @@ import { createContext, useMemo, useCallback, useState } from "react";
 
 import { forit } from "../utils/forit";
 
+const EXPLORERS = {
+  explorer: { uri: "https://explorer.solana.com/tx/" },
+  solscan: { uri: "https://solscan.io/tx/" },
+};
+
 export type TransactionRunnerContext = {
   readonly active: boolean;
   readonly commit: (arg0: Promise<string>) => Promise<string | undefined>;
   readonly error?: Error;
+  readonly explorer: string;
+  readonly explorers: typeof EXPLORERS;
   readonly provider?: AnchorProvider;
+  readonly setExplorer: (e: string) => void;
   readonly setProvider: (p: AnchorProvider) => void;
   readonly signature?: string;
   readonly viewExplorer: (sig: string) => string;
@@ -23,6 +31,7 @@ export const Provider: FC<{ children: ReactNode }> = ({ children }) => {
   const [provider, setProvider] = useState<AnchorProvider>();
   const [signature, setSignature] = useState<string>();
   const [error, setError] = useState<Error>();
+  const [explorer, setExplorer] = useState<string>(EXPLORERS.explorer.uri);
 
   const commit = useCallback(
     async (operation: Parameters<TransactionRunnerContext["commit"]>[0]) => {
@@ -51,8 +60,8 @@ export const Provider: FC<{ children: ReactNode }> = ({ children }) => {
   );
 
   const viewExplorer = useCallback(
-    (sig: string) => `https://solscan.io/tx/${sig}`,
-    []
+    (sig: string) => `${explorer}${sig}`,
+    [explorer]
   );
 
   const contextValue = useMemo(
@@ -60,12 +69,25 @@ export const Provider: FC<{ children: ReactNode }> = ({ children }) => {
       active,
       commit,
       error,
+      explorer,
+      explorers: EXPLORERS,
       provider,
+      setExplorer,
       setProvider,
       signature,
       viewExplorer,
     }),
-    [active, commit, error, provider, setProvider, signature, viewExplorer]
+    [
+      active,
+      commit,
+      error,
+      explorer,
+      provider,
+      setExplorer,
+      setProvider,
+      signature,
+      viewExplorer,
+    ]
   );
 
   return (
