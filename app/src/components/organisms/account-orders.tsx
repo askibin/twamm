@@ -2,14 +2,12 @@ import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 
 import AccountOrdersList from "./account-orders-list";
-/*
- *import useOrders from "../../hooks/use-orders";
- *import { refreshEach } from "../../swr-options";
- */
+import useOrders from "../../hooks/use-order-records";
+import { refreshEach } from "../../swr-options";
 
 export default () => {
-  // TODO: restore V
-  // const orders = useOrders(undefined, refreshEach(60000));
+  // const orders1 = useOrders(undefined, refreshEach(60000));
+
   const orders = {
     data: [],
     error: undefined,

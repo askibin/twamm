@@ -157,42 +157,44 @@ export default (props: Props) => {
         </Stack>
       </Box>
       <Box>
-        <RowColumnList data={data} rows={rows} columns={columns} />
+        <RowColumnList columns={cols} rows={rows} updating={props.updating} />
       </Box>
-      <Box minWidth="680px">
-        <Table
-          gridProps={{
-            autoHeight: true,
-            checkboxSelection: true,
-            columns: cols,
-            error,
-            loading: props.loading,
-            onSelectionModelChange,
-            rows,
-            selectionModel,
-          }}
-          filterColumnField="pool"
-          isUpdating={props.updating}
-          onRowClick={onRowClick}
-          searchBoxPlaceholderText="Search orders"
-          sortModel={sortModel}
-          onSortModelChange={(newSortModel: GridSortModel) =>
-            setSortModel(() => {
-              if (!newSortModel.length) return initialSortModel;
-
-              const [defaultField] = initialSortModel;
-              const map = new Map([]);
-              newSortModel.forEach((model) => {
-                map.set(model.field, model);
-              });
-              if (!map.get(defaultField.field))
-                map.set(defaultField.field, defaultField);
-
-              return [...map.values()] as GridSortModel;
-            })
-          }
-        />
-      </Box>
+      {/*
+       *      <Box minWidth="680px">
+       *        <Table
+       *          gridProps={{
+       *            autoHeight: true,
+       *            checkboxSelection: true,
+       *            columns: cols,
+       *            error,
+       *            loading: props.loading,
+       *            onSelectionModelChange,
+       *            rows,
+       *            selectionModel,
+       *          }}
+       *          filterColumnField="pool"
+       *          isUpdating={props.updating}
+       *          onRowClick={onRowClick}
+       *          searchBoxPlaceholderText="Search orders"
+       *          sortModel={sortModel}
+       *          onSortModelChange={(newSortModel: GridSortModel) =>
+       *            setSortModel(() => {
+       *              if (!newSortModel.length) return initialSortModel;
+       *
+       *              const [defaultField] = initialSortModel;
+       *              const map = new Map([]);
+       *              newSortModel.forEach((model) => {
+       *                map.set(model.field, model);
+       *              });
+       *              if (!map.get(defaultField.field))
+       *                map.set(defaultField.field, defaultField);
+       *
+       *              return [...map.values()] as GridSortModel;
+       *            })
+       *          }
+       *        />
+       *      </Box>
+       */}
     </>
   );
 };

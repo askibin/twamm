@@ -1,5 +1,9 @@
 import type { PublicKey } from "@solana/web3.js";
-import type { GridRowParams, GridComparatorFn } from "@mui/x-data-grid-pro";
+import type {
+  GridColDef,
+  GridRowParams,
+  GridComparatorFn,
+} from "@mui/x-data-grid-pro";
 import PoolOrderTimeCell from "../atoms/account-order-pool-order-time-cell";
 import PoolTIFCell from "../atoms/account-order-pool-tif-cell";
 import PoolTIFLeftCell from "../atoms/account-order-pool-tif-left-cell";
@@ -56,42 +60,48 @@ export const populateDetails = (
   supply: data.row.supply,
 });
 
-export const columns = () => [
+export const columns = (): GridColDef[] => [
   {
-    headerName: "Token Pair",
     field: "tokenPair",
-    width: 200,
+    headerName: "Token Pair",
+    hideable: false,
     renderCell: TokenPairCell,
-    sortComparator: sortByTokenPair,
     sortable: false,
+    sortComparator: sortByTokenPair,
+    width: 200,
   },
   {
-    headerName: "Time Frame",
     field: "tif",
+    headerName: "Time Frame",
+    hideable: true,
     renderCell: PoolTIFCell,
     resizable: false,
     width: 130,
   },
   {
-    headerName: "Quantity",
     field: "quantity",
     flex: 200,
+    headerName: "Quantity",
+    hideable: false,
   },
   {
-    headerName: "Filled Quantity",
     field: "filledQuantity",
     flex: 150,
+    headerName: "Filled Quantity",
+    hideable: true,
   },
   {
-    headerName: "Order Time",
     field: "orderTime",
+    headerName: "Order Time",
+    hideable: true,
     renderCell: PoolOrderTimeCell,
     resizable: false,
     width: 180,
   },
   {
-    headerName: "Time Left",
     field: "timeLeft",
+    headerName: "Time Left",
+    hideable: true,
     renderCell: PoolTIFLeftCell,
     resizable: false,
     sortable: false,
