@@ -6,6 +6,7 @@ import * as Styled from "./pair-card.styled";
 import Metric, { formatDeposited } from "./pair-card-metrics";
 import PairCardSymbols from "./pair-card-symbols";
 import useTokensByMint from "../../hooks/use-tokens-by-mint";
+import { formatPrice } from "../../domain/index";
 
 export interface Props {
   aMint: PublicKey;
@@ -34,17 +35,19 @@ export default ({
             <PairCardSymbols data={tokens.data} />
           </Styled.FundName>
         </Styled.Fund>
-        <Box pb={0.5}>
+        <Box pt={2}>
           <Typography variant="h6">Volume</Typography>
         </Box>
-        <Box>
+        <Box pt={1}>
           <Styled.FundMetrics>
             <Metric formatted title="Order" value={orderVolume} />
             <Metric formatted title="Settle" value={settleVolume} />
             <Metric formatted title="Trade" value={tradeVolume} />
           </Styled.FundMetrics>
         </Box>
-        <Box pt={1}>Protocol Fee: {fee ? formatDeposited(fee) : 0}</Box>
+        <Box pt={2}>
+          Protocol Fee: {fee ? `$${formatDeposited(fee)}` : formatPrice(0)}
+        </Box>
       </Styled.Card>
     </Styled.Root>
   );
