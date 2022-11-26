@@ -11,6 +11,7 @@ import { useState } from "react";
 import * as Styled from "./price-info.styled";
 import IntervalProgress from "../atoms/interval-progress";
 import PairCardSymbols from "../atoms/pair-card-symbols";
+import useBreakpoints from "../../hooks/use-breakpoints";
 import usePrice from "../../hooks/use-price";
 import { formatPrice, populatePairByType } from "../../domain/index";
 import { populateStats } from "../../domain/token-pair-details";
@@ -36,6 +37,8 @@ export interface Props {
 export default (props: Props) => {
   const [open, setOpen] = useState<boolean>(false);
 
+  const { isMobile } = useBreakpoints();
+
   const populatePair = (a: JupTokenData, b: JupTokenData) =>
     populatePairByType<JupTokenData>(a, b, props.type);
 
@@ -47,7 +50,10 @@ export default (props: Props) => {
   const tokenPairPrice = usePrice(
     withDefault(
       undefined,
-      andMap(([c, d]) => ({ id: c.address, vsToken: d.address }), pair)
+      andMap(
+        ([p]) => ({ id: p[0].address, vsToken: p[1].address }),
+        combine2([pair, of(open ? true : undefined)]) // Nothing unless open
+      )
     ),
     refreshEach(REFRESH_INTERVAL)
   );
@@ -90,11 +96,11 @@ export default (props: Props) => {
 
   return (
     <>
-      <Styled.Info pt={2}>
+      <Styled.Info pt={2} mb={!open && isMobile ? "56px" : undefined}>
         <Stack direction="row" spacing="1">
           <Box mr={1} mt={0.25}>
             <IntervalProgress
-              interval={REFRESH_INTERVAL}
+              interval={open ? REFRESH_INTERVAL : 0}
               refresh={tokenPairPrice.isValidating}
             />
           </Box>

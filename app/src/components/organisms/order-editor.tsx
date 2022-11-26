@@ -27,12 +27,17 @@ const { andMap, of, withDefault } = Maybe;
 const { combine2 } = Extra;
 
 export interface Props {
+  onTradeChange: (arg0: {
+    amount: number;
+    pair: AddressPair;
+    type: OrderType;
+  }) => void;
   tokenPairs: Voidable<AddressPair[]>;
   tokenPair: Voidable<JupTokenData[]>;
   tradeSide: OrderType;
 }
 
-export default ({ tokenPairs, tokenPair, tradeSide }: Props) => {
+export default ({ onTradeChange, tokenPairs, tokenPair, tradeSide }: Props) => {
   const pairs = useMemo(() => Maybe.of(tokenPairs), [tokenPairs]);
   const pair = useMemo(() => Maybe.of(tokenPair), [tokenPair]);
 
@@ -70,8 +75,28 @@ export default ({ tokenPairs, tokenPair, tradeSide }: Props) => {
       }, Extra.combine2([pairs, pair]));
     }
 
-    return () => {};
-  }, [pair, availableMaybe, pairs, tradeSide]);
+    return () => {
+      if (selectedPair.data) {
+        const { exchangePair } = selectedPair.data;
+
+        // TODO: fix pair type
+        const [p, t]: ExchangePair = exchangePair;
+
+        onTradeChange({
+          amount: 0,
+          pair: p.map((a: JupTokenData) => a.address),
+          type: t,
+        });
+      }
+    };
+  }, [
+    onTradeChange,
+    pair,
+    availableMaybe,
+    pairs,
+    selectedPair.data,
+    tradeSide,
+  ]);
 
   const onTokenChoose = useCallback(
     (index: number) => {
