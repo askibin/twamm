@@ -35,7 +35,6 @@ export default ({ data, displayDirection, side }: Props) => {
 
   const displayTokens = side?.buy && displayDirection ? [b, a] : [a, b];
   const direction = !displayDirection ? "-" : "→";
-
   return (
     <Styled.Root>
       <Styled.TokenAvatarGroup max={2}>

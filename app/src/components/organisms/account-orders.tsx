@@ -6,7 +6,7 @@ import useOrders from "../../hooks/use-orders";
 import { refreshEach } from "../../swr-options";
 
 export default () => {
-  const orders = useOrders(undefined, refreshEach(30000));
+  const orders = useOrders(undefined, refreshEach(60000));
 
   return (
     <Box pb={2}>

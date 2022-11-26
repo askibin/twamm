@@ -16,10 +16,15 @@ import availableTokens, {
 } from "../../reducers/select-available-tokens.reducer";
 import CoinSelect from "./coin-select";
 import Loading from "../atoms/loading";
+import PriceInfo from "./price-info";
 import TokenPairForm from "../molecules/token-pair-form";
 import UniversalPopover, { Ref } from "../molecules/universal-popover";
+import usePrice from "../../hooks/use-price";
 import useTokenPairByTokens from "../../hooks/use-token-pair-by-tokens";
 import { refreshEach } from "../../swr-options";
+
+const { andMap, of, withDefault } = Maybe;
+const { combine2 } = Extra;
 
 export interface Props {
   tokenPairs: Voidable<AddressPair[]>;
@@ -34,6 +39,16 @@ export default ({ tokenPairs, tokenPair, tradeSide }: Props) => {
   const [curToken, setCurToken] = useState<number>();
   const [state, dispatch] = useReducer(availableTokens, initialState);
   const selectCoinRef = useRef<Ref>();
+
+  const tokenPairPrice = usePrice(
+    withDefault(
+      undefined,
+      andMap(
+        ([a, b]) => ({ id: a.address, vsToken: b.address }),
+        combine2([of(state.a), of(state.b)])
+      )
+    )
+  );
 
   const selectedPair = useTokenPairByTokens(
     state.a && state.b && { aToken: state.a, bToken: state.b },
@@ -75,9 +90,9 @@ export default ({ tokenPairs, tokenPair, tradeSide }: Props) => {
     onTokenChoose(2);
   }, [onTokenChoose]);
 
-  const onTokenSwap = () => {
-    dispatch(action.swap());
-  };
+  const onTokenSwap = useCallback(() => {
+    dispatch(action.swap({ price: tokenPairPrice.data }));
+  }, [tokenPairPrice.data]);
 
   const onCoinDeselect = useCallback(() => {}, []);
 
@@ -122,6 +137,14 @@ export default ({ tokenPairs, tokenPair, tradeSide }: Props) => {
           />
         </Box>
       </Styled.Swap>
+      <Box p={2}>
+        <PriceInfo
+          a={state.a}
+          b={state.b}
+          tokenPair={selectedPair.data}
+          type={state.type}
+        />
+      </Box>
     </>
   );
 };
