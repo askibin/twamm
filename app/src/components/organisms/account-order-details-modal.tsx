@@ -15,7 +15,6 @@ import useBreakpoints from "../../hooks/use-breakpoints";
 import usePoolDetails from "../../hooks/use-pool-details";
 import useTokenPairByPool from "../../hooks/use-token-pair-by-pool";
 import useTokensByMint from "../../hooks/use-tokens-by-mint";
-import { address as addr } from "../../utils/twamm-client";
 
 export interface Props {
   poolAddress: PublicKey;
@@ -56,11 +55,8 @@ export default ({ order, poolAddress, onCancel, side, supply }: Props) => {
 
   const pairMints = Maybe.withDefault(
     undefined,
-    Maybe.andMap(
-      (pair) => [
-        addr(pair.configA.mint).toString(),
-        addr(pair.configB.mint).toString(),
-      ],
+    Maybe.andMap<TokenPairProgramData, [PublicKey, PublicKey]>(
+      (pair) => [pair.configA.mint, pair.configB.mint],
       pairData
     )
   );

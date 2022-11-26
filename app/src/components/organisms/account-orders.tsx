@@ -2,12 +2,10 @@ import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 
 import AccountOrdersList from "./account-orders-list";
-{
-  /*
-   *import useOrders from "../../hooks/use-orders";
-   *import { refreshEach } from "../../swr-options";
-   */
-}
+/*
+ *import useOrders from "../../hooks/use-orders";
+ *import { refreshEach } from "../../swr-options";
+ */
 
 export default () => {
   // TODO: restore V

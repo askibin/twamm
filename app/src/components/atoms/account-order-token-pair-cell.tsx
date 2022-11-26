@@ -5,7 +5,6 @@ import { useMemo } from "react";
 import PairCardSymbols from "./pair-card-symbols";
 import useTokenPairByPool from "../../hooks/use-token-pair-by-pool";
 import useTokensByMint from "../../hooks/use-tokens-by-mint";
-import { address } from "../../utils/twamm-client";
 
 export interface Props
   extends GridCellParams<
@@ -19,13 +18,10 @@ export interface Props
 export default ({ row }: Pick<Props, "row">) => {
   const tokenPair = useTokenPairByPool(row.pool);
 
-  const mints = useMemo(
+  const mints: Voidable<[PublicKey, PublicKey]> = useMemo(
     () =>
       tokenPair.data
-        ? [
-            address(tokenPair.data.configA.mint).toString(),
-            address(tokenPair.data.configB.mint).toString(),
-          ]
+        ? [tokenPair.data.configA.mint, tokenPair.data.configB.mint]
         : undefined,
     [tokenPair.data]
   );
