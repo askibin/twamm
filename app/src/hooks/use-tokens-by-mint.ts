@@ -1,7 +1,10 @@
+import type { PublicKey } from "@solana/web3.js";
 import useSWR from "swr";
-
+import Maybe from "easy-maybe/lib";
 import useCoingeckoContractApi from "./use-coingecko-api";
 import { fetchJSONFromAPI2 } from "../utils/api";
+
+const { andMap, of, withDefault } = Maybe;
 
 const swrKey = (params: { mints: string[] }) => ({
   key: "tokensByMint",
@@ -65,8 +68,27 @@ const fetcher = (api: ReturnType<typeof useCoingeckoContractApi>) => {
   };
 };
 
-export default (params: Voidable<string[]>, options = {}) => {
+export default (
+  params: Voidable<[string, string] | [PublicKey, PublicKey]>,
+  options = {}
+) => {
   const api = useCoingeckoContractApi();
 
-  return useSWR(params && swrKey({ mints: params }), fetcher(api), options);
+  return useSWR(
+    withDefault(
+      undefined,
+      andMap(
+        ([a, b]) =>
+          swrKey({
+            mints: [
+              typeof a === "string" ? a : a.toBase58(),
+              typeof b === "string" ? b : b.toBase58(),
+            ],
+          }),
+        of(params)
+      )
+    ),
+    fetcher(api),
+    options
+  );
 };

@@ -6,7 +6,6 @@ import * as Styled from "./pair-card.styled";
 import Metric from "./pair-card-metrics";
 import PairCardSymbols from "./pair-card-symbols";
 import useTokensByMint from "../../hooks/use-tokens-by-mint";
-import { address } from "../../utils/twamm-client";
 
 export interface Props {
   aMint: PublicKey;
@@ -25,10 +24,7 @@ export default ({
   settleVolume,
   tradeVolume,
 }: Props) => {
-  const tokens = useTokensByMint([
-    address(aMint).toString(),
-    address(bMint).toString(),
-  ]);
+  const tokens = useTokensByMint([aMint, bMint]);
 
   return (
     <Styled.Root>

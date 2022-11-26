@@ -8,7 +8,7 @@ export const populate = (
 
   return {
     aMint: a,
-    bMint: a,
+    bMint: b,
     fee,
     id: `${a}-${b}`,
     orderVolume,
