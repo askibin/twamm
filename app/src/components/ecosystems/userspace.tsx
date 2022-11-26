@@ -27,7 +27,7 @@ export default () => {
   const [mode, setMode] = useState<string>(DEFAULT_MODE);
   const [trade, setTrade] = useState<TradeStruct>(DEFAULT_TRADE);
 
-  const { isMobile } = false; //useBreakpoints();
+  const { isMobile } = useBreakpoints();
 
   const onModeChange = useCallback(
     (nextMode: string) => {
@@ -36,15 +36,9 @@ export default () => {
     [setMode]
   );
 
-  const onTradeChange = useCallback(
-    (next: TradeStruct) => {
-      console.info("tradechange", trade, next);
-      setTrade(next);
-    },
-    [trade]
-  );
-
-  console.info("render trade", trade);
+  const onTradeChange = useCallback((next: TradeStruct) => {
+    setTrade(next);
+  }, []);
 
   const component = useMemo(() => {
     if (mode === modes.get("pools")) return <TokenPairs />;
