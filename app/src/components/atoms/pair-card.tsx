@@ -3,9 +3,10 @@ import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 
 import * as Styled from "./pair-card.styled";
-import Metric from "./pair-card-metrics";
+import Metric, { formatDeposited } from "./pair-card-metrics";
 import PairCardSymbols from "./pair-card-symbols";
 import useTokensByMint from "../../hooks/use-tokens-by-mint";
+import { formatPrice } from "../../domain/index";
 
 export interface Props {
   aMint: PublicKey;
@@ -33,31 +34,20 @@ export default ({
           <Styled.FundName>
             <PairCardSymbols data={tokens.data} />
           </Styled.FundName>
-          {/*
-           *<Styled.FundPerf>
-           *  {perf ? (
-           *    <Styled.FundPerfValue>
-           *      ${formatDeposited(perf)}
-           *    </Styled.FundPerfValue>
-           *  ) : (
-           *    <Styled.FundPerfValue>-</Styled.FundPerfValue>
-           *  )}
-           *</Styled.FundPerf>
-           */}
         </Styled.Fund>
-        <Box pb={2.5}>
-          <Styled.FundMetrics>
-            <Metric formatted title="Fee" value={fee} />
-          </Styled.FundMetrics>
-        </Box>
-        <Box pb={0.5}>
+        <Box pt={2}>
           <Typography variant="h6">Volume</Typography>
         </Box>
-        <Styled.FundMetrics>
-          <Metric formatted title="Order" value={orderVolume} />
-          <Metric formatted title="Settle" value={settleVolume} />
-          <Metric formatted title="Trade" value={tradeVolume} />
-        </Styled.FundMetrics>
+        <Box pt={1}>
+          <Styled.FundMetrics>
+            <Metric formatted title="Order" value={orderVolume} />
+            <Metric formatted title="Settle" value={settleVolume} />
+            <Metric formatted title="Trade" value={tradeVolume} />
+          </Styled.FundMetrics>
+        </Box>
+        <Box pt={2}>
+          Protocol Fee: {fee ? `$${formatDeposited(fee)}` : formatPrice(0)}
+        </Box>
       </Styled.Card>
     </Styled.Root>
   );

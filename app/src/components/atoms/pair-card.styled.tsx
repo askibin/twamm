@@ -45,20 +45,6 @@ export const FundName = div`
   line-height: 1.35em;
 `;
 
-/*
- *export const FundPerf = div`
- *  color: #fff;
- *  font-size: 20px;
- *  font-weight: 400;
- *`;
- *
- *export const FundPerfValue = span`
- *  color: #70efcb;
- *  font-size: 28px;
- *  font-weight: 600;
- *`;
- */
-
 export const FundMetrics = div`
   display: flex;
   flex-direction: row;

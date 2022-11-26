@@ -3,6 +3,7 @@ import ClickAwayListener from "@mui/material/ClickAwayListener";
 import Tooltip from "@mui/material/Tooltip";
 import { useState } from "react";
 import * as Styled from "./pair-card-metrics.styled";
+import { formatPrice } from "../../domain/index";
 
 export interface MetricProps {
   title: string;
@@ -13,7 +14,7 @@ export interface MetricProps {
 export const formatDeposited = (value: number): string => {
   const RANKS = ["K", "M", "B", "T"];
   const TRESHOLD = 1e3;
-  const formatUnranked = (a: number) => (a === 0 ? a : a.toFixed(3));
+  const formatUnranked = (a: number) => (a === 0 ? a : a.toFixed(2));
 
   let idx = 0;
 
@@ -38,8 +39,6 @@ export default ({ formatted = false, title, value }: MetricProps) => {
     setOpen(true);
   };
 
-  // TODO: format title
-
   return (
     <Box>
       <Styled.Metric>
@@ -51,10 +50,10 @@ export default ({ formatted = false, title, value }: MetricProps) => {
             open={open}
             onClose={onClose}
             onClick={onOpen}
-            title={`$${value}`}
+            title={formatPrice(value)}
           >
             <Styled.FundMetricValue>
-              {formatted ? `$${formatDeposited(value)}` : value}
+              {formatted ? `$${formatDeposited(value)}` : formatPrice(value)}
             </Styled.FundMetricValue>
           </Tooltip>
         </ClickAwayListener>
