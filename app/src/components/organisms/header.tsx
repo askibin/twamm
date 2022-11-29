@@ -37,7 +37,7 @@ export default () => {
         <SettingsModal id="settings-modal-title" />
       </UniversalPopover>
 
-      <AppBar aria-labelledby="header" position="static">
+      <AppBar aria-labelledby="header" position="sticky">
         <Styled.Header variant={isDesktop ? "dense" : undefined}>
           <Styled.Logo direction="row" pr={2}>
             <Styled.Image src="/images/solana-logo.png">Solana</Styled.Image>

@@ -20,6 +20,12 @@ export class Pool {
     return p;
   };
 
+  getPools = async (addresses: PublicKey[]) => {
+    const all = await this.program.account.pool.fetchMultiple(addresses);
+
+    return all;
+  };
+
   getKeyByCustodies = async (
     aCustody: PublicKey,
     bCustody: PublicKey,

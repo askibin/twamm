@@ -15,7 +15,7 @@ const fetcher = (provider: Provider, program: Program) => {
   const order = new Order(program, provider);
 
   return async ({ params: { account } }: ReturnType<typeof swrKey>) => {
-    const orders = (await order.getOrders(account)) as OrderData[];
+    const orders = (await order.getOrdersByAccount(account)) as OrderData[];
 
     return orders;
   };

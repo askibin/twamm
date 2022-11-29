@@ -1,3 +1,4 @@
+import Box from "@mui/material/Box";
 import Maybe from "easy-maybe/lib";
 import Skeleton from "@mui/material/Skeleton";
 
@@ -41,9 +42,11 @@ export default ({ data, displayDirection, side }: Props) => {
         <TokenImage data={displayTokens[0]} />
         <TokenImage data={displayTokens[1]} />
       </Styled.TokenAvatarGroup>
-      <TokenSymbol data={displayTokens[0]} />
-      {direction}
-      <TokenSymbol data={displayTokens[1]} />
+      <Box>
+        <TokenSymbol data={displayTokens[0]} />
+        {direction}
+        <TokenSymbol data={displayTokens[1]} />
+      </Box>
     </Styled.Root>
   );
 };

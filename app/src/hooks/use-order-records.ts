@@ -1,8 +1,8 @@
-import type { Provider, Program } from "@project-serum/anchor";
+import type { Program } from "@project-serum/anchor";
 import type { PublicKey } from "@solana/web3.js";
-import Maybe from "easy-maybe/lib";
+import Maybe, { Extra } from "easy-maybe/lib";
 import useSWR from "swr";
-import { Order, Pool, TokenPair } from "@twamm/client.js";
+import { TokenPair } from "@twamm/client.js";
 import { useWallet } from "@solana/wallet-adapter-react";
 
 import useOrders from "./use-orders";
@@ -15,6 +15,7 @@ const { andMap, of, withDefault } = Maybe;
 const swrKey = (params: {
   account: PublicKey | null;
   orders: OrderData[];
+  pools: PoolData[];
 }) => ({
   key: "orderRecords",
   params,
@@ -22,82 +23,29 @@ const swrKey = (params: {
 
 const generateId = (arr: Array<string>) => arr[0];
 
-const fetcher1 = (provider: Provider, program: Program) => {
-  const order = new Order(program, provider);
-  const pool = new Pool(program);
+const fetcher = (program: Program) => {
   const pair = new TokenPair(program);
 
-  return async ({ params: { account } }: ReturnType<typeof swrKey>) => {
-    const orders: unknown = await order.getOrders(account);
-
+  return async ({ params: { orders, pools } }: ReturnType<typeof swrKey>) => {
     const list = orders as OrderData[];
 
-    const pools = (await Promise.all(
-      list.map((o) => pool.getPool(o.pool))
-    )) as PoolData[];
+    const poolAddresses = pools.map((p) => p.tokenPair);
 
-    const orderAddresses = await Promise.all(
-      list.map((o) => order.getAddressByPool(o.pool))
-    );
-
-    const tokenPairs = (await Promise.all(
-      pools.map((p) => pair.getPair(p.tokenPair))
+    const tokenPairs = (await pair.getPairs(
+      poolAddresses
     )) as TokenPairProgramData[];
 
+    // TODO: improve type resolving
     const records = list.map((orderData, i) => {
       const o = orderData as OrderPoolRecord;
+      const record = { ...orderData } as OrderPoolRecord;
 
-      o.id = generateId([String(o.pool)]);
-      o.poolData = pools[i];
-      o.order = orderAddresses[i];
-      o.tokenPairData = tokenPairs[i];
+      record.id = generateId([String(o.pool)]);
+      record.poolData = pools[i];
+      record.order = o.pubkey;
+      record.tokenPairData = tokenPairs[i];
 
-      return o;
-    });
-
-    return records;
-  };
-};
-
-const fetcher = (provider: Provider, program: Program) => {
-  const order = new Order(program, provider);
-  const pool = new Pool(program);
-  const pair = new TokenPair(program);
-
-  return async ({ params: { account, orders } }: ReturnType<typeof swrKey>) => {
-    console.log("ord", orders);
-
-    //const orders: unknown = await order.getOrders(account);
-
-    const list = orders as OrderData[];
-
-    /*
-     *    const pools = (await Promise.all(
-     *      list.map((o) => pool.getPool(o.pool))
-     *    )) as PoolData[];
-     *
-     *    const orderAddresses = await Promise.all(
-     *      list.map((o) => order.getAddressByPool(o.pool))
-     *    );
-     *
-     *    const tokenPairs = (await Promise.all(
-     *      pools.map((p) => pair.getPair(p.tokenPair))
-     *    )) as TokenPairProgramData[];
-     */
-
-    const records = list.map((orderData, i) => {
-      const o = orderData as OrderPoolRecord;
-
-      o.id = Math.random();
-
-      //o.id = generateId([String(o.pool)]);
-      /*
-       *o.poolData = pools[i];
-       *o.order = orderAddresses[i];
-       *o.tokenPairData = tokenPairs[i];
-       */
-
-      return o;
+      return record;
     });
 
     return records;
@@ -106,7 +54,7 @@ const fetcher = (provider: Provider, program: Program) => {
 
 export default (_: void, options = {}) => {
   const { publicKey: account } = useWallet();
-  const { program, provider } = useProgram();
+  const { program } = useProgram();
 
   const orders = useOrders(undefined, {
     ...dedupeEach(60e3),
@@ -120,14 +68,15 @@ export default (_: void, options = {}) => {
 
   const pools = usePools(ordersAddresses);
 
-  console.log({ pools });
-
   return useSWR(
     withDefault(
       undefined,
-      andMap((o) => swrKey({ account, orders: o }), of(orders.data))
+      andMap(
+        ([a, o, p]) => swrKey({ account: a, orders: o, pools: p }),
+        Extra.combine3([of(account), of(orders.data), of(pools.data)])
+      )
     ),
-    fetcher(provider, program),
+    fetcher(program),
     options
   );
 };

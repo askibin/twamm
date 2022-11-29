@@ -1,9 +1,3 @@
-import type {
-  GridColDef,
-  GridRowParams,
-  GridSelectionModel,
-  GridSortModel,
-} from "@mui/x-data-grid-pro";
 import Box from "@mui/material/Box";
 import Maybe from "easy-maybe/lib";
 import Stack from "@mui/material/Stack";
@@ -11,9 +5,14 @@ import { useCallback, useMemo, useRef, useState } from "react";
 
 import CancelOrder from "../molecules/cancel-order-modal";
 import OrderDetailsModal from "./account-order-details-modal";
-import RowColumnList from "./row-column-list";
-import Table from "../atoms/table";
+import RowColumnList, {
+  ColDef,
+  RowParams,
+  SelectionModel,
+  SortModel,
+} from "./row-column-list";
 import UniversalPopover, { Ref } from "../molecules/universal-popover";
+import useBreakpoints from "../../hooks/use-breakpoints";
 import useCancelOrder from "../../hooks/use-cancel-order";
 import {
   columns,
@@ -21,6 +20,8 @@ import {
   populateRow,
 } from "./account-orders-list.helpers";
 import * as Styled from "./account-orders-list.styled";
+
+const { andMap, of, withDefault } = Maybe;
 
 export interface Props {
   data: Voidable<OrderPoolRecord[]>;
@@ -33,11 +34,11 @@ type RowData = ReturnType<typeof populateRow>;
 
 type DetailsData = ReturnType<typeof populateDetails>;
 
-const initialSortModel: GridSortModel = [{ field: "orderTime", sort: "asc" }];
+const initialSortModel: SortModel = [{ field: "orderTime", sort: "asc" }];
 
 export default (props: Props) => {
-  const d = useMemo(() => Maybe.of(props.data), [props.data]);
-  const err = useMemo(() => Maybe.of(props.error), [props.error]);
+  const d = Maybe.of(props.data);
+  const err = Maybe.of(props.error);
 
   const data = Maybe.withDefault([], d);
   const error = Maybe.withDefault(undefined, err);
@@ -46,15 +47,16 @@ export default (props: Props) => {
   const detailsRef = useRef<Ref>();
   const [accounts, setAccounts] = useState<CancelOrderData | undefined>();
   const [details, setDetails] = useState<DetailsData>();
-  const [selectionModel, setSelectionModel] = useState<GridSelectionModel>([]);
+  const [selectionModel, setSelectionModel] = useState<SelectionModel>([]);
 
   const { execute, executeMany } = useCancelOrder();
+  const { isMobile } = useBreakpoints();
 
-  const cols = useMemo<GridColDef[]>(columns, []);
+  const cols = useMemo<ColDef[]>(() => columns({ isMobile }), [isMobile]);
 
   const rows: RowData[] = useMemo(() => data.map(populateRow), [data]);
 
-  const [sortModel, setSortModel] = useState<GridSortModel>(initialSortModel);
+  const [sortModel, setSortModel] = useState<SortModel>(initialSortModel);
 
   const onCancelOrder = useCallback(
     async (cd: CancelOrderData) => {
@@ -74,7 +76,7 @@ export default (props: Props) => {
   );
 
   const onRowClick = useCallback(
-    (params: GridRowParams<RowData>) => {
+    (params: RowParams<RowData>) => {
       setDetails(populateDetails(params));
       detailsRef.current?.open();
     },
@@ -98,7 +100,7 @@ export default (props: Props) => {
   );
 
   const onSelectionModelChange = useCallback(
-    (nextSelectionModel: GridSelectionModel) => {
+    (nextSelectionModel: SelectionModel) => {
       setSelectionModel(nextSelectionModel);
     },
     [setSelectionModel]
@@ -157,44 +159,34 @@ export default (props: Props) => {
         </Stack>
       </Box>
       <Box>
-        <RowColumnList columns={cols} rows={rows} updating={props.updating} />
+        <RowColumnList
+          checkboxSelection={false}
+          columns={cols}
+          error={error}
+          loading={false}
+          onRowClick={onRowClick}
+          onSelectionModelChange={onSelectionModelChange}
+          rows={rows}
+          sortModel={sortModel}
+          selectionModel={selectionModel}
+          onSortModelChange={(newSortModel: SortModel) =>
+            setSortModel(() => {
+              if (!newSortModel.length) return initialSortModel;
+
+              const [defaultField] = initialSortModel;
+              const map = new Map([]);
+              newSortModel.forEach((model) => {
+                map.set(model.field, model);
+              });
+              if (!map.get(defaultField.field))
+                map.set(defaultField.field, defaultField);
+
+              return [...map.values()] as SortModel;
+            })
+          }
+          updating={props.updating}
+        />
       </Box>
-      {/*
-       *      <Box minWidth="680px">
-       *        <Table
-       *          gridProps={{
-       *            autoHeight: true,
-       *            checkboxSelection: true,
-       *            columns: cols,
-       *            error,
-       *            loading: props.loading,
-       *            onSelectionModelChange,
-       *            rows,
-       *            selectionModel,
-       *          }}
-       *          filterColumnField="pool"
-       *          isUpdating={props.updating}
-       *          onRowClick={onRowClick}
-       *          searchBoxPlaceholderText="Search orders"
-       *          sortModel={sortModel}
-       *          onSortModelChange={(newSortModel: GridSortModel) =>
-       *            setSortModel(() => {
-       *              if (!newSortModel.length) return initialSortModel;
-       *
-       *              const [defaultField] = initialSortModel;
-       *              const map = new Map([]);
-       *              newSortModel.forEach((model) => {
-       *                map.set(model.field, model);
-       *              });
-       *              if (!map.get(defaultField.field))
-       *                map.set(defaultField.field, defaultField);
-       *
-       *              return [...map.values()] as GridSortModel;
-       *            })
-       *          }
-       *        />
-       *      </Box>
-       */}
     </>
   );
 };

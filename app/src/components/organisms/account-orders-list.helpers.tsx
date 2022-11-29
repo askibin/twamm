@@ -1,16 +1,17 @@
 import type { PublicKey } from "@solana/web3.js";
 import type {
-  GridColDef,
-  GridRowParams,
-  GridComparatorFn,
-} from "@mui/x-data-grid-pro";
+  ComparatorFn,
+  RowParams,
+  ValueGetterParams,
+} from "./row-column-list";
 import PoolOrderTimeCell from "../atoms/account-order-pool-order-time-cell";
 import PoolTIFCell from "../atoms/account-order-pool-tif-cell";
 import PoolTIFLeftCell from "../atoms/account-order-pool-tif-left-cell";
 import TokenPairCell from "../atoms/account-order-token-pair-cell";
 import { filledQuantity, quantity } from "../../domain/order-details";
+import { formatPrice } from "../../domain/index";
 
-const sortByTokenPair: GridComparatorFn<PublicKey> = (a, b) => {
+const sortByTokenPair: ComparatorFn<PublicKey> = (a, b) => {
   const aKey = String(a);
   const bKey = String(b);
 
@@ -52,7 +53,7 @@ export const populateRow = (data: OrderPoolRecord) => {
 };
 
 export const populateDetails = (
-  data: GridRowParams<ReturnType<typeof populateRow>>
+  data: RowParams<ReturnType<typeof populateRow>>
 ) => ({
   order: data.row.orderData,
   poolAddress: data.row.pool,
@@ -60,7 +61,7 @@ export const populateDetails = (
   supply: data.row.supply,
 });
 
-export const columns = (): GridColDef[] => [
+export const columns = ({ isMobile }: { isMobile?: boolean }) => [
   {
     field: "tokenPair",
     headerName: "Token Pair",
@@ -68,7 +69,8 @@ export const columns = (): GridColDef[] => [
     renderCell: TokenPairCell,
     sortable: false,
     sortComparator: sortByTokenPair,
-    width: 200,
+    xs: isMobile ? 6 : 3,
+    md: isMobile ? 6 : 2,
   },
   {
     field: "tif",
@@ -76,19 +78,28 @@ export const columns = (): GridColDef[] => [
     hideable: true,
     renderCell: PoolTIFCell,
     resizable: false,
-    width: 130,
+    sortable: true,
+    xs: 1,
+    md: 1,
   },
   {
     field: "quantity",
-    flex: 200,
     headerName: "Quantity",
     hideable: false,
+    sortable: true,
+    xs: isMobile ? 3 : 2,
+    md: isMobile ? 3 : 2,
+    valueGetter: ({ row }: ValueGetterParams) => formatPrice(row.quantity),
   },
   {
     field: "filledQuantity",
-    flex: 150,
     headerName: "Filled Quantity",
-    hideable: true,
+    hideable: false,
+    sortable: true,
+    xs: isMobile ? 3 : 2,
+    md: isMobile ? 3 : 2,
+    valueGetter: ({ row }: ValueGetterParams) =>
+      formatPrice(row.filledQuantity),
   },
   {
     field: "orderTime",
@@ -96,15 +107,18 @@ export const columns = (): GridColDef[] => [
     hideable: true,
     renderCell: PoolOrderTimeCell,
     resizable: false,
-    width: 180,
+    sortable: true,
+    xs: 2,
+    md: 3,
   },
   {
     field: "timeLeft",
-    headerName: "Time Left",
+    headerName: "Liveness",
     hideable: true,
     renderCell: PoolTIFLeftCell,
     resizable: false,
     sortable: false,
-    width: 90,
+    xs: 1,
+    md: 1,
   },
 ];

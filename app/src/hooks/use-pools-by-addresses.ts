@@ -14,9 +14,7 @@ const fetcher = (provider: Provider, program: Program) => {
   const pool = new Pool(program);
 
   return async ({ params: { addresses } }: ReturnType<typeof swrKey>) => {
-    const pools = (await Promise.all(
-      addresses.map((a) => pool.getPool(a))
-    )) as PoolData[];
+    const pools = (await pool.getPools(addresses)) as PoolData[];
 
     return pools;
   };
