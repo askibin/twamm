@@ -159,11 +159,11 @@ export default () => {
         tokenProgram: TOKEN_PROGRAM_ID,
       })
       .preInstructions(pre);
-    //.rpc()
-    //.catch((e: Error) => {
-    //console.error(e); // eslint-disable-line no-console
-    //throw e;
-    //});
+    // .rpc()
+    // .catch((e: Error) => {
+    // console.error(e); // eslint-disable-line no-console
+    // throw e;
+    // });
 
     console.log("res", result);
 
@@ -172,6 +172,7 @@ export default () => {
 
   return {
     async execute(params: Parameters<typeof run>[0]) {
+      // @ts-ignore
       const result = await commit(run(params));
 
       return result;
