@@ -167,13 +167,14 @@ export default () => {
 
     console.log("res", result);
 
-    return result;
+    return Promise.resolve("test");
   };
 
   return {
     async execute(params: Parameters<typeof run>[0]) {
       // @ts-ignore
-      const result = await commit(run(params));
+      const a = run(params) as Promise<string>;
+      const result = await commit(a);
 
       return result;
     },
