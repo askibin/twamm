@@ -52,10 +52,7 @@ describe("single_user", () => {
 
     // cancel
     await twamm.cancelOrder(0, tif, amount);
-    try {
-      await twamm.getOrder(0, tif);
-      assert(false);
-    } catch (err) {}
+    await twamm.ensureFails(twamm.getOrder(0, tif));
 
     // check fees
     let tokenPair = await twamm.program.account.tokenPair.fetch(
@@ -103,7 +100,7 @@ describe("single_user", () => {
     );
     let fees_collected = Number(tokenPair.statsA.feesCollected);
     let source_amount_received = twamm.getTokenAAmount(amount / 2);
-    expect(fees_collected).to.equal(Math.floor(source_amount_received / 10));
+    expect(fees_collected).to.equal(Math.ceil(source_amount_received / 10));
     expect(Number(tokenPair.statsB.feesCollected)).to.equal(0);
 
     await twamm.cancelOrder(1, tif, amount, true);
@@ -141,7 +138,7 @@ describe("single_user", () => {
     );
     let fees_collected = Number(tokenPair.statsA.feesCollected);
     let source_amount_received = twamm.getTokenAAmount(amount / 2);
-    expect(fees_collected).to.equal(Math.floor(source_amount_received / 10));
+    expect(fees_collected).to.equal(Math.ceil(source_amount_received / 10));
     expect(Number(tokenPair.statsB.feesCollected)).to.equal(0);
 
     const [ta_balance3, tb_balance3] = await twamm.getBalances(0);
@@ -197,10 +194,7 @@ describe("single_user", () => {
 
     // cancel
     await twamm.cancelOrder(0, tif, amount);
-    try {
-      await twamm.getOrder(0, tif);
-      assert(false);
-    } catch (err) {}
+    await twamm.ensureFails(twamm.getOrder(0, tif));
 
     // check fees
     let tokenPair = await twamm.program.account.tokenPair.fetch(

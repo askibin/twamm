@@ -396,6 +396,22 @@ export class TwammTester {
     ];
   };
 
+  ensureFails = async (promise, message = null) => {
+    let printErrors = this.printErrors;
+    this.printErrors = false;
+    let res = null;
+    try {
+      await promise;
+    } catch (err) {
+      res = err;
+    }
+    this.printErrors = printErrors;
+    if (!res) {
+      throw new Error(message ? message : "Call should've failed");
+    }
+    return res;
+  };
+
   reset = async (tifs: number[], fees: number[]) => {
     await this.deleteTestPair(0);
     await this.program.methods

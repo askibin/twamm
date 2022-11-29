@@ -50,25 +50,25 @@ describe("fail_tests", () => {
 
     let [ta_balance, tb_balance] = await twamm.getBalances(0);
     await twamm.placeOrder(0, "buy", tif, amount);
-    try {
-      await twamm.placeOrder(0, "sell", tif, amount);
-      assert(false, "placeOrder order with reverse side should've failed");
-    } catch (err) {
-      expect(err.error.errorCode.code).to.equal("OrderSideMismatch");
-    }
 
-    try {
-      await twamm.settle("sell", 0);
-      assert(false, "settle with 0 amount should've failed");
-    } catch (err) {
-      expect(err.error.errorCode.code).to.equal("InvalidTokenAmount");
-    }
-    try {
-      await twamm.settle("buy", 10000);
-      assert(false, "settle with the same side should've failed");
-    } catch (err) {
-      expect(err.error.errorCode.code).to.equal("InvalidSettlementSide");
-    }
+    let err = await twamm.ensureFails(
+      twamm.placeOrder(0, "sell", tif, amount),
+      "placeOrder order with reverse side should've failed"
+    );
+    expect(err.error.errorCode.code).to.equal("OrderSideMismatch");
+
+    err = await twamm.ensureFails(
+      twamm.settle("sell", 0),
+      "settle with 0 amount should've failed"
+    );
+    expect(err.error.errorCode.code).to.equal("InvalidTokenAmount");
+
+    err = await twamm.ensureFails(
+      twamm.settle("buy", 10000),
+      "settle with the same side should've failed"
+    );
+    expect(err.error.errorCode.code).to.equal("InvalidSettlementSide");
+
     await twamm.cancelOrder(0, tif, 1e15);
 
     let [ta_balance2, tb_balance2] = await twamm.getBalances(0);

@@ -534,11 +534,7 @@ describe("multi_user", () => {
       await twamm.cancelOrder(i, tif, 1e15);
       [ta_balances2[i], tb_balances2[i]] = await twamm.getBalances(i);
     }
-
-    try {
-      await twamm.getPool(tif, 0);
-      assert(false);
-    } catch (err) {}
+    await twamm.ensureFails(twamm.getPool(tif, 0));
 
     // check received amount
     expect(ta_balances2[0] - ta_balances[0]).to.equal(-2000000000);

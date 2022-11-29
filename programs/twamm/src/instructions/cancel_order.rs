@@ -141,7 +141,7 @@ pub fn cancel_order(ctx: Context<CancelOrder>, params: &CancelOrderParams) -> Re
         withdraw_amount_target = 0;
     }
 
-    let withdraw_amount_fees = math::checked_as_u64(math::checked_div(
+    let withdraw_amount_fees = math::checked_as_u64(math::checked_ceil_div(
         math::checked_mul(
             withdraw_amount_target as u128,
             token_pair.fee_numerator as u128,
