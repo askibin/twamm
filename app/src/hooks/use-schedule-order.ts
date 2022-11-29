@@ -158,12 +158,14 @@ export default () => {
         systemProgram: SystemProgram.programId,
         tokenProgram: TOKEN_PROGRAM_ID,
       })
-      .preInstructions(pre)
-      .rpc()
-      .catch((e: Error) => {
-        console.error(e); // eslint-disable-line no-console
-        throw e;
-      });
+      .preInstructions(pre);
+    //.rpc()
+    //.catch((e: Error) => {
+    //console.error(e); // eslint-disable-line no-console
+    //throw e;
+    //});
+
+    console.log("res", result);
 
     return result;
   };
