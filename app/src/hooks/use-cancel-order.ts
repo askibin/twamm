@@ -86,6 +86,7 @@ export default () => {
         lpAmount: new BN(lpAmount),
       })
       .accounts({
+        payer: provider.wallet.publicKey,
         owner: provider.wallet.publicKey,
         userAccountTokenA: aWallet,
         userAccountTokenB: bWallet,
