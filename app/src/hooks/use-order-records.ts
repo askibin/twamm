@@ -31,9 +31,13 @@ const fetcher = (program: Program) => {
 
     const poolAddresses = pools.map((p) => p.tokenPair);
 
+    console.log(-3);
+
     const tokenPairs = (await pair.getPairs(
       poolAddresses
     )) as TokenPairProgramData[];
+
+    console.log(4, tokenPairs);
 
     // TODO: improve type resolving
     const records = list.map((orderData, i) => {
@@ -68,11 +72,14 @@ export default (_: void, options = {}) => {
 
   const pools = usePools(ordersAddresses);
 
+  console.log("666");
+
   return useSWR(
     withDefault(
       undefined,
       andMap(
-        ([a, o, p]) => swrKey({ account: a, orders: o, pools: p }),
+        ([a, o, p]) =>
+          console.log(777) || swrKey({ account: a, orders: o, pools: p }),
         Extra.combine3([of(account), of(orders.data), of(pools.data)])
       )
     ),

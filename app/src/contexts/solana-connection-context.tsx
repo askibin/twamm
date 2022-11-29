@@ -4,7 +4,7 @@ import { clusterApiUrl, Connection } from "@solana/web3.js";
 import { createContext, useCallback, useMemo, useState } from "react";
 
 import endpointStorage from "../utils/cluster-endpoint-storage";
-import { ClusterApiUrl } from "../env";
+import { AnkrClusterApiUrl, ClusterApiUrl } from "../env";
 
 const clusterStorage = endpointStorage();
 
@@ -19,10 +19,15 @@ export type CustomClusterInfo = {
 export type ClusterInfo = {
   name: string;
   endpoint: string;
-  moniker?: Cluster | "custom";
+  moniker?: Cluster | "custom" | "ankr-solana";
 };
 
 export const endpoints: Record<string, ClusterInfo> = {
+  ankr: {
+    name: "Ankr",
+    endpoint: AnkrClusterApiUrl,
+    moniker: "ankr-solana",
+  },
   solana: {
     name: "Solana",
     endpoint: ClusterApiUrl || clusterApiUrl("mainnet-beta"),
@@ -52,7 +57,9 @@ export const BlockchainConnectionProvider: FC<{ children: ReactNode }> = ({
 }) => {
   const [commitments] = useState<Commitment[]>(["confirmed"]);
 
-  const [clusters] = useState([endpoints.solana, endpoints.custom]);
+  const [clusters] = useState(
+    [endpoints.solana].concat([endpoints.ankr, endpoints.custom])
+  );
 
   const initialCommitment = commitments[0];
 
@@ -66,6 +73,7 @@ export const BlockchainConnectionProvider: FC<{ children: ReactNode }> = ({
 
   const [commitment] = useState(initialCommitment);
   const [cluster, setCluster] = useState(initialCluster);
+  const [connection, setConnection] = useState<Connection | undefined>();
 
   const changeCluster = useCallback(
     (info: ClusterInfo) => {
@@ -81,9 +89,19 @@ export const BlockchainConnectionProvider: FC<{ children: ReactNode }> = ({
   );
 
   const createConnection = useCallback(
-    (commit: Cmtmnt = initialCommitment) =>
-      new Connection(cluster.endpoint, commit),
-    [cluster, initialCommitment]
+    (commit: Cmtmnt = initialCommitment) => {
+      const prevEndpoint = connection?.rpcEndpoint;
+
+      if (!prevEndpoint || prevEndpoint !== cluster.endpoint) {
+        const conn = new Connection(cluster.endpoint, commit);
+        setConnection(conn);
+
+        return conn;
+      }
+
+      return connection;
+    },
+    [connection, cluster, initialCommitment]
   );
 
   const contextValue = useMemo(

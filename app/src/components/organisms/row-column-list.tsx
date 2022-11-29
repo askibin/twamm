@@ -5,6 +5,7 @@ import type {
   GridSortItem,
   GridValidRowModel,
 } from "@mui/x-data-grid-pro";
+import Alert from "@mui/material/Alert";
 import Box from "@mui/material/Box";
 import List from "@mui/material/List";
 import { useCallback, useMemo } from "react";
@@ -62,11 +63,11 @@ export interface Props {
   filterColumnField?: string; // eslint-disable-line react/no-unused-prop-types
   loading: boolean;
   onRowClick: (arg0: RowParams) => void;
-  onSelectionModelChange?: (arg0: SelectionModel) => void;
+  onSelectionModelChange?: (arg0: SelectionModel) => void; // eslint-disable-line react/no-unused-prop-types,max-len
   onSortModelChange: (arg0: SortModel) => void;
   rows: RowModel[];
-  selectionModel?: SelectionModel;
-  sortModel: SortModel;
+  selectionModel?: SelectionModel; // eslint-disable-line react/no-unused-prop-types
+  sortModel: SortModel; // eslint-disable-line react/no-unused-prop-types
   updating: boolean;
 }
 
@@ -77,8 +78,6 @@ const Header = (props: {
 }) => {
   const onSortModelChange = (sortModelItem: SortItem) =>
     props.onSortModelChange(!sortModelItem.sort ? [] : [sortModelItem]);
-
-  console.log(props.error);
 
   return (
     <List>
@@ -184,10 +183,6 @@ const Rows = (props: {
 export default (props: Props) => {
   const { isMobile } = useBreakpoints();
 
-  if (props.updating) {
-    console.log(props);
-  }
-
   const onSortModelChange = useCallback(
     (sortModel: SortModel) => {
       props.onSortModelChange(sortModel);
@@ -200,6 +195,19 @@ export default (props: Props) => {
     [isMobile, props.columns]
   );
 
+  const statuses = useMemo(() => {
+    if (props.loading) return <Loading />;
+
+    if (props.error)
+      return <Alert severity="error">{props.error.message}</Alert>;
+
+    return undefined;
+  }, [props.error, props.loading]);
+
+  if (props.loading) console.info(2, props.rows, props.updating, props.loading);
+  if (props.updating)
+    console.info(2.1, props.rows, props.updating, props.loading);
+
   return (
     <Box>
       {isMobile ? null : (
@@ -209,8 +217,8 @@ export default (props: Props) => {
           sortModel={props.sortModel}
         />
       )}
-      {props.loading ? (
-        <Loading />
+      {statuses ? (
+        <Box>{statuses}</Box>
       ) : (
         <Rows
           columns={columns}

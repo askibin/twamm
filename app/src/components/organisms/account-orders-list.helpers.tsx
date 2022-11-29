@@ -63,6 +63,13 @@ export const populateDetails = (
 
 export const columns = ({ isMobile }: { isMobile?: boolean }) => [
   {
+    field: "pre",
+    hidable: false,
+    sortable: false,
+    xs: 1,
+    md: 2,
+  },
+  {
     field: "tokenPair",
     headerName: "Token Pair",
     hideable: false,
@@ -88,7 +95,7 @@ export const columns = ({ isMobile }: { isMobile?: boolean }) => [
     hideable: false,
     sortable: true,
     xs: isMobile ? 3 : 2,
-    md: isMobile ? 3 : 2,
+    md: isMobile ? 3 : 1.5,
     valueGetter: ({ row }: ValueGetterParams) => formatPrice(row.quantity),
   },
   {
@@ -97,7 +104,7 @@ export const columns = ({ isMobile }: { isMobile?: boolean }) => [
     hideable: false,
     sortable: true,
     xs: isMobile ? 3 : 2,
-    md: isMobile ? 3 : 2,
+    md: isMobile ? 3 : 1.5,
     valueGetter: ({ row }: ValueGetterParams) =>
       formatPrice(row.filledQuantity),
   },

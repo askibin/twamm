@@ -21,8 +21,6 @@ import {
 } from "./account-orders-list.helpers";
 import * as Styled from "./account-orders-list.styled";
 
-const { andMap, of, withDefault } = Maybe;
-
 export interface Props {
   data: Voidable<OrderPoolRecord[]>;
   error: Voidable<Error>;
@@ -37,11 +35,7 @@ type DetailsData = ReturnType<typeof populateDetails>;
 const initialSortModel: SortModel = [{ field: "orderTime", sort: "asc" }];
 
 export default (props: Props) => {
-  const d = Maybe.of(props.data);
-  const err = Maybe.of(props.error);
-
-  const data = Maybe.withDefault([], d);
-  const error = Maybe.withDefault(undefined, err);
+  const data = Maybe.withDefault([], Maybe.of(props.data));
 
   const cancelRef = useRef<Ref>();
   const detailsRef = useRef<Ref>();
@@ -53,8 +47,7 @@ export default (props: Props) => {
   const { isMobile } = useBreakpoints();
 
   const cols = useMemo<ColDef[]>(() => columns({ isMobile }), [isMobile]);
-
-  const rows: RowData[] = useMemo(() => data.map(populateRow), [data]);
+  const rows = useMemo<RowData[]>(() => data.map(populateRow), [data]);
 
   const [sortModel, setSortModel] = useState<SortModel>(initialSortModel);
 
@@ -162,13 +155,10 @@ export default (props: Props) => {
         <RowColumnList
           checkboxSelection={false}
           columns={cols}
-          error={error}
-          loading={false}
+          error={props.error}
+          loading={props.loading}
           onRowClick={onRowClick}
           onSelectionModelChange={onSelectionModelChange}
-          rows={rows}
-          sortModel={sortModel}
-          selectionModel={selectionModel}
           onSortModelChange={(newSortModel: SortModel) =>
             setSortModel(() => {
               if (!newSortModel.length) return initialSortModel;
@@ -184,6 +174,9 @@ export default (props: Props) => {
               return [...map.values()] as SortModel;
             })
           }
+          rows={rows}
+          selectionModel={selectionModel}
+          sortModel={sortModel}
           updating={props.updating}
         />
       </Box>
