@@ -100,7 +100,7 @@ export const columns = ({ isMobile }: { isMobile?: boolean }) => [
   },
   {
     field: "filledQuantity",
-    headerName: "Filled Quantity",
+    headerName: "Filled Qty",
     hideable: false,
     sortable: true,
     xs: isMobile ? 3 : 2,
@@ -120,7 +120,7 @@ export const columns = ({ isMobile }: { isMobile?: boolean }) => [
   },
   {
     field: "timeLeft",
-    headerName: "Liveness",
+    headerName: "Expiration",
     hideable: true,
     renderCell: PoolTIFLeftCell,
     resizable: false,
