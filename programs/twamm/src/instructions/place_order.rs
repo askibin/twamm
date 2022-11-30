@@ -58,7 +58,9 @@ pub struct PlaceOrder<'info> {
         init_if_needed,
         payer = owner,
         space = Order::LEN,
-        seeds = [b"order", owner.key().as_ref(), target_pool.key().as_ref()],
+        seeds = [b"order",
+                 owner.key().as_ref(),
+                 target_pool.key().as_ref()],
         bump
     )]
     pub order: Box<Account<'info, Order>>,

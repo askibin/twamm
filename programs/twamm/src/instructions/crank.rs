@@ -26,7 +26,7 @@ pub struct Crank<'info> {
 
     // crank rewards receiver
     #[account(
-        mut, 
+        mut,
         constraint = user_account_token_a.mint == custody_token_a.mint,
         has_one = owner
     )]
@@ -34,14 +34,14 @@ pub struct Crank<'info> {
 
     // crank rewards receiver
     #[account(
-        mut, 
+        mut,
         constraint = user_account_token_b.mint == custody_token_b.mint,
         has_one = owner
     )]
     pub user_account_token_b: Box<Account<'info, TokenAccount>>,
 
     #[account(
-        mut, 
+        mut,
         seeds = [b"token_pair",
                  token_pair.config_a.mint.as_ref(),
                  token_pair.config_b.mint.as_ref()],

@@ -15,7 +15,8 @@ pub struct SetCrankAuthority<'info> {
 
     #[account(
         mut,
-        seeds = [b"multisig"], bump = multisig.load()?.bump
+        seeds = [b"multisig"],
+        bump = multisig.load()?.bump
     )]
     pub multisig: AccountLoader<'info, Multisig>,
 
