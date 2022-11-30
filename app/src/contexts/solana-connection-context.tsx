@@ -1,7 +1,7 @@
 import type { Cluster, Commitment as Cmtmnt } from "@solana/web3.js";
 import type { FC, ReactNode } from "react";
 import { clusterApiUrl, Connection } from "@solana/web3.js";
-import { createContext, useCallback, useMemo, useState } from "react";
+import { createContext, useCallback, useMemo, useRef, useState } from "react";
 
 import endpointStorage from "../utils/cluster-endpoint-storage";
 import { AnkrClusterApiUrl, ClusterApiUrl } from "../env";
@@ -73,7 +73,10 @@ export const BlockchainConnectionProvider: FC<{ children: ReactNode }> = ({
 
   const [commitment] = useState(initialCommitment);
   const [cluster, setCluster] = useState(initialCluster);
-  const [connection, setConnection] = useState<Connection | undefined>();
+
+  const connectionRef = useRef<Connection>(
+    new Connection(initialCluster.endpoint, commitment)
+  );
 
   const changeCluster = useCallback(
     (info: ClusterInfo) => {
@@ -90,18 +93,19 @@ export const BlockchainConnectionProvider: FC<{ children: ReactNode }> = ({
 
   const createConnection = useCallback(
     (commit: Cmtmnt = initialCommitment) => {
-      const prevEndpoint = connection?.rpcEndpoint;
+      const prevEndpoint =
+        connectionRef.current && connectionRef.current.rpcEndpoint;
 
       if (!prevEndpoint || prevEndpoint !== cluster.endpoint) {
         const conn = new Connection(cluster.endpoint, commit);
-        setConnection(conn);
+        connectionRef.current = conn;
 
         return conn;
       }
 
-      return connection;
+      return connectionRef.current;
     },
-    [connection, cluster, initialCommitment]
+    [cluster, initialCommitment]
   );
 
   const contextValue = useMemo(

@@ -20,9 +20,9 @@ const fetcher = (program: Program) => {
   const pair = new TokenPair(program);
 
   return async ({ params: { tokenPair } }: ReturnType<typeof swrKey>) => {
-    const tp: unknown = (await pair.getPair(tokenPair)) as TokenPairProgramData;
+    const tp: unknown = await pair.getPair(tokenPair);
 
-    return tp;
+    return tp as TokenPairProgramData;
   };
 };
 

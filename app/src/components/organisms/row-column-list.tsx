@@ -1,7 +1,6 @@
 import type { FC, ReactNode } from "react";
 import type {
   GridCellParams,
-  GridColDef,
   GridSortItem,
   GridValidRowModel,
 } from "@mui/x-data-grid-pro";
@@ -10,6 +9,7 @@ import Box from "@mui/material/Box";
 import List from "@mui/material/List";
 import { useCallback, useMemo } from "react";
 
+import IntervalProgress from "../atoms/interval-progress";
 import Loading from "../atoms/loading";
 import SortControl from "../atoms/sort-control";
 import useBreakpoints from "../../hooks/use-breakpoints";
@@ -33,8 +33,13 @@ export interface ComparatorFn<V, R = any> {
   (v1: V, v2: V, row1: R, row2: R): number;
 }
 
-export interface ColDef<V = any>
-  extends Omit<GridColDef<RowModel>, "sortComparator"> {
+export interface ColDef<V = any, R = any> {
+  field: string;
+  hideable: boolean;
+  resizeable?: boolean;
+  renderCell?: (arg0: R) => ReactNode;
+  sortable: boolean;
+  headerName?: string;
   xs: number;
   md: number;
   sortComparator?: ComparatorFn<V, RowModel>;
@@ -69,12 +74,15 @@ export interface Props {
   selectionModel?: SelectionModel; // eslint-disable-line react/no-unused-prop-types
   sortModel: SortModel; // eslint-disable-line react/no-unused-prop-types
   updating: boolean;
+  updatingInterval: number;
 }
 
 const Header = (props: {
   columns: Props["columns"];
   onSortModelChange: Props["onSortModelChange"];
   sortModel: Props["sortModel"];
+  updating: Props["updating"];
+  updatingInterval: Props["updatingInterval"];
 }) => {
   const onSortModelChange = (sortModelItem: SortItem) =>
     props.onSortModelChange(!sortModelItem.sort ? [] : [sortModelItem]);
@@ -85,17 +93,28 @@ const Header = (props: {
         <Styled.Columns container spacing={1}>
           {props.columns.map((c) => (
             <Styled.Column item key={c.field} xs={c.xs} md={c.md}>
-              <Styled.ColumnInner>{c.headerName}</Styled.ColumnInner>
-              {!c.sortable ? null : (
-                <SortControl
-                  sort={
-                    c.field === props.sortModel[0].field
-                      ? props.sortModel[0].sort
-                      : undefined
-                  }
-                  field={c.field}
-                  onChange={onSortModelChange}
-                />
+              {c.field === "pre" ? (
+                <Styled.ColumnInner>
+                  <IntervalProgress
+                    interval={props.updatingInterval}
+                    refresh={props.updating}
+                  />
+                </Styled.ColumnInner>
+              ) : (
+                <>
+                  <Styled.ColumnInner>{c.headerName}</Styled.ColumnInner>
+                  {!c.sortable ? null : (
+                    <SortControl
+                      sort={
+                        c.field === props.sortModel[0].field
+                          ? props.sortModel[0].sort
+                          : undefined
+                      }
+                      field={c.field}
+                      onChange={onSortModelChange}
+                    />
+                  )}
+                </>
               )}
             </Styled.Column>
           ))}
@@ -204,10 +223,6 @@ export default (props: Props) => {
     return undefined;
   }, [props.error, props.loading]);
 
-  if (props.loading) console.info(2, props.rows, props.updating, props.loading);
-  if (props.updating)
-    console.info(2.1, props.rows, props.updating, props.loading);
-
   return (
     <Box>
       {isMobile ? null : (
@@ -215,6 +230,8 @@ export default (props: Props) => {
           columns={props.columns}
           onSortModelChange={onSortModelChange}
           sortModel={props.sortModel}
+          updating={props.updating}
+          updatingInterval={props.updatingInterval}
         />
       )}
       {statuses ? (

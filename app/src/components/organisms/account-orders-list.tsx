@@ -26,6 +26,7 @@ export interface Props {
   error: Voidable<Error>;
   loading: boolean;
   updating: boolean;
+  updatingInterval: number;
 }
 
 type RowData = ReturnType<typeof populateRow>;
@@ -178,6 +179,7 @@ export default (props: Props) => {
           selectionModel={selectionModel}
           sortModel={sortModel}
           updating={props.updating}
+          updatingInterval={props.updatingInterval}
         />
       </Box>
     </>
