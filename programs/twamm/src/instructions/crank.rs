@@ -26,40 +26,58 @@ pub struct Crank<'info> {
 
     // crank rewards receiver
     #[account(
-        mut, constraint = user_account_token_a.mint == custody_token_a.mint,
+        mut, 
+        constraint = user_account_token_a.mint == custody_token_a.mint,
         has_one = owner
     )]
     pub user_account_token_a: Box<Account<'info, TokenAccount>>,
 
     // crank rewards receiver
     #[account(
-        mut, constraint = user_account_token_b.mint == custody_token_b.mint,
+        mut, 
+        constraint = user_account_token_b.mint == custody_token_b.mint,
         has_one = owner
     )]
     pub user_account_token_b: Box<Account<'info, TokenAccount>>,
 
-    #[account(mut, seeds = [b"token_pair",
-                           token_pair.config_a.mint.as_ref(),
-                           token_pair.config_b.mint.as_ref()],
-              bump = token_pair.token_pair_bump)]
+    #[account(
+        mut, 
+        seeds = [b"token_pair",
+                 token_pair.config_a.mint.as_ref(),
+                 token_pair.config_b.mint.as_ref()],
+        bump = token_pair.token_pair_bump)]
     pub token_pair: Box<Account<'info, TokenPair>>,
 
     /// CHECK: empty PDA, authority for token accounts
-    #[account(mut, seeds = [b"transfer_authority"], bump = token_pair.transfer_authority_bump)]
+    #[account(
+        mut,
+        seeds = [b"transfer_authority"],
+        bump = token_pair.transfer_authority_bump
+    )]
     pub transfer_authority: AccountInfo<'info>,
 
-    #[account(mut, constraint = custody_token_a.key() == token_pair.config_a.custody)]
+    #[account(
+        mut,
+        constraint = custody_token_a.key() == token_pair.config_a.custody
+    )]
     pub custody_token_a: Box<Account<'info, TokenAccount>>,
 
-    #[account(mut, constraint = custody_token_b.key() == token_pair.config_b.custody)]
+    #[account(
+        mut,
+        constraint = custody_token_b.key() == token_pair.config_b.custody
+    )]
     pub custody_token_b: Box<Account<'info, TokenAccount>>,
 
     /// CHECK: oracle account for token a depending on oracle type
-    #[account(constraint = oracle_token_a.key() == token_pair.config_a.oracle_account)]
+    #[account(
+        constraint = oracle_token_a.key() == token_pair.config_a.oracle_account
+    )]
     pub oracle_token_a: AccountInfo<'info>,
 
     /// CHECK: oracle account for token b depending on oracle type
-    #[account(constraint = oracle_token_b.key() == token_pair.config_b.oracle_account)]
+    #[account(
+        constraint = oracle_token_b.key() == token_pair.config_b.oracle_account
+    )]
     pub oracle_token_b: AccountInfo<'info>,
 
     token_program: Program<'info, Token>,

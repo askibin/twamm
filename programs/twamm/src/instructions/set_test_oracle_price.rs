@@ -16,17 +16,26 @@ pub struct SetTestOraclePrice<'info> {
     #[account(mut)]
     pub admin: Signer<'info>,
 
-    #[account(mut, seeds = [b"multisig"], bump = multisig.load()?.bump)]
+    #[account(
+        mut,
+        seeds = [b"multisig"],
+        bump = multisig.load()?.bump
+    )]
     pub multisig: AccountLoader<'info, Multisig>,
 
-    #[account(mut, seeds = [b"token_pair",
-                            token_pair.config_a.mint.as_ref(),
-                            token_pair.config_b.mint.as_ref()],
-              bump = token_pair.token_pair_bump)]
+    #[account(
+        mut,
+        seeds = [b"token_pair",
+                 token_pair.config_a.mint.as_ref(),
+                 token_pair.config_b.mint.as_ref()],
+        bump = token_pair.token_pair_bump
+    )]
     pub token_pair: Box<Account<'info, TokenPair>>,
 
     #[account(
-        init_if_needed, payer = admin, space = TestOracle::LEN,
+        init_if_needed,
+        payer = admin,
+        space = TestOracle::LEN,
         constraint = oracle_token_a.key() == token_pair.config_a.oracle_account,
         seeds = [b"token_a_oracle",
                  token_pair.config_a.mint.as_ref(),
@@ -36,7 +45,9 @@ pub struct SetTestOraclePrice<'info> {
     pub oracle_token_a: Box<Account<'info, TestOracle>>,
 
     #[account(
-        init_if_needed, payer = admin, space = TestOracle::LEN,
+        init_if_needed,
+        payer = admin,
+        space = TestOracle::LEN,
         constraint = oracle_token_b.key() == token_pair.config_b.oracle_account,
         seeds = [b"token_b_oracle",
                  token_pair.config_a.mint.as_ref(),

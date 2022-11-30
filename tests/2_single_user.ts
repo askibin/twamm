@@ -73,7 +73,14 @@ describe("single_user", () => {
 
     // withdraw fees
     const [ta_balance4, tb_balance4] = await twamm.getBalances(3);
-    await twamm.withdrawFees(fees_collected, 0);
+    let sol_fees = await twamm.getExtraSolBalance(twamm.authorityKey);
+    expect(sol_fees).to.greaterThan(0);
+    const initial_sol_balance = await twamm.getSolBalance(
+      twamm.users[3].publicKey
+    );
+    await twamm.withdrawFees(fees_collected, 0, sol_fees);
+    const sol_balance = await twamm.getSolBalance(twamm.users[3].publicKey);
+    expect(sol_balance).to.equal(initial_sol_balance + sol_fees);
     const [ta_balance5, tb_balance5] = await twamm.getBalances(3);
     expect(ta_balance5).to.equal(ta_balance4 + fees_collected);
     expect(tb_balance5).to.equal(tb_balance4);
@@ -117,7 +124,9 @@ describe("single_user", () => {
     expect(tb_balance3).to.equal(tb_balance - amount / 2);
 
     const [ta_balance4, tb_balance4] = await twamm.getBalances(3);
-    await twamm.withdrawFees(fees_collected, 0);
+    let sol_fees = await twamm.getExtraSolBalance(twamm.authorityKey);
+    expect(sol_fees).to.greaterThan(0);
+    await twamm.withdrawFees(fees_collected, 0, sol_fees);
     const [ta_balance5, tb_balance5] = await twamm.getBalances(3);
     expect(ta_balance5).to.equal(ta_balance4 + fees_collected);
     expect(tb_balance5).to.equal(tb_balance4);
@@ -150,7 +159,9 @@ describe("single_user", () => {
     expect(tb_balance3).to.equal(tb_balance - amount / 2);
 
     const [ta_balance4, tb_balance4] = await twamm.getBalances(3);
-    await twamm.withdrawFees(fees_collected, 0);
+    let sol_fees = await twamm.getExtraSolBalance(twamm.authorityKey);
+    expect(sol_fees).to.greaterThan(0);
+    await twamm.withdrawFees(fees_collected, 0, sol_fees);
     const [ta_balance5, tb_balance5] = await twamm.getBalances(3);
     expect(ta_balance5).to.equal(ta_balance4 + fees_collected);
     expect(tb_balance5).to.equal(tb_balance4);
@@ -215,7 +226,9 @@ describe("single_user", () => {
 
     // withdraw fees
     const [ta_balance4, tb_balance4] = await twamm.getBalances(3);
-    await twamm.withdrawFees(0, fees_collected);
+    let sol_fees = await twamm.getExtraSolBalance(twamm.authorityKey);
+    expect(sol_fees).to.greaterThan(0);
+    await twamm.withdrawFees(0, fees_collected, sol_fees);
     const [ta_balance5, tb_balance5] = await twamm.getBalances(3);
     expect(tb_balance5).to.equal(tb_balance4 + fees_collected);
     expect(ta_balance5).to.equal(ta_balance4);

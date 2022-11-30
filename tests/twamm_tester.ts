@@ -1,7 +1,14 @@
 import * as anchor from "@project-serum/anchor";
 import { Program } from "@project-serum/anchor";
 import { Twamm } from "../target/types/twamm";
-import { SystemProgram, SYSVAR_RENT_PUBKEY } from "@solana/web3.js";
+import {
+  PublicKey,
+  Keypair,
+  SystemProgram,
+  AccountMeta,
+  TransactionSignature,
+  SYSVAR_RENT_PUBKEY,
+} from "@solana/web3.js";
 import * as spl from "@solana/spl-token";
 
 export type OrderSide = "buy" | "sell";
@@ -9,45 +16,45 @@ export type OrderSide = "buy" | "sell";
 export class TwammTester {
   provider: anchor.AnchorProvider;
   program: anchor.Program<Twamm>;
-  users: anchor.web3.Keypair[];
+  users: Keypair[];
   printErrors: boolean;
 
-  admin1: anchor.web3.Keypair;
-  admin2: anchor.web3.Keypair;
-  adminMetas: anchor.web3.AccountMeta[];
-  tokenAMintKeypair: anchor.web3.Keypair;
-  tokenBMintKeypair: anchor.web3.Keypair;
+  admin1: Keypair;
+  admin2: Keypair;
+  adminMetas: AccountMeta[];
+  tokenAMintKeypair: Keypair;
+  tokenBMintKeypair: Keypair;
 
   tokenADecimals: number;
   tokenBDecimals: number;
   tokenAPrice: number;
   tokenBPrice: number;
 
-  poolMetas: anchor.web3.AccountMeta[];
+  poolMetas: AccountMeta[];
 
   // pdas
-  tokenAMint: anchor.web3.PublicKey;
-  tokenBMint: anchor.web3.PublicKey;
+  tokenAMint: PublicKey;
+  tokenBMint: PublicKey;
 
-  multisigKey: anchor.web3.PublicKey;
+  multisigKey: PublicKey;
   multisigBump: number;
 
-  tokenPairKey: anchor.web3.PublicKey;
+  tokenPairKey: PublicKey;
   tokenPairBump: number;
 
-  authorityKey: anchor.web3.PublicKey;
+  authorityKey: PublicKey;
   authorityBump: number;
 
-  tokenACustodyKey: anchor.web3.PublicKey;
-  tokenBCustodyKey: anchor.web3.PublicKey;
+  tokenACustodyKey: PublicKey;
+  tokenBCustodyKey: PublicKey;
 
-  tokenAWallets: anchor.web3.PublicKey[];
-  tokenBWallets: anchor.web3.PublicKey[];
+  tokenAWallets: PublicKey[];
+  tokenBWallets: PublicKey[];
 
-  oracleTokenAKey: anchor.web3.PublicKey;
+  oracleTokenAKey: PublicKey;
   oracleTokenABump: number;
 
-  oracleTokenBKey: anchor.web3.PublicKey;
+  oracleTokenBKey: PublicKey;
   oracleTokenBBump: number;
 
   constructor() {
@@ -61,13 +68,13 @@ export class TwammTester {
       70, 60, 102, 100, 70, 60, 102, 100, 70, 60, 102, 100, 70, 60, 102, 100,
       70, 60, 102, 100, 70, 60, 102, 100, 70, 60, 102, 100, 70, 60, 102, 100,
     ]);
-    this.admin1 = anchor.web3.Keypair.fromSeed(seed);
+    this.admin1 = Keypair.fromSeed(seed);
 
     seed = Uint8Array.from([
       43, 121, 237, 161, 118, 173, 191, 20, 76, 255, 130, 110, 132, 165, 26,
       102, 21, 210, 11, 55, 86, 55, 6, 236, 94, 3, 167, 178, 90, 217, 69, 121,
     ]);
-    this.admin2 = anchor.web3.Keypair.fromSeed(seed);
+    this.admin2 = Keypair.fromSeed(seed);
 
     this.adminMetas = [];
     this.adminMetas.push({
@@ -87,39 +94,39 @@ export class TwammTester {
       138,
     ]);
     this.users = [];
-    this.users.push(anchor.web3.Keypair.fromSeed(seed));
+    this.users.push(Keypair.fromSeed(seed));
 
     seed = Uint8Array.from([
       105, 140, 48, 201, 223, 185, 91, 129, 36, 27, 12, 117, 162, 13, 251, 250,
       130, 144, 24, 146, 201, 147, 204, 97, 48, 77, 105, 219, 38, 178, 160, 77,
     ]);
-    this.users.push(anchor.web3.Keypair.fromSeed(seed));
+    this.users.push(Keypair.fromSeed(seed));
 
     seed = Uint8Array.from([
       251, 222, 108, 31, 114, 249, 147, 252, 163, 52, 150, 46, 148, 35, 127, 17,
       20, 123, 5, 45, 214, 59, 219, 109, 209, 69, 40, 244, 5, 234, 120, 162,
     ]);
-    this.users.push(anchor.web3.Keypair.fromSeed(seed));
+    this.users.push(Keypair.fromSeed(seed));
 
     seed = Uint8Array.from([
       120, 168, 65, 14, 133, 132, 103, 69, 161, 164, 114, 20, 152, 119, 60, 171,
       199, 149, 71, 226, 246, 16, 188, 201, 15, 146, 183, 138, 67, 85, 80, 212,
     ]);
-    this.users.push(anchor.web3.Keypair.fromSeed(seed));
+    this.users.push(Keypair.fromSeed(seed));
 
     seed = Uint8Array.from([
       34, 252, 63, 205, 83, 121, 254, 147, 133, 101, 54, 176, 184, 2, 121, 36,
       231, 156, 164, 251, 17, 236, 116, 26, 176, 175, 241, 145, 157, 42, 109,
       137,
     ]);
-    this.tokenAMintKeypair = anchor.web3.Keypair.fromSeed(seed);
+    this.tokenAMintKeypair = Keypair.fromSeed(seed);
     this.tokenAMint = this.tokenAMintKeypair.publicKey;
 
     seed = Uint8Array.from([
       209, 101, 107, 244, 132, 192, 120, 235, 46, 187, 46, 132, 38, 17, 89, 9,
       114, 196, 244, 204, 78, 120, 140, 4, 196, 157, 1, 236, 163, 252, 141, 239,
     ]);
-    this.tokenBMintKeypair = anchor.web3.Keypair.fromSeed(seed);
+    this.tokenBMintKeypair = Keypair.fromSeed(seed);
     this.tokenBMint = this.tokenBMintKeypair.publicKey;
 
     this.tokenADecimals = 9;
@@ -134,14 +141,13 @@ export class TwammTester {
 
   init = async () => {
     // pdas
-    [this.multisigKey, this.multisigBump] =
-      await anchor.web3.PublicKey.findProgramAddress(
-        [Buffer.from(anchor.utils.bytes.utf8.encode("multisig"))],
-        this.program.programId
-      );
+    [this.multisigKey, this.multisigBump] = await PublicKey.findProgramAddress(
+      [Buffer.from(anchor.utils.bytes.utf8.encode("multisig"))],
+      this.program.programId
+    );
 
     [this.tokenPairKey, this.tokenPairBump] =
-      await anchor.web3.PublicKey.findProgramAddress(
+      await PublicKey.findProgramAddress(
         [
           Buffer.from(anchor.utils.bytes.utf8.encode("token_pair")),
           this.tokenAMint.toBuffer(),
@@ -151,7 +157,7 @@ export class TwammTester {
       );
 
     [this.authorityKey, this.authorityBump] =
-      await anchor.web3.PublicKey.findProgramAddress(
+      await PublicKey.findProgramAddress(
         [Buffer.from(anchor.utils.bytes.utf8.encode("transfer_authority"))],
         this.program.programId
       );
@@ -181,7 +187,7 @@ export class TwammTester {
     }
 
     [this.oracleTokenAKey, this.oracleTokenABump] =
-      await anchor.web3.PublicKey.findProgramAddress(
+      await PublicKey.findProgramAddress(
         [
           Buffer.from(anchor.utils.bytes.utf8.encode("token_a_oracle")),
           this.tokenAMint.toBuffer(),
@@ -191,7 +197,7 @@ export class TwammTester {
       );
 
     [this.oracleTokenBKey, this.oracleTokenBBump] =
-      await anchor.web3.PublicKey.findProgramAddress(
+      await PublicKey.findProgramAddress(
         [
           Buffer.from(anchor.utils.bytes.utf8.encode("token_b_oracle")),
           this.tokenAMint.toBuffer(),
@@ -200,7 +206,7 @@ export class TwammTester {
         this.program.programId
       );
 
-    if ((await this.getBalance(this.admin1.publicKey)) < 1e9 / 2) {
+    if ((await this.getSolBalance(this.admin1.publicKey)) < 1e9 / 2) {
       await this.confirmTx(
         await this.provider.connection.requestAirdrop(
           this.admin1.publicKey,
@@ -284,7 +290,7 @@ export class TwammTester {
     }
   };
 
-  confirmTx = async (txSignature: anchor.web3.TransactionSignature) => {
+  confirmTx = async (txSignature: TransactionSignature) => {
     const latestBlockHash = await this.provider.connection.getLatestBlockhash();
 
     await this.provider.connection.confirmTransaction(
@@ -297,7 +303,7 @@ export class TwammTester {
     );
   };
 
-  confirmAndLogTx = async (txSignature: anchor.web3.TransactionSignature) => {
+  confirmAndLogTx = async (txSignature: TransactionSignature) => {
     await this.confirmTx(txSignature);
     let tx = await this.provider.connection.getTransaction(txSignature, {
       commitment: "confirmed",
@@ -305,11 +311,32 @@ export class TwammTester {
     console.log(tx);
   };
 
-  getBalance = async (pubkey: anchor.web3.PublicKey) => {
+  getBalance = async (pubkey: PublicKey) => {
     return spl
       .getAccount(this.provider.connection, pubkey)
       .then((account) => Number(account.amount))
       .catch(() => 0);
+  };
+
+  getSolBalance = async (pubkey: PublicKey) => {
+    return this.provider.connection
+      .getBalance(pubkey)
+      .then((balance) => balance)
+      .catch(() => 0);
+  };
+
+  getExtraSolBalance = async (pubkey: PublicKey) => {
+    let balance = await this.provider.connection
+      .getBalance(pubkey)
+      .then((balance) => balance)
+      .catch(() => 0);
+    let accountInfo = await this.provider.connection.getAccountInfo(pubkey);
+    let dataSize = accountInfo ? accountInfo.data.length : 0;
+    let minBalance =
+      await this.provider.connection.getMinimumBalanceForRentExemption(
+        dataSize
+      );
+    return balance > minBalance ? balance - minBalance : 0;
   };
 
   getTime() {
@@ -326,7 +353,7 @@ export class TwammTester {
     let counter_buf = Buffer.alloc(8);
     counter_buf.writeUInt32LE(counter, 0);
 
-    let [poolKey, poolBump] = await anchor.web3.PublicKey.findProgramAddress(
+    let [poolKey, poolBump] = await PublicKey.findProgramAddress(
       [
         Buffer.from(anchor.utils.bytes.utf8.encode("pool")),
         this.tokenACustodyKey.toBuffer(),
@@ -372,7 +399,7 @@ export class TwammTester {
   };
 
   getOrderKey = async (userId: number, tif: number, poolCounter?: number) => {
-    let [orderKey, orderBump] = await anchor.web3.PublicKey.findProgramAddress(
+    let [orderKey, orderBump] = await PublicKey.findProgramAddress(
       [
         Buffer.from(anchor.utils.bytes.utf8.encode("order")),
         this.users[userId].publicKey.toBuffer(),
@@ -439,7 +466,7 @@ export class TwammTester {
         oracleTypeTokenB: { test: {} },
         oracleAccountTokenA: this.oracleTokenAKey,
         oracleAccountTokenB: this.oracleTokenBKey,
-        crankAuthority: anchor.web3.PublicKey.default,
+        crankAuthority: PublicKey.default,
         timeInForceIntervals: tifs,
       })
       .accounts({
@@ -512,11 +539,16 @@ export class TwammTester {
       });
   };
 
-  withdrawFees = async (amountTokenA: number, amountTokenB: number) => {
+  withdrawFees = async (
+    amountTokenA: number,
+    amountTokenB: number,
+    amountSol: number
+  ) => {
     await this.program.methods
       .withdrawFees({
         amountTokenA: new anchor.BN(amountTokenA),
         amountTokenB: new anchor.BN(amountTokenB),
+        amountSol: new anchor.BN(amountSol),
       })
       .accounts({
         admin: this.admin2.publicKey,
@@ -527,6 +559,7 @@ export class TwammTester {
         custodyTokenB: this.tokenBCustodyKey,
         receiverTokenA: this.tokenAWallets[3],
         receiverTokenB: this.tokenBWallets[3],
+        receiverSol: this.users[3].publicKey,
         tokenProgram: spl.TOKEN_PROGRAM_ID,
       })
       .signers([this.admin2])

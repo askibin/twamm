@@ -21,7 +21,10 @@ pub struct InitTokenPair<'info> {
     #[account(mut)]
     pub admin: Signer<'info>,
 
-    #[account(mut, seeds = [b"multisig"], bump = multisig.load()?.bump)]
+    #[account(
+        mut,
+        seeds = [b"multisig"], bump = multisig.load()?.bump
+    )]
     pub multisig: AccountLoader<'info, Multisig>,
 
     // instruction can be called multiple times due to multisig use, hence init_if_needed
@@ -29,34 +32,43 @@ pub struct InitTokenPair<'info> {
     // all signatures are collected. When account is in zeroed state it can't be used in other
     // instructions because seeds are computed with recorded mints. Uniqueness is enforced
     // manually in the instruction handler.
-    #[account(init_if_needed,
-              payer = admin,
-              space = TokenPair::LEN,
-              constraint = mint_token_a.key() != mint_token_b.key(),
-              seeds = [b"token_pair", mint_token_a.key().as_ref(), mint_token_b.key().as_ref()],
-              bump)]
+    #[account(
+        init_if_needed,
+        payer = admin,
+        space = TokenPair::LEN,
+        constraint = mint_token_a.key() != mint_token_b.key(),
+        seeds = [b"token_pair", mint_token_a.key().as_ref(), mint_token_b.key().as_ref()],
+        bump
+    )]
     pub token_pair: Box<Account<'info, TokenPair>>,
 
     /// CHECK: empty PDA, will be set as authority for token accounts
-    #[account(seeds = [b"transfer_authority"], bump)]
+    #[account(
+        seeds = [b"transfer_authority"],
+        bump
+    )]
     pub transfer_authority: AccountInfo<'info>,
 
     pub mint_token_a: Box<Account<'info, Mint>>,
     pub mint_token_b: Box<Account<'info, Mint>>,
 
     // token custodies can be shared between multiply pairs
-    #[account(init_if_needed,
-              payer = admin,
-              constraint = mint_token_a.key() == custody_token_a.mint,
-              associated_token::mint = mint_token_a,
-              associated_token::authority = transfer_authority)]
+    #[account(
+        init_if_needed,
+        payer = admin,
+        constraint = mint_token_a.key() == custody_token_a.mint,
+        associated_token::mint = mint_token_a,
+        associated_token::authority = transfer_authority
+    )]
     pub custody_token_a: Box<Account<'info, TokenAccount>>,
 
-    #[account(init_if_needed,
-              payer = admin,
-              constraint = mint_token_b.key() == custody_token_b.mint,
-              associated_token::mint = mint_token_b,
-              associated_token::authority = transfer_authority)]
+    #[account(
+        init_if_needed,
+        payer = admin,
+        constraint = mint_token_b.key() == custody_token_b.mint,
+        associated_token::mint = mint_token_b,
+        associated_token::authority = transfer_authority
+    )]
     pub custody_token_b: Box<Account<'info, TokenAccount>>,
 
     system_program: Program<'info, System>,

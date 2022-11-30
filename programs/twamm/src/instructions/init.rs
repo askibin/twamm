@@ -11,17 +11,33 @@ pub struct Init<'info> {
     #[account(mut)]
     pub upgrade_authority: Signer<'info>,
 
-    #[account(init, payer = upgrade_authority, space = Multisig::LEN, seeds = [b"multisig"], bump)]
+    #[account(
+        init,
+        payer = upgrade_authority,
+        space = Multisig::LEN,
+        seeds = [b"multisig"],
+        bump
+    )]
     pub multisig: AccountLoader<'info, Multisig>,
 
     /// CHECK: empty PDA, will be set as authority for token accounts
-    #[account(init, payer = upgrade_authority, space = 0, seeds = [b"transfer_authority"], bump)]
+    #[account(
+        init,
+        payer = upgrade_authority,
+        space = 0,
+        seeds = [b"transfer_authority"],
+        bump
+    )]
     pub transfer_authority: AccountInfo<'info>,
 
-    #[account(constraint = twamm_program.programdata_address()? == Some(twamm_program_data.key()))]
+    #[account(
+        constraint = twamm_program.programdata_address()? == Some(twamm_program_data.key())
+    )]
     pub twamm_program: Program<'info, Twamm>,
 
-    #[account(constraint = twamm_program_data.upgrade_authority_address == Some(upgrade_authority.key()))]
+    #[account(
+        constraint = twamm_program_data.upgrade_authority_address == Some(upgrade_authority.key())
+    )]
     pub twamm_program_data: Account<'info, ProgramData>,
 
     system_program: Program<'info, System>,

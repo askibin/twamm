@@ -21,46 +21,60 @@ pub struct PlaceOrder<'info> {
     pub owner: Signer<'info>,
 
     #[account(
-        mut, constraint = user_account_token_a.mint == custody_token_a.mint,
+        mut,
+        constraint = user_account_token_a.mint == custody_token_a.mint,
         has_one = owner
     )]
     pub user_account_token_a: Box<Account<'info, TokenAccount>>,
 
     #[account(
-        mut, constraint = user_account_token_b.mint == custody_token_b.mint,
+        mut,
+        constraint = user_account_token_b.mint == custody_token_b.mint,
         has_one = owner
     )]
     pub user_account_token_b: Box<Account<'info, TokenAccount>>,
 
-    #[account(mut, seeds = [b"token_pair",
-                            token_pair.config_a.mint.as_ref(),
-                            token_pair.config_b.mint.as_ref()],
-              bump = token_pair.token_pair_bump)]
+    #[account(
+        mut,
+        seeds = [b"token_pair",
+                 token_pair.config_a.mint.as_ref(),
+                 token_pair.config_b.mint.as_ref()],
+        bump = token_pair.token_pair_bump
+    )]
     pub token_pair: Box<Account<'info, TokenPair>>,
 
-    #[account(mut, constraint = custody_token_a.key() == token_pair.config_a.custody)]
+    #[account(
+        mut,
+        constraint = custody_token_a.key() == token_pair.config_a.custody
+    )]
     pub custody_token_a: Box<Account<'info, TokenAccount>>,
 
-    #[account(mut, constraint = custody_token_b.key() == token_pair.config_b.custody)]
+    #[account(mut,
+        constraint = custody_token_b.key() == token_pair.config_b.custody
+    )]
     pub custody_token_b: Box<Account<'info, TokenAccount>>,
 
-    #[account(init_if_needed,
-              payer = owner,
-              space = Order::LEN,
-              seeds = [b"order", owner.key().as_ref(), target_pool.key().as_ref()],
-              bump)]
+    #[account(
+        init_if_needed,
+        payer = owner,
+        space = Order::LEN,
+        seeds = [b"order", owner.key().as_ref(), target_pool.key().as_ref()],
+        bump
+    )]
     pub order: Box<Account<'info, Order>>,
 
     // Currently active pool
-    #[account(init_if_needed,
-              payer = owner,
-              space = Pool::LEN,
-              seeds = [b"pool",
-                       token_pair.config_a.custody.as_ref(),
-                       token_pair.config_b.custody.as_ref(),
-                       token_pair.tifs[token_pair.get_tif_index(params.time_in_force)?].to_le_bytes().as_slice(),
-                       token_pair.pool_counters[token_pair.get_tif_index(params.time_in_force)?].to_le_bytes().as_slice()],
-              bump)]
+    #[account(
+        init_if_needed,
+        payer = owner,
+        space = Pool::LEN,
+        seeds = [b"pool",
+                 token_pair.config_a.custody.as_ref(),
+                 token_pair.config_b.custody.as_ref(),
+                 token_pair.tifs[token_pair.get_tif_index(params.time_in_force)?].to_le_bytes().as_slice(),
+                 token_pair.pool_counters[token_pair.get_tif_index(params.time_in_force)?].to_le_bytes().as_slice()],
+        bump
+    )]
     pub current_pool: Box<Account<'info, Pool>>,
 
     /// CHECK: Pool to deposit tokens to, seeds should match either current_pool or with counter + 1

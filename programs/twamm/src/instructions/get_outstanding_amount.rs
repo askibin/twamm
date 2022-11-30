@@ -14,18 +14,24 @@ pub struct GetOutstandingAmount<'info> {
     #[account()]
     pub owner: Signer<'info>,
 
-    #[account(seeds = [b"token_pair",
-                           token_pair.config_a.mint.as_ref(),
-                           token_pair.config_b.mint.as_ref()],
-              bump = token_pair.token_pair_bump)]
+    #[account(
+        seeds = [b"token_pair",
+                 token_pair.config_a.mint.as_ref(),
+                 token_pair.config_b.mint.as_ref()],
+        bump = token_pair.token_pair_bump
+    )]
     pub token_pair: Box<Account<'info, TokenPair>>,
 
     /// CHECK: oracle account for token a depending on oracle type
-    #[account(constraint = oracle_token_a.key() == token_pair.config_a.oracle_account)]
+    #[account(
+        constraint = oracle_token_a.key() == token_pair.config_a.oracle_account
+    )]
     pub oracle_token_a: AccountInfo<'info>,
 
     /// CHECK: oracle account for token b depending on oracle type
-    #[account(constraint = oracle_token_b.key() == token_pair.config_b.oracle_account)]
+    #[account(
+        constraint = oracle_token_b.key() == token_pair.config_b.oracle_account
+    )]
     pub oracle_token_b: AccountInfo<'info>,
     // remaining accounts:
     //   1 to TokenPair::MAX_POOLS addresses of current pool accounts (write, unsigned)

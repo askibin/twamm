@@ -24,45 +24,64 @@ pub struct CancelOrder<'info> {
     pub owner: AccountInfo<'info>,
 
     #[account(
-        mut, constraint = user_account_token_a.mint == custody_token_a.mint,
+        mut,
+        constraint = user_account_token_a.mint == custody_token_a.mint,
         has_one = owner
     )]
     pub user_account_token_a: Box<Account<'info, TokenAccount>>,
 
     #[account(
-        mut, constraint = user_account_token_b.mint == custody_token_b.mint,
+        mut,
+        constraint = user_account_token_b.mint == custody_token_b.mint,
         has_one = owner
     )]
     pub user_account_token_b: Box<Account<'info, TokenAccount>>,
 
-    #[account(mut, seeds = [b"token_pair",
-                            token_pair.config_a.mint.as_ref(),
-                            token_pair.config_b.mint.as_ref()],
-              bump = token_pair.token_pair_bump)]
+    #[account(
+        mut,
+        seeds = [b"token_pair",
+                 token_pair.config_a.mint.as_ref(),
+                 token_pair.config_b.mint.as_ref()],
+        bump = token_pair.token_pair_bump
+    )]
     pub token_pair: Box<Account<'info, TokenPair>>,
 
     /// CHECK: empty PDA, authority for token accounts
     #[account(
-        mut, seeds = [b"transfer_authority"], bump = token_pair.transfer_authority_bump
+        mut,
+        seeds = [b"transfer_authority"],
+        bump = token_pair.transfer_authority_bump
     )]
     pub transfer_authority: AccountInfo<'info>,
 
-    #[account(mut, constraint = custody_token_a.key() == token_pair.config_a.custody)]
+    #[account(
+        mut,
+        constraint = custody_token_a.key() == token_pair.config_a.custody
+    )]
     pub custody_token_a: Box<Account<'info, TokenAccount>>,
 
-    #[account(mut, constraint = custody_token_b.key() == token_pair.config_b.custody)]
+    #[account(
+        mut,
+        constraint = custody_token_b.key() == token_pair.config_b.custody
+    )]
     pub custody_token_b: Box<Account<'info, TokenAccount>>,
 
-    #[account(mut, seeds = [b"order", owner.key().as_ref(), pool.key().as_ref()],
-              bump = order.bump)]
+    #[account(
+        mut,
+        seeds = [b"order", owner.key().as_ref(), pool.key().as_ref()],
+        bump = order.bump
+    )]
     pub order: Box<Account<'info, Order>>,
 
-    #[account(mut, seeds = [b"pool",
-                            custody_token_a.key().as_ref(),
-                            custody_token_b.key().as_ref(),
-                            pool.time_in_force.to_le_bytes().as_slice(),
-                            pool.counter.to_le_bytes().as_slice()],
-              bump = pool.bump)]
+    #[account(
+        mut,
+        seeds = [b"pool",
+                 custody_token_a.key().as_ref(),
+                 custody_token_b.key().as_ref(),
+                 pool.time_in_force.to_le_bytes().as_slice(),
+                 pool.counter.to_le_bytes().as_slice()],
+        bump = pool.bump
+    )]
     pub pool: Box<Account<'info, Pool>>,
 
     token_program: Program<'info, Token>,

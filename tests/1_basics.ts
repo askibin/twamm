@@ -509,7 +509,7 @@ describe("basics", () => {
   });
 
   it("withdrawFees", async () => {
-    await twamm.withdrawFees(0, 0);
+    await twamm.withdrawFees(0, 0, 0);
   });
 
   it("placeOrder", async () => {

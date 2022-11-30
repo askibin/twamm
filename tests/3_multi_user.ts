@@ -402,6 +402,15 @@ describe("multi_user", () => {
 
     expect(ta_balances2[1] - ta_balances[1]).to.equal(-4000000001);
     expect(tb_balances2[1] - tb_balances[1]).to.equal(120000001);
+
+    let sol_fees = await twamm.getExtraSolBalance(twamm.authorityKey);
+    expect(sol_fees).to.greaterThan(0);
+    const initial_sol_balance = await twamm.getSolBalance(
+      twamm.users[3].publicKey
+    );
+    await twamm.withdrawFees(0, 0, sol_fees);
+    const sol_balance = await twamm.getSolBalance(twamm.users[3].publicKey);
+    expect(sol_balance).to.equal(initial_sol_balance + sol_fees);
   });
 
   it("scenario3", async () => {

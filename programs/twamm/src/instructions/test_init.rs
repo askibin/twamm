@@ -11,11 +11,22 @@ pub struct TestInit<'info> {
     #[account(mut)]
     pub upgrade_authority: Signer<'info>,
 
-    #[account(init, payer = upgrade_authority, space = Multisig::LEN, seeds = [b"multisig"], bump)]
+    #[account(
+        init,
+        payer = upgrade_authority, space = Multisig::LEN,
+        seeds = [b"multisig"],
+        bump
+    )]
     pub multisig: AccountLoader<'info, Multisig>,
 
     /// CHECK: empty PDA, will be set as authority for token accounts
-    #[account(init, payer = upgrade_authority, space = 0, seeds = [b"transfer_authority"], bump)]
+    #[account(
+        init,
+        payer = upgrade_authority,
+        space = 0,
+        seeds = [b"transfer_authority"],
+        bump
+    )]
     pub transfer_authority: AccountInfo<'info>,
 
     system_program: Program<'info, System>,
