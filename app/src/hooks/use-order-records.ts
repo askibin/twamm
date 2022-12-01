@@ -73,7 +73,7 @@ export default (_: void, options = {}) => {
   return useSWR(
     withDefault(
       undefined,
-      andMap(
+      andMap<[PublicKey, OrderData[], PoolData[]], ReturnType<typeof swrKey>>(
         ([a, o, p]) => swrKey({ account: a, orders: o, pools: p }),
         Extra.combine3([of(accountAddress), of(orders.data), of(pools.data)])
       )
