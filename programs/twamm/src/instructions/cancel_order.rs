@@ -16,7 +16,7 @@ use {
 
 #[derive(Accounts)]
 pub struct CancelOrder<'info> {
-    #[account(mut)]
+    #[account()]
     pub payer: Signer<'info>,
 
     /// CHECK: user's wallet
@@ -68,7 +68,9 @@ pub struct CancelOrder<'info> {
 
     #[account(
         mut,
-        seeds = [b"order", owner.key().as_ref(), pool.key().as_ref()],
+        seeds = [b"order",
+                 owner.key().as_ref(),
+                 pool.key().as_ref()],
         bump = order.bump
     )]
     pub order: Box<Account<'info, Order>>,

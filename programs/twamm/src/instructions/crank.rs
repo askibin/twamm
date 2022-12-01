@@ -21,7 +21,7 @@ use {
 #[derive(Accounts)]
 pub struct Crank<'info> {
     // transaction fee payer
-    #[account(mut)]
+    #[account()]
     pub owner: Signer<'info>,
 
     // crank rewards receiver

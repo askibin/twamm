@@ -501,6 +501,7 @@ export class TwammTester {
         admin: this.admin1.publicKey,
         multisig: this.multisigKey,
         tokenPair: this.tokenPairKey,
+        transferAuthority: this.authorityKey,
         custodyTokenA: this.tokenACustodyKey,
         custodyTokenB: this.tokenBCustodyKey,
         pool: await this.getPoolKey(tif, nextPool ? 1 : 0),

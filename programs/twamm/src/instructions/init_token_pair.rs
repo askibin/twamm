@@ -38,7 +38,9 @@ pub struct InitTokenPair<'info> {
         payer = admin,
         space = TokenPair::LEN,
         constraint = mint_token_a.key() != mint_token_b.key(),
-        seeds = [b"token_pair", mint_token_a.key().as_ref(), mint_token_b.key().as_ref()],
+        seeds = [b"token_pair",
+                 mint_token_a.key().as_ref(),
+                 mint_token_b.key().as_ref()],
         bump
     )]
     pub token_pair: Box<Account<'info, TokenPair>>,

@@ -10,7 +10,7 @@ use {
 
 #[derive(Accounts)]
 pub struct SetCrankAuthority<'info> {
-    #[account(mut)]
+    #[account()]
     pub admin: Signer<'info>,
 
     #[account(

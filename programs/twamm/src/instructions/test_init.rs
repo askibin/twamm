@@ -13,7 +13,8 @@ pub struct TestInit<'info> {
 
     #[account(
         init,
-        payer = upgrade_authority, space = Multisig::LEN,
+        payer = upgrade_authority,
+        space = Multisig::LEN,
         seeds = [b"multisig"],
         bump
     )]

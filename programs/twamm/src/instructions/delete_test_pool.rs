@@ -15,7 +15,7 @@ use {
 
 #[derive(Accounts)]
 pub struct DeleteTestPool<'info> {
-    #[account(mut)]
+    #[account()]
     pub admin: Signer<'info>,
 
     #[account(
@@ -32,6 +32,14 @@ pub struct DeleteTestPool<'info> {
         bump = token_pair.token_pair_bump
     )]
     pub token_pair: Box<Account<'info, TokenPair>>,
+
+    /// CHECK: empty PDA, authority for token accounts
+    #[account(
+        mut,
+        seeds = [b"transfer_authority"],
+        bump = token_pair.transfer_authority_bump
+    )]
+    pub transfer_authority: AccountInfo<'info>,
 
     #[account(
         constraint = custody_token_a.key() == token_pair.config_a.custody
@@ -51,7 +59,7 @@ pub struct DeleteTestPool<'info> {
                  pool.time_in_force.to_le_bytes().as_slice(),
                  pool.counter.to_le_bytes().as_slice()],
         bump = pool.bump,
-        close = admin
+        close = transfer_authority
     )]
     pub pool: Box<Account<'info, Pool>>,
 }

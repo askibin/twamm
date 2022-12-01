@@ -13,7 +13,7 @@ use {
 
 #[derive(Accounts)]
 pub struct SetTimeInForce<'info> {
-    #[account(mut)]
+    #[account()]
     pub admin: Signer<'info>,
 
     #[account(

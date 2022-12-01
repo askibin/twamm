@@ -7,7 +7,7 @@ use {
 
 #[derive(Accounts)]
 pub struct SetAdminSigners<'info> {
-    #[account(mut)]
+    #[account()]
     pub admin: Signer<'info>,
 
     #[account(

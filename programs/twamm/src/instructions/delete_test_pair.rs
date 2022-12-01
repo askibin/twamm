@@ -14,7 +14,7 @@ use {
 
 #[derive(Accounts)]
 pub struct DeleteTestPair<'info> {
-    #[account(mut)]
+    #[account()]
     pub admin: Signer<'info>,
 
     #[account(
@@ -42,12 +42,13 @@ pub struct DeleteTestPair<'info> {
                  token_pair.config_a.mint.as_ref(),
                  token_pair.config_b.mint.as_ref()],
         bump = token_pair.token_pair_bump,
-        close = admin
+        close = transfer_authority
     )]
     pub token_pair: Box<Account<'info, TokenPair>>,
 
     /// CHECK: empty PDA, authority for token accounts
     #[account(
+        mut,
         seeds = [b"transfer_authority"],
         bump = token_pair.transfer_authority_bump
     )]

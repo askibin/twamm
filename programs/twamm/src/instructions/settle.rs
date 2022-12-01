@@ -16,7 +16,7 @@ use {
 #[derive(Accounts)]
 pub struct Settle<'info> {
     // transaction fee payer
-    #[account(mut)]
+    #[account()]
     pub owner: Signer<'info>,
 
     // source of funds for the settlement
