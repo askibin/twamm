@@ -56,8 +56,6 @@ export default (_: void, options = {}) => {
   const { publicKey: account } = useWallet();
   const { program } = useProgram();
 
-  const accountAddress = account === null ? undefined : account;
-
   const orders = useOrders(undefined, {
     ...dedupeEach(60e3),
     ...refreshEach(3 * 60e3),
@@ -73,9 +71,13 @@ export default (_: void, options = {}) => {
   return useSWR(
     withDefault(
       undefined,
-      andMap<[PublicKey, OrderData[], PoolData[]], ReturnType<typeof swrKey>>(
+      andMap(
         ([a, o, p]) => swrKey({ account: a, orders: o, pools: p }),
-        Extra.combine3([of(accountAddress), of(orders.data), of(pools.data)])
+        Extra.combine3([
+          of(account as PublicKey),
+          of(orders.data),
+          of(pools.data),
+        ])
       )
     ),
     fetcher(program),
