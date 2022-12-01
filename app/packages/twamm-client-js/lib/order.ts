@@ -55,28 +55,44 @@ export class Order {
     ]);
   }
 
-  getOrders = async (account: PublicKey | null) => {
+  getAddresses = async (account: PublicKey | null) => {
     const discriminator = getAccountDiscriminator("Order");
 
-    const data = !account
-      ? [discriminator]
-      : [discriminator, account.toBuffer()];
+    const data = account
+      ? [discriminator, account.toBuffer()]
+      : [discriminator];
 
     const bytes = encode(Buffer.concat(data));
 
     const filters = [{ dataSize: 128 }, { memcmp: { bytes, offset: 0 } }];
 
-    const orders = await this.provider.connection.getProgramAccounts(
+    const addresses = await this.provider.connection.getProgramAccounts(
       this.program.programId,
       { filters }
     );
 
-    const all = await Promise.all(
-      orders.map((order: { pubkey: PublicKey }) =>
-        this.program.account.order.fetch(order.pubkey)
-      )
-    );
+    return addresses;
+  };
+
+  getOrder = async (address: PublicKey) => {
+    const o = this.program.account.order.fetch(address);
+
+    return o;
+  };
+
+  getOrders = async (addresses: PublicKey[]) => {
+    const all = await this.program.account.order.fetchMultiple(addresses);
 
     return all;
+  };
+
+  getOrdersByAccount = async (account: PublicKey | null) => {
+    const addresses = await this.getAddresses(account);
+
+    const orderAddresses = addresses.map((oa) => oa.pubkey);
+
+    const all = await this.getOrders(orderAddresses);
+
+    return all.map((o, i) => ({ ...o, pubkey: orderAddresses[i] }));
   };
 }

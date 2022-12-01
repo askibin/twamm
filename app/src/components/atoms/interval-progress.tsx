@@ -8,7 +8,8 @@ export interface Props {
 
 const INTERVAL = 1500;
 
-const calcValue = (a: number, b: number) => Math.round((a / b) * 100);
+const calcValue = (a: number, b: number) =>
+  b ? Math.round((a / b) * 100) : -1;
 
 export default ({ interval, refresh = false }: Props) => {
   const [counter, setCounter] = useState(0);

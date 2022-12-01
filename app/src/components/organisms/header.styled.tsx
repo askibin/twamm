@@ -6,6 +6,7 @@ import { styled } from "@mui/material/styles";
 
 export const Header = styled(Toolbar)`
   justify-content: space-between;
+  background-color: #121623;
 `;
 
 export const Logo = styled(Stack)`

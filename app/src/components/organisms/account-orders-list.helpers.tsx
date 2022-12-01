@@ -1,12 +1,17 @@
 import type { PublicKey } from "@solana/web3.js";
-import type { GridRowParams, GridComparatorFn } from "@mui/x-data-grid-pro";
+import type {
+  ComparatorFn,
+  RowParams,
+  ValueGetterParams,
+} from "./row-column-list";
 import PoolOrderTimeCell from "../atoms/account-order-pool-order-time-cell";
 import PoolTIFCell from "../atoms/account-order-pool-tif-cell";
 import PoolTIFLeftCell from "../atoms/account-order-pool-tif-left-cell";
 import TokenPairCell from "../atoms/account-order-token-pair-cell";
 import { filledQuantity, quantity } from "../../domain/order-details";
+import { formatPrice } from "../../domain/index";
 
-const sortByTokenPair: GridComparatorFn<PublicKey> = (a, b) => {
+const sortByTokenPair: ComparatorFn<PublicKey> = (a, b) => {
   const aKey = String(a);
   const bKey = String(b);
 
@@ -48,7 +53,7 @@ export const populateRow = (data: OrderPoolRecord) => {
 };
 
 export const populateDetails = (
-  data: GridRowParams<ReturnType<typeof populateRow>>
+  data: RowParams<ReturnType<typeof populateRow>>
 ) => ({
   order: data.row.orderData,
   poolAddress: data.row.pool,
@@ -56,45 +61,71 @@ export const populateDetails = (
   supply: data.row.supply,
 });
 
-export const columns = () => [
+export const columns = ({ isMobile }: { isMobile?: boolean }) => [
   {
-    headerName: "Token Pair",
-    field: "tokenPair",
-    width: 200,
-    renderCell: TokenPairCell,
-    sortComparator: sortByTokenPair,
+    field: "pre",
+    hideable: false,
     sortable: false,
+    xs: 1,
+    md: 1,
   },
   {
-    headerName: "Time Frame",
+    field: "tokenPair",
+    headerName: "Token Pair",
+    hideable: false,
+    renderCell: TokenPairCell,
+    sortable: false,
+    sortComparator: sortByTokenPair,
+    xs: isMobile ? 6 : 3,
+    md: isMobile ? 6 : 2,
+  },
+  {
     field: "tif",
+    headerName: "Time Frame",
+    hideable: true,
     renderCell: PoolTIFCell,
     resizable: false,
-    width: 130,
+    sortable: true,
+    xs: 1,
+    md: 1,
   },
   {
-    headerName: "Quantity",
     field: "quantity",
-    flex: 200,
+    headerName: "Quantity",
+    hideable: false,
+    sortable: true,
+    xs: isMobile ? 3 : 2,
+    md: isMobile ? 3 : 2,
+    valueGetter: ({ row }: ValueGetterParams) => formatPrice(row.quantity),
   },
   {
-    headerName: "Filled Quantity",
     field: "filledQuantity",
-    flex: 150,
+    headerName: "Filled Qty",
+    hideable: false,
+    sortable: true,
+    xs: isMobile ? 3 : 2,
+    md: isMobile ? 3 : 2,
+    valueGetter: ({ row }: ValueGetterParams) =>
+      formatPrice(row.filledQuantity),
   },
   {
-    headerName: "Order Time",
     field: "orderTime",
+    headerName: "Order Time",
+    hideable: true,
     renderCell: PoolOrderTimeCell,
     resizable: false,
-    width: 180,
+    sortable: true,
+    xs: 2,
+    md: 3,
   },
   {
-    headerName: "Time Left",
     field: "timeLeft",
+    headerName: "Expiration",
+    hideable: true,
     renderCell: PoolTIFLeftCell,
     resizable: false,
     sortable: false,
-    width: 90,
+    xs: 1,
+    md: 1,
   },
 ];

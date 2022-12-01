@@ -78,10 +78,11 @@ declare type OrderData = {
 
 declare type OrderRecord = OrderData & { id: string };
 
-declare type OrderPoolRecord = OrderRecord & {
+declare type OrderPoolRecord = OrderRecord & { pubkey: PublicKey } & {
   poolData: PoolData;
   order: PublicKey;
   tokenPairData: TokenPairProgramData;
+  id: string;
 };
 
 declare type OrderBalanceData = {

@@ -18,9 +18,15 @@ export class TokenPair {
     return p;
   };
 
+  getPairs = async (addresses: PublicKey[]) => {
+    const all = await this.program.account.tokenPair.fetchMultiple(addresses);
+
+    return all;
+  };
+
   getPairByPoolAddress = async (address: PublicKey) => {
     const pool = (await this.pool.getPool(address)) as { tokenPair: PublicKey };
-    const pair = await this.program.account.tokenPair.fetch(pool.tokenPair);
+    const pair = await this.getPair(pool.tokenPair);
 
     return pair;
   };

@@ -10,3 +10,5 @@ export const programId: Address | undefined =
 export const idl = idlJson as Idl;
 
 export const ClusterApiUrl = process.env.NEXT_PUBLIC_CLUSTER_API_URL;
+
+export const AnkrClusterApiUrl = "https://rpc.ankr.com/solana";

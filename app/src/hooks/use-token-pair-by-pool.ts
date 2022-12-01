@@ -1,30 +1,45 @@
 import type { Program } from "@project-serum/anchor";
 import type { PublicKey } from "@solana/web3.js";
 import useSWR from "swr";
+import Maybe, { Extra } from "easy-maybe/lib";
+import { TokenPair } from "@twamm/client.js";
 
+import usePool from "./use-pool";
 import useProgram from "./use-program";
 
-const swrKey = (params: { address: PublicKey }) => ({
+const { andMap, of, withDefault } = Maybe;
+
+const swrKey = (params: { address: PublicKey; tokenPair: PublicKey }) => ({
   key: "tokenPairByPool",
   params,
 });
 
 type Params = Parameters<typeof swrKey>[0];
 
-const fetcher =
-  (program: Program) =>
-  async ({ params: { address } }: ReturnType<typeof swrKey>) => {
-    const p: unknown = await program.account.pool.fetch(address);
-    const pool = p as PoolData;
+const fetcher = (program: Program) => {
+  const pair = new TokenPair(program);
 
-    const tp: unknown = await program.account.tokenPair.fetch(pool.tokenPair);
-    const tokenPair = tp as TokenPairAccountData;
+  return async ({ params: { tokenPair } }: ReturnType<typeof swrKey>) => {
+    const tp: unknown = await pair.getPair(tokenPair);
 
-    return tokenPair;
+    return tp as TokenPairProgramData;
   };
+};
 
-export default (address: Params["address"], options = {}) => {
+export default (address?: Params["address"], options = {}) => {
   const { program } = useProgram();
 
-  return useSWR(address && swrKey({ address }), fetcher(program), options);
+  const pool = usePool(withDefault(undefined, of(address)));
+
+  return useSWR(
+    withDefault(
+      undefined,
+      andMap(
+        ([a, p]) => swrKey({ address: a, tokenPair: p.tokenPair }),
+        Extra.combine2([of(address), of(pool.data)])
+      )
+    ),
+    fetcher(program),
+    options
+  );
 };
