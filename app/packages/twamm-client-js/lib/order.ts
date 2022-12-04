@@ -2,6 +2,7 @@ import type { BN, Program, Provider } from "@project-serum/anchor";
 import type { PublicKey } from "@solana/web3.js";
 import { encode } from "bs58";
 
+import { fetchMultipleAddresses } from "./utils";
 import { findAddress } from "./program";
 import { getAccountDiscriminator } from "./account";
 import { Pool } from "./pool";
@@ -81,7 +82,10 @@ export class Order {
   };
 
   getOrders = async (addresses: PublicKey[]) => {
-    const all = await this.program.account.order.fetchMultiple(addresses);
+    const all = await fetchMultipleAddresses(
+      this.program.account.order.fetchMultiple.bind(this.program.account.order),
+      addresses
+    );
 
     return all;
   };

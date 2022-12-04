@@ -5,6 +5,7 @@ import type { BN, Program } from "@project-serum/anchor";
 import { getAssociatedTokenAddress } from "@solana/spl-token";
 import { PublicKey } from "@solana/web3.js";
 
+import { fetchMultipleAddresses } from "./utils";
 import { findAddress } from "./program";
 
 export class Pool {
@@ -21,7 +22,10 @@ export class Pool {
   };
 
   getPools = async (addresses: PublicKey[]) => {
-    const all = await this.program.account.pool.fetchMultiple(addresses);
+    const all = await fetchMultipleAddresses(
+      this.program.account.pool.fetchMultiple.bind(this.program.account.pool),
+      addresses
+    );
 
     return all;
   };
