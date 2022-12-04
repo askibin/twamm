@@ -9,3 +9,8 @@ export const MobileContainer = styled(Box)`
   padding: ${(p) => p.theme.spacing(2)};
   padding-top: ${(p) => p.theme.spacing(4)};
 `;
+
+export const ContentHeader = styled(Box)`
+  ${(p) => p.theme.typography.h5};
+  color: ${(p) => p.theme.palette.common.white};
+`;
