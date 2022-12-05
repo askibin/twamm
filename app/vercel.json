@@ -1,0 +1,7 @@
+{
+  "functions": {
+    "scripts/fetch_idl.bash": {
+      "runtime": "vercel-rust@latest"
+    }
+  }
+}
