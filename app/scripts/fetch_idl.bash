@@ -16,6 +16,7 @@ fi
 if [[ -x "which -s anchor" ]]; then
   echo "Skip installation. Anchor was already installed"
 else
+  curl https://sh.rustup.rs -sSf | sh
   cargo install --git https://github.com/coral-xyz/anchor avm --locked --force
 
   avm install latest
