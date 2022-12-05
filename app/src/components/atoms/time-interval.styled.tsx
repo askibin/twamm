@@ -29,6 +29,7 @@ export const Label = styled(Box)`
 
 export const ScheduleButton = styled(Button)`
   padding: 0 4px;
+  text-transform: capitalize;
 
   &.Mui-disabled {
     color: ${({ theme }) => theme.palette.success.dark};
@@ -42,6 +43,7 @@ export const ScheduleButton = styled(Button)`
 export const MobileScheduleButton = styled(ScheduleButton)`
   padding: 0 2px;
   font-size: 12px;
+  text-transform: capitalize;
 `;
 
 export const InfoControl = styled(IconButton)`

@@ -104,7 +104,7 @@ export default (props: Props) => {
               refresh={tokenPairPrice.isValidating}
             />
           </Box>
-          <Box>Price Info</Box>
+          <Box>Token Pair Info</Box>
           <Styled.Toggle onClick={() => setOpen(!open)}>
             {open ? <ExpandLessIcon /> : <ExpandMoreIcon />}
           </Styled.Toggle>
