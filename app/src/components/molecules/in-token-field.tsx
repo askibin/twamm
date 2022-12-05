@@ -32,7 +32,11 @@ export default ({ address, name, onChange, onSelect, src }: Props) => {
           />
         </Grid>
         <Grid item xs={12} sm={8}>
-          <TokenField name={name} onChange={onChange} />
+          <TokenField
+            maxAmount={balance.data}
+            name={name}
+            onChange={onChange}
+          />
           <Styled.TokenTotal>
             Your Balance: {balance.data ?? "..."} {displayName}
           </Styled.TokenTotal>

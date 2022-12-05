@@ -1,5 +1,7 @@
 import Avatar from "@mui/material/Avatar";
 import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
+import Stack from "@mui/material/Stack";
 import { NumericFormat } from "react-number-format";
 import { styled } from "@mui/material/styles";
 
@@ -15,6 +17,11 @@ export const TokenIcon = styled(Avatar)`
   height: 60px;
 `;
 
+export const SecondaryControls = styled(Stack)`
+  justify-content: space-between;
+  align-items: center;
+`;
+
 export const TokenAmountTextField = styled(NumericFormat)`
   border: none;
   width: 100%;
@@ -24,6 +31,10 @@ export const TokenAmountTextField = styled(NumericFormat)`
   font-size: 32px;
   font-weight: 600px;
   color: #fff;
+`;
+
+export const TokenAmountMaxButton = styled(Button)`
+  border-radius: ${(p) => p.theme.shape.borderRadius};
 `;
 
 export const TokenName = styled("span")``;
