@@ -1,6 +1,6 @@
 import type { Address, Idl } from "@project-serum/anchor";
 
-import idlJson from "./idl.json";
+import idlJson from "../idl.json";
 
 export const muiLicenseKey = process.env.NEXT_PUBLIC_LICENSE_KEY_MUI ?? "";
 
