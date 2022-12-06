@@ -4,7 +4,7 @@ import { createCloseNativeTokenAccountInstruction } from "@twamm/client.js/lib/c
 import { findAddress } from "@twamm/client.js/lib/program";
 import { findAssociatedTokenAddress, TokenPair } from "@twamm/client.js";
 import { PublicKey, TransactionInstruction } from "@solana/web3.js";
-import { TOKEN_PROGRAM_ID } from "@solana/spl-token";
+import { SplToken } from "@twamm/client.js/lib/spl-token";
 import { isNil } from "ramda";
 
 import useProgram from "./use-program";
@@ -17,6 +17,8 @@ export default () => {
   const pairClient = new TokenPair(program);
 
   const findProgramAddress = findAddress(program);
+
+  const TOKEN_PROGRAM_ID = SplToken.getProgramId();
 
   const run = async function execute({
     a: aMint,
@@ -41,9 +43,17 @@ export default () => {
       new PublicKey(bMint).toBuffer(),
     ]);
 
-    const aCustody = await findAssociatedTokenAddress(transferAuthority, aMint);
+    const aCustody = await findAssociatedTokenAddress(
+      transferAuthority,
+      aMint,
+      TOKEN_PROGRAM_ID
+    );
 
-    const bCustody = await findAssociatedTokenAddress(transferAuthority, bMint);
+    const bCustody = await findAssociatedTokenAddress(
+      transferAuthority,
+      bMint,
+      TOKEN_PROGRAM_ID
+    );
 
     const aWallet = await findAssociatedTokenAddress(
       provider.wallet.publicKey,
@@ -68,12 +78,14 @@ export default () => {
       await createCloseNativeTokenAccountInstruction(
         aMint,
         aWallet,
-        provider.wallet.publicKey
+        provider.wallet.publicKey,
+        undefined
       ),
       await createCloseNativeTokenAccountInstruction(
         bMint,
         bWallet,
-        provider.wallet.publicKey
+        provider.wallet.publicKey,
+        undefined
       ),
     ];
 
@@ -81,23 +93,25 @@ export default () => {
       (i): i is TransactionInstruction => !isNil(i)
     );
 
+    const accounts = {
+      payer: provider.wallet.publicKey,
+      owner: provider.wallet.publicKey,
+      userAccountTokenA: aWallet,
+      userAccountTokenB: bWallet,
+      tokenPair: tokenPairAddress,
+      transferAuthority,
+      custodyTokenA: aCustody,
+      custodyTokenB: bCustody,
+      order: orderAddress,
+      pool: poolAddress,
+      tokenProgram: TOKEN_PROGRAM_ID,
+    };
+
     const result = await program.methods
       .cancelOrder({
         lpAmount: new BN(lpAmount),
       })
-      .accounts({
-        payer: provider.wallet.publicKey,
-        owner: provider.wallet.publicKey,
-        userAccountTokenA: aWallet,
-        userAccountTokenB: bWallet,
-        tokenPair: tokenPairAddress,
-        transferAuthority,
-        custodyTokenA: aCustody,
-        custodyTokenB: bCustody,
-        order: orderAddress,
-        pool: poolAddress,
-        tokenProgram: TOKEN_PROGRAM_ID,
-      })
+      .accounts(accounts)
       .preInstructions(pre)
       .postInstructions(post)
       .rpc()

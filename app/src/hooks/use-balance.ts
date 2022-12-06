@@ -1,7 +1,7 @@
 import type { Provider } from "@project-serum/anchor";
 import type { PublicKey } from "@solana/web3.js";
 import useSWR from "swr";
-import { TOKEN_PROGRAM_ID, NATIVE_MINT } from "@solana/spl-token";
+import { SplToken } from "@twamm/client.js/lib/spl-token";
 import { useWallet } from "@solana/wallet-adapter-react";
 import useProgram from "./use-program";
 
@@ -36,7 +36,7 @@ type BalanceData = {
   pubkey: PublicKey;
 };
 
-const isNative = (a: string) => a === NATIVE_MINT.toBase58();
+const isNative = (a: string) => SplToken.isNativeAddress(a);
 
 const swrKey = (params: Params) => ({
   key: "balance",
@@ -52,7 +52,7 @@ const fetcher =
     }
 
     const data = (await provider.connection.getParsedProgramAccounts(
-      TOKEN_PROGRAM_ID,
+      SplToken.getProgramId(),
       {
         filters: [
           { dataSize: 165 },
