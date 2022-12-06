@@ -19,7 +19,7 @@
     "url": "git+https://github.com/askibin/twamm.git"
   },
   "scripts": {
-    "test": "node ./__tests__/client.test.ts"
+    "test": "jest"
   },
   "bugs": {
     "url": "https://github.com/askibin/twamm/issues"
@@ -32,5 +32,8 @@
     "js-sha256": "^0.9.0",
     "ramda": "^0.28.0"
   },
-  "gitHead": "4ed246bd4a1a3934a295bf93245a58824c0042a4"
+  "gitHead": "4ed246bd4a1a3934a295bf93245a58824c0042a4",
+  "devDependencies": {
+    "jest": "^29.3.1"
+  }
 }
