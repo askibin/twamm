@@ -82,12 +82,12 @@ export default (props: Props) => {
   const stats = withDefault(
     undefined,
     andMap((d) => {
-      const { orderVolume: o, settleVolume: s, tradeVolume: t } = d;
+      const { orderVolume: o, settledVolume: s, routedVolume: t } = d;
 
       return {
         orderVolume: formatPrice(o),
-        settleVolume: formatPrice(s),
-        tradeVolume: formatPrice(t),
+        settledVolume: formatPrice(s),
+        routedVolume: formatPrice(t),
       };
     }, andMap(populateStats, of(props.tokenPair)))
   );
@@ -104,7 +104,7 @@ export default (props: Props) => {
               refresh={tokenPairPrice.isValidating}
             />
           </Box>
-          <Box>Price Info</Box>
+          <Box>Token Pair Info</Box>
           <Styled.Toggle onClick={() => setOpen(!open)}>
             {open ? <ExpandLessIcon /> : <ExpandMoreIcon />}
           </Styled.Toggle>
@@ -130,15 +130,15 @@ export default (props: Props) => {
               </Typography>
             </Styled.DetailsItem>
             <Styled.DetailsItem>
-              <Typography variant="body2">Settle volume</Typography>
+              <Typography variant="body2">Routed volume</Typography>
               <Typography variant="body2">
-                {stats?.settleVolume ?? "-"}
+                {stats?.routedVolume ?? "-"}
               </Typography>
             </Styled.DetailsItem>
             <Styled.DetailsItem>
-              <Typography variant="body2">Trade volume</Typography>
+              <Typography variant="body2">Settled volume</Typography>
               <Typography variant="body2">
-                {stats?.tradeVolume ?? "-"}
+                {stats?.settledVolume ?? "-"}
               </Typography>
             </Styled.DetailsItem>
           </List>

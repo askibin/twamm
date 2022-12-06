@@ -59,8 +59,8 @@ declare type PerfPair = {
   fee: number;
   id: string;
   orderVolume: number;
-  settleVolume: number;
-  tradeVolume: number;
+  routedVolume: number;
+  settledVolume: number;
 };
 
 declare type OrderData = {

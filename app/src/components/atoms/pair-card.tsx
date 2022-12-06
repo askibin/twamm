@@ -13,8 +13,8 @@ export interface Props {
   bMint: PublicKey;
   fee: number;
   orderVolume: number;
-  settleVolume: number;
-  tradeVolume: number;
+  settledVolume: number;
+  routedVolume: number;
 }
 
 export default ({
@@ -22,8 +22,8 @@ export default ({
   bMint,
   fee,
   orderVolume,
-  settleVolume,
-  tradeVolume,
+  settledVolume,
+  routedVolume,
 }: Props) => {
   const tokens = useTokensByMint([aMint, bMint]);
 
@@ -41,8 +41,8 @@ export default ({
         <Box pt={1}>
           <Styled.FundMetrics>
             <Metric formatted title="Order" value={orderVolume} />
-            <Metric formatted title="Settle" value={settleVolume} />
-            <Metric formatted title="Trade" value={tradeVolume} />
+            <Metric formatted title="Routed" value={routedVolume} />
+            <Metric formatted title="Settled" value={settledVolume} />
           </Styled.FundMetrics>
         </Box>
         <Box pt={2}>
