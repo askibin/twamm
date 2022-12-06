@@ -36,8 +36,8 @@ export default ({ data }: Props) => {
             bMint={tokenPair.bMint}
             fee={tokenPair.fee}
             orderVolume={tokenPair.orderVolume}
-            settleVolume={tokenPair.settleVolume}
-            tradeVolume={tokenPair.tradeVolume}
+            routedVolume={tokenPair.routedVolume}
+            settledVolume={tokenPair.settledVolume}
           />
         </Styled.CardListItem>
       ))}
