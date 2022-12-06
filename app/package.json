@@ -32,7 +32,7 @@
     "@solana/wallet-adapter-react-ui": "^0.9.16",
     "@solana/wallet-adapter-wallets": "^0.18.7",
     "@solana/web3.js": "1.62.0",
-    "@twamm/client.js": "0.0.5",
+    "@twamm/client.js": "0.0.6",
     "easy-maybe": "0.0.6",
     "final-form": "4.20.7",
     "isomorphic-fetch": "^3.0.0",
