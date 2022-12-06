@@ -26,6 +26,8 @@ declare type JupTokenData = Pick<
   "name" | "decimals" | "symbol" | "logoURI" | "address"
 >;
 
+declare type FetcherArgs<T> = { params: T };
+
 declare type TokenInfo = JupTokenData & { image: string };
 
 declare type AddressPair = [string, string];
