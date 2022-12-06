@@ -6,6 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
+    "predev": "node scripts/fetch-idl.mjs",
     "prebuild": "node scripts/fetch-idl.mjs",
     "lint": "next lint",
     "lint/fix": "prettier pages --write && eslint pages --fix",
