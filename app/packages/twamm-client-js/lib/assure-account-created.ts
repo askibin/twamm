@@ -43,7 +43,8 @@ interface WalletProvider extends Provider {
 export const assureAccountCreated = async (
   provider: WalletProvider,
   mint: PublicKey,
-  address: PublicKey
+  address: PublicKey,
+  programId?: PublicKey
 ) => {
   const { wallet } = provider;
 
@@ -64,7 +65,8 @@ export const assureAccountCreated = async (
       wallet.publicKey,
       address,
       wallet.publicKey,
-      mint
+      mint,
+      programId
     );
   }
 

@@ -2,7 +2,6 @@ import type { PublicKey } from "@solana/web3.js";
 import type { BN } from "@project-serum/anchor";
 import Maybe, { Extra } from "easy-maybe/lib";
 import Stack from "@mui/material/Stack";
-import Typography from "@mui/material/Typography";
 import { useCallback } from "react";
 
 import type { MaybeTokens } from "../../hooks/use-tokens-by-mint";
@@ -34,9 +33,9 @@ const Content = ({
   tokens: Voidable<MaybeTokens>;
 }) => (
   <Stack direction="column" spacing={2}>
-    <Typography variant="h5">
+    <Styled.ContentHeader>
       <PairCardSymbols data={tokens} />
-    </Typography>
+    </Styled.ContentHeader>
     <Stats details={details} />
     <Control
       expired={details.expired}

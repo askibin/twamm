@@ -76,7 +76,7 @@ export const columns = ({ isMobile }: { isMobile?: boolean }) => [
     renderCell: TokenPairCell,
     sortable: false,
     sortComparator: sortByTokenPair,
-    xs: isMobile ? 6 : 3,
+    xs: isMobile ? 5 : 3,
     md: isMobile ? 6 : 2,
   },
   {

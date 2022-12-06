@@ -6,10 +6,15 @@ import { PublicKey } from "@solana/web3.js";
 
 export const findAssociatedTokenAddress = async (
   wallet: PublicKey,
-  mint: PublicKey
+  mint: PublicKey,
+  programId?: PublicKey
 ) => {
   const [address] = await PublicKey.findProgramAddress(
-    [wallet.toBuffer(), TOKEN_PROGRAM_ID.toBuffer(), mint.toBuffer()],
+    [
+      wallet.toBuffer(),
+      (programId ?? TOKEN_PROGRAM_ID).toBuffer(),
+      mint.toBuffer(),
+    ],
     ASSOCIATED_TOKEN_PROGRAM_ID
   );
 

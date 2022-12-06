@@ -4,14 +4,14 @@ import {
   TransactionInstruction,
   SystemProgram,
 } from "@solana/web3.js";
-import { TOKEN_PROGRAM_ID } from "@solana/spl-token";
 import { assureAccountCreated } from "@twamm/client.js/lib/assure-account-created";
 import { createTransferNativeTokenInstructions } from "@twamm/client.js";
-import { findAssociatedTokenAddress } from "@twamm/client.js/lib/find-associated-token-address";
 import { findAddress } from "@twamm/client.js/lib/program";
+import { findAssociatedTokenAddress } from "@twamm/client.js/lib/find-associated-token-address";
+import { isNil } from "ramda";
 import { Order } from "@twamm/client.js/lib/order";
 import { Pool } from "@twamm/client.js/lib/pool";
-import { isNil } from "ramda";
+import { SplToken } from "@twamm/client.js/lib/spl-token";
 
 import useProgram from "./use-program";
 import useTxRunnerContext from "./use-transaction-runner-context";
@@ -24,6 +24,8 @@ export default () => {
 
   const pool = new Pool(program);
   const order = new Order(program, provider);
+
+  const TOKEN_PROGRAM_ID = SplToken.getProgramId();
 
   const run = async function execute({
     aMint,
@@ -143,21 +145,23 @@ export default () => {
       poolCounter
     );
 
+    const accounts = {
+      owner: provider.wallet.publicKey,
+      userAccountTokenA: aWallet,
+      userAccountTokenB: bWallet,
+      tokenPair: tokenPairAddress,
+      custodyTokenA: aCustody,
+      custodyTokenB: bCustody,
+      order: targetOrder,
+      currentPool,
+      targetPool,
+      systemProgram: SystemProgram.programId,
+      tokenProgram: TOKEN_PROGRAM_ID,
+    };
+
     const result = await program.methods
       .placeOrder(orderParams)
-      .accounts({
-        owner: provider.wallet.publicKey,
-        userAccountTokenA: aWallet,
-        userAccountTokenB: bWallet,
-        tokenPair: tokenPairAddress,
-        custodyTokenA: aCustody,
-        custodyTokenB: bCustody,
-        order: targetOrder,
-        currentPool,
-        targetPool,
-        systemProgram: SystemProgram.programId,
-        tokenProgram: TOKEN_PROGRAM_ID,
-      })
+      .accounts(accounts)
       .preInstructions(pre)
       .rpc()
       .catch((e: Error) => {

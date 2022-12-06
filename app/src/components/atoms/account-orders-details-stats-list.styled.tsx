@@ -1,5 +1,4 @@
 import List from "@mui/material/List";
-import Typography from "@mui/material/Typography";
 import { styled } from "@mui/material/styles";
 
 export const Container = styled(List)`
@@ -7,6 +6,8 @@ export const Container = styled(List)`
   max-width: 360px;
 `;
 
-export const Item = styled(Typography)`
+export const Item = styled("span")`
+  ${(p) => p.theme.typography.body2};
+  display: block;
   color: #65748b;
 `;

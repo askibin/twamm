@@ -1,4 +1,3 @@
-import Box from "@mui/material/Box";
 import ListItem from "@mui/material/ListItem";
 import ListItemText from "@mui/material/ListItemText";
 import * as Styled from "./account-orders-details-stats-list.styled";
@@ -15,17 +14,13 @@ const Item = ({
   value: string | string[];
 }) => {
   const secondary = Array.isArray(value) ? (
-    <Box>
+    <>
       {value.map((v, i) => {
         const key = `${v}-${i}`;
 
-        return (
-          <Styled.Item key={key} variant="body2">
-            {v}
-          </Styled.Item>
-        );
+        return <Styled.Item key={key}>{v}</Styled.Item>;
       })}
-    </Box>
+    </>
   ) : (
     <span>{value}</span>
   );

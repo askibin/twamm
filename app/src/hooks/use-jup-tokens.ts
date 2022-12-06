@@ -1,7 +1,7 @@
 import type { Cluster } from "@solana/web3.js";
 import useSWR from "swr";
 import { TOKEN_LIST_URL } from "@jup-ag/core";
-import { NATIVE_MINT } from "@solana/spl-token";
+import { SplToken } from "@twamm/client.js/lib/spl-token";
 
 import useBlockchainConnectionContext from "./use-blockchain-connection-context";
 
@@ -13,7 +13,7 @@ const swrKey = (params: { moniker: Cluster }) => ({
 const hasTag = (t: JupToken, tag: string) => t.tags?.includes(tag);
 const isSTL = (t: JupToken) => hasTag(t, "stablecoin");
 const isSolana = (t: JupToken) => hasTag(t, "solana");
-const isWSol = (t: JupToken) => t.address === NATIVE_MINT.toBase58();
+const isWSol = (t: JupToken) => SplToken.isNativeAddress(t.address);
 
 const fetcher = async ({ params }: ReturnType<typeof swrKey>) => {
   const { moniker } = params;
