@@ -10,7 +10,9 @@
     "prebuild": "node scripts/fetch-idl.mjs",
     "lint": "next lint",
     "lint/fix": "prettier pages --write && eslint pages --fix",
-    "test": "jest ./*.test.tsx?"
+    "test": "yarn test/unit && yarn test/packages",
+    "test/unit": "jest ./*.test.tsx?",
+    "test/packages": "lerna exec \"test --silent\""
   },
   "dependencies": {
     "@emotion/cache": "^11.10.3",
