@@ -9,6 +9,8 @@ const EXPLORERS = {
   solscan: { uri: "https://solscan.io/tx/" },
 };
 
+const SLIPPAGES = [0, 0.1, 0.5, 1, 2];
+
 export type TransactionRunnerContext = {
   readonly active: boolean;
   readonly commit: (arg0: Promise<string>) => Promise<string | undefined>;
@@ -18,7 +20,10 @@ export type TransactionRunnerContext = {
   readonly provider?: AnchorProvider;
   readonly setExplorer: (e: string) => void;
   readonly setProvider: (p: AnchorProvider) => void;
+  readonly setSlippage: (s: number) => void;
   readonly signature?: string;
+  readonly slippage: number;
+  readonly slippages: typeof SLIPPAGES;
   readonly viewExplorer: (sig: string) => string;
 };
 
@@ -28,10 +33,11 @@ export const RunnerContext = createContext<
 
 export const Provider: FC<{ children: ReactNode }> = ({ children }) => {
   const [active, setActive] = useState<boolean>(false);
-  const [provider, setProvider] = useState<AnchorProvider>();
-  const [signature, setSignature] = useState<string>();
   const [error, setError] = useState<Error>();
   const [explorer, setExplorer] = useState<string>(EXPLORERS.explorer.uri);
+  const [provider, setProvider] = useState<AnchorProvider>();
+  const [signature, setSignature] = useState<string>();
+  const [slippage, setSlippage] = useState<number>(SLIPPAGES[3]);
 
   const commit = useCallback(
     async (operation: Parameters<TransactionRunnerContext["commit"]>[0]) => {
@@ -74,7 +80,10 @@ export const Provider: FC<{ children: ReactNode }> = ({ children }) => {
       provider,
       setExplorer,
       setProvider,
+      setSlippage,
       signature,
+      slippages: SLIPPAGES,
+      slippage,
       viewExplorer,
     }),
     [
@@ -85,7 +94,9 @@ export const Provider: FC<{ children: ReactNode }> = ({ children }) => {
       provider,
       setExplorer,
       setProvider,
+      setSlippage,
       signature,
+      slippage,
       viewExplorer,
     ]
   );
