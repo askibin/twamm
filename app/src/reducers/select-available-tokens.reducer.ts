@@ -1,22 +1,53 @@
-import { flatten } from "ramda";
+import { flatten, lensPath, pipe, set } from "ramda";
+import { OrderSides } from "../types/enums.d";
 
-const INIT_WITH_DEFAULT = "INIT_WITH_DEFAULT";
+const flattenPairs = (pairs: AddressPair[]) =>
+  Array.from(new Set(flatten(pairs)).values());
 
-const SELECT_A = "SELECT_A";
+const matchPairs = (pair: AddressPair, pairs: AddressPair[]) => {
+  const matchedPair = pairs.find(
+    (tokenPair) => tokenPair.includes(pair[0]) && tokenPair.includes(pair[1])
+  );
 
-const SELECT_B = "SELECT_B";
+  if (!matchedPair) return OrderSides.defaultSide;
 
-const SWAP = "SWAP";
+  const type = pair[0] === matchedPair[0] ? OrderSides.sell : OrderSides.buy;
 
-interface State {
+  return type;
+};
+
+enum ActionTypes {
+  WITH_DEFAULT = "WITH_DEFAULT",
+  SELECT_A = "SELECT_A",
+  SELECT_B = "SELECT_B",
+  SWAP = "SWAP",
+}
+
+export interface Data {
   a: any; // TokenInfo;
   all: string[];
   available: string[];
   b: any; // TokenInfo;
-  cancellable: string[];
+  cancellable: undefined; // string[];
   pairs: AddressPair[];
-  type: any; // OrderType;
+  type: OrderType;
 }
+
+export interface State<D = undefined> {
+  data: D;
+}
+
+export const populateInitial = (data = undefined) => ({
+  data,
+  params: undefined,
+  defaults: {
+    type: OrderSides.defaultSide,
+  },
+});
+
+export const defaultState: State = {
+  data: undefined,
+};
 
 export const initialState = {
   a: undefined,
@@ -28,102 +59,93 @@ export const initialState = {
   type: "sell",
 };
 
-const initWithDefault = (payload: {
+const withDefault = (payload: {
   pairs: AddressPair[];
-  pair: JupTokenData[];
+  pair: JupToken[];
   type: OrderType;
 }) => ({
-  type: INIT_WITH_DEFAULT,
+  type: ActionTypes.WITH_DEFAULT,
   payload,
 });
 
 const selectA = (payload: { token: TokenInfo }) => ({
-  type: SELECT_A,
+  type: ActionTypes.SELECT_A,
   payload,
 });
 
 const selectB = (payload: { token: TokenInfo }) => ({
-  type: SELECT_B,
+  type: ActionTypes.SELECT_B,
   payload,
 });
 
 const swap = (payload: { price?: number }) => ({
-  type: SWAP,
+  type: ActionTypes.SWAP,
   payload,
 });
 
-const flattenPairs = (pairs: AddressPair[]) =>
-  Array.from(new Set(flatten(pairs)).values());
+type Action =
+  | ReturnType<typeof withDefault>
+  | ReturnType<typeof selectA>
+  | ReturnType<typeof selectB>
+  | ReturnType<typeof swap>;
 
-const matchPairs = (pair: AddressPair, pairs: AddressPair[]) => {
-  const matchedPair = pairs.find(
-    (tokenPair) => tokenPair.includes(pair[0]) && tokenPair.includes(pair[1])
-  );
+export default (
+  state: State | State<Data>,
+  action: Action
+): State | State<Data> => {
+  switch (action?.type) {
+    case ActionTypes.WITH_DEFAULT: {
+      if (state.data) return state;
 
-  if (!matchedPair) return undefined;
+      const { pair, pairs, type } = action.payload as ActionPayload<
+        typeof withDefault
+      >;
 
-  const type = pair[0] === matchedPair[0] ? "sell" : "buy";
-
-  return type;
-};
-
-type Payload = any;
-/*
- *| Parameters<typeof selectA>[0]
- *| Parameters<typeof selectB>[0]
- *| Parameters<typeof swap>[0]
- *| Parameters<typeof initWithDefault>[0];
- */
-
-export default <S extends Partial<State>, A extends Action<Payload>>(
-  state: S,
-  action: A
-) => {
-  if (!action) return state;
-
-  switch (action.type) {
-    case INIT_WITH_DEFAULT: {
-      const {
-        payload: { pair, pairs, type },
-      } = action as Action<ActionPayload<typeof initWithDefault>>;
       const available = flattenPairs(pairs);
-      const { a: prevA, b: prevB, type: prevType } = state;
 
-      if (prevA && prevB) return state;
+      const isChangingType = OrderSides.defaultSide !== type;
 
-      const isChangingType = prevType !== type;
+      const [a, b] = isChangingType ? [pair[1], pair[0]] : [pair[0], pair[1]];
 
-      const nextState = {
-        ...initialState,
-        a: isChangingType ? pair[1] : pair[0],
-        b: isChangingType ? pair[0] : pair[1],
-        available,
+      const next = {
+        a,
         all: available,
+        available,
+        b,
+        cancellable: undefined,
         pairs,
         type,
       };
 
-      return nextState;
+      return { data: next };
     }
+    case ActionTypes.SELECT_A: {
+      if (!state.data) return state;
 
-    case SELECT_A: {
-      const {
-        payload: { token },
-      } = action as Action<ActionPayload<typeof selectA>>;
-      const { a, b, pairs = [], type: t } = state;
+      const lensA = lensPath(["data", "a"]);
+      const lensAvailable = lensPath(["data", "available"]);
+      const lensB = lensPath(["data", "b"]);
+      const lensType = lensPath(["data", "type"]);
+
+      const { a, b, pairs, type } = state.data;
+      const { token } = action.payload as ActionPayload<typeof selectA>;
 
       if (token.address === b?.address) {
-        return {
-          ...state,
-          a: b,
-          b: a,
-          type: t === "sell" ? "buy" : "sell",
-        };
+        // swap the tokens when oppisite token is selected as lead
+        const applyState = pipe(
+          set(lensA, b),
+          set(lensB, a),
+          set(
+            lensType,
+            type === OrderSides.sell ? OrderSides.buy : OrderSides.sell
+          )
+        );
+
+        return applyState(state);
       }
 
       // Allow to select every token for A
       // Cleanup present b if does not match the pair
-
       const availablePairs = pairs.filter((pair) =>
         pair.includes(token.address)
       );
@@ -134,6 +156,18 @@ export default <S extends Partial<State>, A extends Action<Payload>>(
 
       const shouldResetB = b && !available.includes(b.address);
 
+      if (shouldResetB) {
+        // set the lead token and cleanup slave one as it does not match the available pairs
+        const applyState = pipe(
+          set(lensA, token),
+          set(lensB, undefined),
+          set(lensAvailable, available),
+          set(lensType, OrderSides.defaultSide)
+        );
+
+        return applyState(state);
+      }
+
       let nextType;
       if (b && !shouldResetB) {
         const pair: AddressPair = [token.address, b.address];
@@ -141,56 +175,60 @@ export default <S extends Partial<State>, A extends Action<Payload>>(
       }
 
       const nextState = {
-        ...state,
-        a: token,
-        b: shouldResetB ? undefined : b,
-        available,
-        type: nextType || t,
+        data: {
+          ...state.data,
+          a: token,
+          b: shouldResetB ? undefined : b,
+          available,
+          type: nextType || type,
+        },
       };
 
       return nextState;
     }
+    case ActionTypes.SELECT_B: {
+      if (!state.data) return state;
 
-    case SELECT_B: {
-      const {
-        payload: { token },
-      } = action as Action<ActionPayload<typeof selectB>>;
-      const { a, pairs = [] } = state;
+      const { a, pairs } = state.data;
+      const { token } = action.payload as ActionPayload<typeof selectB>;
 
-      let type;
+      let type = OrderSides.defaultSide;
       if (a) {
         const pair: AddressPair = [a.address, token.address];
         type = matchPairs(pair, pairs);
       }
 
-      const nextState = {
-        ...state,
-        b: token,
-        type,
-      };
+      const applyState = pipe(
+        set(lensPath(["data", "b"]), token),
+        set(lensPath(["data", "type"]), type)
+      );
 
-      return nextState;
+      return applyState(state);
     }
+    case ActionTypes.SWAP: {
+      if (!state.data) return state;
 
-    case SWAP: {
-      const { a, b, type } = state;
+      const { a, b, type } = state.data;
 
-      return {
-        ...state,
-        a: b,
-        b: a,
-        type: type === "sell" ? "buy" : "sell",
-      };
+      const applyState = pipe(
+        set(lensPath(["data", "a"]), b),
+        set(lensPath(["data", "b"]), a),
+        set(
+          lensPath(["data", "type"]),
+          type === OrderSides.sell ? OrderSides.buy : OrderSides.sell
+        )
+      );
+
+      return applyState(state);
     }
-
-    default: {
-      return state;
-    }
+    default:
+      throw new Error(`Unknown action: ${action?.type}`);
   }
 };
 
 export const action = {
-  initWithDefault,
+  withDefault,
+  init: withDefault,
   selectA,
   selectB,
   swap,

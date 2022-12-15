@@ -12,23 +12,34 @@ declare type PromiseSettledResult<T> =
   | PromiseFulfilledResult<T>
   | PromiseRejectedResult;
 
-declare type JupToken = {
-  name: string;
-  decimals: number;
-  symbol: string;
-  logoURI: string;
+declare type JupTokenData = {
   address: string;
+  chainId: number;
+  decimals: number;
+  logoURI: string;
+  name: string;
+  symbol: string;
   tags: string[] | undefined;
 };
 
-declare type JupTokenData = Pick<
-  JupToken,
-  "name" | "decimals" | "symbol" | "logoURI" | "address"
+declare type JupTokenDataV2 = {
+  address: string;
+  chainId: number;
+  decimals: number;
+  logoURI: string;
+  name: string;
+  symbol: string;
+  extensions: {} | undefined;
+};
+
+declare type JupToken = Pick<
+  JupTokenDataV2,
+  "address" | "decimals" | "logoURI" | "name" | "symbol"
 >;
 
 declare type FetcherArgs<T> = { params: T };
 
-declare type TokenInfo = JupTokenData & { image: string };
+declare type TokenInfo = JupToken & { image: string };
 
 declare type AddressPair = [string, string];
 

@@ -1,13 +1,6 @@
 import Box from "@mui/material/Box";
 import Maybe, { Extra } from "easy-maybe/lib";
-import {
-  useCallback,
-  useEffect,
-  useMemo,
-  useReducer,
-  useRef,
-  useState,
-} from "react";
+import { useCallback, useEffect, useReducer, useRef, useState } from "react";
 
 import * as Styled from "./order-editor.styled";
 import availableTokens, {
@@ -25,55 +18,59 @@ import { refreshEach } from "../../swr-options";
 
 const { andMap, of, withDefault } = Maybe;
 const { combine2 } = Extra;
+const M = Maybe;
 
 export interface Props {
+  a: Voidable<TokenInfo>;
+  available: Voidable<TokenInfo[]>;
+  b: Voidable<TokenInfo>;
+  cancellable: undefined;
   onTradeChange: (arg0: {
     amount: number;
     pair: AddressPair;
     type: OrderType;
   }) => void;
   tokenPairs: Voidable<AddressPair[]>;
-  tokenPair: Voidable<JupTokenData[]>;
+  tokenPair: Voidable<JupToken[]>;
   tradeSide: OrderType;
 }
 
-export default ({ onTradeChange, tokenPairs, tokenPair, tradeSide }: Props) => {
-  const pairs = useMemo(() => Maybe.of(tokenPairs), [tokenPairs]);
-  const pair = useMemo(() => Maybe.of(tokenPair), [tokenPair]);
+export default ({
+  a,
+  available,
+  b,
+  cancellable,
+  onTradeChange,
+  tokenPairs,
+  tokenPair,
+  tradeSide,
+}: Props) => {
+  const pairs = of(tokenPairs);
+  const pair = of(tokenPair);
 
   const [curToken, setCurToken] = useState<number>();
   const [state, dispatch] = useReducer(availableTokens, initialState);
   const selectCoinRef = useRef<Ref>();
 
   const tokenPairPrice = usePrice(
-    withDefault(
+    M.withDefault(
       undefined,
-      andMap(
-        ([a, b]) => ({ id: a.address, vsToken: b.address }),
-        combine2([of(state.a), of(state.b)])
+      M.andMap(
+        ([lead, slave]) => ({ id: lead.address, vsToken: slave.address }),
+        combine2([M.of(a), M.of(b)])
       )
     )
   );
 
+  console.debug([a, b]);
+
   const selectedPair = useTokenPairByTokens(
-    state.a && state.b && { aToken: state.a, bToken: state.b },
+    a && b && { aToken: a, bToken: b },
     refreshEach()
   );
 
-  const availableMaybe = Maybe.of(state.available);
-
   useEffect(() => {
-    if (Extra.isNothing(availableMaybe)) {
-      Maybe.andMap(([p, dp]) => {
-        dispatch(
-          action.initWithDefault({
-            pairs: p,
-            pair: dp,
-            type: tradeSide,
-          })
-        );
-      }, Extra.combine2([pairs, pair]));
-    }
+    console.log("effect");
 
     return () => {
       if (selectedPair.data) {
@@ -84,19 +81,12 @@ export default ({ onTradeChange, tokenPairs, tokenPair, tradeSide }: Props) => {
 
         onTradeChange({
           amount: 0,
-          pair: p.map((a: JupTokenData) => a.address),
+          pair: p.map((a: JupToken) => a.address),
           type: t,
         });
       }
     };
-  }, [
-    onTradeChange,
-    pair,
-    availableMaybe,
-    pairs,
-    selectedPair.data,
-    tradeSide,
-  ]);
+  }, [onTradeChange, pair, pairs, selectedPair.data, tradeSide]);
 
   const onTokenChoose = useCallback(
     (index: number) => {
@@ -132,7 +122,12 @@ export default ({ onTradeChange, tokenPairs, tokenPair, tradeSide }: Props) => {
 
   const [exchangePair] = selectedPair.data?.exchangePair ?? [];
 
-  if (Extra.isNothing(pair) || Extra.isNothing(pairs)) return <Loading />;
+  if (
+    Extra.isNothing(pair) ||
+    Extra.isNothing(pairs) ||
+    Extra.isNothing(M.of(available))
+  )
+    return <Loading />;
 
   return (
     <>
@@ -141,8 +136,8 @@ export default ({ onTradeChange, tokenPairs, tokenPair, tradeSide }: Props) => {
           id="select-coin-title"
           onDelete={onCoinDeselect}
           onSelect={onCoinSelect}
-          selected={state.cancellable}
-          tokens={state.available}
+          selected={cancellable}
+          tokens={available}
         />
       </UniversalPopover>
       <Styled.Swap elevation={1}>

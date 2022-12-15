@@ -1,5 +1,5 @@
 import useSWR from "swr";
-
+import M, { Extra } from "easy-maybe/lib";
 import useJupTokens from "./use-jup-tokens";
 
 const swrKey = (params: { mints: string[] }) => ({
@@ -8,7 +8,7 @@ const swrKey = (params: { mints: string[] }) => ({
 });
 
 const fetcher =
-  (tokens?: JupTokenData[]) =>
+  (tokens?: JupToken[]) =>
   async ({ params }: ReturnType<typeof swrKey>) => {
     if (!tokens) return [];
 
@@ -24,7 +24,15 @@ const fetcher =
 export default (mints: string[] | undefined, options = {}) => {
   const jupTokens = useJupTokens();
 
-  const isValid = jupTokens.data && mints;
-
-  return useSWR(isValid && swrKey({ mints }), fetcher(jupTokens.data), options);
+  return useSWR(
+    M.withDefault(
+      undefined,
+      M.andMap(
+        ([m]) => swrKey({ mints: m }),
+        Extra.combine2([M.of(mints), M.of(jupTokens.data)])
+      )
+    ),
+    fetcher(jupTokens.data),
+    options
+  );
 };

@@ -22,7 +22,7 @@ export interface Props {
 
 const STARRED_COINS = ["usdt", "usdc", "sol", "ray"];
 
-const populateTokenRecords = (data?: JupTokenData[]) => {
+const populateTokenRecords = (data?: JupToken[]) => {
   if (!data) return {};
 
   const records: Record<string, TokenInfo> = {};
@@ -75,6 +75,11 @@ export default ({ id, onDelete, onSelect, selected, tokens }: Props) => {
     setSearch(value.toLowerCase());
   }, []);
 
+  const searchIconSx = useMemo(
+    () => ({ color: "action.active", mr: 1, my: 0.5 }),
+    []
+  );
+
   return (
     <Styled.Container>
       {isLoading && <Loading />}
@@ -85,9 +90,7 @@ export default ({ id, onDelete, onSelect, selected, tokens }: Props) => {
           onChange={onSearch}
           variant="standard"
           InputProps={{
-            endAdornment: (
-              <SearchIcon sx={{ color: "action.active", mr: 1, my: 0.5 }} />
-            ),
+            endAdornment: <SearchIcon sx={searchIconSx} />,
           }}
         />
       </Box>

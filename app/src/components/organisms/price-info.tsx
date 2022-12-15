@@ -23,8 +23,8 @@ const { combine2 } = Extra;
 const REFRESH_INTERVAL = 0.5 * 60000;
 
 export interface Props {
-  a?: JupTokenData;
-  b?: JupTokenData;
+  a?: JupToken;
+  b?: JupToken;
   tokenPair: Voidable<{
     configA: PairConfigData;
     configB: PairConfigData;
@@ -39,8 +39,8 @@ export default (props: Props) => {
 
   const { isMobile } = useBreakpoints();
 
-  const populatePair = (a: JupTokenData, b: JupTokenData) =>
-    populatePairByType<JupTokenData>(a, b, props.type);
+  const populatePair = (a: JupToken, b: JupToken) =>
+    populatePairByType<JupToken>(a, b, props.type);
 
   const pair = andMap(
     ([c, d]) => populatePair(c, d),

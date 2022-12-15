@@ -11,6 +11,7 @@ import TokenPairs from "../organisms/token-pairs";
 import AccountOrders from "../organisms/account-orders";
 import TokenExchange, { TradeStruct } from "../organisms/token-exchange";
 import useBreakpoints from "../../hooks/use-breakpoints";
+import { OrderSides } from "../../types/enums.d";
 
 const DEFAULT_MODE = modes.get("exchange") as string;
 
@@ -20,7 +21,7 @@ const DEFAULT_TRADE = {
     address.NATIVE_TOKEN_ADDRESS,
     "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
   ] as AddressPair,
-  type: "buy" as OrderType,
+  type: OrderSides.buy,
 };
 
 export default () => {
