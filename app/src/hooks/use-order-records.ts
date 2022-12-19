@@ -1,6 +1,6 @@
 import type { Program } from "@project-serum/anchor";
 import type { PublicKey } from "@solana/web3.js";
-import Maybe, { Extra } from "easy-maybe/lib";
+import M, { Extra } from "easy-maybe/lib";
 import useSWR from "swr";
 import { TokenPair } from "@twamm/client.js";
 import { useWallet } from "@solana/wallet-adapter-react";
@@ -9,8 +9,6 @@ import useOrders from "./use-orders";
 import usePools from "./use-pools-by-addresses";
 import useProgram from "./use-program";
 import { dedupeEach, refreshEach } from "../swr-options";
-
-const { andMap, of, withDefault } = Maybe;
 
 const swrKey = (params: {
   account: PublicKey | null;
@@ -61,22 +59,22 @@ export default (_: void, options = {}) => {
     ...refreshEach(3 * 60e3),
   });
 
-  const ordersAddresses = withDefault(
+  const ordersAddresses = M.withDefault(
     undefined,
-    andMap((o) => ({ addresses: o.map((a) => a.pool) }), of(orders.data))
+    M.andMap((o) => ({ addresses: o.map((a) => a.pool) }), M.of(orders.data))
   );
 
   const pools = usePools(ordersAddresses);
 
   return useSWR(
-    withDefault(
+    M.withDefault(
       undefined,
-      andMap(
+      M.andMap(
         ([a, o, p]) => swrKey({ account: a, orders: o, pools: p }),
         Extra.combine3([
-          of(account as PublicKey),
-          of(orders.data),
-          of(pools.data),
+          M.of(account as PublicKey),
+          M.of(orders.data),
+          M.of(pools.data),
         ])
       )
     ),

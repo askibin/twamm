@@ -1,4 +1,4 @@
-import Maybe from "easy-maybe/lib";
+import M from "easy-maybe/lib";
 import { useCallback, useMemo, useState } from "react";
 import { Form } from "react-final-form";
 
@@ -9,6 +9,8 @@ import useTIFIntervals from "../../hooks/use-tif-intervals";
 import { refreshEach } from "../../swr-options";
 
 export interface Props {
+  lead: Voidable<TokenInfo>;
+  slave: Voidable<TokenInfo>;
   onABSwap: () => void;
   onASelect: () => void;
   onBSelect: () => void;
@@ -25,6 +27,8 @@ export interface Props {
 type ValidationErrors = { a?: Error; b?: Error; amount?: Error; tif?: Error };
 
 export default ({
+  lead,
+  slave,
   onABSwap,
   onASelect,
   onBSelect,
@@ -35,7 +39,7 @@ export default ({
   tokenA,
   tokenADecimals,
   tokenB,
-  tokenPair: tp,
+  tokenPair: pair,
 }: Props) => {
   const { execute } = useScheduleOrder();
 
@@ -43,14 +47,11 @@ export default ({
   const [submitting, setSubmitting] = useState<boolean>(false);
   const [tif, setTif] = useState<SelectedTif>();
 
-  const tifs = Maybe.withDefault(undefined, Maybe.of(poolTifs));
-  const currentPoolPresent = Maybe.withDefault(
-    undefined,
-    Maybe.of(poolsCurrent)
-  );
-  const poolCounters = Maybe.withDefault(undefined, Maybe.of(counters));
-  const side = Maybe.withDefault(undefined, Maybe.of(s));
-  const tokenPair = Maybe.withDefault(undefined, Maybe.of(tp));
+  const tifs = M.withDefault(undefined, M.of(poolTifs));
+  const currentPoolPresent = M.withDefault(undefined, M.of(poolsCurrent));
+  const poolCounters = M.withDefault(undefined, M.of(counters));
+  const side = M.withDefault(undefined, M.of(s));
+  const tokenPair = M.withDefault(undefined, M.of(pair));
 
   const intervalTifs = useTIFIntervals(
     tokenPair,
@@ -68,7 +69,6 @@ export default ({
   );
 
   const onIntervalSelect = useCallback((selectedTif: SelectedTif) => {
-    // FIXME: console.log("selected TIF", selectedTif);
     setTif(selectedTif);
   }, []);
 
@@ -92,7 +92,7 @@ export default ({
   }, [amount, tif, tokenA, tokenB]);
 
   const onSubmit = useCallback(async () => {
-    const tifIntervals = Maybe.of(intervalTifs.data);
+    const tifIntervals = M.of(intervalTifs.data);
 
     if (!tokenPair) throw new Error("Pair is absent");
     if (!tif) throw new Error("Please choose the intervals");
@@ -106,20 +106,17 @@ export default ({
 
     if (!timeInForce) throw new Error("Absent tif");
 
-    const finalTif = Maybe.withDefault(
+    const finalTif = M.withDefault(
       undefined,
-      Maybe.andMap((intervals) => {
-        // console.log({ intervals }, timeInForce);
+      M.andMap((intervals) => {
         const interval = intervals.find((itif: IndexedTIF) => {
           if (nextPool !== -1) return itif.tif === timeInForce;
-          return itif.left === timeInForce; // itif.tif === timeInForce
+          return itif.left === timeInForce;
         });
 
         return interval;
       }, tifIntervals)
     );
-
-    // console.log({ finalTif }, nextPool);
 
     if (!finalTif) throw new Error("Wrong tif");
     if (finalTif.left === 0)
@@ -131,7 +128,7 @@ export default ({
       decimals: tokenADecimals,
       aMint: a.address,
       bMint: b.address,
-      nextPool: nextPool !== -1, // && finalTif.tif !== finalTif.left,
+      nextPool: nextPool !== -1,
       tifs,
       poolCounters,
       tif: finalTif.tif,
@@ -163,6 +160,8 @@ export default ({
       {({ handleSubmit, valid }) => (
         <TokenPairFormContent
           handleSubmit={handleSubmit}
+          lead={lead}
+          slave={slave}
           intervalTifs={intervalTifs.data}
           isScheduled={isScheduled}
           onABSwap={onABSwap}
@@ -172,8 +171,6 @@ export default ({
           onIntervalSelect={onIntervalSelect}
           submitting={submitting}
           tif={tif}
-          tokenPair={tokenPair}
-          tradeSide={side}
           valid={valid}
         />
       )}

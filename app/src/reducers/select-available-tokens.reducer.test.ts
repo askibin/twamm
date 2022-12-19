@@ -38,31 +38,31 @@ const d = {
   symbol: "D",
 };
 
+const pairs: AddressPair[] = [
+  [a, b],
+  [a, c],
+  [b, c],
+  [d, c],
+].map(([a1, a2]) => [a1.address, a2.address]);
+
 describe("select-available-tokens reducer", () => {
-  it("should init", () => {
+  it("should fail on unsupported action", () => {
     expect(R.default).toThrowError(/^Unknown action/);
     // @ts-expect-error
     expect(() => R.default(R.defaultState)).toThrowError(/^Unknown action/);
   });
 
   it("should `INIT`", () => {
-    const pairs: AddressPair[] = [
-      ["address_a", "address_b"],
-      ["address_a", "address_c"],
-      ["address_b", "address_c"],
-    ];
-    const pair = [a, b];
-
     const next1 = R.default(
       R.defaultState,
-      R.action.withDefault({ pairs, pair, type: OrderSides.buy })
+      R.action.init({ pairs, pair: [a, b], type: OrderSides.buy })
     );
 
     const state1 = {
       data: {
         a: b,
-        available: ["address_a", "address_b", "address_c"],
-        all: ["address_a", "address_b", "address_c"],
+        all: ["address_a", "address_b", "address_c", "address_d"],
+        available: ["address_a", "address_c"],
         b: a,
         cancellable: undefined,
         pairs,
@@ -74,27 +74,24 @@ describe("select-available-tokens reducer", () => {
 
     const next2 = R.default(
       state1,
-      R.action.init({ pairs, pair, type: OrderSides.sell })
+      R.action.init({ pairs, pair: [a, b], type: OrderSides.sell })
     );
 
     expect(next2).toStrictEqual(state1);
+    // do not initialize state again
   });
 
-  it("should `SWAP`", () => {
-    const state0 = R.default(R.defaultState, R.action.swap({}));
+  it("should `SELECT_A`", () => {
+    const state0 = R.default(R.defaultState, R.action.selectA({ token: a }));
     expect(state0).toStrictEqual(R.defaultState);
+  });
 
-    const pairs: AddressPair[] = [
-      ["address_a", "address_b"],
-      ["address_a", "address_c"],
-      ["address_b", "address_c"],
-    ];
-
-    const state = {
+  it("should `SELECT_A` and swap tokens", () => {
+    const initializedState = {
       data: {
         a: b,
-        available: ["address_a", "address_b", "address_c"],
-        all: ["address_a", "address_b", "address_c"],
+        all: ["address_a", "address_b", "address_c", "address_d"],
+        available: ["address_a", "address_c"],
         b: a,
         cancellable: undefined,
         pairs,
@@ -102,11 +99,13 @@ describe("select-available-tokens reducer", () => {
       },
     };
 
-    expect(R.default(state, R.action.swap({}))).toStrictEqual({
+    expect(
+      R.default(initializedState, R.action.selectA({ token: a }))
+    ).toStrictEqual({
       data: {
         a,
-        available: ["address_a", "address_b", "address_c"],
-        all: ["address_a", "address_b", "address_c"],
+        all: ["address_a", "address_b", "address_c", "address_d"],
+        available: ["address_b", "address_c"],
         b,
         cancellable: undefined,
         pairs,
@@ -115,72 +114,27 @@ describe("select-available-tokens reducer", () => {
     });
   });
 
-  it("should `SELECT_A`", () => {
-    const tokenA = { ...a, image: a.logoURI };
-    const tokenB = { ...b, image: b.logoURI };
-    const tokenC = { ...c, image: c.logoURI };
-    const tokenD = { ...d, image: d.logoURI };
-
-    const state0 = R.default(
-      R.defaultState,
-      R.action.selectA({ token: tokenA })
-    );
-    expect(state0).toStrictEqual(R.defaultState);
-
-    const pairs: AddressPair[] = [
-      ["address_a", "address_b"],
-      ["address_a", "address_c"],
-      ["address_b", "address_c"],
-    ];
-
-    const state = {
+  it("shoult `SELECT_A` and use C token", () => {
+    const initializedState = {
       data: {
-        a,
-        available: ["address_a", "address_b", "address_c"],
-        all: ["address_a", "address_b", "address_c"],
-        b,
+        a: b,
+        all: ["address_a", "address_b", "address_c", "address_d"],
+        available: ["address_a", "address_c"],
+        b: a,
         cancellable: undefined,
         pairs,
-        type: OrderSides.sell,
-      },
-    };
-
-    // select B as A
-    expect(R.default(state, R.action.selectA({ token: tokenB }))).toStrictEqual(
-      {
-        data: {
-          a: b,
-          available: ["address_a", "address_b", "address_c"],
-          all: ["address_a", "address_b", "address_c"],
-          b: a,
-          cancellable: undefined,
-          pairs,
-          type: OrderSides.buy,
-        },
-      }
-    );
-
-    // select C
-    const state1 = {
-      data: {
-        a,
-        available: ["address_a", "address_b", "address_c"],
-        all: ["address_a", "address_b", "address_c"],
-        b,
-        cancellable: undefined,
-        pairs,
-        type: OrderSides.sell,
+        type: OrderSides.buy,
       },
     };
 
     expect(
-      R.default(state1, R.action.selectA({ token: tokenC }))
+      R.default(initializedState, R.action.selectA({ token: c }))
     ).toStrictEqual({
       data: {
         a: c,
-        available: ["address_a", "address_b"],
-        all: ["address_a", "address_b", "address_c"],
-        b,
+        all: ["address_a", "address_b", "address_c", "address_d"],
+        available: ["address_a", "address_b", "address_d"],
+        b: a,
         cancellable: undefined,
         pairs,
         type: OrderSides.buy,
@@ -189,9 +143,7 @@ describe("select-available-tokens reducer", () => {
   });
 
   it("should `SELECT_A` and clean slave token", () => {
-    const tokenD = { ...d, image: d.logoURI };
-
-    const pairs: AddressPair[] = [
+    const richPairs: AddressPair[] = [
       ["address_a", "address_b"],
       ["address_a", "address_c"],
       ["address_b", "address_c"],
@@ -206,71 +158,85 @@ describe("select-available-tokens reducer", () => {
         all: ["address_a", "address_b", "address_c", "address_d", "address_e"],
         b,
         cancellable: undefined,
-        pairs,
+        pairs: richPairs,
         type: OrderSides.sell,
       },
     };
 
-    expect(R.default(state, R.action.selectA({ token: tokenD }))).toStrictEqual(
-      {
-        data: {
-          a: d,
-          available: ["address_c", "address_e"],
-          all: [
-            "address_a",
-            "address_b",
-            "address_c",
-            "address_d",
-            "address_e",
-          ],
-          b: undefined,
-          cancellable: undefined,
-          pairs,
-          type: OrderSides.defaultSide,
-        },
-      }
-    );
+    expect(R.default(state, R.action.selectA({ token: d }))).toStrictEqual({
+      data: {
+        a: d,
+        available: ["address_c", "address_e"],
+        all: ["address_a", "address_b", "address_c", "address_d", "address_e"],
+        b: undefined,
+        cancellable: undefined,
+        pairs: richPairs,
+        type: OrderSides.defaultSide,
+      },
+    });
   });
 
   it("should `SELECT_B`", () => {
-    const tokenA = { ...a, image: a.logoURI };
-    const tokenC = { ...c, image: c.logoURI };
+    const state = R.default(R.defaultState, R.action.selectB({ token: a }));
+    expect(state).toStrictEqual(R.defaultState);
+  });
 
-    const state0 = R.default(
-      R.defaultState,
-      R.action.selectB({ token: tokenA })
-    );
-    expect(state0).toStrictEqual(R.defaultState);
+  it("should `SELECT_B` as change token", () => {
+    const initializedState = {
+      data: {
+        a: b,
+        all: ["address_a", "address_b", "address_c", "address_d"],
+        available: ["address_a", "address_c"],
+        b: a,
+        cancellable: undefined,
+        pairs,
+        type: OrderSides.buy,
+      },
+    };
 
-    const pairs: AddressPair[] = [
-      ["address_a", "address_b"],
-      ["address_a", "address_c"],
-      ["address_b", "address_c"],
-    ];
+    expect(
+      R.default(initializedState, R.action.selectB({ token: c }))
+    ).toStrictEqual({
+      data: {
+        a: b,
+        all: ["address_a", "address_b", "address_c", "address_d"],
+        available: ["address_a", "address_c"],
+        b: c,
+        cancellable: undefined,
+        pairs,
+        type: OrderSides.sell,
+      },
+    });
+  });
 
-    const state = {
+  it("should `SWAP`", () => {
+    const state = R.default(R.defaultState, R.action.swap({}));
+    expect(state).toStrictEqual(R.defaultState);
+  });
+
+  it("should `SWAP` adn swap", () => {
+    const initializedState = {
+      data: {
+        a: b,
+        all: ["address_a", "address_b", "address_c", "address_d"],
+        available: ["address_a", "address_c"],
+        b: a,
+        cancellable: undefined,
+        pairs,
+        type: OrderSides.buy,
+      },
+    };
+
+    expect(R.default(initializedState, R.action.swap({}))).toStrictEqual({
       data: {
         a,
-        available: ["address_a", "address_b", "address_c"],
-        all: ["address_a", "address_b", "address_c"],
+        all: ["address_a", "address_b", "address_c", "address_d"],
+        available: ["address_b", "address_c"],
         b,
         cancellable: undefined,
         pairs,
         type: OrderSides.sell,
       },
-    };
-    expect(R.default(state, R.action.selectB({ token: tokenC }))).toStrictEqual(
-      {
-        data: {
-          a,
-          available: ["address_a", "address_b", "address_c"],
-          all: ["address_a", "address_b", "address_c"],
-          b: c,
-          cancellable: undefined,
-          pairs,
-          type: OrderSides.sell,
-        },
-      }
-    );
+    });
   });
 });

@@ -12,6 +12,8 @@ declare type PromiseSettledResult<T> =
   | PromiseFulfilledResult<T>
   | PromiseRejectedResult;
 
+declare type FetcherArgs<T> = { params: T };
+
 declare type JupTokenData = {
   address: string;
   chainId: number;
@@ -32,12 +34,12 @@ declare type JupTokenDataV2 = {
   extensions: {} | undefined;
 };
 
-declare type JupToken = Pick<
+declare type CoinToken = Pick<
   JupTokenDataV2,
-  "address" | "decimals" | "logoURI" | "name" | "symbol"
+  "address" | "decimals" | "name" | "symbol"
 >;
 
-declare type FetcherArgs<T> = { params: T };
+declare type JupToken = CoinToken & Pick<JupTokenDataV2, "logoURI">;
 
 declare type TokenInfo = JupToken & { image: string };
 

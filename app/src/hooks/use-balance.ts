@@ -1,13 +1,11 @@
 import type { Provider } from "@project-serum/anchor";
 import type { PublicKey } from "@solana/web3.js";
-import Maybe, { Extra } from "easy-maybe/lib";
+import M, { Extra } from "easy-maybe/lib";
 import useSWR from "swr";
 import { SplToken } from "@twamm/client.js/lib/spl-token";
 import { useWallet } from "@solana/wallet-adapter-react";
 import useAccountTokens, { AccountBalance } from "./use-account-tokens";
 import useProgram from "./use-program";
-
-const { andMap, withDefault, of } = Maybe;
 
 type Params = { address: PublicKey; balances: AccountBalance[]; mint: string };
 
@@ -42,11 +40,11 @@ export default (mint: Voidable<string>, options = {}) => {
   const accountTokens = useAccountTokens();
 
   return useSWR(
-    withDefault(
+    M.withDefault(
       undefined,
-      andMap(
+      M.andMap(
         (a) => swrKey({ address: a[0], balances: a[1], mint: a[2] }),
-        Extra.combine3([of(address), of(accountTokens.data), of(mint)])
+        Extra.combine3([M.of(address), M.of(accountTokens.data), M.of(mint)])
       )
     ),
     fetcher({ provider }),

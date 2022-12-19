@@ -16,6 +16,7 @@ const isSolana = (t: JupToken) => hasTag(t, "solana");
 const isSol = (t: JupToken) => SplToken.isNativeAddress(t.address);
 const hasProperAddress = (t: JupToken) =>
   [
+    "4k3Dyjzvzp8eMZWUXbBCjEvwSkkk59S5iCNLY3QrkX6R",
     "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
     "Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB",
   ].includes(t.address);

@@ -24,23 +24,38 @@ export default (props: Props) => {
 
   const [state, dispatch] = useTokenExchange();
 
-  console.log({ state: state.data });
-
   useEffect(() => {
     M.andMap(([pairs, pair, type]) => {
-      console.info("INIT");
-
       dispatch(R.action.init({ pairs, pair, type }));
     }, Extra.combine3([M.of(tokenPairs.data), M.of(tokenPair.data), M.of(props.trade.type)]));
 
     return () => {};
   }, [dispatch, props.trade, tokenPairs.data, tokenPair.data]);
 
+  const onSelectA = useCallback(
+    (token: CoinToken) => {
+      dispatch(R.action.selectA({ token }));
+    },
+    [dispatch]
+  );
+
+  const onSelectB = useCallback(
+    (token: CoinToken) => {
+      dispatch(R.action.selectB({ token }));
+    },
+    [dispatch]
+  );
+
+  const onSwap = useCallback(
+    (price: number | undefined) => {
+      dispatch(R.action.swap({ price }));
+    },
+    [dispatch]
+  );
+
   const onTradeChange = useCallback(
     (next: TradeStruct) => {
       const prev = props.trade;
-
-      console.log("trd", prev, next);
 
       if (
         prev.pair[0] !== next.pair[0] ||
@@ -56,13 +71,17 @@ export default (props: Props) => {
   return (
     <OrderEditor
       a={state.data?.a}
+      all={state.data?.all}
       available={state.data?.available}
       b={state.data?.b}
       cancellable={undefined}
+      onSelectA={onSelectA}
+      onSelectB={onSelectB}
+      onSwap={onSwap}
       onTradeChange={onTradeChange}
       tokenPair={tokenPair.data}
       tokenPairs={tokenPairs.data}
-      tradeSide={props.trade.type}
+      tradeSide={state.data?.type}
     />
   );
 };
