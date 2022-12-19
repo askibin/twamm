@@ -15,6 +15,7 @@ import { SplToken } from "@twamm/client.js/lib/spl-token";
 
 import useProgram from "./use-program";
 import useTxRunnerContext from "./use-transaction-runner-context";
+import { OrderSides } from "../types/enums.d";
 
 export default () => {
   const { program, provider } = useProgram();
@@ -86,8 +87,8 @@ export default () => {
       await assureAccountCreated(provider, bMintPublicKey, bWallet),
     ];
 
-    const isSell = side === "sell";
-    const isBuy = side === "buy";
+    const isSell = side === OrderSides.sell;
+    const isBuy = side === OrderSides.buy;
 
     if (isSell)
       preInstructions = preInstructions.concat(
@@ -118,7 +119,7 @@ export default () => {
     const counter = poolCounters[index];
 
     const orderParams = {
-      side: side === "sell" ? { sell: {} } : { buy: {} },
+      side: side === OrderSides.sell ? { sell: {} } : { buy: {} },
       timeInForce: tif,
       amount: new BN(amount * 10 ** decimals),
     };

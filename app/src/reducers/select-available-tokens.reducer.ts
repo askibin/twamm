@@ -16,7 +16,7 @@ const matchPairs = (pair: AddressPair, pairs: AddressPair[]) => {
   return type;
 };
 
-const selectComplementary = (token: CoinToken, pairs: AddressPair[]) => {
+const selectComplementary = (token: JupToken, pairs: AddressPair[]) => {
   const availablePairs = pairs.filter((pair) => pair.includes(token.address));
 
   const available = flatten(availablePairs).filter(
@@ -34,10 +34,10 @@ enum ActionTypes {
 }
 
 export interface Data {
-  a: CoinToken;
+  a: TokenInfo;
   all: string[];
   available: string[];
-  b?: CoinToken;
+  b?: TokenInfo;
   cancellable: undefined; // string[];
   pairs: AddressPair[];
   type: OrderType;
@@ -60,12 +60,12 @@ const init = (payload: {
   payload,
 });
 
-const selectA = (payload: { token: CoinToken }) => ({
+const selectA = (payload: { token: TokenInfo }) => ({
   type: ActionTypes.SELECT_A,
   payload,
 });
 
-const selectB = (payload: { token: CoinToken }) => ({
+const selectB = (payload: { token: TokenInfo }) => ({
   type: ActionTypes.SELECT_B,
   payload,
 });
@@ -106,10 +106,10 @@ export default (
       const available = selectComplementary(a, pairs);
 
       const next = {
-        a,
+        a: { ...a, image: a.logoURI },
         all,
         available,
-        b,
+        b: { ...b, image: b.logoURI },
         cancellable: undefined,
         pairs,
         type,

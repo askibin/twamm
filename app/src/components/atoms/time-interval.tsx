@@ -126,7 +126,7 @@ export default ({
   );
 
   const onInstantIntervalSelect = useCallback(() => {
-    onSelectInstant && onSelectInstant(INSTANT_INTERVAL);
+    if (onSelectInstant) onSelectInstant(INSTANT_INTERVAL);
   }, [onSelectInstant]);
 
   const open = Boolean(anchorEl);

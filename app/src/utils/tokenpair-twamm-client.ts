@@ -4,6 +4,7 @@ import { PublicKey } from "@solana/web3.js";
 import { TokenPair as TokenPairClient } from "@twamm/client.js";
 
 import { forit } from "./forit";
+import { OrderSides } from "../types/enums.d";
 
 const addressToBuffer = (address: string) => new PublicKey(address).toBuffer();
 
@@ -41,7 +42,8 @@ export const resolveExchangePair = (program: Program) => {
       tokenPairProgramData = await fetchPair(addressPair);
     }
 
-    const assumedType = a.address === pair[0].address ? "sell" : "buy";
+    const assumedType =
+      a.address === pair[0].address ? OrderSides.sell : OrderSides.buy;
     const exchangePair: [TokenPair<TokenInfo>, OrderType] = [pair, assumedType];
 
     return {

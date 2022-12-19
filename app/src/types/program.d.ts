@@ -1,4 +1,4 @@
-declare type OrderType = "sell" | "buy";
+declare type OrderType = OrderSides.sell | OrderSides.buy;
 
 declare type OrderTypeStruct = { sell: {} } & { buy: {} };
 

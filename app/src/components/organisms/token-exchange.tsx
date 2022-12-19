@@ -33,14 +33,14 @@ export default (props: Props) => {
   }, [dispatch, props.trade, tokenPairs.data, tokenPair.data]);
 
   const onSelectA = useCallback(
-    (token: CoinToken) => {
+    (token: TokenInfo) => {
       dispatch(R.action.selectA({ token }));
     },
     [dispatch]
   );
 
   const onSelectB = useCallback(
-    (token: CoinToken) => {
+    (token: TokenInfo) => {
       dispatch(R.action.selectB({ token }));
     },
     [dispatch]
