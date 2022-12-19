@@ -26,7 +26,7 @@ const prepareIntervals = (value: number) => {
     return [amount, leftover];
   };
 
-  if (value < 0) return "no delay";
+  if (value === -1) return "no delay";
 
   const [w, leftD] = getIntervalValues(value, 604800);
   const [d, leftH] = getIntervalValues(leftD, 86400);

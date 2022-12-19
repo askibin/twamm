@@ -9,7 +9,7 @@ import type { SelectedTif } from "./trade-intervals";
 
 export interface Props {
   handleSubmit: () => void;
-  lead: JupToken;
+  lead: Voidable<JupToken>;
   slave: Voidable<JupToken>;
   intervalTifs?: { tif: any; index: any; left: any }[];
   isScheduled?: boolean;
@@ -17,6 +17,7 @@ export interface Props {
   onASelect: () => void;
   onBSelect: () => void;
   onChangeAmount: (arg0: number) => void;
+  onInstantIntervalSelect: () => void;
   onIntervalSelect: (tif: SelectedTif) => void;
   submitting: boolean;
   tif?: SelectedTif;
@@ -33,6 +34,7 @@ export default ({
   onASelect,
   onBSelect,
   onChangeAmount,
+  onInstantIntervalSelect,
   onIntervalSelect,
   submitting,
   tif,
@@ -70,6 +72,7 @@ export default ({
           indexedTifs={intervalTifs}
           selectedTif={tif}
           onSelect={onIntervalSelect}
+          onSelectInstant={onInstantIntervalSelect}
         />
       </Box>
       <Box py={3}>

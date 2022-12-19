@@ -12,10 +12,45 @@ import { formatInterval } from "../../utils/index";
 export interface Props {
   info?: string;
   label: string;
+  useInstantOption?: boolean;
   value?: number;
   values?: number[];
   onSelect: (arg0: number) => void;
+  onSelectInstant?: (arg0: number) => void;
 }
+
+export const INSTANT_INTERVAL = -2;
+
+const Instant = (props: {
+  onSelect: () => void;
+  value: Voidable<number>;
+  values: Voidable<any>;
+}) => {
+  const { isMobile } = useBreakpoints();
+
+  const disabled = props.value === INSTANT_INTERVAL;
+
+  if (!props.values) return <Styled.BlankIntervals variant="rectangular" />;
+  return isMobile ? (
+    <Styled.MobileScheduleButton
+      data-interval={props.value}
+      key={props.value}
+      onClick={props.onSelect}
+      disabled={disabled}
+    >
+      Instant
+    </Styled.MobileScheduleButton>
+  ) : (
+    <Styled.ScheduleButton
+      data-interval={props.value}
+      key={props.value}
+      onClick={props.onSelect}
+      disabled={disabled}
+    >
+      Instant
+    </Styled.ScheduleButton>
+  );
+};
 
 const Intervals = memo(
   ({
@@ -32,7 +67,7 @@ const Intervals = memo(
     if (!values) return <Styled.BlankIntervals variant="rectangular" />;
 
     return (
-      <ButtonGroup variant="outlined" aria-label="outlined button group">
+      <>
         {values
           .filter((value: number) => value !== 0)
           .map((value: number) => {
@@ -58,12 +93,20 @@ const Intervals = memo(
               </Styled.ScheduleButton>
             );
           })}
-      </ButtonGroup>
+      </>
     );
   }
 );
 
-export default ({ info, label, value, values, onSelect }: Props) => {
+export default ({
+  info,
+  label,
+  onSelect,
+  onSelectInstant,
+  useInstantOption = false,
+  value,
+  values,
+}: Props) => {
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
 
   const handlePopoverOpen = (event: MouseEvent<HTMLElement>) => {
@@ -81,6 +124,10 @@ export default ({ info, label, value, values, onSelect }: Props) => {
     },
     [onSelect]
   );
+
+  const onInstantIntervalSelect = useCallback(() => {
+    onSelectInstant && onSelectInstant(INSTANT_INTERVAL);
+  }, [onSelectInstant]);
 
   const open = Boolean(anchorEl);
 
@@ -115,7 +162,16 @@ export default ({ info, label, value, values, onSelect }: Props) => {
           </Popover>
         )}
       </Box>
-      <Intervals value={value} values={values} onSelect={onIntervalSelect} />
+      <ButtonGroup variant="outlined" aria-label="outlined button group">
+        <Intervals value={value} values={values} onSelect={onIntervalSelect} />
+        {useInstantOption && (
+          <Instant
+            value={value}
+            values={values}
+            onSelect={onInstantIntervalSelect}
+          />
+        )}
+      </ButtonGroup>
     </Styled.Interval>
   );
 };

@@ -72,6 +72,10 @@ export default ({
     setTif(selectedTif);
   }, []);
 
+  const onInstantIntervalSelect = useCallback(() => {
+    setTif([undefined, -2]);
+  }, []);
+
   const errors = useMemo<ValidationErrors>(() => {
     const result: ValidationErrors = {};
 
@@ -80,9 +84,11 @@ export default ({
     if (!amount) result.amount = new Error("Specify the amount of token");
     if (Number.isNaN(Number(amount)))
       result.amount = new Error("Should be the number");
+
     if (tif) {
-      const [timeInForce] = tif;
-      if (!timeInForce) {
+      const [timeInForce, modes] = tif;
+
+      if (!timeInForce && modes !== -2) {
         result.tif = new Error("Should choose the interval");
       }
     } else if (!tif) {
@@ -168,6 +174,7 @@ export default ({
           onASelect={onASelect}
           onBSelect={onBSelect}
           onChangeAmount={onChangeAmount}
+          onInstantIntervalSelect={onInstantIntervalSelect}
           onIntervalSelect={onIntervalSelect}
           submitting={submitting}
           tif={tif}
