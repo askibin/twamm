@@ -14,12 +14,24 @@ import { Pool } from "@twamm/client.js/lib/pool";
 import { SplToken } from "@twamm/client.js/lib/spl-token";
 
 import useProgram from "./use-program";
-import useTxRunnerContext from "./use-transaction-runner-context";
+import useTxRunner from "../contexts/transaction-runner-context";
 import { OrderSides } from "../types/enums.d";
+
+export interface Params {
+  amount: number;
+  decimals: number;
+  side: OrderType;
+  aMint: string;
+  bMint: string;
+  tif: number;
+  nextPool: boolean;
+  poolCounters: PoolCounter[];
+  tifs: number[];
+}
 
 export default () => {
   const { program, provider } = useProgram();
-  const { commit } = useTxRunnerContext();
+  const { commit } = useTxRunner();
 
   const findProgramAddress = findAddress(program);
 
@@ -38,17 +50,7 @@ export default () => {
     side,
     tif,
     tifs,
-  }: {
-    amount: number;
-    decimals: number;
-    side: OrderType;
-    aMint: string;
-    bMint: string;
-    tif: number;
-    nextPool: boolean;
-    poolCounters: PoolCounter[];
-    tifs: number[];
-  }) {
+  }: Params) {
     const transferAuthority = await findProgramAddress(
       "transfer_authority",
       []

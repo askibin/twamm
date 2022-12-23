@@ -38,7 +38,7 @@ export interface Data {
   all: string[];
   available: string[];
   b?: TokenInfo;
-  cancellable: undefined; // string[];
+  cancellable: undefined;
   pairs: AddressPair[];
   type: OrderType;
 }

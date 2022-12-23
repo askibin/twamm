@@ -1,12 +1,18 @@
+import Box from "@mui/material/Box";
 import M from "easy-maybe/lib";
 import { useCallback, useMemo, useState } from "react";
 import { Form } from "react-final-form";
 
 import type { SelectedTif } from "./trade-intervals";
+import ConnectButton from "../atoms/token-pair-form-content-button";
+import JupiterOrderProgress from "../organisms/jupiter-order-progress";
 import TokenPairFormContent from "./token-pair-form-content";
 import useScheduleOrder from "../../hooks/use-schedule-order";
 import useTIFIntervals from "../../hooks/use-tif-intervals";
+import useJupiterExchange from "../../hooks/use-jupiter-exchange";
 import { refreshEach } from "../../swr-options";
+import type { ValidationErrors } from "./token-pair-form.utils";
+import * as formHelpers from "./token-pair-form.utils";
 
 export interface Props {
   lead: Voidable<TokenInfo>;
@@ -24,8 +30,6 @@ export interface Props {
   tokenPair: Voidable<TokenPair<JupToken>>;
 }
 
-type ValidationErrors = { a?: Error; b?: Error; amount?: Error; tif?: Error };
-
 export default ({
   lead,
   slave,
@@ -41,11 +45,13 @@ export default ({
   tokenB,
   tokenPair: pair,
 }: Props) => {
-  const { execute } = useScheduleOrder();
+  const { execute: sendToProgram } = useScheduleOrder();
+  const { execute: sendToJupiter } = useJupiterExchange();
 
   const [amount, setAmount] = useState<number>(0);
   const [submitting, setSubmitting] = useState<boolean>(false);
   const [tif, setTif] = useState<SelectedTif>();
+  const [values, setValues] = useState();
 
   const tifs = M.withDefault(undefined, M.of(poolTifs));
   const currentPoolPresent = M.withDefault(undefined, M.of(poolsCurrent));
@@ -76,30 +82,12 @@ export default ({
     setTif([undefined, -2]);
   }, []);
 
-  const errors = useMemo<ValidationErrors>(() => {
-    const result: ValidationErrors = {};
-
-    if (!tokenA) result.a = new Error("Required");
-    if (!tokenB) result.b = new Error("Required");
-    if (!amount) result.amount = new Error("Specify the amount of token");
-    if (Number.isNaN(Number(amount)))
-      result.amount = new Error("Should be the number");
-
-    if (tif) {
-      const [timeInForce, modes] = tif;
-
-      if (!timeInForce && modes !== -2) {
-        result.tif = new Error("Should choose the interval");
-      }
-    } else if (!tif) {
-      result.tif = new Error("Should choose the interval");
-    }
-    return result;
-  }, [amount, tif, tokenA, tokenB]);
+  const errors = useMemo<ValidationErrors>(
+    () => formHelpers.validate(amount, tif, tokenA, tokenB),
+    [amount, tif, tokenA, tokenB]
+  );
 
   const onSubmit = useCallback(async () => {
-    const tifIntervals = M.of(intervalTifs.data);
-
     if (!tokenPair) throw new Error("Pair is absent");
     if (!tif) throw new Error("Please choose the intervals");
     if (!tokenADecimals) throw new Error("Absent decimals");
@@ -110,46 +98,45 @@ export default ({
     const [a, b] = tokenPair;
     const [timeInForce, nextPool] = tif ?? [];
 
-    if (!timeInForce) throw new Error("Absent tif");
+    if (tif[1] === -2) {
+      const params = await formHelpers.prepare4Jupiter(
+        side,
+        amount,
+        tokenADecimals,
+        a.address,
+        b.address
+      );
 
-    const finalTif = M.withDefault(
-      undefined,
-      M.andMap((intervals) => {
-        const interval = intervals.find((itif: IndexedTIF) => {
-          if (nextPool !== -1) return itif.tif === timeInForce;
-          return itif.left === timeInForce;
-        });
+      setValues(params);
 
-        return interval;
-      }, tifIntervals)
-    );
+      setSubmitting(true);
+      await sendToJupiter(params);
+      setSubmitting(false);
 
-    if (!finalTif) throw new Error("Wrong tif");
-    if (finalTif.left === 0)
-      throw new Error("Can not place order to the closed pool");
+      return params;
+    } else {
+      const params = await formHelpers.prepare4Program(
+        timeInForce,
+        nextPool,
+        intervalTifs.data,
+        side,
+        amount,
+        tokenADecimals,
+        a.address,
+        b.address,
+        tifs,
+        poolCounters
+      );
 
-    const params = {
-      side,
-      amount,
-      decimals: tokenADecimals,
-      aMint: a.address,
-      bMint: b.address,
-      nextPool: nextPool !== -1,
-      tifs,
-      poolCounters,
-      tif: finalTif.tif,
-    };
-
-    // FIXME: remove this 4 prod
-    console.info(params); // eslint-disable-line
-
-    setSubmitting(true);
-
-    await execute(params);
-    setSubmitting(false);
+      setSubmitting(true);
+      await sendToProgram(params);
+      setSubmitting(false);
+    }
   }, [
     amount,
-    execute,
+    sendToProgram,
+    sendToJupiter,
+    setValues,
     intervalTifs.data,
     poolCounters,
     side,
@@ -163,23 +150,33 @@ export default ({
 
   return (
     <Form onSubmit={onSubmit} validate={() => errors}>
-      {({ handleSubmit, valid }) => (
-        <TokenPairFormContent
-          handleSubmit={handleSubmit}
-          lead={lead}
-          slave={slave}
-          intervalTifs={intervalTifs.data}
-          isScheduled={isScheduled}
-          onABSwap={onABSwap}
-          onASelect={onASelect}
-          onBSelect={onBSelect}
-          onChangeAmount={onChangeAmount}
-          onInstantIntervalSelect={onInstantIntervalSelect}
-          onIntervalSelect={onIntervalSelect}
-          submitting={submitting}
-          tif={tif}
-          valid={valid}
-        />
+      {({ handleSubmit, valid, ...args }) => (
+        <>
+          <TokenPairFormContent
+            handleSubmit={handleSubmit}
+            lead={lead}
+            slave={slave}
+            intervalTifs={intervalTifs.data}
+            isScheduled={isScheduled}
+            onABSwap={onABSwap}
+            onASelect={onASelect}
+            onBSelect={onBSelect}
+            onChangeAmount={onChangeAmount}
+            onInstantIntervalSelect={onInstantIntervalSelect}
+            onIntervalSelect={onIntervalSelect}
+            submitting={submitting}
+            tif={tif}
+            valid={valid}
+          />
+          <Box py={3}>
+            <ConnectButton
+              form="exchange-form"
+              scheduled={isScheduled}
+              disabled={!valid || submitting}
+            />
+          </Box>
+          <JupiterOrderProgress onUnmount={() => {}} params={values} />
+        </>
       )}
     </Form>
   );

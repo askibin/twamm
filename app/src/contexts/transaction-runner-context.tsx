@@ -1,15 +1,20 @@
 import type { FC, ReactNode } from "react";
 import type { AnchorProvider } from "@project-serum/anchor";
-import { createContext, useMemo, useCallback, useState } from "react";
-
-import { forit } from "../utils/forit";
+import { forit } from "a-wait-forit/lib-ts";
+import {
+  createContext,
+  useContext,
+  useMemo,
+  useCallback,
+  useState,
+} from "react";
 
 const EXPLORERS = {
   explorer: { uri: "https://explorer.solana.com/tx/" },
   solscan: { uri: "https://solscan.io/tx/" },
 };
 
-const SLIPPAGES = [0, 0.1, 0.5, 1, 2];
+const SLIPPAGES = [0, 0.1, 0.5, 1, 2]; // %
 
 export type TransactionRunnerContext = {
   readonly active: boolean;
@@ -106,4 +111,13 @@ export const Provider: FC<{ children: ReactNode }> = ({ children }) => {
       {children}
     </RunnerContext.Provider>
   );
+};
+
+export default () => {
+  const context = useContext(RunnerContext);
+  if (context === undefined) {
+    throw new Error("Transaction runner context required");
+  }
+
+  return context;
 };

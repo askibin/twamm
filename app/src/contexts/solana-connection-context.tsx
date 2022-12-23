@@ -1,14 +1,23 @@
-import type { Cluster, Commitment as Cmtmnt } from "@solana/web3.js";
+import type { Cluster, Commitment } from "@solana/web3.js";
 import type { FC, ReactNode } from "react";
 import { clusterApiUrl, Connection } from "@solana/web3.js";
-import { createContext, useCallback, useMemo, useRef, useState } from "react";
-
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
+import { ENV as ChainIdEnv } from "@solana/spl-token-registry";
 import endpointStorage from "../utils/cluster-endpoint-storage";
 import { AnkrClusterApiUrl, ClusterApiUrl } from "../env";
 
 const clusterStorage = endpointStorage();
 
-export type Commitment = "confirmed";
+export type CommitmentLevel = Extract<Commitment, "confirmed">;
+
+type Moniker = Extract<Cluster, "mainnet-beta"> | "custom" | "ankr-solana";
 
 export type CustomClusterInfo = {
   name: "Custom";
@@ -19,8 +28,10 @@ export type CustomClusterInfo = {
 export type ClusterInfo = {
   name: string;
   endpoint: string;
-  moniker?: Cluster | "custom" | "ankr-solana";
+  moniker: Moniker | undefined;
 };
+
+export const chainId = ChainIdEnv.MainnetBeta;
 
 export const endpoints: Record<string, ClusterInfo> = {
   ankr: {
@@ -40,11 +51,14 @@ export const endpoints: Record<string, ClusterInfo> = {
   },
 };
 
+const COMMITMENT = "confirmed";
+
 export type BlockchainConnectionContextType = {
   readonly cluster: ClusterInfo;
   readonly clusters: ClusterInfo[];
-  readonly commitment: Commitment;
-  readonly createConnection: (commitment?: Commitment) => Connection;
+  readonly commitment: CommitmentLevel;
+  readonly connection: Connection;
+  readonly createConnection: (commitment?: CommitmentLevel) => Connection;
   readonly setCluster: (cluster: ClusterInfo) => void;
 };
 
@@ -55,13 +69,11 @@ export const BlockchainConnectionContext = createContext<
 export const BlockchainConnectionProvider: FC<{ children: ReactNode }> = ({
   children,
 }) => {
-  const [commitments] = useState<Commitment[]>(["confirmed"]);
+  const commitment: CommitmentLevel = COMMITMENT;
 
   const [clusters] = useState(
     [endpoints.solana].concat([endpoints.ankr, endpoints.custom])
   );
-
-  const initialCommitment = commitments[0];
 
   const customEndpoint = clusterStorage.enabled()
     ? clusterStorage.get()
@@ -71,7 +83,6 @@ export const BlockchainConnectionProvider: FC<{ children: ReactNode }> = ({
     ? endpoints.custom
     : clusters[0];
 
-  const [commitment] = useState(initialCommitment);
   const [cluster, setCluster] = useState(initialCluster);
 
   const connectionRef = useRef<Connection>(
@@ -92,7 +103,7 @@ export const BlockchainConnectionProvider: FC<{ children: ReactNode }> = ({
   );
 
   const createConnection = useCallback(
-    (commit: Cmtmnt = initialCommitment) => {
+    (commit: CommitmentLevel = commitment) => {
       const prevEndpoint =
         connectionRef.current && connectionRef.current.rpcEndpoint;
 
@@ -100,12 +111,14 @@ export const BlockchainConnectionProvider: FC<{ children: ReactNode }> = ({
         const conn = new Connection(cluster.endpoint, commit);
         connectionRef.current = conn;
 
-        return conn;
+        // TODO: add notifications about RPC change
+
+        return connectionRef.current;
       }
 
       return connectionRef.current;
     },
-    [cluster, initialCommitment]
+    [cluster, commitment]
   );
 
   const contextValue = useMemo(
@@ -113,6 +126,7 @@ export const BlockchainConnectionProvider: FC<{ children: ReactNode }> = ({
       cluster,
       clusters,
       commitment,
+      connection: connectionRef.current,
       createConnection,
       setCluster: changeCluster,
     }),
@@ -124,4 +138,13 @@ export const BlockchainConnectionProvider: FC<{ children: ReactNode }> = ({
       {children}
     </BlockchainConnectionContext.Provider>
   );
+};
+
+export default () => {
+  const context = useContext(BlockchainConnectionContext);
+  if (context === undefined) {
+    throw new Error("Solana connection context required");
+  }
+
+  return context;
 };

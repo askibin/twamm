@@ -43,7 +43,7 @@ export default ({
   const [a, b] = [lead, slave];
 
   return (
-    <form onSubmit={handleSubmit}>
+    <form onSubmit={handleSubmit} id="exchange-form">
       <Styled.TokenLabelBox>You pay</Styled.TokenLabelBox>
       <InTokenField
         address={a?.address}
@@ -75,12 +75,14 @@ export default ({
           onSelectInstant={onInstantIntervalSelect}
         />
       </Box>
-      <Box py={3}>
-        <ConnectButton
-          scheduled={isScheduled}
-          disabled={!valid || submitting}
-        />
-      </Box>
+      {/*
+       *<Box py={3}>
+       *  <ConnectButton
+       *    scheduled={isScheduled}
+       *    disabled={!valid || submitting}
+       *  />
+       *</Box>
+       */}
     </form>
   );
 };

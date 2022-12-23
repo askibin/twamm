@@ -163,7 +163,6 @@ export default ({
         )}
       </Box>
       <ButtonGroup variant="outlined" aria-label="outlined button group">
-        <Intervals value={value} values={values} onSelect={onIntervalSelect} />
         {useInstantOption && (
           <Instant
             value={value}
@@ -171,6 +170,7 @@ export default ({
             onSelect={onInstantIntervalSelect}
           />
         )}
+        <Intervals value={value} values={values} onSelect={onIntervalSelect} />
       </ButtonGroup>
     </Styled.Interval>
   );
