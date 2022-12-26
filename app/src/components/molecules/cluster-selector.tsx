@@ -8,27 +8,25 @@ import RadioGroup from "@mui/material/RadioGroup";
 import { Form } from "react-final-form";
 import { useCallback, useState } from "react";
 
-import type {
-  ClusterInfo,
-  CustomClusterInfo,
-} from "../../contexts/solana-connection-context";
+import type * as TCluster from "../../contexts/solana-connection-context.d";
 import * as Styled from "./cluster-selector.styled";
-import useBlockchainConnectionContext from "../../hooks/use-blockchain-connection-context";
+import useBlockchain, {
+  endpoints,
+} from "../../contexts/solana-connection-context";
 import { clusterValidator } from "../../utils/validators";
-import { endpoints as info } from "../../contexts/solana-connection-context";
 
 export interface Props {
   handleClose?: () => void;
 }
 
 export default function ClusterSelector({ handleClose }: Props) {
-  const { cluster, clusters, setCluster } = useBlockchainConnectionContext();
+  const { cluster, clusters, setCluster } = useBlockchain();
   const [clusterName, setClusterName] = useState<string>(cluster.name);
 
   const onSaveCustomEndpoint = useCallback(
     async ({ endpoint }: { endpoint: string }) => {
       const predefinedEndpoints = clusters
-        .filter((c) => c.moniker !== info.custom.moniker)
+        .filter((c) => c.moniker !== endpoints.custom.moniker)
         .map((c) => c.endpoint);
 
       const inputPredefinedEndpointIndex = predefinedEndpoints.findIndex(
@@ -38,7 +36,7 @@ export default function ClusterSelector({ handleClose }: Props) {
       if (inputPredefinedEndpointIndex !== -1) {
         setCluster(clusters[inputPredefinedEndpointIndex]);
       } else {
-        const customCluster: CustomClusterInfo = {
+        const customCluster: TCluster.CustomClusterInfo = {
           endpoint,
           name: "Custom",
           moniker: "custom",
@@ -57,8 +55,10 @@ export default function ClusterSelector({ handleClose }: Props) {
 
       setClusterName(value);
 
-      if (value !== info.custom.name) {
-        setCluster(clusters.find((c) => c.name === value) as ClusterInfo);
+      if (value !== endpoints.custom.name) {
+        setCluster(
+          clusters.find((c) => c.name === value) as TCluster.ClusterInfo
+        );
       }
     },
     [clusters, setCluster]
@@ -81,10 +81,10 @@ export default function ClusterSelector({ handleClose }: Props) {
             />
           ))}
         </RadioGroup>
-        {clusterName === info.custom.name && (
+        {clusterName === endpoints.custom.name && (
           <Form
             initialValues={{
-              endpoint: info.custom.endpoint,
+              endpoint: endpoints.custom.endpoint,
             }}
             onSubmit={onSaveCustomEndpoint}
             validate={clusterValidator(

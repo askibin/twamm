@@ -17,7 +17,7 @@ const customJestConfig = {
 module.exports = async (...args) => {
   const conf = await createJestConfig(customJestConfig)(...args)
 
-  conf.testPathIgnorePatterns = [...conf.testPathIgnorePatterns, '/packages/twamm-client-js']
+  conf.testPathIgnorePatterns = [...conf.testPathIgnorePatterns, '/packages/twamm']
 
   return conf
 }

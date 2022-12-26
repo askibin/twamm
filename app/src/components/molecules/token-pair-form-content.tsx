@@ -1,35 +1,33 @@
 import Box from "@mui/material/Box";
 import SyncAltIcon from "@mui/icons-material/SyncAlt";
 import * as Styled from "./token-pair-form-content.styled";
-import ConnectButton from "../atoms/token-pair-form-content-button";
 import InTokenField from "./in-token-field";
 import TokenSelect from "../atoms/token-select";
 import TradeIntervals from "./trade-intervals";
 import type { SelectedTif } from "./trade-intervals";
 
 export interface Props {
-  handleSubmit: () => void;
-  lead: Voidable<JupToken>;
-  slave: Voidable<JupToken>;
   intervalTifs?: { tif: any; index: any; left: any }[];
-  isScheduled?: boolean;
+  lead: Voidable<JupToken>;
   onABSwap: () => void;
   onASelect: () => void;
   onBSelect: () => void;
+  onChange: () => void;
   onChangeAmount: (arg0: number) => void;
   onInstantIntervalSelect: () => void;
   onIntervalSelect: (tif: SelectedTif) => void;
+  onSubmit: () => void;
+  slave: Voidable<JupToken>;
   submitting: boolean;
   tif?: SelectedTif;
-  valid: boolean;
 }
 
 export default ({
-  handleSubmit,
+  onChange,
+  onSubmit,
   lead,
   slave,
   intervalTifs,
-  isScheduled,
   onABSwap,
   onASelect,
   onBSelect,
@@ -38,22 +36,46 @@ export default ({
   onIntervalSelect,
   submitting,
   tif,
-  valid,
 }: Props) => {
   const [a, b] = [lead, slave];
 
+  const handleChangeAmount = (value: number) => {
+    onChangeAmount(value);
+    onChange();
+  };
+  const handleSwap = () => {
+    onABSwap();
+    onChange();
+  };
+  const handleInputSelect = () => {
+    onASelect();
+    onChange();
+  };
+  const handleOutputSelect = () => {
+    onBSelect();
+    onChange();
+  };
+  const handleIntervalSelect = (value: SelectedTif) => {
+    onIntervalSelect(value);
+    onChange();
+  };
+  const handleInstantIntervalSelect = () => {
+    onInstantIntervalSelect();
+    onChange();
+  };
+
   return (
-    <form onSubmit={handleSubmit} id="exchange-form">
+    <form onSubmit={onSubmit} id="exchange-form">
       <Styled.TokenLabelBox>You pay</Styled.TokenLabelBox>
       <InTokenField
         address={a?.address}
         name={a?.symbol}
-        onChange={onChangeAmount}
-        onSelect={onASelect}
+        onChange={handleChangeAmount}
+        onSelect={handleInputSelect}
         src={a?.logoURI}
       />
       <Styled.OperationImage>
-        <Styled.OperationButton disabled={!a || !b} onClick={onABSwap}>
+        <Styled.OperationButton disabled={!a || !b} onClick={handleSwap}>
           <SyncAltIcon />
         </Styled.OperationButton>
       </Styled.OperationImage>
@@ -64,25 +86,18 @@ export default ({
           disabled={!a}
           image={b?.logoURI}
           label={b?.symbol}
-          onClick={onBSelect}
+          onClick={handleOutputSelect}
         />
       </Box>
       <Box py={2}>
         <TradeIntervals
+          disabled={submitting}
           indexedTifs={intervalTifs}
           selectedTif={tif}
-          onSelect={onIntervalSelect}
-          onSelectInstant={onInstantIntervalSelect}
+          onSelect={handleIntervalSelect}
+          onSelectInstant={handleInstantIntervalSelect}
         />
       </Box>
-      {/*
-       *<Box py={3}>
-       *  <ConnectButton
-       *    scheduled={isScheduled}
-       *    disabled={!valid || submitting}
-       *  />
-       *</Box>
-       */}
     </form>
   );
 };

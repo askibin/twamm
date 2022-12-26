@@ -11,6 +11,7 @@ import TimeInterval, { INSTANT_INTERVAL } from "../atoms/time-interval";
 export type SelectedTif = [number | undefined, number | undefined];
 
 export interface Props {
+  disabled: boolean;
   indexedTifs: Voidable<IndexedTIF[]>;
   onSelect: (arg0: SelectedTif) => void;
   onSelectInstant: () => void;
@@ -18,6 +19,7 @@ export interface Props {
 }
 
 export default ({
+  disabled,
   indexedTifs: tifs,
   onSelect,
   onSelectInstant,
@@ -80,6 +82,7 @@ export default ({
     <>
       <Box pb={2}>
         <TimeInterval
+          disabled={disabled}
           info=""
           label="Schedule Order"
           onSelect={onScheduleSelect}
@@ -91,6 +94,7 @@ export default ({
       </Box>
       <Box pb={2}>
         <TimeInterval
+          disabled={disabled}
           info=""
           label="Execution Period"
           onSelect={onPeriodSelect}

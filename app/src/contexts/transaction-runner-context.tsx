@@ -32,9 +32,9 @@ export type TransactionRunnerContext = {
   readonly viewExplorer: (sig: string) => string;
 };
 
-export const RunnerContext = createContext<
-  TransactionRunnerContext | undefined
->(undefined);
+export const Context = createContext<TransactionRunnerContext | undefined>(
+  undefined
+);
 
 export const Provider: FC<{ children: ReactNode }> = ({ children }) => {
   const [active, setActive] = useState<boolean>(false);
@@ -106,15 +106,11 @@ export const Provider: FC<{ children: ReactNode }> = ({ children }) => {
     ]
   );
 
-  return (
-    <RunnerContext.Provider value={contextValue}>
-      {children}
-    </RunnerContext.Provider>
-  );
+  return <Context.Provider value={contextValue}>{children}</Context.Provider>;
 };
 
 export default () => {
-  const context = useContext(RunnerContext);
+  const context = useContext(Context);
   if (context === undefined) {
     throw new Error("Transaction runner context required");
   }

@@ -6,6 +6,8 @@ const SET_PERIOD = "SET_PERIOD";
 
 const noDelayTif = -1;
 
+export const instantTif = -2;
+
 export interface State {
   indexedTifs: IndexedTIF[];
   pairSelected: [number | undefined, number];

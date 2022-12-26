@@ -1,6 +1,6 @@
 import M, { Extra } from "easy-maybe/lib";
 import type { Cluster } from "@solana/web3.js";
-import type { FC, ReactNode } from "react";
+import type { ComponentClass, FC, ReactNode } from "react";
 import type { TokenInfo } from "@solana/spl-token-registry";
 import { Configuration, DefaultApi } from "@jup-ag/api";
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
@@ -94,3 +94,16 @@ export default () => {
 
   return context;
 };
+
+interface WithProps extends JSX.IntrinsicAttributes {}
+
+export function withCtx<P = WithProps>(
+  NestedComponent: FC<P> | ComponentClass<P, any>
+) {
+  return (props: any) => (
+    <Provider>
+      {/* eslint-disable-next-line react/jsx-props-no-spreading */}
+      <NestedComponent {...props} />
+    </Provider>
+  );
+}

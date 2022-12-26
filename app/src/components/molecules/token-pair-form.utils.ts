@@ -1,5 +1,6 @@
 import M from "easy-maybe/lib";
 import type { SelectedTif } from "./trade-intervals";
+import { instantTif } from "../../reducers/trade-intervals.reducer";
 
 export type ValidationErrors = {
   a?: Error;
@@ -25,7 +26,7 @@ export const validate = (
   if (tif) {
     const [timeInForce, modes] = tif;
 
-    if (!timeInForce && modes !== -2) {
+    if (!timeInForce && modes !== instantTif) {
       result.tif = new Error("Should choose the interval");
     }
   } else if (!tif) {
@@ -87,7 +88,7 @@ export const prepare4Program = async (
   return params;
 };
 
-export const prepare4Jupiter = async (
+export const prepare4Jupiter = (
   side: OrderType,
   amount: number,
   decimals: number,

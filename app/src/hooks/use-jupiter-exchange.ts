@@ -1,6 +1,5 @@
 import JSBI from "jsbi";
 import { PublicKey } from "@solana/web3.js";
-import { JupiterProvider, useJupiter } from "@jup-ag/react-hook";
 import { OrderSides } from "../types/enums.d";
 
 export interface Params {

@@ -3,7 +3,7 @@ import Typography from "@mui/material/Typography";
 import { useMemo } from "react";
 
 import * as TxState from "../atoms/transaction-runner";
-import useTxRunnerContext from "../../hooks/use-transaction-runner-context";
+import useTxRunner from "../../contexts/transaction-runner-context";
 
 export interface Props {
   id: string;
@@ -34,7 +34,7 @@ const Content = ({
 };
 
 export default ({ id }: Props) => {
-  const { active, error, signature, viewExplorer } = useTxRunnerContext();
+  const { active, error, signature, viewExplorer } = useTxRunner();
 
   const state = useMemo(
     () => ({

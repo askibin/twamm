@@ -4,12 +4,13 @@ import { useCallback, useMemo, useState } from "react";
 import { Form } from "react-final-form";
 
 import type { SelectedTif } from "./trade-intervals";
-import ConnectButton from "../atoms/token-pair-form-content-button";
 import JupiterOrderProgress from "../organisms/jupiter-order-progress";
+import ProgramOrderProgress from "../organisms/program-order-progress";
 import TokenPairFormContent from "./token-pair-form-content";
 import useScheduleOrder from "../../hooks/use-schedule-order";
 import useTIFIntervals from "../../hooks/use-tif-intervals";
 import useJupiterExchange from "../../hooks/use-jupiter-exchange";
+import { instantTif } from "../../reducers/trade-intervals.reducer";
 import { refreshEach } from "../../swr-options";
 import type { ValidationErrors } from "./token-pair-form.utils";
 import * as formHelpers from "./token-pair-form.utils";
@@ -76,10 +77,11 @@ export default ({
 
   const onIntervalSelect = useCallback((selectedTif: SelectedTif) => {
     setTif(selectedTif);
+    console.log("nextPool", 45, selectedTif);
   }, []);
 
   const onInstantIntervalSelect = useCallback(() => {
-    setTif([undefined, -2]);
+    setTif([undefined, instantTif]);
   }, []);
 
   const errors = useMemo<ValidationErrors>(
@@ -98,8 +100,8 @@ export default ({
     const [a, b] = tokenPair;
     const [timeInForce, nextPool] = tif ?? [];
 
-    if (tif[1] === -2) {
-      const params = await formHelpers.prepare4Jupiter(
+    if (tif[1] === instantTif) {
+      const params = formHelpers.prepare4Jupiter(
         side,
         amount,
         tokenADecimals,
@@ -146,36 +148,114 @@ export default ({
     tokenPair,
   ]);
 
-  const isScheduled = tif && (tif[1] ?? -1) > 0;
+  const jupiterParams = useMemo(() => {
+    if (!tokenPair) return undefined;
+    if (!tokenADecimals) return undefined;
+    if (!tif) return undefined;
+
+    const [a, b] = tokenPair;
+    const [timeInForce, nextPool] = tif ?? [];
+
+    const params = formHelpers.prepare4Jupiter(
+      side,
+      amount,
+      tokenADecimals,
+      a.address,
+      b.address
+    );
+
+    return params;
+  }, [amount, side, tif, tokenPair, tokenADecimals]);
+
+  const onSubmit1 = () => {
+    setSubmitting(true);
+  };
+
+  const populateJupiterData = useCallback(async () => {
+    const [a, b] = tokenPair;
+    const [timeInForce, nextPool] = tif ?? [];
+
+    const params = formHelpers.prepare4Jupiter(
+      side,
+      amount,
+      tokenADecimals,
+      a.address,
+      b.address
+    );
+
+    return params;
+  }, [tokenPair, tif]);
+
+  const populateProgramData = useCallback(async () => {
+    const [a, b] = tokenPair;
+    const [timeInForce, nextPool] = tif ?? [];
+
+    const params = await formHelpers.prepare4Program(
+      timeInForce,
+      nextPool,
+      intervalTifs.data,
+      side,
+      amount,
+      tokenADecimals,
+      a.address,
+      b.address,
+      tifs,
+      poolCounters
+    );
+
+    return params;
+  }, [tokenPair, tif]);
+
+  const onDataChange = useCallback(async () => {
+    const params =
+      tif && tif[1] === instantTif
+        ? await populateJupiterData()
+        : await populateProgramData();
+    console.log("changing", params);
+  }, [tif]);
+
+  const isScheduled = Boolean(tif && (tif[1] ?? -1) > 0);
 
   return (
-    <Form onSubmit={onSubmit} validate={() => errors}>
-      {({ handleSubmit, valid, ...args }) => (
+    <Form onSubmit={onSubmit1} validate={() => errors}>
+      {({ handleSubmit, valid }) => (
         <>
           <TokenPairFormContent
-            handleSubmit={handleSubmit}
-            lead={lead}
-            slave={slave}
             intervalTifs={intervalTifs.data}
-            isScheduled={isScheduled}
+            lead={lead}
             onABSwap={onABSwap}
             onASelect={onASelect}
             onBSelect={onBSelect}
+            onChange={() => {}}
             onChangeAmount={onChangeAmount}
             onInstantIntervalSelect={onInstantIntervalSelect}
             onIntervalSelect={onIntervalSelect}
+            onSubmit={handleSubmit}
+            slave={slave}
             submitting={submitting}
             tif={tif}
-            valid={valid}
           />
           <Box py={3}>
-            <ConnectButton
-              form="exchange-form"
-              scheduled={isScheduled}
-              disabled={!valid || submitting}
-            />
+            {tif && tif[1] === instantTif ? (
+              <JupiterOrderProgress
+                disabled={!valid || submitting}
+                form="exchange-form"
+                params={jupiterParams}
+                progress={submitting}
+                validate={() => errors}
+              />
+            ) : (
+              <ProgramOrderProgress
+                disabled={!valid || submitting}
+                form="exchange-form"
+                params={values}
+                populateParams={populateProgramData}
+                progress={submitting}
+                scheduled={isScheduled}
+                validate={() => errors}
+              />
+            )}
           </Box>
-          <JupiterOrderProgress onUnmount={() => {}} params={values} />
         </>
       )}
     </Form>

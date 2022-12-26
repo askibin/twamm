@@ -1,27 +1,30 @@
-import JSBI from "jsbi";
-import M from "easy-maybe/lib";
-import { PublicKey } from "@solana/web3.js";
-import { JupiterProvider, useJupiter } from "@jup-ag/react-hook";
-import { useEffect } from "react";
-import Loading from "../atoms/loading";
-import useProgram from "../../hooks/use-program";
-import { OrderSides } from "../../types/enums.d";
-import useJupiterContext, {
-  Provider,
-} from "../../contexts/jupiter-connection-context";
-import useSwapRoutes from "../../hooks/use-swap-routes-from-jup";
+import Alert from "@mui/material/Alert";
+import Box from "@mui/material/Box";
+import { useCallback, useMemo } from "react";
+import M, { Extra } from "easy-maybe/lib";
+import { OrderSide as OrderSides } from "@twamm/types/lib";
+import Button from "../molecules/progress-button";
+import useJupiter, { withCtx } from "../../contexts/jupiter-connection-context";
 import useSwap from "../../hooks/use-swap-order-via-jupiter";
+import useSwapRoutes from "../../hooks/use-swap-routes-from-jup";
 
-export interface Props {
-  params: any;
-}
-
-const OrderProgress = (props: Params) => {
+function OrderProgress(props: {
+  disabled: boolean;
+  form?: string;
+  params: {
+    amount: number;
+    aMint: string;
+    bMint: string;
+    decimals: number;
+    side: OrderSides;
+  };
+  progress: boolean;
+  validate: () => { [key: string]: Error };
+}) {
   const { amount, aMint, bMint, decimals, side } = props.params ?? {};
 
-  const { ready, routeMap, tokenMap } = useJupiterContext();
-
-  // console.log(123, routeMap, tokenMap);
+  const { execute } = useSwap();
+  const { ready } = useJupiter();
 
   const [a, b] =
     OrderSides.defaultSide === side ? [aMint, bMint] : [bMint, aMint];
@@ -33,46 +36,47 @@ const OrderProgress = (props: Params) => {
     decimals,
   });
 
-  const { execute } = useSwap();
-  //const jup = useJupiter({
-  //amount: JSBI.BigInt(amount * 10 ** decimals),
-  //inputMint: new PublicKey(a),
-  //outputMint: new PublicKey(b),
-  //slippageBps: 0.5, // use context slippage
-  //debounceTime: 250,
-  //});
+  const onClick = useCallback(async () => {
+    if (!routes.data) throw new Error("Absent routes");
+    const routesData = routes.data.routes;
 
-  //console.log(jup);
-  //
+    const data = await execute(routesData);
 
-  useEffect(() => {
-    (async () => {
-      if (!routes.data) return;
+    console.log({ data });
+  }, [execute, routes.data]);
 
-      await execute(routes.data.routes);
-    })();
+  const loading = M.withDefault(
+    true,
+    M.andMap(
+      ([c, d]) => !(c && d),
+      Extra.combine2([M.of(routes.data), M.of(ready)])
+    )
+  );
 
-    return () => {};
-  }, [routes.data]);
-
-  if (!ready) return <Loading />;
-
-  return <>progress visuals</>;
-};
-
-export default (props: Props) => {
-  const { provider } = useProgram();
-
-  useEffect(() => {
-    const invalidate = () => props.onUnmount();
-    return invalidate;
-  }, [props.onUnmount]);
-
-  if (!props.params) return null;
+  const errors = useMemo(() => props.validate(), [props.validate]);
 
   return (
-    <Provider>
-      <OrderProgress params={props.params} />
-    </Provider>
+    <>
+      <Button
+        disabled={loading || props.disabled}
+        form={props.form}
+        loading={loading || props.progress}
+        onClick={onClick}
+        text="Exchange"
+      />
+      {!errors ? null : (
+        <Box pt={1}>
+          <Alert severity="error">
+            <>
+              {[...Object.keys(errors)].map((key) => (
+                <div key={key}>{errors[key].message}</div>
+              ))}
+            </>
+          </Alert>
+        </Box>
+      )}
+    </>
   );
-};
+}
+
+export default withCtx(OrderProgress);

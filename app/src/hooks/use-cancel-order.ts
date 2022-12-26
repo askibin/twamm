@@ -8,11 +8,11 @@ import { SplToken } from "@twamm/client.js/lib/spl-token";
 import { isNil } from "ramda";
 
 import useProgram from "./use-program";
-import useTxRunnerContext from "./use-transaction-runner-context";
+import useTxRunner from "../contexts/transaction-runner-context";
 
 export default () => {
   const { provider, program } = useProgram();
-  const { commit } = useTxRunnerContext();
+  const { commit } = useTxRunner();
 
   const pairClient = new TokenPair(program);
 

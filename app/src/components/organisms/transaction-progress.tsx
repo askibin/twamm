@@ -5,7 +5,7 @@ import UpdateIcon from "@mui/icons-material/Update";
 import { useEffect, useMemo } from "react";
 
 import * as Styled from "./transaction-progress.styled";
-import useTxRunnerContext from "../../hooks/use-transaction-runner-context";
+import useTxRunner from "../../contexts/transaction-runner-context";
 import { useSnackbar } from "../../contexts/notification-context";
 
 export interface Props {
@@ -13,7 +13,7 @@ export interface Props {
 }
 
 export default ({ setOpen }: Props) => {
-  const { active, error, signature } = useTxRunnerContext();
+  const { active, error, signature } = useTxRunner();
   const { enqueueSnackbar } = useSnackbar();
 
   useEffect(() => {

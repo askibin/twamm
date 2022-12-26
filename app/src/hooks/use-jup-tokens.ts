@@ -2,7 +2,7 @@ import type { Cluster } from "@solana/web3.js";
 import useSWR from "swr";
 import { TOKEN_LIST_URL } from "@jup-ag/core";
 import { SplToken } from "@twamm/client.js/lib/spl-token";
-import useBlockchainConnectionContext from "./use-blockchain-connection-context";
+import useBlockchain from "../contexts/solana-connection-context";
 
 const swrKey = (params: { moniker: Cluster }) => ({
   key: "JupTokens",
@@ -47,7 +47,7 @@ const fetcher = async ({ params }: ReturnType<typeof swrKey>) => {
 };
 
 export default (_: void, options = {}) => {
-  const { clusters } = useBlockchainConnectionContext();
+  const { clusters } = useBlockchain();
   const moniker = clusters[0].moniker as "mainnet-beta";
 
   return useSWR(swrKey({ moniker }), fetcher, options);

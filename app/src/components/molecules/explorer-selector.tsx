@@ -4,10 +4,10 @@ import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
 import { SelectChangeEvent } from "@mui/material/Select";
 import * as Styled from "./explorer-selector.styled";
-import useTxRunnerContext from "../../hooks/use-transaction-runner-context";
+import useTxRunner from "../../contexts/transaction-runner-context";
 
 export default () => {
-  const { explorer, explorers, setExplorer } = useTxRunnerContext();
+  const { explorer, explorers, setExplorer } = useTxRunner();
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const handleChange = (event: SelectChangeEvent<unknown>, _: ReactNode) => {

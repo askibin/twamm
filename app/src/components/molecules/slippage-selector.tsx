@@ -1,13 +1,13 @@
 import type { ReactNode } from "react";
+import FormControl from "@mui/material/FormControl";
 import InputLabel from "@mui/material/InputLabel";
 import MenuItem from "@mui/material/MenuItem";
-import FormControl from "@mui/material/FormControl";
 import { SelectChangeEvent } from "@mui/material/Select";
 import * as Styled from "./slippage-selector.styled";
-import useTxRunnerContext from "../../hooks/use-transaction-runner-context";
+import useTxRunner from "../../contexts/transaction-runner-context";
 
 export default () => {
-  const { setSlippage, slippage, slippages } = useTxRunnerContext();
+  const { setSlippage, slippage, slippages } = useTxRunner();
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const handleChange = (event: SelectChangeEvent<unknown>, _: ReactNode) => {
