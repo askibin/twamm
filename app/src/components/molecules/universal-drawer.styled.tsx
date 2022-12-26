@@ -3,7 +3,14 @@ import SwipeableDrawer from "@mui/material/SwipeableDrawer";
 import { styled } from "@mui/material/styles";
 
 export const Drawer = styled(SwipeableDrawer)`
-  padding: 0;
+  & .MuiDrawer-paper {
+    border-bottom-right-radius: 0;
+    border-bottom-left-radius: 0;
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+    padding: 0;
+    visibility: visible;
+  }
 `;
 
 export const Inner = styled(Box)`

@@ -1,8 +1,8 @@
 import Alert from "@mui/material/Alert";
 import Box from "@mui/material/Box";
-import { useCallback, useMemo } from "react";
 import M, { Extra } from "easy-maybe/lib";
 import { OrderSide as OrderSides } from "@twamm/types/lib";
+import { useCallback, useMemo } from "react";
 import Button from "../molecules/progress-button";
 import useJupiter, { withCtx } from "../../contexts/jupiter-connection-context";
 import useSwap from "../../hooks/use-swap-order-via-jupiter";
@@ -11,38 +11,49 @@ import useSwapRoutes from "../../hooks/use-swap-routes-from-jup";
 function OrderProgress(props: {
   disabled: boolean;
   form?: string;
-  params: {
-    amount: number;
-    aMint: string;
-    bMint: string;
-    decimals: number;
-    side: OrderSides;
-  };
+  params:
+    | {
+        amount: number;
+        aMint: string;
+        bMint: string;
+        decimals: number;
+        side: OrderSides;
+      }
+    | undefined;
   progress: boolean;
   validate: () => { [key: string]: Error };
 }) {
-  const { amount, aMint, bMint, decimals, side } = props.params ?? {};
-
   const { execute } = useSwap();
   const { ready } = useJupiter();
 
-  const [a, b] =
-    OrderSides.defaultSide === side ? [aMint, bMint] : [bMint, aMint];
+  const tokenPair = M.andMap(
+    (p) =>
+      OrderSides.defaultSide === p.side
+        ? [p.aMint, p.bMint]
+        : [p.bMint, p.aMint],
+    M.of(props.params)
+  );
 
-  const routes = useSwapRoutes({
-    amount,
-    inputMint: a,
-    outputMint: b,
-    decimals,
-  });
+  const swapParams = M.withDefault(
+    undefined,
+    M.andMap(
+      ([pair, p]) => ({
+        amount: p.amount,
+        inputMint: pair[0],
+        outputMint: pair[1],
+        decimals: p.decimals,
+      }),
+      Extra.combine2([tokenPair, M.of(props.params)])
+    )
+  );
+
+  const routes = useSwapRoutes(swapParams);
 
   const onClick = useCallback(async () => {
     if (!routes.data) throw new Error("Absent routes");
     const routesData = routes.data.routes;
 
-    const data = await execute(routesData);
-
-    console.log({ data });
+    await execute(routesData);
   }, [execute, routes.data]);
 
   const loading = M.withDefault(
@@ -53,7 +64,7 @@ function OrderProgress(props: {
     )
   );
 
-  const errors = useMemo(() => props.validate(), [props.validate]);
+  const errors = useMemo(() => props.validate(), [props]);
 
   return (
     <>

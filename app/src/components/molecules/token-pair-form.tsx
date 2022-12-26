@@ -154,8 +154,6 @@ export default ({
     if (!tif) return undefined;
 
     const [a, b] = tokenPair;
-    const [timeInForce, nextPool] = tif ?? [];
-
     const params = formHelpers.prepare4Jupiter(
       side,
       amount,
@@ -167,52 +165,46 @@ export default ({
     return params;
   }, [amount, side, tif, tokenPair, tokenADecimals]);
 
+  const programParams = useMemo(() => {
+    if (!tokenPair) return undefined;
+    if (!tokenADecimals) return undefined;
+    if (!tif) return undefined;
+    if (!tifs) return undefined;
+    if (!poolCounters) return undefined;
+    const [a, b] = tokenPair;
+    const [timeInForce, nextPool] = tif ?? [];
+
+    try {
+      const params = formHelpers.prepare4Program(
+        timeInForce,
+        nextPool,
+        intervalTifs.data,
+        side,
+        amount,
+        tokenADecimals,
+        a.address,
+        b.address,
+        tifs,
+        poolCounters
+      );
+      return params;
+    } catch (e) {
+      return undefined;
+    }
+  }, [
+    amount,
+    intervalTifs.data,
+    poolCounters,
+    side,
+    tif,
+    tifs,
+    tokenPair,
+    tokenADecimals,
+  ]);
+
   const onSubmit1 = () => {
     setSubmitting(true);
   };
-
-  const populateJupiterData = useCallback(async () => {
-    const [a, b] = tokenPair;
-    const [timeInForce, nextPool] = tif ?? [];
-
-    const params = formHelpers.prepare4Jupiter(
-      side,
-      amount,
-      tokenADecimals,
-      a.address,
-      b.address
-    );
-
-    return params;
-  }, [tokenPair, tif]);
-
-  const populateProgramData = useCallback(async () => {
-    const [a, b] = tokenPair;
-    const [timeInForce, nextPool] = tif ?? [];
-
-    const params = await formHelpers.prepare4Program(
-      timeInForce,
-      nextPool,
-      intervalTifs.data,
-      side,
-      amount,
-      tokenADecimals,
-      a.address,
-      b.address,
-      tifs,
-      poolCounters
-    );
-
-    return params;
-  }, [tokenPair, tif]);
-
-  const onDataChange = useCallback(async () => {
-    const params =
-      tif && tif[1] === instantTif
-        ? await populateJupiterData()
-        : await populateProgramData();
-    console.log("changing", params);
-  }, [tif]);
 
   const isScheduled = Boolean(tif && (tif[1] ?? -1) > 0);
 
@@ -248,8 +240,7 @@ export default ({
               <ProgramOrderProgress
                 disabled={!valid || submitting}
                 form="exchange-form"
-                params={values}
-                populateParams={populateProgramData}
+                params={programParams}
                 progress={submitting}
                 scheduled={isScheduled}
                 validate={() => errors}

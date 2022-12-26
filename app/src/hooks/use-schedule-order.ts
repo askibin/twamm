@@ -31,7 +31,7 @@ export interface Params {
 
 export default () => {
   const { program, provider } = useProgram();
-  const { commit } = useTxRunner();
+  const { commit, setInfo } = useTxRunner();
 
   const findProgramAddress = findAddress(program);
 
@@ -162,15 +162,25 @@ export default () => {
       tokenProgram: TOKEN_PROGRAM_ID,
     };
 
-    const result = await program.methods
+    const tx = program.methods
       .placeOrder(orderParams)
       .accounts(accounts)
-      .preInstructions(pre)
-      .rpc()
-      .catch((e: Error) => {
-        console.error(e); // eslint-disable-line no-console
-        throw e;
-      });
+      .preInstructions(pre);
+
+    setInfo("Simulating transaction...");
+
+    const simResult = await tx.simulate().catch((e) => {
+      console.error("Failed to simulate", e); // eslint-disable-line no-console
+    });
+
+    if (simResult) console.debug(simResult.raw, simResult.events); // eslint-disable-line no-console, max-len
+
+    setInfo("Executing the transaction...");
+
+    const result = await tx.rpc().catch((e: Error) => {
+      console.error(e); // eslint-disable-line no-console
+      throw e;
+    });
 
     return result;
   };

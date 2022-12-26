@@ -36,7 +36,7 @@ export const validate = (
   return Object.keys(result).length ? result : undefined;
 };
 
-export const prepare4Program = async (
+export const prepare4Program = (
   timeInForce: TIF | undefined,
   nextPool: number | undefined,
   tifIntervals: IndexedTIF[] | undefined,

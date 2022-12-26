@@ -33,7 +33,7 @@ export const MobileScheduleButton = styled(ScheduleButton)`
   text-transform: capitalize;
 `;
 
-export const MobileSelectedScheduleButton = styled(ScheduleButton)`
+export const MobileSelectedScheduleButton = styled(SelectedScheduleButton)`
   padding: 0 2px;
   font-size: 12px;
   text-transform: capitalize;

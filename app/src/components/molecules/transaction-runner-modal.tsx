@@ -5,22 +5,29 @@ import { useMemo } from "react";
 import * as TxState from "../atoms/transaction-runner";
 import useTxRunner from "../../contexts/transaction-runner-context";
 
-export interface Props {
-  id: string;
-}
+type AnchorError = Error & { logs?: string[] };
 
 const Content = ({
-  isReady,
-  isLoading,
-  isFinished,
   hasError,
+  info,
+  isFinished,
+  isLoading,
+  isReady,
   signature,
   viewExplorer,
-}: any) => {
-  if (isLoading) return <TxState.Progress />;
+}: {
+  info: string | undefined;
+  isReady: boolean;
+  isLoading: boolean;
+  isFinished: boolean;
+  hasError: AnchorError | undefined;
+  signature: string | undefined;
+  viewExplorer: (sig: string) => string;
+}) => {
+  if (isLoading) return <TxState.Progress info={info} />;
 
   if (hasError) {
-    return <TxState.Error />;
+    return <TxState.Error error={hasError} logs={hasError.logs} />;
   }
 
   if (isFinished)
@@ -33,17 +40,18 @@ const Content = ({
   return <TxState.Empty />;
 };
 
-export default ({ id }: Props) => {
-  const { active, error, signature, viewExplorer } = useTxRunner();
+export default ({ id }: { id: string }) => {
+  const { active, error, info, signature, viewExplorer } = useTxRunner();
 
   const state = useMemo(
     () => ({
-      isReady: !error && !active && !signature,
-      isLoading: !error && active && !signature,
-      isFinished: signature,
       hasError: error,
+      info,
+      isFinished: Boolean(signature),
+      isLoading: !error && active && !signature,
+      isReady: !error && !active && !signature,
     }),
-    [active, error, signature]
+    [active, error, info, signature]
   );
 
   return (
@@ -51,6 +59,7 @@ export default ({ id }: Props) => {
       <Typography id={id} variant="h5" pb={2}>
         <Content
           hasError={state.hasError}
+          info={state.info}
           isReady={state.isReady}
           isLoading={state.isLoading}
           isFinished={state.isFinished}

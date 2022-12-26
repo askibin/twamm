@@ -22,8 +22,10 @@ export type TransactionRunnerContext = {
   readonly error?: Error;
   readonly explorer: string;
   readonly explorers: typeof EXPLORERS;
+  readonly info?: string;
   readonly provider?: AnchorProvider;
   readonly setExplorer: (e: string) => void;
+  readonly setInfo: (arg0: string) => void;
   readonly setProvider: (p: AnchorProvider) => void;
   readonly setSlippage: (s: number) => void;
   readonly signature?: string;
@@ -40,6 +42,7 @@ export const Provider: FC<{ children: ReactNode }> = ({ children }) => {
   const [active, setActive] = useState<boolean>(false);
   const [error, setError] = useState<Error>();
   const [explorer, setExplorer] = useState<string>(EXPLORERS.explorer.uri);
+  const [info, setInfo] = useState<string>();
   const [provider, setProvider] = useState<AnchorProvider>();
   const [signature, setSignature] = useState<string>();
   const [slippage, setSlippage] = useState<number>(SLIPPAGES[3]);
@@ -82,8 +85,10 @@ export const Provider: FC<{ children: ReactNode }> = ({ children }) => {
       error,
       explorer,
       explorers: EXPLORERS,
+      info,
       provider,
       setExplorer,
+      setInfo,
       setProvider,
       setSlippage,
       signature,
@@ -96,8 +101,10 @@ export const Provider: FC<{ children: ReactNode }> = ({ children }) => {
       commit,
       error,
       explorer,
+      info,
       provider,
       setExplorer,
+      setInfo,
       setProvider,
       setSlippage,
       signature,

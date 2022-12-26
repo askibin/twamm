@@ -82,7 +82,7 @@ export default () => {
     execute: async (routes: Route[]) => {
       const data = await commit(run(routes));
 
-      console.log({ error, viewExplorer })
+      console.log({ error, viewExplorer });
 
       return data;
     },
