@@ -46,7 +46,7 @@ export const Provider: FC<{ children: ReactNode }> = ({ children }) => {
   const [info, setInfo] = useState<string>();
   const [provider, setProvider] = useState<AnchorProvider>();
   const [signature, setSignature] = useState<string>();
-  const [slippage, setSlippage] = useState<number>(SLIPPAGES[3]);
+  const [slippage, setSlippage] = useState<number>(SLIPPAGES[2]); // default 0.5
 
   const commit = useCallback(
     async (operation: Parameters<TransactionRunnerContext["commit"]>[0]) => {
