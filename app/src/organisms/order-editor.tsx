@@ -6,7 +6,7 @@ import * as Styled from "./order-editor.styled";
 import CoinSelect from "./coin-select";
 import Loading from "../atoms/loading";
 import PriceInfo from "./price-info";
-import TokenPairForm from "../molecules/token-pair-form";
+import OrderForm from "./order-form";
 import UniversalPopover, { Ref } from "../molecules/universal-popover";
 import usePrice from "../hooks/use-price";
 import useTokenPairByTokens from "../hooks/use-token-pair-by-tokens";
@@ -134,7 +134,7 @@ export default ({
       </UniversalPopover>
       <Styled.Swap elevation={1}>
         <Box p={2}>
-          <TokenPairForm
+          <OrderForm
             lead={a}
             slave={b}
             onABSwap={onTokenSwap}

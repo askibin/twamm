@@ -1,6 +1,6 @@
 import Box from "@mui/material/Box";
 import SyncAltIcon from "@mui/icons-material/SyncAlt";
-import * as Styled from "./token-pair-form-content.styled";
+import * as Styled from "./exchange-pair-form.styled";
 import InTokenField from "./in-token-field";
 import TokenSelect from "../atoms/token-select";
 import TradeIntervals from "./trade-intervals";

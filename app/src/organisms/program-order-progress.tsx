@@ -3,7 +3,7 @@ import Box from "@mui/material/Box";
 import { useCallback, useMemo } from "react";
 import Button from "../molecules/progress-button";
 import useScheduleOrder from "../hooks/use-schedule-order";
-import { prepare4Program } from "../molecules/token-pair-form.utils";
+import { prepare4Program } from "../domain/order";
 
 export default (props: {
   disabled: boolean;
