@@ -6,6 +6,7 @@ import List from "@mui/material/List";
 import M, { Extra } from "easy-maybe/lib";
 import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
+import { OrderSide } from "@twamm/types/lib";
 import { useState } from "react";
 
 import * as Styled from "./price-info.styled";
@@ -19,7 +20,7 @@ import { refreshEach } from "../../swr-options";
 
 const REFRESH_INTERVAL = 0.5 * 60000;
 
-export interface Props {
+export default (props: {
   a: Voidable<JupToken>;
   b: Voidable<JupToken>;
   tokenPair: Voidable<{
@@ -28,15 +29,13 @@ export interface Props {
     statsA: PairStatsData;
     statsB: PairStatsData;
   }>;
-  type: Voidable<OrderType>;
-}
-
-export default (props: Props) => {
+  type: Voidable<OrderSide>;
+}) => {
   const [open, setOpen] = useState<boolean>(false);
 
   const { isMobile } = useBreakpoints();
 
-  const populatePair = (a: JupToken, b: JupToken, t: OrderType) =>
+  const populatePair = (a: JupToken, b: JupToken, t: OrderSide) =>
     populatePairByType<JupToken>(a, b, t);
 
   const pair = M.andMap(

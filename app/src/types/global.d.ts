@@ -1,3 +1,13 @@
+declare type Voidable<T> = T | undefined;
+
+declare type Action<Payload> = { type: string; payload: Payload };
+
+declare type ActionPayload<Fn> = ReturnType<Fn>["payload"];
+
+declare interface Actor<InPayload, OutPayload> {
+  (arg0: string, arg1: InPayload): Action<OutPayload>;
+}
+
 interface PromiseFulfilledResult<T> {
   status: "fulfilled";
   value: T;
@@ -12,7 +22,9 @@ declare type PromiseSettledResult<T> =
   | PromiseFulfilledResult<T>
   | PromiseRejectedResult;
 
-declare type FetcherArgs<T> = { params: T };
+declare type SWRParams<F> = ReturnType<F>;
+
+declare type SWRArgs<F> = Parameters<F>[0];
 
 declare type JupTokenData = {
   address: string;

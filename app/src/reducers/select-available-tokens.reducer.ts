@@ -1,5 +1,5 @@
 import { flatten, lensPath, pipe, set } from "ramda";
-import { OrderSides } from "../types/enums.d";
+import { OrderSide } from "@twamm/types/lib";
 
 const flattenPairs = (pairs: AddressPair[]) =>
   Array.from(new Set(flatten(pairs)).values());
@@ -9,9 +9,9 @@ const matchPairs = (pair: AddressPair, pairs: AddressPair[]) => {
     (tokenPair) => tokenPair.includes(pair[0]) && tokenPair.includes(pair[1])
   );
 
-  if (!matchedPair) return OrderSides.defaultSide;
+  if (!matchedPair) return OrderSide.defaultSide;
 
-  const type = pair[0] === matchedPair[0] ? OrderSides.sell : OrderSides.buy;
+  const type = pair[0] === matchedPair[0] ? OrderSide.sell : OrderSide.buy;
 
   return type;
 };
@@ -40,7 +40,7 @@ export interface Data {
   b?: TokenInfo;
   cancellable: undefined;
   pairs: AddressPair[];
-  type: OrderType;
+  type: OrderSide;
 }
 
 export interface State<D = undefined> {
@@ -54,7 +54,7 @@ export const defaultState: State = {
 const init = (payload: {
   pairs: AddressPair[];
   pair: JupToken[];
-  type: OrderType;
+  type: OrderSide;
 }) => ({
   type: ActionTypes.INIT,
   payload,
@@ -98,7 +98,7 @@ export default (
 
       const { pair, pairs, type } = act.payload as ActionPayload<typeof init>;
 
-      const isChangingType = OrderSides.defaultSide !== type;
+      const isChangingType = OrderSide.defaultSide !== type;
 
       const [a, b] = isChangingType ? [pair[1], pair[0]] : [pair[0], pair[1]];
 
@@ -136,7 +136,7 @@ export default (
           set(lensAvailable, selectComplementary(b, pairs)),
           set(
             lensType,
-            type === OrderSides.sell ? OrderSides.buy : OrderSides.sell
+            type === OrderSide.sell ? OrderSide.buy : OrderSide.sell
           )
         );
 
@@ -155,7 +155,7 @@ export default (
           set(lensA, token),
           set(lensB, undefined),
           set(lensAvailable, available),
-          set(lensType, OrderSides.defaultSide)
+          set(lensType, OrderSide.defaultSide)
         );
 
         return applyState(state);
@@ -185,7 +185,7 @@ export default (
       const { a, pairs } = state.data;
       const { token } = act.payload as ActionPayload<typeof selectB>;
 
-      let type = OrderSides.defaultSide;
+      let type = OrderSide.defaultSide;
       if (a) {
         const pair: AddressPair = [a.address, token.address];
         type = matchPairs(pair, pairs);
@@ -211,7 +211,7 @@ export default (
         set(lensPath(["data", "b"]), a),
         set(
           lensPath(["data", "type"]),
-          type === OrderSides.sell ? OrderSides.buy : OrderSides.sell
+          type === OrderSide.sell ? OrderSide.buy : OrderSide.sell
         )
       );
 

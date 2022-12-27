@@ -1,10 +1,10 @@
 import type { Program } from "@project-serum/anchor";
 import { findAddress } from "@twamm/client.js/lib/program";
+import { OrderSide } from "@twamm/types/lib";
 import { PublicKey } from "@solana/web3.js";
 import { TokenPair as TokenPairClient } from "@twamm/client.js";
 
 import { forit } from "./forit";
-import { OrderSides } from "../types/enums.d";
 
 const addressToBuffer = (address: string) => new PublicKey(address).toBuffer();
 
@@ -43,8 +43,8 @@ export const resolveExchangePair = (program: Program) => {
     }
 
     const assumedType =
-      a.address === pair[0].address ? OrderSides.sell : OrderSides.buy;
-    const exchangePair: [TokenPair<TokenInfo>, OrderType] = [pair, assumedType];
+      a.address === pair[0].address ? OrderSide.sell : OrderSide.buy;
+    const exchangePair: [TokenPair<TokenInfo>, OrderSide] = [pair, assumedType];
 
     return {
       tokenPairData: tokenPairProgramData as TokenPairProgramData,

@@ -21,7 +21,7 @@ const hasProperAddress = (t: JupToken) =>
     "Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB",
   ].includes(t.address);
 
-const fetcher = async ({ params }: ReturnType<typeof swrKey>) => {
+const fetcher = async ({ params }: SWRParams<typeof swrKey>) => {
   const { moniker } = params;
 
   const allTokens: Array<JupToken> = await (

@@ -1,6 +1,5 @@
 import Box from "@mui/material/Box";
 import IconButton from "@mui/material/IconButton";
-import Skeleton from "@mui/material/Skeleton";
 import { styled } from "@mui/material/styles";
 
 export const Interval = styled(Box)`

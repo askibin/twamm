@@ -6,6 +6,8 @@ export const idl = idlJson as Idl;
 
 export const JUPITER_CONFIG_URI = "https://quote-api.jup.ag";
 
+export const JUPITER_PRICE_ENDPOINT_V1 = "https://price.jup.ag/v1/price";
+
 export const AnkrClusterApiUrl = "https://rpc.ankr.com/solana";
 
 // TODO: cover absent env value

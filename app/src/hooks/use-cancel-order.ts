@@ -12,7 +12,7 @@ import useTxRunner from "../contexts/transaction-runner-context";
 
 export default () => {
   const { provider, program } = useProgram();
-  const { commit } = useTxRunner();
+  const { commit, setInfo } = useTxRunner();
 
   const pairClient = new TokenPair(program);
 
@@ -107,18 +107,28 @@ export default () => {
       tokenProgram: TOKEN_PROGRAM_ID,
     };
 
-    const result = await program.methods
+    const tx = program.methods
       .cancelOrder({
         lpAmount: new BN(lpAmount),
       })
       .accounts(accounts)
       .preInstructions(pre)
-      .postInstructions(post)
-      .rpc()
-      .catch((e: Error) => {
-        console.error(e); // eslint-disable-line no-console
-        throw e;
-      });
+      .postInstructions(post);
+
+    setInfo("Simulating transaction...");
+
+    const simResult = await tx.simulate().catch((e) => {
+      console.error("Failed to simulate", e); // eslint-disable-line no-console
+    });
+
+    if (simResult) console.debug(simResult.raw, simResult.events); // eslint-disable-line no-console, max-len
+
+    setInfo("Executing the transaction...");
+
+    const result = await tx.rpc().catch((e: Error) => {
+      console.error(e); // eslint-disable-line no-console
+      throw e;
+    });
 
     return result;
   };

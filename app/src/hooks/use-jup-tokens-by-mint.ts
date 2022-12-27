@@ -9,7 +9,7 @@ const swrKey = (params: { mints: string[] }) => ({
 
 const fetcher =
   (tokens?: JupToken[]) =>
-  async ({ params }: ReturnType<typeof swrKey>) => {
+  async ({ params }: SWRParams<typeof swrKey>) => {
     if (!tokens) return [];
 
     const { mints } = params;

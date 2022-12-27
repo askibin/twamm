@@ -34,10 +34,10 @@ const fetcher = (api: ReturnType<typeof useCoingeckoContractApi>) => {
   const fetchAddressByMint = (...args: any) =>
     fetchFromAPI<ContractData>("coinsIdContractContractAddressGet", ...args);
 
-  return async ({ params: { mints } }: ReturnType<typeof swrKey>) => {
+  return async ({ params }: SWRParams<typeof swrKey>) => {
     const contracts: PromiseSettledResult<ContractData>[] =
       await Promise.allSettled(
-        mints.map((mint) => fetchAddressByMint("solana", mint))
+        params.mints.map((mint) => fetchAddressByMint("solana", mint))
       );
 
     const tokens: MaybeTokens = [];

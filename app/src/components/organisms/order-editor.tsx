@@ -1,6 +1,7 @@
-import Box from "@mui/material/Box";
 import M, { Extra } from "easy-maybe/lib";
+import { OrderSide } from "@twamm/types/lib";
 import { useCallback, useEffect, useRef, useState } from "react";
+import Box from "@mui/material/Box";
 import * as Styled from "./order-editor.styled";
 import CoinSelect from "./coin-select";
 import Loading from "../atoms/loading";
@@ -10,25 +11,6 @@ import UniversalPopover, { Ref } from "../molecules/universal-popover";
 import usePrice from "../../hooks/use-price";
 import useTokenPairByTokens from "../../hooks/use-token-pair-by-tokens";
 import { refreshEach } from "../../swr-options";
-
-export interface Props {
-  a: Voidable<TokenInfo>;
-  all: Voidable<TokenInfo["address"][]>;
-  available: Voidable<TokenInfo["address"][]>;
-  b: Voidable<TokenInfo>;
-  cancellable: undefined;
-  onSelectA: (token: TokenInfo) => void;
-  onSelectB: (token: TokenInfo) => void;
-  onSwap: (price?: number) => void;
-  onTradeChange: (arg0: {
-    amount: number;
-    pair: AddressPair;
-    type: OrderType;
-  }) => void;
-  tokenPairs: Voidable<AddressPair[]>;
-  tokenPair: Voidable<JupToken[]>;
-  tradeSide: Voidable<OrderType>;
-}
 
 export default ({
   a,
@@ -43,7 +25,24 @@ export default ({
   tokenPairs,
   tokenPair,
   tradeSide,
-}: Props) => {
+}: {
+  a: Voidable<TokenInfo>;
+  all: Voidable<TokenInfo["address"][]>;
+  available: Voidable<TokenInfo["address"][]>;
+  b: Voidable<TokenInfo>;
+  cancellable: undefined;
+  onSelectA: (token: TokenInfo) => void;
+  onSelectB: (token: TokenInfo) => void;
+  onSwap: (price?: number) => void;
+  onTradeChange: (arg0: {
+    amount: number;
+    pair: AddressPair;
+    type: OrderSide;
+  }) => void;
+  tokenPairs: Voidable<AddressPair[]>;
+  tokenPair: Voidable<JupToken[]>;
+  tradeSide: Voidable<OrderSide>;
+}) => {
   const pairs = M.of(tokenPairs);
   const pair = M.of(tokenPair);
 

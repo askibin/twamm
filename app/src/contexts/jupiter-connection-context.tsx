@@ -95,12 +95,10 @@ export default () => {
   return context;
 };
 
-interface WithProps extends JSX.IntrinsicAttributes {}
-
-export function withCtx<P = WithProps>(
+export function withCtx<P = any>(
   NestedComponent: FC<P> | ComponentClass<P, any>
 ) {
-  return (props: any) => (
+  return (props: P & JSX.IntrinsicAttributes) => (
     <Provider>
       {/* eslint-disable-next-line react/jsx-props-no-spreading */}
       <NestedComponent {...props} />

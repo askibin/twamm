@@ -10,17 +10,17 @@ import { findAddress } from "@twamm/client.js/lib/program";
 import { findAssociatedTokenAddress } from "@twamm/client.js/lib/find-associated-token-address";
 import { isNil } from "ramda";
 import { Order } from "@twamm/client.js/lib/order";
+import { OrderSide } from "@twamm/types/lib";
 import { Pool } from "@twamm/client.js/lib/pool";
 import { SplToken } from "@twamm/client.js/lib/spl-token";
 
 import useProgram from "./use-program";
 import useTxRunner from "../contexts/transaction-runner-context";
-import { OrderSides } from "../types/enums.d";
 
 export interface Params {
   amount: number;
   decimals: number;
-  side: OrderType;
+  side: OrderSide;
   aMint: string;
   bMint: string;
   tif: number;
@@ -89,8 +89,8 @@ export default () => {
       await assureAccountCreated(provider, bMintPublicKey, bWallet),
     ];
 
-    const isSell = side === OrderSides.sell;
-    const isBuy = side === OrderSides.buy;
+    const isSell = side === OrderSide.sell;
+    const isBuy = side === OrderSide.buy;
 
     if (isSell)
       preInstructions = preInstructions.concat(
@@ -121,7 +121,7 @@ export default () => {
     const counter = poolCounters[index];
 
     const orderParams = {
-      side: side === OrderSides.sell ? { sell: {} } : { buy: {} },
+      side: side === OrderSide.sell ? { sell: {} } : { buy: {} },
       timeInForce: tif,
       amount: new BN(amount * 10 ** decimals),
     };

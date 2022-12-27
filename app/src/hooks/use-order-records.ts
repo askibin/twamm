@@ -24,10 +24,10 @@ const generateId = (arr: Array<string>) => arr[0];
 const fetcher = (program: Program) => {
   const pair = new TokenPair(program);
 
-  return async ({ params: { orders, pools } }: ReturnType<typeof swrKey>) => {
-    const list = orders as OrderData[];
+  return async ({ params }: SWRParams<typeof swrKey>) => {
+    const list = params.orders as OrderData[];
 
-    const poolAddresses = pools.map((p) => p.tokenPair);
+    const poolAddresses = params.pools.map((p) => p.tokenPair);
 
     const tokenPairs = (await pair.getPairs(
       poolAddresses
@@ -39,7 +39,7 @@ const fetcher = (program: Program) => {
       const record = { ...orderData } as OrderPoolRecord;
 
       record.id = generateId([String(o.pool)]);
-      record.poolData = pools[i];
+      record.poolData = params.pools[i];
       record.order = o.pubkey;
       record.tokenPairData = tokenPairs[i];
 

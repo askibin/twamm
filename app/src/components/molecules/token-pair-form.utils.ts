@@ -1,4 +1,5 @@
 import M from "easy-maybe/lib";
+import { OrderSide } from "@twamm/types/lib";
 import type { SelectedTif } from "./trade-intervals";
 import { instantTif } from "../../reducers/trade-intervals.reducer";
 
@@ -40,7 +41,7 @@ export const prepare4Program = (
   timeInForce: TIF | undefined,
   nextPool: number | undefined,
   tifIntervals: IndexedTIF[] | undefined,
-  side: OrderType,
+  side: OrderSide,
   amount: number,
   decimals: number,
   aMint: string,
@@ -89,7 +90,7 @@ export const prepare4Program = (
 };
 
 export const prepare4Jupiter = (
-  side: OrderType,
+  side: OrderSide,
   amount: number,
   decimals: number,
   aMint: string,

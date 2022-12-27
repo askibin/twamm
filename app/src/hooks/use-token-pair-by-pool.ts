@@ -12,19 +12,17 @@ const swrKey = (params: { address: PublicKey; tokenPair: PublicKey }) => ({
   params,
 });
 
-type Params = Parameters<typeof swrKey>[0];
-
 const fetcher = (program: Program) => {
   const pair = new TokenPair(program);
 
-  return async ({ params: { tokenPair } }: ReturnType<typeof swrKey>) => {
-    const tp: unknown = await pair.getPair(tokenPair);
+  return async ({ params }: SWRParams<typeof swrKey>) => {
+    const tp: unknown = await pair.getPair(params.tokenPair);
 
     return tp as TokenPairProgramData;
   };
 };
 
-export default (address?: Params["address"], options = {}) => {
+export default (address?: SWRArgs<typeof swrKey>["address"], options = {}) => {
   const { program } = useProgram();
 
   const pool = usePool(M.withDefault(undefined, M.of(address)));

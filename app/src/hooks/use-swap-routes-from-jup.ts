@@ -19,14 +19,12 @@ const swrKey = (params: {
   params,
 });
 
-type Params = Parameters<typeof swrKey>[0];
-
 const convertPercentage = (a: number) => (a === 0 ? 0 : a * 10);
 // 1 = 0.1%
 
 const fetcher =
   (api: DefaultApi) =>
-  async ({ params }: { params: Params }) => {
+  async ({ params }: SWRParams<typeof swrKey>) => {
     const routes = await api.v3QuoteGet({
       amount: String(params.amount * 10 ** params.decimals),
       inputMint: params.inputMint,
@@ -46,7 +44,10 @@ const fetcher =
 
 export default (
   params: Voidable<
-    Pick<Params, "amount" | "decimals" | "inputMint" | "outputMint">
+    Pick<
+      SWRArgs<typeof swrKey>,
+      "amount" | "decimals" | "inputMint" | "outputMint"
+    >
   >,
   options = {}
 ) => {

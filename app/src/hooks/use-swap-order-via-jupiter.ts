@@ -46,7 +46,7 @@ export default () => {
   const { publicKey, signTransaction } = useWallet();
   const { connection } = useBlockchain();
   const { api } = useJupiterContext();
-  const { commit, error, viewExplorer } = useTxRunner();
+  const { commit } = useTxRunner();
 
   const run = async (routes: Route[]) => {
     if (!publicKey || !signTransaction)
@@ -73,6 +73,7 @@ export default () => {
 
     const txid = await connection.sendRawTransaction(transaction.serialize());
 
+    // TODO: resolve deplecation
     await connection.confirmTransaction(txid);
 
     return txid;
@@ -81,8 +82,6 @@ export default () => {
   return {
     execute: async (routes: Route[]) => {
       const data = await commit(run(routes));
-
-      console.log({ error, viewExplorer });
 
       return data;
     },

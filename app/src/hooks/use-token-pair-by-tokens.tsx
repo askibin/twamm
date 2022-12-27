@@ -9,12 +9,10 @@ const swrKey = (params: { aToken: TokenInfo; bToken: TokenInfo }) => ({
   params,
 });
 
-type Params = Parameters<typeof swrKey>[0];
-
 const fetcher = (program: Program) => {
   const resolvePair = resolveExchangePair(program);
 
-  return async ({ params }: ReturnType<typeof swrKey>) => {
+  return async ({ params }: SWRParams<typeof swrKey>) => {
     const { aToken, bToken } = params;
     const { tokenPairData, exchangePair } = await resolvePair([aToken, bToken]);
 
@@ -45,7 +43,7 @@ const fetcher = (program: Program) => {
   };
 };
 
-export default (params?: Params, options = {}) => {
+export default (params?: SWRArgs<typeof swrKey>, options = {}) => {
   const { program } = useProgram();
 
   return useSWR(params && swrKey(params), fetcher(program), options);

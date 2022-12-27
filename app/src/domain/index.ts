@@ -1,7 +1,7 @@
-import { OrderSides } from "../types/enums.d";
+import { OrderSide } from "@twamm/types/lib";
 
-export const populatePairByType = <T = any>(a: T, b: T, type: OrderType): T[] =>
-  type === OrderSides.sell ? [a, b] : [b, a];
+export const populatePairByType = <T = any>(a: T, b: T, type: OrderSide): T[] =>
+  type === OrderSide.sell ? [a, b] : [b, a];
 
 export const formatPrice = (a: number) =>
   new Intl.NumberFormat("en-US", {

@@ -4,29 +4,29 @@ import M, { Extra } from "easy-maybe/lib";
 import useSWR from "swr";
 import { SplToken } from "@twamm/client.js/lib/spl-token";
 import { useWallet } from "@solana/wallet-adapter-react";
-import useAccountTokens, { AccountBalance } from "./use-account-tokens";
+import useAccountTokens from "./use-account-tokens";
 import useProgram from "./use-program";
 
-type Params = { address: PublicKey; balances: AccountBalance[]; mint: string };
-
-const swrKey = (params: Params) => ({
+const swrKey = (params: {
+  address: PublicKey;
+  balances: AccountBalance[];
+  mint: string;
+}) => ({
   key: "balance",
   params,
 });
 
 const fetcher =
   ({ provider }: { provider: Provider }) =>
-  async (swr: FetcherArgs<Params>) => {
-    if (SplToken.isNativeAddress(swr.params.mint)) {
-      const data: number = await provider.connection.getBalance(
-        swr.params.address
-      );
+  async ({ params }: SWRParams<typeof swrKey>) => {
+    if (SplToken.isNativeAddress(params.mint)) {
+      const data: number = await provider.connection.getBalance(params.address);
 
       return Number((data * 1e-9).toFixed(String(data).length));
     }
 
-    const accounts = swr.params.balances.map((d) => d.account.data.parsed.info);
-    const targetInfo = accounts.find((a) => a.mint === swr.params.mint);
+    const accounts = params.balances.map((d) => d.account.data.parsed.info);
+    const targetInfo = accounts.find((a) => a.mint === params.mint);
 
     if (!targetInfo) return 0;
 

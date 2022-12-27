@@ -1,4 +1,4 @@
-import { OrderSides } from "../types/enums.d";
+import { OrderSide } from "@twamm/types/lib";
 import * as R from "./select-available-tokens.reducer";
 
 // TODO: resolve duplicated image & logoURI
@@ -55,7 +55,7 @@ describe("select-available-tokens reducer", () => {
   it("should `INIT`", () => {
     const next1 = R.default(
       R.defaultState,
-      R.action.init({ pairs, pair: [a, b], type: OrderSides.buy })
+      R.action.init({ pairs, pair: [a, b], type: OrderSide.buy })
     );
 
     const state1 = {
@@ -66,7 +66,7 @@ describe("select-available-tokens reducer", () => {
         b: a,
         cancellable: undefined,
         pairs,
-        type: OrderSides.buy,
+        type: OrderSide.buy,
       },
     };
 
@@ -74,7 +74,7 @@ describe("select-available-tokens reducer", () => {
 
     const next2 = R.default(
       state1,
-      R.action.init({ pairs, pair: [a, b], type: OrderSides.sell })
+      R.action.init({ pairs, pair: [a, b], type: OrderSide.sell })
     );
 
     expect(next2).toStrictEqual(state1);
@@ -95,7 +95,7 @@ describe("select-available-tokens reducer", () => {
         b: a,
         cancellable: undefined,
         pairs,
-        type: OrderSides.buy,
+        type: OrderSide.buy,
       },
     };
 
@@ -109,7 +109,7 @@ describe("select-available-tokens reducer", () => {
         b,
         cancellable: undefined,
         pairs,
-        type: OrderSides.sell,
+        type: OrderSide.sell,
       },
     });
   });
@@ -123,7 +123,7 @@ describe("select-available-tokens reducer", () => {
         b: a,
         cancellable: undefined,
         pairs,
-        type: OrderSides.buy,
+        type: OrderSide.buy,
       },
     };
 
@@ -137,7 +137,7 @@ describe("select-available-tokens reducer", () => {
         b: a,
         cancellable: undefined,
         pairs,
-        type: OrderSides.buy,
+        type: OrderSide.buy,
       },
     });
   });
@@ -159,7 +159,7 @@ describe("select-available-tokens reducer", () => {
         b,
         cancellable: undefined,
         pairs: richPairs,
-        type: OrderSides.sell,
+        type: OrderSide.sell,
       },
     };
 
@@ -171,7 +171,7 @@ describe("select-available-tokens reducer", () => {
         b: undefined,
         cancellable: undefined,
         pairs: richPairs,
-        type: OrderSides.defaultSide,
+        type: OrderSide.defaultSide,
       },
     });
   });
@@ -190,7 +190,7 @@ describe("select-available-tokens reducer", () => {
         b: a,
         cancellable: undefined,
         pairs,
-        type: OrderSides.buy,
+        type: OrderSide.buy,
       },
     };
 
@@ -204,7 +204,7 @@ describe("select-available-tokens reducer", () => {
         b: c,
         cancellable: undefined,
         pairs,
-        type: OrderSides.sell,
+        type: OrderSide.sell,
       },
     });
   });
@@ -223,7 +223,7 @@ describe("select-available-tokens reducer", () => {
         b: a,
         cancellable: undefined,
         pairs,
-        type: OrderSides.buy,
+        type: OrderSide.buy,
       },
     };
 
@@ -235,7 +235,7 @@ describe("select-available-tokens reducer", () => {
         b,
         cancellable: undefined,
         pairs,
-        type: OrderSides.sell,
+        type: OrderSide.sell,
       },
     });
   });

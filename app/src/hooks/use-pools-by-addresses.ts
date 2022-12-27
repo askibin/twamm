@@ -13,14 +13,14 @@ const swrKey = (params: { addresses: PublicKey[] }) => ({
 const fetcher = (provider: Provider, program: Program) => {
   const pool = new Pool(program);
 
-  return async ({ params: { addresses } }: ReturnType<typeof swrKey>) => {
-    const pools = (await pool.getPools(addresses)) as PoolData[];
+  return async ({ params }: SWRParams<typeof swrKey>) => {
+    const pools = (await pool.getPools(params.addresses)) as PoolData[];
 
     return pools;
   };
 };
 
-export default (params?: Parameters<typeof swrKey>[0], options = {}) => {
+export default (params?: SWRArgs<typeof swrKey>, options = {}) => {
   const { program, provider } = useProgram();
 
   return useSWR(params && swrKey(params), fetcher(provider, program), options);

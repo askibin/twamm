@@ -11,6 +11,7 @@ import useSwapRoutes from "../../hooks/use-swap-routes-from-jup";
 function OrderProgress(props: {
   disabled: boolean;
   form?: string;
+  onSuccess: () => void;
   params:
     | {
         amount: number;
@@ -21,7 +22,7 @@ function OrderProgress(props: {
       }
     | undefined;
   progress: boolean;
-  validate: () => { [key: string]: Error };
+  validate: () => { [key: string]: Error } | undefined;
 }) {
   const { execute } = useSwap();
   const { ready } = useJupiter();
@@ -54,7 +55,9 @@ function OrderProgress(props: {
     const routesData = routes.data.routes;
 
     await execute(routesData);
-  }, [execute, routes.data]);
+
+    props.onSuccess();
+  }, [execute, props, routes.data]);
 
   const loading = M.withDefault(
     true,
@@ -90,4 +93,4 @@ function OrderProgress(props: {
   );
 }
 
-export default withCtx(OrderProgress);
+export default withCtx<Parameters<typeof OrderProgress>[0]>(OrderProgress);

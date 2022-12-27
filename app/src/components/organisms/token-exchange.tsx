@@ -1,16 +1,16 @@
 import { useCallback, useEffect } from "react";
+import { OrderSide } from "@twamm/types/lib";
 import M, { Extra } from "easy-maybe/lib";
 import * as R from "../../reducers/select-available-tokens.reducer";
 import OrderEditor from "./order-editor";
 import useAddressPairs from "../../hooks/use-address-pairs";
 import useJupTokensByMint from "../../hooks/use-jup-tokens-by-mint";
 import useTokenExchange from "../../hooks/use-token-exchange";
-import { OrderSides } from "../../types/enums.d";
 
 export type TradeStruct = {
   amount: number;
   pair: AddressPair;
-  type: OrderSides;
+  type: OrderSide;
 };
 
 export interface Props {
