@@ -12,6 +12,7 @@ import {
 const EXPLORERS = {
   explorer: { uri: "https://explorer.solana.com/tx/" },
   solscan: { uri: "https://solscan.io/tx/" },
+  solanafm: { uri: "https://solana.fm/tx" },
 };
 
 const SLIPPAGES = [0, 0.1, 0.5, 1, 2]; // %
