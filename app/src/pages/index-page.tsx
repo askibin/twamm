@@ -1,10 +1,9 @@
 import Box from "@mui/material/Box";
 import NoSsr from "@mui/material/NoSsr";
-
-import Header from "../components/organisms/header";
-import OfflineOverlay from "../components/organisms/offline-overlay";
+import Header from "../organisms/header";
+import OfflineOverlay from "../organisms/offline-overlay";
 import styles from "./index.module.css";
-import Userspace from "../components/ecosystems/userspace";
+import Userspace from "../ecosystems/userspace";
 
 export default () => (
   <div className={styles.root}>
