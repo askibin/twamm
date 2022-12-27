@@ -1,6 +1,6 @@
 {
   "name": "@twamm/types",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "description": "> Twamm Program Client Typedefs",
   "homepage": "https://github.com/askibin/twamm#readme",
   "license": "MIT",
