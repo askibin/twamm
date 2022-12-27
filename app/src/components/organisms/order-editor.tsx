@@ -69,7 +69,6 @@ export default ({
       if (selectedPair.data) {
         const { exchangePair } = selectedPair.data;
 
-        // TODO: fix pair type
         const [p, t]: ExchangePair = exchangePair;
 
         onTradeChange({

@@ -1,8 +1,9 @@
 import type { Program } from "@project-serum/anchor";
 import useSWR from "swr";
+import { OrderSide } from "@twamm/types/lib";
 
 import useProgram from "./use-program";
-import { resolveExchangePair } from "../utils/tokenpair-twamm-client";
+import { resolveExchangePair } from "../domain/index";
 
 const swrKey = (params: { aToken: TokenInfo; bToken: TokenInfo }) => ({
   key: "tokenPairByTokens",
@@ -14,7 +15,13 @@ const fetcher = (program: Program) => {
 
   return async ({ params }: SWRParams<typeof swrKey>) => {
     const { aToken, bToken } = params;
-    const { tokenPairData, exchangePair } = await resolvePair([aToken, bToken]);
+    const { tokenPairData, exchangePair } = (await resolvePair([
+      aToken,
+      bToken,
+    ])) as {
+      tokenPairData: TokenPairProgramData;
+      exchangePair: [[TokenInfo, TokenInfo], OrderSide];
+    };
 
     const {
       configA,
