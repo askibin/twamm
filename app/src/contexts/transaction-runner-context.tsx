@@ -10,8 +10,8 @@ import {
 } from "react";
 
 const EXPLORERS = {
-  explorer: { uri: "https://explorer.solana.com/tx/" },
-  solscan: { uri: "https://solscan.io/tx/" },
+  explorer: { uri: "https://explorer.solana.com/tx" },
+  solscan: { uri: "https://solscan.io/tx" },
   solanafm: { uri: "https://solana.fm/tx" },
 };
 
@@ -75,7 +75,7 @@ export const Provider: FC<{ children: ReactNode }> = ({ children }) => {
   );
 
   const viewExplorer = useCallback(
-    (sig: string) => `${explorer}${sig}`,
+    (sig: string) => new URL(`${explorer}/${sig}`).href,
     [explorer]
   );
 
