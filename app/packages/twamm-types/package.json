@@ -1,5 +1,8 @@
 {
   "name": "@twamm/types",
+  "publishConfig": {
+    "access": "public"
+  },
   "version": "0.0.7",
   "description": "> Twamm Program Client Typedefs",
   "homepage": "https://github.com/askibin/twamm#readme",
@@ -22,5 +25,6 @@
   },
   "bugs": {
     "url": "https://github.com/askibin/twamm/issues"
-  }
+  },
+  "gitHead": "2557c6304565c052ff242fc7efeb541c6d858293"
 }

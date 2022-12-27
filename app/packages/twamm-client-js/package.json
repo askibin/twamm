@@ -32,7 +32,7 @@
     "js-sha256": "^0.9.0",
     "ramda": "^0.28.0"
   },
-  "gitHead": "4ed246bd4a1a3934a295bf93245a58824c0042a4",
+  "gitHead": "2557c6304565c052ff242fc7efeb541c6d858293",
   "devDependencies": {
     "jest": "^29.3.1"
   }
