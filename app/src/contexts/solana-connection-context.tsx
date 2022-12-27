@@ -1,28 +1,16 @@
-import type { Cluster, Commitment as Cmtmnt } from "@solana/web3.js";
 import type { FC, ReactNode } from "react";
 import { clusterApiUrl, Connection } from "@solana/web3.js";
-import { createContext, useCallback, useMemo, useRef, useState } from "react";
-
+import R, { useCallback, useContext, useMemo, useRef, useState } from "react";
+import { ENV as ChainIdEnv } from "@solana/spl-token-registry";
+import type * as T from "./solana-connection-context.d";
 import endpointStorage from "../utils/cluster-endpoint-storage";
 import { AnkrClusterApiUrl, ClusterApiUrl } from "../env";
 
 const clusterStorage = endpointStorage();
 
-export type Commitment = "confirmed";
+export const chainId = ChainIdEnv.MainnetBeta;
 
-export type CustomClusterInfo = {
-  name: "Custom";
-  endpoint: string;
-  moniker: "custom";
-};
-
-export type ClusterInfo = {
-  name: string;
-  endpoint: string;
-  moniker?: Cluster | "custom" | "ankr-solana";
-};
-
-export const endpoints: Record<string, ClusterInfo> = {
+export const endpoints: Record<string, T.ClusterInfo> = {
   ankr: {
     name: "Ankr",
     endpoint: AnkrClusterApiUrl,
@@ -40,38 +28,36 @@ export const endpoints: Record<string, ClusterInfo> = {
   },
 };
 
-export type BlockchainConnectionContextType = {
-  readonly cluster: ClusterInfo;
-  readonly clusters: ClusterInfo[];
-  readonly commitment: Commitment;
-  readonly createConnection: (commitment?: Commitment) => Connection;
-  readonly setCluster: (cluster: ClusterInfo) => void;
+const COMMITMENT = "confirmed";
+
+export type SolanaConnectionContext = {
+  readonly cluster: T.ClusterInfo;
+  readonly clusters: T.ClusterInfo[];
+  readonly commitment: T.CommitmentLevel;
+  readonly connection: Connection;
+  readonly createConnection: (commitment?: T.CommitmentLevel) => Connection;
+  readonly setCluster: (cluster: T.ClusterInfo) => void;
 };
 
-export const BlockchainConnectionContext = createContext<
-  BlockchainConnectionContextType | undefined
->(undefined);
+export const Context = R.createContext<SolanaConnectionContext | undefined>(
+  undefined
+);
 
-export const BlockchainConnectionProvider: FC<{ children: ReactNode }> = ({
-  children,
-}) => {
-  const [commitments] = useState<Commitment[]>(["confirmed"]);
+export const Provider: FC<{ children: ReactNode }> = ({ children }) => {
+  const commitment: T.CommitmentLevel = COMMITMENT;
 
   const [clusters] = useState(
     [endpoints.solana].concat([endpoints.ankr, endpoints.custom])
   );
 
-  const initialCommitment = commitments[0];
-
   const customEndpoint = clusterStorage.enabled()
     ? clusterStorage.get()
     : undefined;
 
-  const initialCluster: ClusterInfo = customEndpoint
+  const initialCluster: T.ClusterInfo = customEndpoint
     ? endpoints.custom
     : clusters[0];
 
-  const [commitment] = useState(initialCommitment);
   const [cluster, setCluster] = useState(initialCluster);
 
   const connectionRef = useRef<Connection>(
@@ -79,7 +65,7 @@ export const BlockchainConnectionProvider: FC<{ children: ReactNode }> = ({
   );
 
   const changeCluster = useCallback(
-    (info: ClusterInfo) => {
+    (info: T.ClusterInfo) => {
       if (info.moniker === endpoints.custom.moniker) {
         clusterStorage.enable();
         clusterStorage.set(info.endpoint);
@@ -92,7 +78,7 @@ export const BlockchainConnectionProvider: FC<{ children: ReactNode }> = ({
   );
 
   const createConnection = useCallback(
-    (commit: Cmtmnt = initialCommitment) => {
+    (commit: T.CommitmentLevel = commitment) => {
       const prevEndpoint =
         connectionRef.current && connectionRef.current.rpcEndpoint;
 
@@ -100,12 +86,14 @@ export const BlockchainConnectionProvider: FC<{ children: ReactNode }> = ({
         const conn = new Connection(cluster.endpoint, commit);
         connectionRef.current = conn;
 
-        return conn;
+        // TODO: add notifications about RPC change
+
+        return connectionRef.current;
       }
 
       return connectionRef.current;
     },
-    [cluster, initialCommitment]
+    [cluster, commitment]
   );
 
   const contextValue = useMemo(
@@ -113,15 +101,21 @@ export const BlockchainConnectionProvider: FC<{ children: ReactNode }> = ({
       cluster,
       clusters,
       commitment,
+      connection: connectionRef.current,
       createConnection,
       setCluster: changeCluster,
     }),
     [cluster, clusters, changeCluster, commitment, createConnection]
   );
 
-  return (
-    <BlockchainConnectionContext.Provider value={contextValue}>
-      {children}
-    </BlockchainConnectionContext.Provider>
-  );
+  return <Context.Provider value={contextValue}>{children}</Context.Provider>;
+};
+
+export default () => {
+  const context = useContext(Context);
+  if (context === undefined) {
+    throw new Error("Solana connection context required");
+  }
+
+  return context;
 };

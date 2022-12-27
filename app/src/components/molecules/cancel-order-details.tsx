@@ -10,7 +10,7 @@ import { refreshEach } from "../../swr-options";
 import { withdrawAmount as calcWithdraw } from "../../utils/twamm-client";
 
 export interface Props {
-  data: Voidable<JupTokenData[]>;
+  data: Voidable<JupToken[]>;
   details: Voidable<PoolDetails>;
   onToggle: () => void;
   percentage: number;

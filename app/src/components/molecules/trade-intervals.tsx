@@ -1,28 +1,35 @@
 import Box from "@mui/material/Box";
 import Maybe from "easy-maybe/lib";
-import { useCallback, useEffect, useMemo, useReducer } from "react";
+import { useCallback, useEffect, useMemo, useReducer, useState } from "react";
 
 import intervalsReducer, {
   action,
   initialState,
 } from "../../reducers/trade-intervals.reducer";
-import TimeInterval from "../atoms/time-interval";
+import TimeInterval, { INSTANT_INTERVAL } from "../atoms/time-interval";
 
 export type SelectedTif = [number | undefined, number | undefined];
 
 export interface Props {
+  disabled: boolean;
   indexedTifs: Voidable<IndexedTIF[]>;
   onSelect: (arg0: SelectedTif) => void;
+  onSelectInstant: () => void;
   selectedTif?: SelectedTif;
 }
 
-export default ({ indexedTifs: tifs, onSelect, selectedTif }: Props) => {
+export default ({
+  disabled,
+  indexedTifs: tifs,
+  onSelect,
+  onSelectInstant,
+  selectedTif,
+}: Props) => {
   const indexedTifs = useMemo(() => Maybe.of(tifs), [tifs]);
 
   // @ts-ignore
   const [state, dispatch] = useReducer(intervalsReducer, initialState);
-
-  // console.log(state.tifs, state.tifsLeft);
+  const [instant, setInstant] = useState<Voidable<number>>();
 
   useEffect(() => {
     Maybe.andMap<IndexedTIF[], void>((data) => {
@@ -35,6 +42,14 @@ export default ({ indexedTifs: tifs, onSelect, selectedTif }: Props) => {
 
   const onScheduleSelect = useCallback(
     (value: number) => {
+      if (value === INSTANT_INTERVAL) {
+        onSelectInstant();
+        setInstant(INSTANT_INTERVAL);
+        return;
+      }
+
+      if (instant) setInstant(undefined);
+
       // @ts-ignore
       dispatch(action.setSchedule({ tif: value }));
 
@@ -47,58 +62,39 @@ export default ({ indexedTifs: tifs, onSelect, selectedTif }: Props) => {
         ]);
       }, indexedTifs);
     },
-    [dispatch, indexedTifs, onSelect]
+    [dispatch, indexedTifs, instant, onSelect, onSelectInstant]
   );
 
   const onPeriodSelect = useCallback(
     (value: number) => {
-      /*
-       *const periodTif = state.indexedTifs.find(
-       *  (itif: IndexedTIF) => itif.left === value
-       *);
-       */
-
-      // const tifValue = periodTif.tif;
-
       // @ts-ignore
       // dispatch(action.setPeriod({ tif: tifValue })); // value }));
       dispatch(action.setPeriod({ tif: value }));
 
       onSelect([value, state.pairSelected[1]]);
-      // onSelect([tifValue, state.pairSelected[1]]);
     },
     [dispatch, onSelect, state.pairSelected]
   );
 
   const { pairSelected = [] } = state;
 
-  /*
-   *  const selectedPair = Maybe.withDefault(
-   *    [],
-   *    Maybe.andMap((data) => {
-   *      //console.log("psele", data, pairSelected);
-   *      const itif = data.find((d) => d.tif === pairSelected[0]);
-   *
-   *      if (!itif) return undefined;
-   *
-   *      return [itif.left, pairSelected[1]];
-   *    }, indexedTifs)
-   *  );
-   */
-
   return (
     <>
       <Box pb={2}>
         <TimeInterval
+          disabled={disabled}
           info=""
           label="Schedule Order"
           onSelect={onScheduleSelect}
-          value={pairSelected[1]}
+          onSelectInstant={onScheduleSelect}
+          useInstantOption
+          value={instant || pairSelected[1]}
           values={state.scheduleTifs}
         />
       </Box>
       <Box pb={2}>
         <TimeInterval
+          disabled={disabled}
           info=""
           label="Execution Period"
           onSelect={onPeriodSelect}

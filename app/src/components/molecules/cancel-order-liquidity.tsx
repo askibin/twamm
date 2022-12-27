@@ -9,7 +9,7 @@ import * as Styled from "./cancel-order-liquidity.styled";
 import { isFloat } from "../../utils/index";
 
 export interface Props {
-  ab: JupTokenData[];
+  ab: JupToken[];
   amount: Array<number | string>;
   errorData: Voidable<Error>;
   priceData: Voidable<number>;

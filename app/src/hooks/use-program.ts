@@ -2,12 +2,11 @@ import type { Wallet } from "@project-serum/anchor";
 import { Program, AnchorProvider as Provider } from "@project-serum/anchor";
 import { PublicKey } from "@solana/web3.js";
 import { useWallet } from "@solana/wallet-adapter-react";
-
-import useBlockchainConnectionContext from "./use-blockchain-connection-context";
+import useBlockchain from "../contexts/solana-connection-context";
 import { programId, idl } from "../env";
 
 export default () => {
-  const { commitment, createConnection } = useBlockchainConnectionContext();
+  const { commitment, createConnection } = useBlockchain();
   const wallet = useWallet();
 
   if (!programId) {

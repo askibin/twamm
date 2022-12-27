@@ -40,6 +40,8 @@ export default ({ children, onClose, open, setOpen }: Props) => {
 
   const modalProps = useMemo(() => ({ keepMounted: true }), []);
 
+  const drawerSx = useMemo(() => ({ top: -drawerBleeding }), []);
+
   return (
     <Styled.Drawer
       anchor="bottom"
@@ -50,17 +52,7 @@ export default ({ children, onClose, open, setOpen }: Props) => {
       open={open}
       swipeAreaWidth={drawerBleeding}
     >
-      <Box
-        sx={{
-          top: -drawerBleeding,
-          borderTopLeftRadius: 8,
-          borderTopRightRadius: 8,
-          visibility: "visible",
-          right: 0,
-          left: 0,
-          p: 0,
-        }}
-      >
+      <Box sx={drawerSx}>
         <Puller onClick={closeDrawer} />
       </Box>
       <Styled.Inner>{children}</Styled.Inner>

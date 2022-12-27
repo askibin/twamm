@@ -1,13 +1,6 @@
 import type { Address } from "@project-serum/anchor";
 import useSWR from "swr";
-
-const ENDPOINT = "https://price.jup.ag/v1/price";
-// TODO: move addr to the env
-
-type Params = { id: string } & Partial<{
-  vsToken: string;
-  vsAmount: string;
-}>;
+import { JUPITER_PRICE_ENDPOINT_V1 } from "../env";
 
 type TokenPrice = {
   timeTaken: number;
@@ -21,14 +14,19 @@ type TokenPrice = {
   };
 };
 
-const swrKey = (params: Params) => ({
+const swrKey = (
+  params: { id: string } & Partial<{
+    vsToken: string;
+    vsAmount: string;
+  }>
+) => ({
   key: "price",
   params,
 });
 
 const fetcher =
   ({ endpoint }: { endpoint: string }) =>
-  async ({ params }: { params: Params }) => {
+  async ({ params }: SWRParams<typeof swrKey>) => {
     const resp = await fetch(`${endpoint}?${new URLSearchParams(params)}`);
 
     if (resp.status === 404) {
@@ -44,8 +42,8 @@ const fetcher =
     return data.data.price;
   };
 
-export default (params: Voidable<Params>, options = {}) => {
-  const opts = { endpoint: ENDPOINT };
+export default (params: Voidable<SWRArgs<typeof swrKey>>, options = {}) => {
+  const opts = { endpoint: JUPITER_PRICE_ENDPOINT_V1 };
 
   return useSWR(params && swrKey(params), fetcher(opts), options);
 };

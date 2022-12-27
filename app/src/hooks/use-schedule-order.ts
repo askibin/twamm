@@ -10,15 +10,28 @@ import { findAddress } from "@twamm/client.js/lib/program";
 import { findAssociatedTokenAddress } from "@twamm/client.js/lib/find-associated-token-address";
 import { isNil } from "ramda";
 import { Order } from "@twamm/client.js/lib/order";
+import { OrderSide } from "@twamm/types/lib";
 import { Pool } from "@twamm/client.js/lib/pool";
 import { SplToken } from "@twamm/client.js/lib/spl-token";
 
 import useProgram from "./use-program";
-import useTxRunnerContext from "./use-transaction-runner-context";
+import useTxRunner from "../contexts/transaction-runner-context";
+
+export interface Params {
+  amount: number;
+  decimals: number;
+  side: OrderSide;
+  aMint: string;
+  bMint: string;
+  tif: number;
+  nextPool: boolean;
+  poolCounters: PoolCounter[];
+  tifs: number[];
+}
 
 export default () => {
   const { program, provider } = useProgram();
-  const { commit } = useTxRunnerContext();
+  const { commit, setInfo } = useTxRunner();
 
   const findProgramAddress = findAddress(program);
 
@@ -37,17 +50,7 @@ export default () => {
     side,
     tif,
     tifs,
-  }: {
-    amount: number;
-    decimals: number;
-    side: OrderType;
-    aMint: string;
-    bMint: string;
-    tif: number;
-    nextPool: boolean;
-    poolCounters: PoolCounter[];
-    tifs: number[];
-  }) {
+  }: Params) {
     const transferAuthority = await findProgramAddress(
       "transfer_authority",
       []
@@ -86,8 +89,8 @@ export default () => {
       await assureAccountCreated(provider, bMintPublicKey, bWallet),
     ];
 
-    const isSell = side === "sell";
-    const isBuy = side === "buy";
+    const isSell = side === OrderSide.sell;
+    const isBuy = side === OrderSide.buy;
 
     if (isSell)
       preInstructions = preInstructions.concat(
@@ -118,7 +121,7 @@ export default () => {
     const counter = poolCounters[index];
 
     const orderParams = {
-      side: side === "sell" ? { sell: {} } : { buy: {} },
+      side: side === OrderSide.sell ? { sell: {} } : { buy: {} },
       timeInForce: tif,
       amount: new BN(amount * 10 ** decimals),
     };
@@ -159,15 +162,25 @@ export default () => {
       tokenProgram: TOKEN_PROGRAM_ID,
     };
 
-    const result = await program.methods
+    const tx = program.methods
       .placeOrder(orderParams)
       .accounts(accounts)
-      .preInstructions(pre)
-      .rpc()
-      .catch((e: Error) => {
-        console.error(e); // eslint-disable-line no-console
-        throw e;
-      });
+      .preInstructions(pre);
+
+    setInfo("Simulating transaction...");
+
+    const simResult = await tx.simulate().catch((e) => {
+      console.error("Failed to simulate", e); // eslint-disable-line no-console
+    });
+
+    if (simResult) console.debug(simResult.raw, simResult.events); // eslint-disable-line no-console, max-len
+
+    setInfo("Executing the transaction...");
+
+    const result = await tx.rpc().catch((e: Error) => {
+      console.error(e); // eslint-disable-line no-console
+      throw e;
+    });
 
     return result;
   };

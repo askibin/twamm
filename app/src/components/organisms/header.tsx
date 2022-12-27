@@ -1,7 +1,8 @@
 import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
+import M, { Extra } from "easy-maybe/lib";
 import TuneIcon from "@mui/icons-material/Tune";
-import { useCallback, useRef } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
 
 import * as Styled from "./header.styled";
@@ -10,12 +11,22 @@ import TransactionRunnerModal from "../molecules/transaction-runner-modal";
 import TransactionProgress from "./transaction-progress";
 import UniversalPopover, { Ref } from "../molecules/universal-popover";
 import useBreakpoints from "../../hooks/use-breakpoints";
+import useTxRunner from "../../contexts/transaction-runner-context";
 
 export default () => {
   const { isDesktop, isMobile } = useBreakpoints();
+  const { active } = useTxRunner();
 
   const runnerRef = useRef<Ref>();
   const settingsRef = useRef<Ref>();
+
+  useEffect(() => {
+    M.andMap(([runner]) => {
+      if (!runner.isOpened) runner.open();
+    }, Extra.combine2([M.of(runnerRef.current), M.of(!active && undefined)]));
+
+    return () => {};
+  }, [active, runnerRef]);
 
   const onSettingsToggle = useCallback((flag: boolean) => {
     if (flag) settingsRef.current?.open();

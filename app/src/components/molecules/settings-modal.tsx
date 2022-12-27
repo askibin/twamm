@@ -3,6 +3,7 @@ import Typography from "@mui/material/Typography";
 
 import ClusterSelector from "./cluster-selector";
 import ExplorerSelector from "./explorer-selector";
+import SlippageSelector from "./slippage-selector";
 import * as Styled from "./settings-modal.styled";
 
 export interface Props {
@@ -17,6 +18,10 @@ export default ({ id }: Props) => (
     <Styled.Setting direction="row" py={1}>
       <Styled.SettingLabel variant="body2">Explorer</Styled.SettingLabel>
       <ExplorerSelector />
+    </Styled.Setting>
+    <Styled.Setting direction="row" py={1}>
+      <Styled.SettingLabel variant="body2">Slippage</Styled.SettingLabel>
+      <SlippageSelector />
     </Styled.Setting>
     <Box py={2}>
       <Styled.Line />

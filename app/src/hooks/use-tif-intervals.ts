@@ -42,7 +42,7 @@ const populateTokenPairPool = <A, B, C>(
 
 const fetcher =
   (program: Program) =>
-  async ({ params }: ReturnType<typeof swrKey>) => {
+  async ({ params }: SWRParams<typeof swrKey>) => {
     const { tokenPair, tifs, currentPoolPresent, poolCounters } = params;
     const [a, b] = tokenPair;
 

@@ -20,6 +20,6 @@ jobs:
 
       - name: Testing
         run: |
-          yarn test -- --passWithNoTests
+          yarn test
         working-directory: ./app
         timeout-minutes: 5

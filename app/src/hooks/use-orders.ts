@@ -14,8 +14,8 @@ const swrKey = (params: { account: PublicKey | null }) => ({
 const fetcher = (provider: Provider, program: Program) => {
   const order = new Order(program, provider);
 
-  return async ({ params: { account } }: ReturnType<typeof swrKey>) => {
-    const orders: unknown = await order.getOrdersByAccount(account);
+  return async ({ params }: SWRParams<typeof swrKey>) => {
+    const orders: unknown = await order.getOrdersByAccount(params.account);
 
     return orders as OrderData[];
   };

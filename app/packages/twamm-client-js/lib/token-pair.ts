@@ -2,6 +2,7 @@ import type { Program } from "@project-serum/anchor";
 import { PublicKey } from "@solana/web3.js";
 import { Pool } from "./pool";
 
+import { findAddress } from "./program";
 import { fetchMultipleAddresses } from "./utils";
 
 export class TokenPair {
@@ -18,6 +19,14 @@ export class TokenPair {
     const p = this.program.account.tokenPair.fetch(address);
 
     return p;
+  };
+
+  getPairByPairAddresses = async (addressPair: [PublicKey, PublicKey]) => {
+    const bufferPair = [addressPair[0].toBuffer(), addressPair[1].toBuffer()];
+
+    const address = await findAddress(this.program)("token_pair", bufferPair);
+
+    return this.getPair(address);
   };
 
   getPairs = async (addresses: PublicKey[]) => {

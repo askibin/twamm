@@ -1,12 +1,21 @@
 import Box from "@mui/material/Box";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
-import CloseIcon from "@mui/icons-material/Close";
+import ErrorIcon from "@mui/icons-material/Error";
 import HourglassEmptyIcon from "@mui/icons-material/HourglassEmpty";
 import Link from "@mui/material/Link";
 import RefreshIcon from "@mui/icons-material/Refresh";
 import Typography from "@mui/material/Typography";
 
 import * as Styled from "./transaction-runner.styled";
+import LogViewer from "../organisms/log-viewer";
+
+const extractErrorMessage = (message: string) => {
+  const msg = message.split("Error Message:");
+
+  if (msg.length > 1) return msg[1].trim();
+
+  return message;
+};
 
 export const Empty = () => (
   <Styled.Container p={2}>
@@ -24,7 +33,7 @@ export const Empty = () => (
   </Styled.Container>
 );
 
-export const Progress = () => (
+export const Progress = ({ info }: { info: string | undefined }) => (
   <Styled.Container p={2}>
     <Box pb={2}>
       <Styled.RefreshIcon>
@@ -35,7 +44,7 @@ export const Progress = () => (
       <Styled.RunnerTitle variant="h5">Working</Styled.RunnerTitle>
     </Box>
     <Typography textAlign="center" variant="body1">
-      Crunching current transaction
+      {info || "Crunching current transaction"}
     </Typography>
   </Styled.Container>
 );
@@ -45,7 +54,7 @@ export const Success = ({
   view,
 }: {
   signature: string;
-  view: (arg0: string) => string;
+  view: (sig: string) => string;
 }) => (
   <Styled.Container p={2}>
     <Box pb={2}>
@@ -67,18 +76,20 @@ export const Success = ({
   </Styled.Container>
 );
 
-export const Error = () => (
+export const Error = ({ error, logs }: { error: Error; logs?: string[] }) => (
   <Styled.Container p={2}>
-    <Box pb={2}>
+    <Box pb={1}>
       <Styled.ErrorIcon>
-        <CloseIcon />
+        <ErrorIcon />
       </Styled.ErrorIcon>
     </Box>
-    <Box pb={1}>
-      <Styled.RunnerTitle variant="h5">Error!</Styled.RunnerTitle>
-    </Box>
-    <Typography textAlign="center" variant="body1">
-      Can not finish the operation.
-    </Typography>
+    {error && (
+      <Box pb={1}>
+        <Styled.RunnerTitle variant="h5">
+          {extractErrorMessage(error.message)}
+        </Styled.RunnerTitle>
+      </Box>
+    )}
+    <LogViewer logs={logs} />
   </Styled.Container>
 );

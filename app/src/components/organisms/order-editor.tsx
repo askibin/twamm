@@ -1,19 +1,8 @@
+import M, { Extra } from "easy-maybe/lib";
+import { OrderSide } from "@twamm/types/lib";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Box from "@mui/material/Box";
-import Maybe, { Extra } from "easy-maybe/lib";
-import {
-  useCallback,
-  useEffect,
-  useMemo,
-  useReducer,
-  useRef,
-  useState,
-} from "react";
-
 import * as Styled from "./order-editor.styled";
-import availableTokens, {
-  action,
-  initialState,
-} from "../../reducers/select-available-tokens.reducer";
 import CoinSelect from "./coin-select";
 import Loading from "../atoms/loading";
 import PriceInfo from "./price-info";
@@ -23,80 +12,75 @@ import usePrice from "../../hooks/use-price";
 import useTokenPairByTokens from "../../hooks/use-token-pair-by-tokens";
 import { refreshEach } from "../../swr-options";
 
-const { andMap, of, withDefault } = Maybe;
-const { combine2 } = Extra;
-
-export interface Props {
+export default ({
+  a,
+  all,
+  available,
+  b,
+  cancellable,
+  onSelectA,
+  onSelectB,
+  onSwap,
+  onTradeChange,
+  tokenPairs,
+  tokenPair,
+  tradeSide,
+}: {
+  a: Voidable<TokenInfo>;
+  all: Voidable<TokenInfo["address"][]>;
+  available: Voidable<TokenInfo["address"][]>;
+  b: Voidable<TokenInfo>;
+  cancellable: undefined;
+  onSelectA: (token: TokenInfo) => void;
+  onSelectB: (token: TokenInfo) => void;
+  onSwap: (price?: number) => void;
   onTradeChange: (arg0: {
     amount: number;
     pair: AddressPair;
-    type: OrderType;
+    type: OrderSide;
   }) => void;
   tokenPairs: Voidable<AddressPair[]>;
-  tokenPair: Voidable<JupTokenData[]>;
-  tradeSide: OrderType;
-}
-
-export default ({ onTradeChange, tokenPairs, tokenPair, tradeSide }: Props) => {
-  const pairs = useMemo(() => Maybe.of(tokenPairs), [tokenPairs]);
-  const pair = useMemo(() => Maybe.of(tokenPair), [tokenPair]);
+  tokenPair: Voidable<JupToken[]>;
+  tradeSide: Voidable<OrderSide>;
+}) => {
+  const pairs = M.of(tokenPairs);
+  const pair = M.of(tokenPair);
 
   const [curToken, setCurToken] = useState<number>();
-  const [state, dispatch] = useReducer(availableTokens, initialState);
   const selectCoinRef = useRef<Ref>();
 
   const tokenPairPrice = usePrice(
-    withDefault(
+    M.withDefault(
       undefined,
-      andMap(
-        ([a, b]) => ({ id: a.address, vsToken: b.address }),
-        combine2([of(state.a), of(state.b)])
+      M.andMap(
+        ([lead, slave]) => ({ id: lead.address, vsToken: slave.address }),
+        Extra.combine2([M.of(a), M.of(b)])
       )
     )
   );
 
   const selectedPair = useTokenPairByTokens(
-    state.a && state.b && { aToken: state.a, bToken: state.b },
+    a && b && { aToken: a, bToken: b },
     refreshEach()
   );
 
-  const availableMaybe = Maybe.of(state.available);
-
   useEffect(() => {
-    if (Extra.isNothing(availableMaybe)) {
-      Maybe.andMap(([p, dp]) => {
-        dispatch(
-          action.initWithDefault({
-            pairs: p,
-            pair: dp,
-            type: tradeSide,
-          })
-        );
-      }, Extra.combine2([pairs, pair]));
-    }
-
-    return () => {
+    const onUnmount = () => {
       if (selectedPair.data) {
         const { exchangePair } = selectedPair.data;
 
-        // TODO: fix pair type
         const [p, t]: ExchangePair = exchangePair;
 
         onTradeChange({
           amount: 0,
-          pair: p.map((a: JupTokenData) => a.address),
+          pair: p.map((_a: JupToken) => _a.address),
           type: t,
         });
       }
     };
-  }, [
-    onTradeChange,
-    pair,
-    availableMaybe,
-    pairs,
-    selectedPair.data,
-    tradeSide,
-  ]);
+
+    return onUnmount;
+  }, [onTradeChange, pair, pairs, selectedPair.data, tradeSide]);
 
   const onTokenChoose = useCallback(
     (index: number) => {
@@ -116,23 +100,26 @@ export default ({ onTradeChange, tokenPairs, tokenPair, tradeSide }: Props) => {
   }, [onTokenChoose]);
 
   const onTokenSwap = useCallback(() => {
-    dispatch(action.swap({ price: tokenPairPrice.data }));
-  }, [tokenPairPrice.data]);
+    onSwap(tokenPairPrice.data);
+  }, [tokenPairPrice.data, onSwap]);
 
   const onCoinDeselect = useCallback(() => {}, []);
 
   const onCoinSelect = useCallback(
     (token: TokenInfo) => {
       if (selectCoinRef.current?.isOpened) selectCoinRef.current.close();
-      if (curToken === 1) dispatch(action.selectA({ token }));
-      if (curToken === 2) dispatch(action.selectB({ token }));
+      if (curToken === 1) onSelectA(token);
+      if (curToken === 2) onSelectB(token);
     },
-    [curToken]
+    [curToken, onSelectA, onSelectB]
   );
 
-  const [exchangePair] = selectedPair.data?.exchangePair ?? [];
-
-  if (Extra.isNothing(pair) || Extra.isNothing(pairs)) return <Loading />;
+  if (
+    Extra.isNothing(pair) ||
+    Extra.isNothing(pairs) ||
+    Extra.isNothing(M.of(available))
+  )
+    return <Loading />;
 
   return (
     <>
@@ -141,34 +128,31 @@ export default ({ onTradeChange, tokenPairs, tokenPair, tradeSide }: Props) => {
           id="select-coin-title"
           onDelete={onCoinDeselect}
           onSelect={onCoinSelect}
-          selected={state.cancellable}
-          tokens={state.available}
+          selected={cancellable}
+          tokens={curToken === 2 ? available : all}
         />
       </UniversalPopover>
       <Styled.Swap elevation={1}>
         <Box p={2}>
           <TokenPairForm
+            lead={a}
+            slave={b}
             onABSwap={onTokenSwap}
             onASelect={onTokenAChoose}
             onBSelect={onTokenBChoose}
             poolCounters={selectedPair.data?.poolCounters}
             poolsCurrent={selectedPair.data?.currentPoolPresent}
             poolTifs={selectedPair.data?.tifs}
-            side={state.type}
-            tokenA={state.a?.symbol}
-            tokenADecimals={state.a?.decimals}
-            tokenB={state.b?.symbol}
-            tokenPair={exchangePair}
+            side={tradeSide}
+            tokenA={a?.symbol}
+            tokenADecimals={a?.decimals}
+            tokenB={b?.symbol}
+            tokenPair={selectedPair.data?.exchangePair[0]}
           />
         </Box>
       </Styled.Swap>
       <Box p={2}>
-        <PriceInfo
-          a={state.a}
-          b={state.b}
-          tokenPair={selectedPair.data}
-          type={state.type}
-        />
+        <PriceInfo a={a} b={b} tokenPair={selectedPair.data} type={tradeSide} />
       </Box>
     </>
   );

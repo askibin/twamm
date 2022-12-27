@@ -1,5 +1,5 @@
 import type { ChangeEvent } from "react";
-import Maybe from "easy-maybe/lib";
+import M from "easy-maybe/lib";
 import { useCallback, useState } from "react";
 
 import * as Styled from "./token-field.styled";
@@ -11,6 +11,9 @@ export interface Props {
   name?: string;
   onChange: (arg0: number) => void;
 }
+
+const possibleAmount = (amount: string) =>
+  isFloat(amount) ? Number(amount).toFixed(2) : amount ?? 0;
 
 export default ({ maxAmount, name, onChange: handleChange }: Props) => {
   const [amount, setAmount] = useState<number>(0);
@@ -33,9 +36,12 @@ export default ({ maxAmount, name, onChange: handleChange }: Props) => {
     [handleChange, setAmount]
   );
 
-  const amountUsd = Maybe.withDefault(
+  const amountUsd = M.withDefault(
     undefined,
-    Maybe.andMap((p) => String(p * amount), Maybe.of(price.data))
+    M.andMap(
+      (p) => (Number.isNaN(amount) ? "0" : String(p * amount)),
+      M.of(price.data)
+    )
   );
 
   return (
@@ -49,11 +55,7 @@ export default ({ maxAmount, name, onChange: handleChange }: Props) => {
         <Styled.TokenAmountInUSD>
           {!amountUsd || amountUsd === "0"
             ? `$0`
-            : `~$${
-                isFloat(amountUsd)
-                  ? Number(amountUsd).toFixed(2)
-                  : amountUsd ?? 0
-              }`}
+            : `~$${possibleAmount(amountUsd)}`}
         </Styled.TokenAmountInUSD>
         <Styled.TokenAmountMaxButton
           disabled={!maxAmount}

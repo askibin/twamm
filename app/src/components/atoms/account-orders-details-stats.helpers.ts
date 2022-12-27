@@ -1,8 +1,6 @@
-import Maybe from "easy-maybe/lib";
+import M from "easy-maybe/lib";
 import { zip } from "ramda";
 import { isFloat } from "../../utils/index";
-
-const { withDefault, of } = Maybe;
 
 export const format = {
   expirationTime(data: PoolDetails) {
@@ -13,22 +11,22 @@ export const format = {
       return expirationTime.toLocaleString();
     })(data);
 
-    return withDefault("-", of(value));
+    return M.withDefault("-", M.of(value));
   },
 
   inceptionTime(data: PoolDetails) {
     const value = data.inceptionTime.toLocaleString();
 
-    return withDefault("-", of(value));
+    return M.withDefault("-", M.of(value));
   },
 
   lastBalanceChangeTime(data: PoolDetails) {
     const value = ((a) =>
       a.lastBalanceChangeTime
-        ? of(a.lastBalanceChangeTime.toLocaleString())
-        : of(undefined))(data);
+        ? M.of(a.lastBalanceChangeTime.toLocaleString())
+        : M.of(undefined))(data);
 
-    return withDefault<string>("-", value);
+    return M.withDefault<string>("-", value);
   },
 
   totalAssets(data: PoolDetails) {
@@ -37,7 +35,7 @@ export const format = {
         .map((a) => a.join(" "))
         .join(", "))(data);
 
-    return withDefault("-", of(value));
+    return M.withDefault("-", M.of(value));
   },
 
   // TODO: rework splitting
@@ -46,7 +44,7 @@ export const format = {
       .map((price) => (price < 0 ? "-" : price.toFixed(2)))
       .join("|");
 
-    return withDefault("-", of(value));
+    return M.withDefault("-", M.of(value));
   },
 
   userAveragePrice(data: PoolDetails) {
@@ -80,6 +78,6 @@ export const format = {
       return String(avg);
     })(data);
 
-    return withDefault("-", of(value));
+    return M.withDefault("-", M.of(value));
   },
 };

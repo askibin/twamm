@@ -1,69 +1,37 @@
-import type { MouseEvent } from "react";
+import type { MouseEvent, ChangeEvent, SyntheticEvent } from "react";
 import Box from "@mui/material/Box";
 import ButtonGroup from "@mui/material/ButtonGroup";
 import InfoIcon from "@mui/icons-material/Info";
 import Popover from "@mui/material/Popover";
-import { memo, useCallback, useState } from "react";
+import { useCallback, useState } from "react";
 
 import * as Styled from "./time-interval.styled";
-import useBreakpoints from "../../hooks/use-breakpoints";
-import { formatInterval } from "../../utils/index";
+import Intervals, { Instant } from "../molecules/interval-button-group";
+import { instantTif } from "../../reducers/trade-intervals.reducer";
 
 export interface Props {
+  disabled: boolean;
   info?: string;
   label: string;
+  useInstantOption?: boolean;
   value?: number;
   values?: number[];
   onSelect: (arg0: number) => void;
+  onSelectInstant?: (arg0: number) => void;
 }
 
-const Intervals = memo(
-  ({
-    value: selectedValue,
-    values,
-    onSelect,
-  }: {
-    value?: number;
-    values?: number[];
-    onSelect: (e: MouseEvent<HTMLElement>) => void;
-  }) => {
-    const { isMobile } = useBreakpoints();
+export const INSTANT_INTERVAL = instantTif;
 
-    if (!values) return <Styled.BlankIntervals variant="rectangular" />;
-
-    return (
-      <ButtonGroup variant="outlined" aria-label="outlined button group">
-        {values
-          .filter((value: number) => value !== 0)
-          .map((value: number) => {
-            const disabled = value === selectedValue;
-
-            return isMobile ? (
-              <Styled.MobileScheduleButton
-                data-interval={value}
-                key={value}
-                onClick={onSelect}
-                disabled={disabled}
-              >
-                {formatInterval(value)}
-              </Styled.MobileScheduleButton>
-            ) : (
-              <Styled.ScheduleButton
-                data-interval={value}
-                key={value}
-                onClick={onSelect}
-                disabled={disabled}
-              >
-                {formatInterval(value)}
-              </Styled.ScheduleButton>
-            );
-          })}
-      </ButtonGroup>
-    );
-  }
-);
-
-export default ({ info, label, value, values, onSelect }: Props) => {
+export default ({
+  disabled,
+  info,
+  label,
+  onSelect,
+  onSelectInstant,
+  useInstantOption = false,
+  value,
+  values,
+}: Props) => {
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
 
   const handlePopoverOpen = (event: MouseEvent<HTMLElement>) => {
@@ -75,12 +43,18 @@ export default ({ info, label, value, values, onSelect }: Props) => {
   };
 
   const onIntervalSelect = useCallback(
-    (e: MouseEvent<HTMLElement>) => {
-      // @ts-ignore
-      onSelect(Number(e.target.getAttribute("data-interval")));
+    (e: SyntheticEvent<HTMLElement>) => {
+      const event: unknown = e;
+      const { target } = event as ChangeEvent<HTMLElement>;
+
+      onSelect(Number(target.getAttribute("data-interval")));
     },
     [onSelect]
   );
+
+  const onInstantIntervalSelect = useCallback(() => {
+    if (onSelectInstant) onSelectInstant(INSTANT_INTERVAL);
+  }, [onSelectInstant]);
 
   const open = Boolean(anchorEl);
 
@@ -115,7 +89,21 @@ export default ({ info, label, value, values, onSelect }: Props) => {
           </Popover>
         )}
       </Box>
-      <Intervals value={value} values={values} onSelect={onIntervalSelect} />
+      <ButtonGroup variant="outlined" aria-label="outlined button group">
+        {useInstantOption && (
+          <Instant
+            value={value}
+            values={values}
+            onSelect={onInstantIntervalSelect}
+          />
+        )}
+        <Intervals
+          disabled={disabled}
+          onClick={onIntervalSelect}
+          value={value}
+          values={values}
+        />
+      </ButtonGroup>
     </Styled.Interval>
   );
 };

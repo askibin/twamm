@@ -1,10 +1,8 @@
 import type { PublicKey } from "@solana/web3.js";
 import useSWR from "swr";
-import Maybe from "easy-maybe/lib";
+import M from "easy-maybe/lib";
 import useCoingeckoContractApi from "./use-coingecko-api";
 import { fetchJSONFromAPI2 } from "../utils/api";
-
-const { andMap, of, withDefault } = Maybe;
 
 const swrKey = (params: { mints: string[] }) => ({
   key: "tokensByMint",
@@ -36,10 +34,10 @@ const fetcher = (api: ReturnType<typeof useCoingeckoContractApi>) => {
   const fetchAddressByMint = (...args: any) =>
     fetchFromAPI<ContractData>("coinsIdContractContractAddressGet", ...args);
 
-  return async ({ params: { mints } }: ReturnType<typeof swrKey>) => {
+  return async ({ params }: SWRParams<typeof swrKey>) => {
     const contracts: PromiseSettledResult<ContractData>[] =
       await Promise.allSettled(
-        mints.map((mint) => fetchAddressByMint("solana", mint))
+        params.mints.map((mint) => fetchAddressByMint("solana", mint))
       );
 
     const tokens: MaybeTokens = [];
@@ -75,9 +73,9 @@ export default (
   const api = useCoingeckoContractApi();
 
   return useSWR(
-    withDefault(
+    M.withDefault(
       undefined,
-      andMap(
+      M.andMap(
         ([a, b]) =>
           swrKey({
             mints: [
@@ -85,7 +83,7 @@ export default (
               typeof b === "string" ? b : b.toBase58(),
             ],
           }),
-        of(params)
+        M.of(params)
       )
     ),
     fetcher(api),

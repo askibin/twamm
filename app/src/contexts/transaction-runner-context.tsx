@@ -1,13 +1,20 @@
 import type { FC, ReactNode } from "react";
 import type { AnchorProvider } from "@project-serum/anchor";
-import { createContext, useMemo, useCallback, useState } from "react";
-
-import { forit } from "../utils/forit";
+import { forit } from "a-wait-forit/lib-ts";
+import {
+  createContext,
+  useContext,
+  useMemo,
+  useCallback,
+  useState,
+} from "react";
 
 const EXPLORERS = {
   explorer: { uri: "https://explorer.solana.com/tx/" },
   solscan: { uri: "https://solscan.io/tx/" },
 };
+
+const SLIPPAGES = [0, 0.1, 0.5, 1, 2]; // %
 
 export type TransactionRunnerContext = {
   readonly active: boolean;
@@ -15,23 +22,30 @@ export type TransactionRunnerContext = {
   readonly error?: Error;
   readonly explorer: string;
   readonly explorers: typeof EXPLORERS;
+  readonly info?: string;
   readonly provider?: AnchorProvider;
   readonly setExplorer: (e: string) => void;
+  readonly setInfo: (arg0: string) => void;
   readonly setProvider: (p: AnchorProvider) => void;
+  readonly setSlippage: (s: number) => void;
   readonly signature?: string;
+  readonly slippage: number;
+  readonly slippages: typeof SLIPPAGES;
   readonly viewExplorer: (sig: string) => string;
 };
 
-export const RunnerContext = createContext<
-  TransactionRunnerContext | undefined
->(undefined);
+export const Context = createContext<TransactionRunnerContext | undefined>(
+  undefined
+);
 
 export const Provider: FC<{ children: ReactNode }> = ({ children }) => {
   const [active, setActive] = useState<boolean>(false);
-  const [provider, setProvider] = useState<AnchorProvider>();
-  const [signature, setSignature] = useState<string>();
   const [error, setError] = useState<Error>();
   const [explorer, setExplorer] = useState<string>(EXPLORERS.explorer.uri);
+  const [info, setInfo] = useState<string>();
+  const [provider, setProvider] = useState<AnchorProvider>();
+  const [signature, setSignature] = useState<string>();
+  const [slippage, setSlippage] = useState<number>(SLIPPAGES[3]);
 
   const commit = useCallback(
     async (operation: Parameters<TransactionRunnerContext["commit"]>[0]) => {
@@ -71,10 +85,15 @@ export const Provider: FC<{ children: ReactNode }> = ({ children }) => {
       error,
       explorer,
       explorers: EXPLORERS,
+      info,
       provider,
       setExplorer,
+      setInfo,
       setProvider,
+      setSlippage,
       signature,
+      slippages: SLIPPAGES,
+      slippage,
       viewExplorer,
     }),
     [
@@ -82,17 +101,26 @@ export const Provider: FC<{ children: ReactNode }> = ({ children }) => {
       commit,
       error,
       explorer,
+      info,
       provider,
       setExplorer,
+      setInfo,
       setProvider,
+      setSlippage,
       signature,
+      slippage,
       viewExplorer,
     ]
   );
 
-  return (
-    <RunnerContext.Provider value={contextValue}>
-      {children}
-    </RunnerContext.Provider>
-  );
+  return <Context.Provider value={contextValue}>{children}</Context.Provider>;
+};
+
+export default () => {
+  const context = useContext(Context);
+  if (context === undefined) {
+    throw new Error("Transaction runner context required");
+  }
+
+  return context;
 };

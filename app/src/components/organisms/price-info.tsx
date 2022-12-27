@@ -3,9 +3,10 @@ import ExpandLessIcon from "@mui/icons-material/ExpandLess";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import Grid from "@mui/material/Grid";
 import List from "@mui/material/List";
-import Maybe, { Extra } from "easy-maybe/lib";
+import M, { Extra } from "easy-maybe/lib";
 import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
+import { OrderSide } from "@twamm/types/lib";
 import { useState } from "react";
 
 import * as Styled from "./price-info.styled";
@@ -17,50 +18,45 @@ import { formatPrice, populatePairByType } from "../../domain/index";
 import { populateStats } from "../../domain/token-pair-details";
 import { refreshEach } from "../../swr-options";
 
-const { andMap, of, withDefault } = Maybe;
-const { combine2 } = Extra;
-
 const REFRESH_INTERVAL = 0.5 * 60000;
 
-export interface Props {
-  a?: JupTokenData;
-  b?: JupTokenData;
+export default (props: {
+  a: Voidable<JupToken>;
+  b: Voidable<JupToken>;
   tokenPair: Voidable<{
     configA: PairConfigData;
     configB: PairConfigData;
     statsA: PairStatsData;
     statsB: PairStatsData;
   }>;
-  type: OrderType;
-}
-
-export default (props: Props) => {
+  type: Voidable<OrderSide>;
+}) => {
   const [open, setOpen] = useState<boolean>(false);
 
   const { isMobile } = useBreakpoints();
 
-  const populatePair = (a: JupTokenData, b: JupTokenData) =>
-    populatePairByType<JupTokenData>(a, b, props.type);
+  const populatePair = (a: JupToken, b: JupToken, t: OrderSide) =>
+    populatePairByType<JupToken>(a, b, t);
 
-  const pair = andMap(
-    ([c, d]) => populatePair(c, d),
-    combine2([of(props.a), of(props.b)])
+  const pair = M.andMap(
+    ([c, d, e]) => populatePair(c, d, e),
+    Extra.combine3([M.of(props.a), M.of(props.b), M.of(props.type)])
   );
 
   const tokenPairPrice = usePrice(
-    withDefault(
+    M.withDefault(
       undefined,
-      andMap(
+      M.andMap(
         ([p]) => ({ id: p[0].address, vsToken: p[1].address }),
-        combine2([pair, of(open ? true : undefined)]) // Nothing unless open
+        Extra.combine2([pair, M.of(open ? true : undefined)]) // Nothing unless open
       )
     ),
     refreshEach(REFRESH_INTERVAL)
   );
 
-  const mints = withDefault(
+  const mints = M.withDefault(
     undefined,
-    andMap(
+    M.andMap(
       ([c, d]) => [
         {
           contract_address: c.address,
@@ -79,9 +75,9 @@ export default (props: Props) => {
     )
   );
 
-  const stats = withDefault(
+  const stats = M.withDefault(
     undefined,
-    andMap((d) => {
+    M.andMap((d) => {
       const { orderVolume: o, settledVolume: s, routedVolume: t } = d;
 
       return {
@@ -89,10 +85,10 @@ export default (props: Props) => {
         settledVolume: formatPrice(s),
         routedVolume: formatPrice(t),
       };
-    }, andMap(populateStats, of(props.tokenPair)))
+    }, M.andMap(populateStats, M.of(props.tokenPair)))
   );
 
-  const price = withDefault(undefined, of(tokenPairPrice.data));
+  const price = M.withDefault(undefined, M.of(tokenPairPrice.data));
 
   return (
     <>

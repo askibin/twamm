@@ -1,12 +1,39 @@
-declare type OrderType = "sell" | "buy";
-
 declare type OrderTypeStruct = { sell: {} } & { buy: {} };
 
 declare type PairPoolStatusStruct = { expired: {} } & { inactive: {} };
 
 declare type PoolCounter = any;
 
-declare type ExchangePair = [TokenPair, OrderType];
+declare type ExchangePair = [TokenPair, OrderSide];
+
+declare type AccountBalance = {
+  pubkey: PublicKey;
+  account: {
+    executable: boolean;
+    lamports: number;
+    rentEpoch?: number;
+    owner: PublicKey;
+    data: {
+      program: "spl-token";
+      space: number;
+      parsed: {
+        type: "account";
+        info: {
+          isNative: boolean;
+          mint: string;
+          owner: string;
+          state: string;
+          tokenAmount: {
+            amount: string;
+            decimals: number;
+            uiAmount: number;
+            uiAmountString: string;
+          };
+        };
+      };
+    };
+  };
+};
 
 // TODO: remove type
 declare type PairTokenStatsData = {

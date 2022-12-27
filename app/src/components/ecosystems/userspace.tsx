@@ -2,6 +2,7 @@ import Box from "@mui/material/Box";
 import Container from "@mui/material/Container";
 import { address } from "@twamm/client.js";
 import { ErrorBoundary } from "react-error-boundary";
+import { OrderSide } from "@twamm/types/lib";
 import { useCallback, useMemo, useState } from "react";
 
 import ErrorFallback from "../atoms/error-fallback";
@@ -20,7 +21,7 @@ const DEFAULT_TRADE = {
     address.NATIVE_TOKEN_ADDRESS,
     "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
   ] as AddressPair,
-  type: "buy" as OrderType,
+  type: OrderSide.buy,
 };
 
 export default () => {

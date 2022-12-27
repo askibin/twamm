@@ -9,7 +9,7 @@ import { SWRConfig } from "swr";
 import "../styles/globals.css";
 import createEmotionCache from "../src/emotion-cache";
 import swrConfig from "../src/swr-options";
-import { BlockchainConnectionProvider } from "../src/contexts/solana-connection-context";
+import { Provider as BlockchainProvider } from "../src/contexts/solana-connection-context";
 import { CoingeckoApiProvider } from "../src/contexts/coingecko-api-context";
 import { NotificationProvider } from "../src/contexts/notification-context";
 import { ThemeProvider } from "../src/contexts/theme-context";
@@ -35,7 +35,7 @@ const App = ({
       <StrictMode>
         <NotificationProvider>
           <CoingeckoApiProvider>
-            <BlockchainConnectionProvider>
+            <BlockchainProvider>
               <WalletProvider>
                 <SWRConfig value={swrConfig}>
                   <TxProvider>
@@ -44,7 +44,7 @@ const App = ({
                   </TxProvider>
                 </SWRConfig>
               </WalletProvider>
-            </BlockchainConnectionProvider>
+            </BlockchainProvider>
           </CoingeckoApiProvider>
         </NotificationProvider>
       </StrictMode>
