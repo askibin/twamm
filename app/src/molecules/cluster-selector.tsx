@@ -6,7 +6,7 @@ import FormControlLabel from "@mui/material/FormControlLabel";
 import Radio from "@mui/material/Radio";
 import RadioGroup from "@mui/material/RadioGroup";
 import { Form } from "react-final-form";
-import { useCallback, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 
 import type * as TCluster from "../contexts/solana-connection-context.d";
 import * as Styled from "./cluster-selector.styled";
@@ -14,54 +14,93 @@ import useBlockchain, {
   endpoints,
 } from "../contexts/solana-connection-context";
 import { clusterValidator } from "../utils/validators";
+import Cluster, { populateCustomCluster } from "../domain/cluster";
+import { useSnackbar } from "../contexts/notification-context";
 
-export interface Props {
-  handleClose?: () => void;
-}
+const clstr = Cluster(endpoints.solana);
 
-export default function ClusterSelector({ handleClose }: Props) {
+const clusterChangeAlert = (isError: Error | undefined, moniker: string) => {
+  const msg = !isError
+    ? `Cluster changed to "${moniker}"`
+    : "Address should be a proper URL";
+  const variant: any = !isError
+    ? { variant: "success", autoHideDuration: 1e3 }
+    : { variant: "error", autoHideDuration: 2e3 };
+
+  return { msg, variant };
+};
+
+export default function ClusterSelector({ onClose }: { onClose?: () => void }) {
+  const { enqueueSnackbar } = useSnackbar();
+
   const { cluster, clusters, setCluster } = useBlockchain();
-  const [clusterName, setClusterName] = useState<string>(cluster.name);
+  const [clusterMoniker, setClusterMoniker] = useState(cluster.moniker);
+
+  const isCustomSelected = clusterMoniker === endpoints.custom.moniker;
+
+  const selectedCluster = useMemo(
+    () => clusters.find((c) => c.moniker === clusterMoniker),
+    [clusterMoniker]
+  );
+
+  const { preset, custom } = useMemo(() => {
+    const hasCustom = clusters.find((c) => clstr.isCustom(c));
+    const presets = hasCustom
+      ? clusters.filter((c) => !clstr.isCustom(c))
+      : clusters;
+
+    return {
+      preset: presets,
+      custom: hasCustom,
+    };
+  }, [clusters]);
 
   const onSaveCustomEndpoint = useCallback(
     async ({ endpoint }: { endpoint: string }) => {
-      const predefinedEndpoints = clusters
-        .filter((c) => c.moniker !== endpoints.custom.moniker)
-        .map((c) => c.endpoint);
+      const customCluster: TCluster.CustomClusterInfo = {
+        endpoint,
+        name: "Custom",
+        moniker: "custom",
+      };
+      const isError = setCluster(customCluster);
 
-      const inputPredefinedEndpointIndex = predefinedEndpoints.findIndex(
-        (e) => e === endpoint
-      );
+      const { msg, variant } = clusterChangeAlert(isError, customCluster.moniker);
+      enqueueSnackbar(msg, variant);
+      console.log("cluster", { isError });
 
-      if (inputPredefinedEndpointIndex !== -1) {
-        setCluster(clusters[inputPredefinedEndpointIndex]);
-      } else {
-        const customCluster: TCluster.CustomClusterInfo = {
-          endpoint,
-          name: "Custom",
-          moniker: "custom",
-        };
-        setCluster(customCluster);
-      }
-
-      if (handleClose) handleClose();
+      if (!isError && onClose) onClose();
     },
-    [clusters, handleClose, setCluster]
+    [clusters, onClose, setCluster]
+  );
+
+  const onSavePresetEndpoint = useCallback(
+    ({ endpoint }: { endpoint: string }) => {
+      const isError = setCluster(endpoint);
+
+      console.log("CLS1", isError, endpoint);
+
+      const { msg, variant } = clusterChangeAlert(isError, endpoint);
+      enqueueSnackbar(msg, variant);
+      console.log("cluster", { isError });
+
+      if (!isError && onClose) onClose();
+    },
+    [enqueueSnackbar, onClose, setCluster]
   );
 
   const onClusterChange = useCallback(
     (event: ChangeEvent<HTMLInputElement>) => {
-      const { value } = event.target;
+      const { value } = event.target as { value: TCluster.Moniker };
 
-      setClusterName(value);
+      console.log("cluster", value, "cust", isCustomSelected);
 
-      if (value !== endpoints.custom.name) {
-        setCluster(
-          clusters.find((c) => c.name === value) as TCluster.ClusterInfo
-        );
+      setClusterMoniker(value);
+
+      if (!clstr.isCustomMoniker(value)) {
+        onSavePresetEndpoint({ endpoint: value });
       }
     },
-    [clusters, setCluster]
+    [isCustomSelected, onSavePresetEndpoint]
   );
 
   return (
@@ -69,19 +108,20 @@ export default function ClusterSelector({ handleClose }: Props) {
       <FormControl>
         <RadioGroup
           name="clusters"
-          value={clusterName}
+          value={clusterMoniker}
           onChange={onClusterChange}
         >
-          {clusters.map(({ name }) => (
+          {preset.map((c) => (
             <FormControlLabel
-              key={name}
-              label={name === "mainnet-beta" ? "Solana" : name}
+              key={c.name}
+              label={c.name}
               control={<Radio />}
-              value={name}
+              value={c.moniker}
             />
           ))}
+          <FormControlLabel label="Custom" control={<Radio />} value="custom" />
         </RadioGroup>
-        {clusterName === endpoints.custom.name && (
+        {isCustomSelected && (
           <Form
             initialValues={{
               endpoint: endpoints.custom.endpoint,

@@ -6,11 +6,7 @@ import ExplorerSelector from "./explorer-selector";
 import SlippageSelector from "./slippage-selector";
 import * as Styled from "./settings-modal.styled";
 
-export interface Props {
-  id: string;
-}
-
-export default ({ id }: Props) => (
+export default ({ id, onClose }: { id: string; onClose: () => void }) => (
   <Box p={2}>
     <Typography id={id} variant="h5" pb={1}>
       Settings
@@ -30,7 +26,7 @@ export default ({ id }: Props) => (
       <Typography variant="body2" pb={1}>
         Cluster Selector
       </Typography>
-      <ClusterSelector />
+      <ClusterSelector onClose={onClose} />
     </Styled.ClusterSetting>
   </Box>
 );

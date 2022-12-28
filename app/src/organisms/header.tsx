@@ -45,7 +45,10 @@ export default () => {
       </UniversalPopover>
 
       <UniversalPopover ariaLabelledBy="settings-modal-title" ref={settingsRef}>
-        <SettingsModal id="settings-modal-title" />
+        <SettingsModal
+          id="settings-modal-title"
+          onClose={() => onSettingsToggle(false)}
+        />
       </UniversalPopover>
 
       <AppBar aria-labelledby="header" position="sticky">

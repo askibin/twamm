@@ -1,6 +1,4 @@
-import type { Cluster, Commitment } from "@solana/web3.js";
-
-export type CommitmentLevel = Extract<Commitment, "confirmed">;
+import type { Cluster } from "@solana/web3.js";
 
 type PresetMoniker = Extract<Cluster, "mainnet-beta"> | "ankr-solana";
 
