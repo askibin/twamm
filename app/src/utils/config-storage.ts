@@ -1,4 +1,4 @@
-const sanidate = (addr: string | undefined): string | Error => {
+export const sanidateURL = (addr: string | undefined): string | Error => {
   const error = new Error("Address should be a http(s) URL");
 
   if (!addr) return error;
@@ -19,15 +19,39 @@ const sanidate = (addr: string | undefined): string | Error => {
   return result;
 };
 
-export default function endpointStorage({
+export const sanidateString = (str: string | undefined): number | Error => {
+  const error = new Error("Wrong value");
+
+  if (!str) return error;
+
+  const value = str.trim();
+
+  let result;
+  try {
+    const number = Number(value);
+
+    if (Number.isNaN(number)) {
+      throw new Error();
+    }
+    result = number;
+  } catch (e) {
+    return error;
+  }
+
+  return result;
+};
+
+export default function storage({
   key,
-  enable,
+  enabled,
+  sanidate,
 }: {
   key: string;
-  enable: string;
+  enabled: string;
+  sanidate: (arg0: string | undefined) => any | Error;
 }) {
-  const STORAGE_KEY = "twammClusterEndpoint";
-  const ENABLE_STORAGE_KEY = "twammEnableClusterEndpoint";
+  const STORAGE_KEY = key; //"twammClusterEndpoint";
+  const ENABLE_STORAGE_KEY = enabled; //"twammEnableClusterEndpoint";
 
   const self = {
     disable() {

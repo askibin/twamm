@@ -2,12 +2,19 @@ import type { FC, ReactNode } from "react";
 import { clusterApiUrl, Connection } from "@solana/web3.js";
 import R, { useCallback, useContext, useMemo, useRef, useState } from "react";
 import { ENV as ChainIdEnv } from "@solana/spl-token-registry";
-import type * as T from "./solana-connection-context.d";
-import endpointStorage from "../utils/cluster-endpoint-storage";
-import { AnkrClusterApiUrl, ClusterApiUrl } from "../env";
 import ClusterUtils from "../domain/cluster";
+import storage, { sanidateURL } from "../utils/config-storage";
+import type * as T from "./solana-connection-context.d";
+import { AnkrClusterApiUrl, ClusterApiUrl } from "../env";
 
-const clusterStorage = endpointStorage();
+const STORAGE_KEY = "twammClusterEndpoint";
+const ENABLE_STORAGE_KEY = "twammEnableClusterEndpoint";
+
+const clusterStorage = storage({
+  key: STORAGE_KEY,
+  enabled: ENABLE_STORAGE_KEY,
+  sanidate: sanidateURL,
+});
 
 const COMMITMENT = "confirmed";
 
@@ -68,14 +75,12 @@ export const Provider: FC<{ children: ReactNode }> = ({ children }) => {
       ]
     : [endpoints.solana, endpoints.ankr];
 
+  const initialCluster = hasStoredEndpoint
+    ? cluster.findBy(clstorage.get(), initialClusters)
+    : fallbackCluster;
+
   const [commitment] = useState<T.CommitmentLevel>(COMMITMENT);
   const [clusters] = useState<T.ClusterInfo[]>(initialClusters);
-
-  const initialCluster = hasStoredEndpoint
-    ? cluster.findBy(clstorage.get(), clusters)
-    : fallbackCluster;
-  console.log("CLS1", clstorage.get(), initialCluster);
-
   const [currentCluster, setCurrentCluster] = useState(initialCluster);
 
   const clusterData = useMemo(() => {

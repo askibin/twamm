@@ -24,7 +24,7 @@ export default () => {
         label="Explorer"
         onChange={handleChange}
       >
-        <MenuItem value={explorers.explorer.uri}>Solana</MenuItem>
+        <MenuItem value={explorers.explorer.uri}>Explorer</MenuItem>
         <MenuItem value={explorers.solscan.uri}>Solscan</MenuItem>
         <MenuItem value={explorers.solanafm.uri}>SolanaFM</MenuItem>
       </Styled.ExplorerSelect>

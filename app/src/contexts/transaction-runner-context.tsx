@@ -1,6 +1,7 @@
 import type { FC, ReactNode } from "react";
 import type { AnchorProvider } from "@project-serum/anchor";
 import { forit } from "a-wait-forit/lib-ts";
+import { isNil } from "ramda";
 import {
   createContext,
   useContext,
@@ -8,6 +9,7 @@ import {
   useCallback,
   useState,
 } from "react";
+import storage, { sanidateString, sanidateURL } from "../utils/config-storage";
 
 const EXPLORERS = {
   explorer: { uri: "https://explorer.solana.com/tx" },
@@ -35,18 +37,47 @@ export type TransactionRunnerContext = {
   readonly viewExplorer: (sig: string) => string;
 };
 
+const slippageStorage = storage({
+  key: "twammSlippage",
+  enabled: "twammEnableSlippage",
+  sanidate: sanidateString,
+});
+
+const explorerStorage = storage({
+  key: "twammExplorer",
+  enabled: "twammEnableExplorer",
+  sanidate: sanidateURL,
+});
+
 export const Context = createContext<TransactionRunnerContext | undefined>(
   undefined
 );
 
 export const Provider: FC<{ children: ReactNode }> = ({ children }) => {
+  const storedSlippage = Number(slippageStorage.get());
+  const hasStoredSlippage = Boolean(
+    slippageStorage.enabled() &&
+      !isNil(storedSlippage) &&
+      !Number.isNaN(storedSlippage)
+  );
+
+  const storedExplorer = explorerStorage.get();
+  const hasStoredExplorer = Boolean(
+    explorerStorage.enabled() && explorerStorage
+  );
+
+  const initialSlippage = hasStoredSlippage ? storedSlippage : SLIPPAGES[2]; // default 0.5
+  const initialExplorer = hasStoredExplorer
+    ? storedExplorer
+    : EXPLORERS.explorer.uri;
+
   const [active, setActive] = useState<boolean>(false);
   const [error, setError] = useState<Error>();
-  const [explorer, setExplorer] = useState<string>(EXPLORERS.explorer.uri);
+  const [explorer, setExplorer] = useState<string>(initialExplorer);
   const [info, setInfo] = useState<string>();
   const [provider, setProvider] = useState<AnchorProvider>();
   const [signature, setSignature] = useState<string>();
-  const [slippage, setSlippage] = useState<number>(SLIPPAGES[2]); // default 0.5
+  const [slippage, setSlippage] = useState<number>(initialSlippage);
 
   const commit = useCallback(
     async (operation: Parameters<TransactionRunnerContext["commit"]>[0]) => {
@@ -74,6 +105,32 @@ export const Provider: FC<{ children: ReactNode }> = ({ children }) => {
     [active, setActive]
   );
 
+  const changeSlippage = useCallback(
+    (value: number) => {
+      const isValid = slippageStorage.set(String(value));
+
+      if (!(isValid instanceof Error)) {
+        setSlippage(value);
+      }
+
+      return undefined;
+    },
+    [setSlippage]
+  );
+
+  const changeExplorer = useCallback(
+    (value: string) => {
+      const isValid = explorerStorage.set(value);
+
+      if (!(isValid instanceof Error)) {
+        setExplorer(value);
+      }
+
+      return undefined;
+    },
+    [setExplorer]
+  );
+
   const viewExplorer = useCallback(
     (sig: string) => new URL(`${explorer}/${sig}`).href,
     [explorer]
@@ -88,10 +145,10 @@ export const Provider: FC<{ children: ReactNode }> = ({ children }) => {
       explorers: EXPLORERS,
       info,
       provider,
-      setExplorer,
+      setExplorer: changeExplorer,
       setInfo,
       setProvider,
-      setSlippage,
+      setSlippage: changeSlippage,
       signature,
       slippages: SLIPPAGES,
       slippage,

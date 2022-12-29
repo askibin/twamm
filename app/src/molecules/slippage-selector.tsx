@@ -4,14 +4,22 @@ import InputLabel from "@mui/material/InputLabel";
 import MenuItem from "@mui/material/MenuItem";
 import { SelectChangeEvent } from "@mui/material/Select";
 import * as Styled from "./slippage-selector.styled";
+import storage, { sanidateString } from "../utils/config-storage";
 import useTxRunner from "../contexts/transaction-runner-context";
 
-export default () => {
+const slippageStorage = storage({
+  key: "twammSlippage",
+  enabled: "twammEnableSlippage",
+  sanidate: sanidateString,
+});
+
+export default ({ onClose }: { onClose?: () => void }) => {
   const { setSlippage, slippage, slippages } = useTxRunner();
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const handleChange = (event: SelectChangeEvent<unknown>, _: ReactNode) => {
     setSlippage(event.target.value as number);
+    if (onClose) onClose();
   };
 
   return (

@@ -64,7 +64,10 @@ export default function ClusterSelector({ onClose }: { onClose?: () => void }) {
       };
       const isError = setCluster(customCluster);
 
-      const { msg, variant } = clusterChangeAlert(isError, customCluster.moniker);
+      const { msg, variant } = clusterChangeAlert(
+        isError,
+        customCluster.moniker
+      );
       enqueueSnackbar(msg, variant);
       console.log("cluster", { isError });
 

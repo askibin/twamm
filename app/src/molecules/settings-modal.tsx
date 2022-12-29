@@ -17,7 +17,7 @@ export default ({ id, onClose }: { id: string; onClose: () => void }) => (
     </Styled.Setting>
     <Styled.Setting direction="row" py={1}>
       <Styled.SettingLabel variant="body2">Slippage</Styled.SettingLabel>
-      <SlippageSelector />
+      <SlippageSelector onClose={onClose} />
     </Styled.Setting>
     <Box py={2}>
       <Styled.Line />
