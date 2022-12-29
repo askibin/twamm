@@ -15,9 +15,11 @@ const EXPLORERS = {
   explorer: { uri: "https://explorer.solana.com/tx" },
   solscan: { uri: "https://solscan.io/tx" },
   solanafm: { uri: "https://solana.fm/tx" },
-};
+}; // explorer is default
+const FALLBACK_EXPLORER = EXPLORERS.explorer.uri;
 
-const SLIPPAGES = [0, 0.1, 0.5, 1, 2]; // %
+const SLIPPAGES = [0, 0.1, 0.5, 1, 2]; // %, 0.5 is default
+const FALLBACK_SLIPPAGE = SLIPPAGES[2];
 
 export type TransactionRunnerContext = {
   readonly active: boolean;
@@ -55,25 +57,29 @@ export const Context = createContext<TransactionRunnerContext | undefined>(
 
 export const Provider: FC<{ children: ReactNode }> = ({ children }) => {
   const storedSlippage = Number(slippageStorage.get());
-  const hasStoredSlippage = Boolean(
-    slippageStorage.enabled() &&
-      !isNil(storedSlippage) &&
-      !Number.isNaN(storedSlippage)
+  const storedExplorer = String(explorerStorage.get());
+
+  const hasSlippage = useMemo(
+    () =>
+      Boolean(
+        slippageStorage.enabled() &&
+          !isNil(storedSlippage) &&
+          !Number.isNaN(storedSlippage)
+      ),
+    [storedSlippage]
+  );
+  const hasExplorer = useMemo(
+    () => Boolean(explorerStorage.enabled() && storedExplorer),
+    [storedExplorer]
   );
 
-  const storedExplorer = explorerStorage.get();
-  const hasStoredExplorer = Boolean(
-    explorerStorage.enabled() && explorerStorage
-  );
-
-  const initialSlippage = hasStoredSlippage ? storedSlippage : SLIPPAGES[2]; // default 0.5
-  const initialExplorer = hasStoredExplorer
-    ? storedExplorer
-    : EXPLORERS.explorer.uri;
+  const initialSlippage = hasSlippage ? storedSlippage : FALLBACK_SLIPPAGE;
+  const initialExplorer = hasExplorer ? storedExplorer : FALLBACK_EXPLORER;
 
   const [active, setActive] = useState<boolean>(false);
   const [error, setError] = useState<Error>();
   const [explorer, setExplorer] = useState<string>(initialExplorer);
+  const [explorers] = useState(EXPLORERS);
   const [info, setInfo] = useState<string>();
   const [provider, setProvider] = useState<AnchorProvider>();
   const [signature, setSignature] = useState<string>();
@@ -107,9 +113,10 @@ export const Provider: FC<{ children: ReactNode }> = ({ children }) => {
 
   const changeSlippage = useCallback(
     (value: number) => {
-      const isValid = slippageStorage.set(String(value));
+      const isError = slippageStorage.set(String(value));
+      const hasError = isError instanceof Error;
 
-      if (!(isValid instanceof Error)) {
+      if (!hasError) {
         setSlippage(value);
       }
 
@@ -120,9 +127,10 @@ export const Provider: FC<{ children: ReactNode }> = ({ children }) => {
 
   const changeExplorer = useCallback(
     (value: string) => {
-      const isValid = explorerStorage.set(value);
+      const isError = explorerStorage.set(value);
+      const hasError = isError instanceof Error;
 
-      if (!(isValid instanceof Error)) {
+      if (!hasError) {
         setExplorer(value);
       }
 
@@ -142,7 +150,7 @@ export const Provider: FC<{ children: ReactNode }> = ({ children }) => {
       commit,
       error,
       explorer,
-      explorers: EXPLORERS,
+      explorers,
       info,
       provider,
       setExplorer: changeExplorer,
@@ -156,15 +164,16 @@ export const Provider: FC<{ children: ReactNode }> = ({ children }) => {
     }),
     [
       active,
+      changeExplorer,
+      changeSlippage,
       commit,
       error,
       explorer,
+      explorers,
       info,
       provider,
-      setExplorer,
       setInfo,
       setProvider,
-      setSlippage,
       signature,
       slippage,
       viewExplorer,

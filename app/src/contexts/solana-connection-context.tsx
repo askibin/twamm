@@ -4,7 +4,8 @@ import R, { useCallback, useContext, useMemo, useRef, useState } from "react";
 import { ENV as ChainIdEnv } from "@solana/spl-token-registry";
 import ClusterUtils from "../domain/cluster";
 import storage, { sanidateURL } from "../utils/config-storage";
-import type * as T from "./solana-connection-context.d";
+import type * as TContext from "./solana-connection-context.d";
+import type * as T from "../domain/cluster.d";
 import { AnkrClusterApiUrl, ClusterApiUrl } from "../env";
 
 const STORAGE_KEY = "twammClusterEndpoint";
@@ -20,35 +21,37 @@ const COMMITMENT = "confirmed";
 
 export const chainId = ChainIdEnv.MainnetBeta;
 
-export const endpoints: Record<string, T.AnyClusterInfo> = {
+const FALLBACK_ENDPOINT = ClusterApiUrl ?? clusterApiUrl("mainnet-beta");
+
+export const endpoints: Record<string, T.ClusterInfo> = {
+  solana: {
+    name: "Solana",
+    endpoint: FALLBACK_ENDPOINT,
+    moniker: "mainnet-beta",
+  },
   ankr: {
     name: "Ankr",
     endpoint: AnkrClusterApiUrl,
     moniker: "ankr-solana",
   },
-  solana: {
-    name: "Solana",
-    endpoint: ClusterApiUrl ?? clusterApiUrl("mainnet-beta"),
-    moniker: "mainnet-beta",
-  },
   custom: {
     name: "Custom",
-    endpoint: clusterStorage.get(),
+    endpoint: FALLBACK_ENDPOINT,
     moniker: "custom",
   },
 };
 
 const fallbackCluster = endpoints.solana as T.ClusterInfo;
 
-const isCustomCluster = (c: T.AnyClusterInfo) =>
-  c.moniker === endpoints.custom.moniker;
-
 export type SolanaConnectionContext = {
+  readonly presets: T.ClusterInfo[];
   readonly cluster: T.ClusterInfo;
   readonly clusters: T.ClusterInfo[];
-  readonly commitment: T.CommitmentLevel;
+  readonly commitment: TContext.CommitmentLevel;
   readonly connection: Connection;
-  readonly createConnection: (commitment?: T.CommitmentLevel) => Connection;
+  readonly createConnection: (
+    commitment?: TContext.CommitmentLevel
+  ) => Connection;
   readonly setCluster: (cluster: T.ClusterInfo | T.Moniker) => boolean;
 };
 
@@ -73,46 +76,20 @@ export const Provider: FC<{ children: ReactNode }> = ({ children }) => {
           moniker: "custom" as T.Moniker,
         } as T.PresetClusterInfo,
       ]
-    : [endpoints.solana, endpoints.ankr];
+    : [endpoints.solana, endpoints.ankr, endpoints.custom];
 
   const initialCluster = hasStoredEndpoint
     ? cluster.findBy(clstorage.get(), initialClusters)
     : fallbackCluster;
 
-  const [commitment] = useState<T.CommitmentLevel>(COMMITMENT);
-  const [clusters] = useState<T.ClusterInfo[]>(initialClusters);
+  const [commitment] = useState<TContext.CommitmentLevel>(COMMITMENT);
+  const [clusters, setClusters] = useState<T.ClusterInfo[]>(initialClusters);
   const [currentCluster, setCurrentCluster] = useState(initialCluster);
-
-  const clusterData = useMemo(() => {
-    const presetClusters = clusters.filter(
-      (c) => !isCustomCluster(c)
-    ) as T.ClusterInfo[];
-
-    return { preset: presetClusters };
-  }, [clusters]);
-
-  const presetClusters = clusterData.preset;
-
-  const presetEndpoints = presetClusters.map((c) => c.endpoint);
-
-  const hasCustomEndpoint = Boolean(
-    hasStoredEndpoint && !presetEndpoints.includes(endpoints.custom.endpoint)
-  );
-
-  console.info("cluster get", clusterStorage.get());
-
-  console.info("cluster", {
-    cls: clusterStorage.get(),
-    initialCluster,
-    hasCustomEndpoint,
-    hasStoredEndpoint,
-  });
+  const [presets] = useState(endpoints);
 
   const connectionRef = useRef<Connection>(
     new Connection(currentCluster.endpoint, commitment)
   );
-
-  console.info("cluster current", currentCluster);
 
   const changeCluster = useCallback(
     (value: T.ClusterInfo | T.Moniker) => {
@@ -121,24 +98,21 @@ export const Provider: FC<{ children: ReactNode }> = ({ children }) => {
           ? value
           : cluster.findByMoniker(value, clusters);
 
-      console.info("cluster next", target);
-
-      const isValid = clusterStorage.set(target.endpoint);
+      const isError = clusterStorage.set(target.endpoint);
       // TODO: fixup multiple responsibilities 4 .set
+      const hasError = isError instanceof Error;
 
-      console.log({ isValid });
-
-      if (!(isValid instanceof Error)) {
+      if (!hasError) {
         setCurrentCluster(target);
       }
 
-      return isValid;
+      return isError;
     },
-    [clusters, setCurrentCluster]
+    [clusters, setClusters, setCurrentCluster]
   );
 
   const createConnection = useCallback(
-    (commit: T.CommitmentLevel = commitment) => {
+    (commit: TContext.CommitmentLevel = commitment) => {
       const prevEndpoint =
         connectionRef.current && connectionRef.current.rpcEndpoint;
 
@@ -163,9 +137,17 @@ export const Provider: FC<{ children: ReactNode }> = ({ children }) => {
       commitment,
       connection: connectionRef.current,
       createConnection,
+      presets,
       setCluster: changeCluster,
     }),
-    [currentCluster, clusters, changeCluster, commitment, createConnection]
+    [
+      currentCluster,
+      clusters,
+      changeCluster,
+      commitment,
+      createConnection,
+      presets,
+    ]
   );
 
   return <Context.Provider value={contextValue}>{children}</Context.Provider>;

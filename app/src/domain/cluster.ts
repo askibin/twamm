@@ -38,9 +38,3 @@ export default function cluster(fallback: ClusterInfo) {
 
   return self;
 }
-
-export const populateCustomCluster = (endpoint: string): ClusterInfo => ({
-  name: "Custom",
-  endpoint,
-  moniker: "custom" as ClusterInfo["moniker"],
-});

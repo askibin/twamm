@@ -4,14 +4,7 @@ import InputLabel from "@mui/material/InputLabel";
 import MenuItem from "@mui/material/MenuItem";
 import { SelectChangeEvent } from "@mui/material/Select";
 import * as Styled from "./slippage-selector.styled";
-import storage, { sanidateString } from "../utils/config-storage";
 import useTxRunner from "../contexts/transaction-runner-context";
-
-const slippageStorage = storage({
-  key: "twammSlippage",
-  enabled: "twammEnableSlippage",
-  sanidate: sanidateString,
-});
 
 export default ({ onClose }: { onClose?: () => void }) => {
   const { setSlippage, slippage, slippages } = useTxRunner();

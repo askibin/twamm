@@ -30,7 +30,7 @@ interface PageProps extends AppProps {
 
 // fail on absent endpoints
 if (!(endpoints.solana.endpoint && endpoints.ankr.endpoint))
-  throw new Error("Absent mainnet address");
+  throw new Error("Absent cluster endpoints");
 
 const App = ({
   Component,

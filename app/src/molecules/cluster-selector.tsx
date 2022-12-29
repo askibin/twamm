@@ -8,16 +8,12 @@ import RadioGroup from "@mui/material/RadioGroup";
 import { Form } from "react-final-form";
 import { useCallback, useMemo, useState } from "react";
 
-import type * as TCluster from "../contexts/solana-connection-context.d";
 import * as Styled from "./cluster-selector.styled";
-import useBlockchain, {
-  endpoints,
-} from "../contexts/solana-connection-context";
+import Cluster from "../domain/cluster";
+import type * as TCluster from "../domain/cluster.d";
+import useBlockchain from "../contexts/solana-connection-context";
 import { clusterValidator } from "../utils/validators";
-import Cluster, { populateCustomCluster } from "../domain/cluster";
 import { useSnackbar } from "../contexts/notification-context";
-
-const clstr = Cluster(endpoints.solana);
 
 const clusterChangeAlert = (isError: Error | undefined, moniker: string) => {
   const msg = !isError
@@ -33,27 +29,12 @@ const clusterChangeAlert = (isError: Error | undefined, moniker: string) => {
 export default function ClusterSelector({ onClose }: { onClose?: () => void }) {
   const { enqueueSnackbar } = useSnackbar();
 
-  const { cluster, clusters, setCluster } = useBlockchain();
+  const { cluster, clusters, presets, setCluster } = useBlockchain();
   const [clusterMoniker, setClusterMoniker] = useState(cluster.moniker);
 
-  const isCustomSelected = clusterMoniker === endpoints.custom.moniker;
+  const clstr = Cluster(presets.solana);
 
-  const selectedCluster = useMemo(
-    () => clusters.find((c) => c.moniker === clusterMoniker),
-    [clusterMoniker]
-  );
-
-  const { preset, custom } = useMemo(() => {
-    const hasCustom = clusters.find((c) => clstr.isCustom(c));
-    const presets = hasCustom
-      ? clusters.filter((c) => !clstr.isCustom(c))
-      : clusters;
-
-    return {
-      preset: presets,
-      custom: hasCustom,
-    };
-  }, [clusters]);
+  const isCustomSelected = clusterMoniker === presets.custom.moniker;
 
   const onSaveCustomEndpoint = useCallback(
     async ({ endpoint }: { endpoint: string }) => {
@@ -69,7 +50,6 @@ export default function ClusterSelector({ onClose }: { onClose?: () => void }) {
         customCluster.moniker
       );
       enqueueSnackbar(msg, variant);
-      console.log("cluster", { isError });
 
       if (!isError && onClose) onClose();
     },
@@ -80,11 +60,8 @@ export default function ClusterSelector({ onClose }: { onClose?: () => void }) {
     ({ endpoint }: { endpoint: string }) => {
       const isError = setCluster(endpoint);
 
-      console.log("CLS1", isError, endpoint);
-
       const { msg, variant } = clusterChangeAlert(isError, endpoint);
       enqueueSnackbar(msg, variant);
-      console.log("cluster", { isError });
 
       if (!isError && onClose) onClose();
     },
@@ -95,15 +72,13 @@ export default function ClusterSelector({ onClose }: { onClose?: () => void }) {
     (event: ChangeEvent<HTMLInputElement>) => {
       const { value } = event.target as { value: TCluster.Moniker };
 
-      console.log("cluster", value, "cust", isCustomSelected);
-
       setClusterMoniker(value);
 
       if (!clstr.isCustomMoniker(value)) {
         onSavePresetEndpoint({ endpoint: value });
       }
     },
-    [isCustomSelected, onSavePresetEndpoint]
+    [onSavePresetEndpoint]
   );
 
   return (
@@ -114,7 +89,7 @@ export default function ClusterSelector({ onClose }: { onClose?: () => void }) {
           value={clusterMoniker}
           onChange={onClusterChange}
         >
-          {preset.map((c) => (
+          {clusters.map((c) => (
             <FormControlLabel
               key={c.name}
               label={c.name}
@@ -122,12 +97,14 @@ export default function ClusterSelector({ onClose }: { onClose?: () => void }) {
               value={c.moniker}
             />
           ))}
-          <FormControlLabel label="Custom" control={<Radio />} value="custom" />
         </RadioGroup>
         {isCustomSelected && (
           <Form
             initialValues={{
-              endpoint: endpoints.custom.endpoint,
+              endpoint:
+                presets.solana.endpoint === cluster.endpoint
+                  ? undefined
+                  : cluster.endpoint,
             }}
             onSubmit={onSaveCustomEndpoint}
             validate={clusterValidator(

@@ -13,7 +13,7 @@ type CustomClusterInfo = {
 type PresetClusterInfo = {
   name: string;
   endpoint: string;
-  moniker: Exclude<Moniker, "custom">;
+  moniker: Moniker;
 };
 
 export type ClusterInfo = PresetClusterInfo;
