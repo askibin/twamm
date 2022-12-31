@@ -1,6 +1,5 @@
 import M from "easy-maybe/lib";
 import { OrderSide } from "@twamm/types/lib";
-import type { SelectedTif } from "./trade-intervals";
 import { instantTif } from "../reducers/trade-intervals.reducer";
 
 export type ValidationErrors = {

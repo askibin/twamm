@@ -4,15 +4,14 @@ import { OrderSide } from "@twamm/types/lib";
 import { useCallback, useMemo, useState } from "react";
 import { Form } from "react-final-form";
 
-import type { SelectedTif } from "./trade-intervals";
-import JupiterOrderProgress from "../organisms/jupiter-order-progress";
-import ProgramOrderProgress from "../organisms/program-order-progress";
-import TokenPairFormContent from "./token-pair-form-content";
+import JupiterOrderProgress from "./jupiter-order-progress";
+import ProgramOrderProgress from "./program-order-progress";
+import ExchangePairForm from "../molecules/exchange-pair-form";
 import useTIFIntervals from "../hooks/use-tif-intervals";
 import { instantTif } from "../reducers/trade-intervals.reducer";
 import { refreshEach } from "../swr-options";
-import type { ValidationErrors } from "./token-pair-form.utils";
-import * as formHelpers from "./token-pair-form.utils";
+import type { ValidationErrors } from "../domain/order";
+import * as formHelpers from "../domain/order";
 
 export interface Props {
   lead: Voidable<TokenInfo>;
@@ -153,7 +152,7 @@ export default ({
     <Form onSubmit={onSubmit} validate={() => errors}>
       {({ handleSubmit, valid }) => (
         <>
-          <TokenPairFormContent
+          <ExchangePairForm
             intervalTifs={intervalTifs.data}
             lead={lead}
             onABSwap={onABSwap}
