@@ -13,7 +13,5 @@ export const AnkrClusterApiUrl = "https://rpc.ankr.com/solana";
 // TODO: cover absent env value
 export const ClusterApiUrl = process.env.NEXT_PUBLIC_CLUSTER_API_URL;
 
-export const muiLicenseKey = process.env.NEXT_PUBLIC_LICENSE_KEY_MUI ?? "";
-
 export const programId: Address | undefined =
   process.env.NEXT_PUBLIC_PROGRAM_ADDRESS;
