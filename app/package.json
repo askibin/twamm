@@ -89,7 +89,6 @@
     "@solana/buffer-layout": "4",
     "@typescript-eslint/parser": "^5.43.0",
     "bn.js": "5.2.1",
-    "bs58": "4.0.1",
     "eslint-plugin-import": "^2.26.0",
     "eslint-plugin-jsx-a11y": "^6.5.1",
     "eslint-plugin-react": "^7.28.0",
