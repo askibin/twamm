@@ -10,9 +10,17 @@ import * as Styled from "./transaction-runner.styled";
 import LogViewer from "../organisms/log-viewer";
 
 const extractErrorMessage = (message: string) => {
-  const msg = message.split("Error Message:");
+  const msgAnchor = "Error Message:";
+  const simulAnchor = "simulation failed:";
 
-  if (msg.length > 1) return msg[1].trim();
+  let msgArr;
+  if (message.includes(msgAnchor)) {
+    msgArr = message.split(msgAnchor);
+  } else if (message.includes(simulAnchor)) {
+    msgArr = message.split(simulAnchor);
+  }
+
+  if (msgArr && msgArr.length > 1) return msgArr[1].trim();
 
   return message;
 };

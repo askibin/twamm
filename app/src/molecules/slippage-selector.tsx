@@ -6,12 +6,13 @@ import { SelectChangeEvent } from "@mui/material/Select";
 import * as Styled from "./slippage-selector.styled";
 import useTxRunner from "../contexts/transaction-runner-context";
 
-export default () => {
+export default ({ onClose }: { onClose?: () => void }) => {
   const { setSlippage, slippage, slippages } = useTxRunner();
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const handleChange = (event: SelectChangeEvent<unknown>, _: ReactNode) => {
     setSlippage(event.target.value as number);
+    if (onClose) onClose();
   };
 
   return (

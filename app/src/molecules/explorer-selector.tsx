@@ -6,12 +6,14 @@ import { SelectChangeEvent } from "@mui/material/Select";
 import * as Styled from "./explorer-selector.styled";
 import useTxRunner from "../contexts/transaction-runner-context";
 
-export default () => {
+export default ({ onClose }: { onClose?: () => void }) => {
   const { explorer, explorers, setExplorer } = useTxRunner();
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const handleChange = (event: SelectChangeEvent<unknown>, _: ReactNode) => {
     setExplorer(event.target.value as string);
+
+    if (onClose) onClose();
   };
 
   return (
@@ -24,7 +26,7 @@ export default () => {
         label="Explorer"
         onChange={handleChange}
       >
-        <MenuItem value={explorers.explorer.uri}>Solana</MenuItem>
+        <MenuItem value={explorers.explorer.uri}>Explorer</MenuItem>
         <MenuItem value={explorers.solscan.uri}>Solscan</MenuItem>
         <MenuItem value={explorers.solanafm.uri}>SolanaFM</MenuItem>
       </Styled.ExplorerSelect>

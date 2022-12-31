@@ -9,7 +9,10 @@ import { SWRConfig } from "swr";
 import "../styles/globals.css";
 import createEmotionCache from "../src/emotion-cache";
 import swrConfig from "../src/swr-options";
-import { Provider as BlockchainProvider } from "../src/contexts/solana-connection-context";
+import {
+  Provider as BlockchainProvider,
+  endpoints,
+} from "../src/contexts/solana-connection-context";
 import { CoingeckoApiProvider } from "../src/contexts/coingecko-api-context";
 import { NotificationProvider } from "../src/contexts/notification-context";
 import { ThemeProvider } from "../src/contexts/theme-context";
@@ -24,6 +27,10 @@ const clientSideEmotionCache = createEmotionCache();
 interface PageProps extends AppProps {
   emotionCache?: EmotionCache;
 }
+
+// fail on absent endpoints
+if (!(endpoints.solana.endpoint && endpoints.ankr.endpoint))
+  throw new Error("Absent cluster endpoints");
 
 const App = ({
   Component,

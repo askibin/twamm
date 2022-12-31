@@ -1,6 +1,7 @@
 import type { FC, ReactNode } from "react";
 import type { AnchorProvider } from "@project-serum/anchor";
 import { forit } from "a-wait-forit/lib-ts";
+import { isNil } from "ramda";
 import {
   createContext,
   useContext,
@@ -8,14 +9,17 @@ import {
   useCallback,
   useState,
 } from "react";
+import storage, { sanidateString, sanidateURL } from "../utils/config-storage";
 
 const EXPLORERS = {
-  explorer: { uri: "https://explorer.solana.com/tx/" },
-  solscan: { uri: "https://solscan.io/tx/" },
+  explorer: { uri: "https://explorer.solana.com/tx" },
+  solscan: { uri: "https://solscan.io/tx" },
   solanafm: { uri: "https://solana.fm/tx" },
-};
+}; // explorer is default
+const FALLBACK_EXPLORER = EXPLORERS.explorer.uri;
 
-const SLIPPAGES = [0, 0.1, 0.5, 1, 2]; // %
+const SLIPPAGES = [0, 0.1, 0.5, 1, 2]; // %, 0.5 is default
+const FALLBACK_SLIPPAGE = SLIPPAGES[2];
 
 export type TransactionRunnerContext = {
   readonly active: boolean;
@@ -35,18 +39,51 @@ export type TransactionRunnerContext = {
   readonly viewExplorer: (sig: string) => string;
 };
 
+const slippageStorage = storage({
+  key: "twammSlippage",
+  enabled: "twammEnableSlippage",
+  sanidate: sanidateString,
+});
+
+const explorerStorage = storage({
+  key: "twammExplorer",
+  enabled: "twammEnableExplorer",
+  sanidate: sanidateURL,
+});
+
 export const Context = createContext<TransactionRunnerContext | undefined>(
   undefined
 );
 
 export const Provider: FC<{ children: ReactNode }> = ({ children }) => {
+  const storedSlippage = Number(slippageStorage.get());
+  const storedExplorer = String(explorerStorage.get());
+
+  const hasSlippage = useMemo(
+    () =>
+      Boolean(
+        slippageStorage.enabled() &&
+          !isNil(storedSlippage) &&
+          !Number.isNaN(storedSlippage)
+      ),
+    [storedSlippage]
+  );
+  const hasExplorer = useMemo(
+    () => Boolean(explorerStorage.enabled() && storedExplorer),
+    [storedExplorer]
+  );
+
+  const initialSlippage = hasSlippage ? storedSlippage : FALLBACK_SLIPPAGE;
+  const initialExplorer = hasExplorer ? storedExplorer : FALLBACK_EXPLORER;
+
   const [active, setActive] = useState<boolean>(false);
   const [error, setError] = useState<Error>();
-  const [explorer, setExplorer] = useState<string>(EXPLORERS.explorer.uri);
+  const [explorer, setExplorer] = useState<string>(initialExplorer);
+  const [explorers] = useState(EXPLORERS);
   const [info, setInfo] = useState<string>();
   const [provider, setProvider] = useState<AnchorProvider>();
   const [signature, setSignature] = useState<string>();
-  const [slippage, setSlippage] = useState<number>(SLIPPAGES[2]); // default 0.5
+  const [slippage, setSlippage] = useState<number>(initialSlippage);
 
   const commit = useCallback(
     async (operation: Parameters<TransactionRunnerContext["commit"]>[0]) => {
@@ -74,8 +111,36 @@ export const Provider: FC<{ children: ReactNode }> = ({ children }) => {
     [active, setActive]
   );
 
+  const changeSlippage = useCallback(
+    (value: number) => {
+      const isError = slippageStorage.set(String(value));
+      const hasError = isError instanceof Error;
+
+      if (!hasError) {
+        setSlippage(value);
+      }
+
+      return undefined;
+    },
+    [setSlippage]
+  );
+
+  const changeExplorer = useCallback(
+    (value: string) => {
+      const isError = explorerStorage.set(value);
+      const hasError = isError instanceof Error;
+
+      if (!hasError) {
+        setExplorer(value);
+      }
+
+      return undefined;
+    },
+    [setExplorer]
+  );
+
   const viewExplorer = useCallback(
-    (sig: string) => `${explorer}${sig}`,
+    (sig: string) => new URL(`${explorer}/${sig}`).href,
     [explorer]
   );
 
@@ -85,13 +150,13 @@ export const Provider: FC<{ children: ReactNode }> = ({ children }) => {
       commit,
       error,
       explorer,
-      explorers: EXPLORERS,
+      explorers,
       info,
       provider,
-      setExplorer,
+      setExplorer: changeExplorer,
       setInfo,
       setProvider,
-      setSlippage,
+      setSlippage: changeSlippage,
       signature,
       slippages: SLIPPAGES,
       slippage,
@@ -99,15 +164,16 @@ export const Provider: FC<{ children: ReactNode }> = ({ children }) => {
     }),
     [
       active,
+      changeExplorer,
+      changeSlippage,
       commit,
       error,
       explorer,
+      explorers,
       info,
       provider,
-      setExplorer,
       setInfo,
       setProvider,
-      setSlippage,
       signature,
       slippage,
       viewExplorer,

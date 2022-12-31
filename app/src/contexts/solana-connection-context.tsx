@@ -2,88 +2,122 @@ import type { FC, ReactNode } from "react";
 import { clusterApiUrl, Connection } from "@solana/web3.js";
 import R, { useCallback, useContext, useMemo, useRef, useState } from "react";
 import { ENV as ChainIdEnv } from "@solana/spl-token-registry";
-import type * as T from "./solana-connection-context.d";
-import endpointStorage from "../utils/cluster-endpoint-storage";
+import ClusterUtils from "../domain/cluster";
+import storage, { sanidateURL } from "../utils/config-storage";
+import type * as TContext from "./solana-connection-context.d";
+import type * as T from "../domain/cluster.d";
 import { AnkrClusterApiUrl, ClusterApiUrl } from "../env";
 
-const clusterStorage = endpointStorage();
+const STORAGE_KEY = "twammClusterEndpoint";
+const ENABLE_STORAGE_KEY = "twammEnableClusterEndpoint";
+
+const clusterStorage = storage({
+  key: STORAGE_KEY,
+  enabled: ENABLE_STORAGE_KEY,
+  sanidate: sanidateURL,
+});
+
+const COMMITMENT = "confirmed";
 
 export const chainId = ChainIdEnv.MainnetBeta;
 
+const FALLBACK_ENDPOINT = ClusterApiUrl ?? clusterApiUrl("mainnet-beta");
+
 export const endpoints: Record<string, T.ClusterInfo> = {
+  solana: {
+    name: "Solana",
+    endpoint: FALLBACK_ENDPOINT,
+    moniker: "mainnet-beta",
+  },
   ankr: {
     name: "Ankr",
     endpoint: AnkrClusterApiUrl,
     moniker: "ankr-solana",
   },
-  solana: {
-    name: "Solana",
-    endpoint: ClusterApiUrl || clusterApiUrl("mainnet-beta"),
-    moniker: "mainnet-beta",
-  },
   custom: {
     name: "Custom",
-    endpoint: clusterStorage.get() ?? "",
+    endpoint: FALLBACK_ENDPOINT,
     moniker: "custom",
   },
 };
 
-const COMMITMENT = "confirmed";
+const fallbackCluster = endpoints.solana as T.ClusterInfo;
 
 export type SolanaConnectionContext = {
+  readonly presets: typeof endpoints;
   readonly cluster: T.ClusterInfo;
   readonly clusters: T.ClusterInfo[];
-  readonly commitment: T.CommitmentLevel;
+  readonly commitment: TContext.CommitmentLevel;
   readonly connection: Connection;
-  readonly createConnection: (commitment?: T.CommitmentLevel) => Connection;
-  readonly setCluster: (cluster: T.ClusterInfo) => void;
+  readonly createConnection: (
+    commitment?: TContext.CommitmentLevel
+  ) => Connection;
+  readonly setCluster: (cluster: T.ClusterInfo | T.Moniker) => boolean;
 };
 
 export const Context = R.createContext<SolanaConnectionContext | undefined>(
   undefined
 );
 
-export const Provider: FC<{ children: ReactNode }> = ({ children }) => {
-  const commitment: T.CommitmentLevel = COMMITMENT;
+const cluster = ClusterUtils(fallbackCluster);
 
-  const [clusters] = useState(
-    [endpoints.solana].concat([endpoints.ankr, endpoints.custom])
+export const Provider: FC<{ children: ReactNode }> = ({ children }) => {
+  const hasStoredEndpoint = Boolean(
+    clusterStorage.enabled() && clusterStorage.get()
   );
 
-  const customEndpoint = clusterStorage.enabled()
-    ? clusterStorage.get()
-    : undefined;
+  const initialClusters = [
+    endpoints.solana,
+    endpoints.ankr,
+    {
+      name: endpoints.custom.name,
+      endpoint: hasStoredEndpoint
+        ? (clusterStorage.get() as string)
+        : endpoints.custom.endpoint,
+      moniker: endpoints.custom.moniker,
+    },
+  ];
 
-  const initialCluster: T.ClusterInfo = customEndpoint
-    ? endpoints.custom
-    : clusters[0];
+  const initialCluster = hasStoredEndpoint
+    ? cluster.findBy(clusterStorage.get(), initialClusters)
+    : fallbackCluster;
 
-  const [cluster, setCluster] = useState(initialCluster);
+  const [commitment] = useState<TContext.CommitmentLevel>(COMMITMENT);
+  const [clusters] = useState<T.ClusterInfo[]>(initialClusters);
+  const [currentCluster, setCurrentCluster] = useState(initialCluster);
+  const [presets] = useState(endpoints);
 
   const connectionRef = useRef<Connection>(
-    new Connection(initialCluster.endpoint, commitment)
+    new Connection(currentCluster.endpoint, commitment)
   );
 
   const changeCluster = useCallback(
-    (info: T.ClusterInfo) => {
-      if (info.moniker === endpoints.custom.moniker) {
-        clusterStorage.enable();
-        clusterStorage.set(info.endpoint);
-      } else {
-        clusterStorage.disable();
+    (value: T.ClusterInfo | T.Moniker) => {
+      const target =
+        typeof value !== "string"
+          ? value
+          : cluster.findByMoniker(value, clusters);
+
+      const isError = clusterStorage.set(target.endpoint);
+      // TODO: fixup multiple responsibilities 4 .set
+      const hasError = isError instanceof Error;
+
+      if (!hasError) {
+        setCurrentCluster(target);
       }
-      setCluster(info);
+
+      return hasError;
     },
-    [setCluster]
+    [clusters, setCurrentCluster]
   );
 
   const createConnection = useCallback(
-    (commit: T.CommitmentLevel = commitment) => {
+    (commit: TContext.CommitmentLevel = commitment) => {
       const prevEndpoint =
         connectionRef.current && connectionRef.current.rpcEndpoint;
 
-      if (!prevEndpoint || prevEndpoint !== cluster.endpoint) {
-        const conn = new Connection(cluster.endpoint, commit);
+      if (!prevEndpoint || prevEndpoint !== currentCluster.endpoint) {
+        const conn = new Connection(currentCluster.endpoint, commit);
         connectionRef.current = conn;
 
         // TODO: add notifications about RPC change
@@ -93,19 +127,27 @@ export const Provider: FC<{ children: ReactNode }> = ({ children }) => {
 
       return connectionRef.current;
     },
-    [cluster, commitment]
+    [currentCluster, commitment]
   );
 
   const contextValue = useMemo(
     () => ({
-      cluster,
+      cluster: currentCluster,
       clusters,
       commitment,
       connection: connectionRef.current,
       createConnection,
+      presets,
       setCluster: changeCluster,
     }),
-    [cluster, clusters, changeCluster, commitment, createConnection]
+    [
+      currentCluster,
+      clusters,
+      changeCluster,
+      commitment,
+      createConnection,
+      presets,
+    ]
   );
 
   return <Context.Provider value={contextValue}>{children}</Context.Provider>;
