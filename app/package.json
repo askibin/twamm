@@ -40,7 +40,6 @@
     "easy-maybe": "0.0.7",
     "final-form": "4.20.7",
     "isomorphic-fetch": "^3.0.0",
-    "jsbi": "^4.3.0",
     "mui-rff": "^6.1.2",
     "next": "12.2",
     "notistack": "^2.0.5",
@@ -94,6 +93,7 @@
     "eslint-plugin-jsx-a11y": "^6.5.1",
     "eslint-plugin-react": "^7.28.0",
     "eslint-plugin-react-hooks": "^4.3.0",
+    "jsbi": "^4",
     "react-is": "16.8.0",
     "tslib": "^2.4.0"
   },
