@@ -50,8 +50,8 @@ export default function storage({
   enabled: string;
   sanidate: (arg0: string | undefined) => any | Error;
 }) {
-  const STORAGE_KEY = key; //"twammClusterEndpoint";
-  const ENABLE_STORAGE_KEY = enabled; //"twammEnableClusterEndpoint";
+  const STORAGE_KEY = key;
+  const ENABLE_STORAGE_KEY = enabled;
 
   const self = {
     disable() {

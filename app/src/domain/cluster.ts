@@ -1,17 +1,17 @@
-import type { AnyClusterInfo, ClusterInfo } from "./cluster.d";
+import type { ClusterInfo } from "./cluster.d";
 
-type PredicateFn = (item: AnyClusterInfo) => boolean;
+type PredicateFn = (item: ClusterInfo) => boolean;
 
 const CUSTOM_MONIKER = "custom";
 
-const findByEndpoint = (endpoint: string, c: AnyClusterInfo) =>
+const findByEndpoint = (endpoint: string, c: ClusterInfo) =>
   c.endpoint === endpoint;
 
-export default function cluster(fallback: ClusterInfo) {
+export default function ClusterUtils(fallback: ClusterInfo) {
   const self = {
     findBy: (
       valueOrPredicate: string | PredicateFn | undefined,
-      clusters: AnyClusterInfo[],
+      clusters: ClusterInfo[],
       defaultValue = fallback
     ) => {
       if (!valueOrPredicate) return defaultValue;
@@ -19,21 +19,17 @@ export default function cluster(fallback: ClusterInfo) {
       const predicate =
         typeof valueOrPredicate === "function"
           ? valueOrPredicate
-          : (c: AnyClusterInfo) => findByEndpoint(valueOrPredicate, c);
+          : (c: ClusterInfo) => findByEndpoint(valueOrPredicate, c);
 
       return (clusters.find((c) => predicate(c)) ??
         defaultValue) as ClusterInfo;
     },
-    findByMoniker: (
-      moniker: string | undefined,
-      clusters: AnyClusterInfo[]
-    ) => {
-      const monikerPredicate = (c: AnyClusterInfo) => c.moniker === moniker;
+    findByMoniker: (moniker: string | undefined, clusters: ClusterInfo[]) => {
+      const monikerPredicate = (c: ClusterInfo) => c.moniker === moniker;
 
       return self.findBy(monikerPredicate, clusters);
     },
     isCustomMoniker: (moniker: string) => moniker === CUSTOM_MONIKER,
-    isCustom: (c: ClusterInfo) => self.isCustomMoniker(c.moniker),
   };
 
   return self;

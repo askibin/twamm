@@ -44,7 +44,7 @@ export const endpoints: Record<string, T.ClusterInfo> = {
 const fallbackCluster = endpoints.solana as T.ClusterInfo;
 
 export type SolanaConnectionContext = {
-  readonly presets: T.ClusterInfo[];
+  readonly presets: typeof endpoints;
   readonly cluster: T.ClusterInfo;
   readonly clusters: T.ClusterInfo[];
   readonly commitment: TContext.CommitmentLevel;
@@ -59,31 +59,31 @@ export const Context = R.createContext<SolanaConnectionContext | undefined>(
   undefined
 );
 
-const clstorage = clusterStorage;
-
 const cluster = ClusterUtils(fallbackCluster);
 
 export const Provider: FC<{ children: ReactNode }> = ({ children }) => {
-  const hasStoredEndpoint = Boolean(clstorage.enabled() && clstorage.get());
+  const hasStoredEndpoint = Boolean(
+    clusterStorage.enabled() && clusterStorage.get()
+  );
 
-  const initialClusters = hasStoredEndpoint
-    ? [
-        endpoints.solana,
-        endpoints.ankr,
-        {
-          name: "Custom",
-          endpoint: clstorage.get(),
-          moniker: "custom" as T.Moniker,
-        } as T.PresetClusterInfo,
-      ]
-    : [endpoints.solana, endpoints.ankr, endpoints.custom];
+  const initialClusters = [
+    endpoints.solana,
+    endpoints.ankr,
+    {
+      name: endpoints.custom.name,
+      endpoint: hasStoredEndpoint
+        ? (clusterStorage.get() as string)
+        : endpoints.custom.endpoint,
+      moniker: endpoints.custom.moniker,
+    },
+  ];
 
   const initialCluster = hasStoredEndpoint
-    ? cluster.findBy(clstorage.get(), initialClusters)
+    ? cluster.findBy(clusterStorage.get(), initialClusters)
     : fallbackCluster;
 
   const [commitment] = useState<TContext.CommitmentLevel>(COMMITMENT);
-  const [clusters, setClusters] = useState<T.ClusterInfo[]>(initialClusters);
+  const [clusters] = useState<T.ClusterInfo[]>(initialClusters);
   const [currentCluster, setCurrentCluster] = useState(initialCluster);
   const [presets] = useState(endpoints);
 
@@ -106,9 +106,9 @@ export const Provider: FC<{ children: ReactNode }> = ({ children }) => {
         setCurrentCluster(target);
       }
 
-      return isError;
+      return hasError;
     },
-    [clusters, setClusters, setCurrentCluster]
+    [clusters, setCurrentCluster]
   );
 
   const createConnection = useCallback(

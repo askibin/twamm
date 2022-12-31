@@ -6,16 +6,16 @@ import FormControlLabel from "@mui/material/FormControlLabel";
 import Radio from "@mui/material/Radio";
 import RadioGroup from "@mui/material/RadioGroup";
 import { Form } from "react-final-form";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useState } from "react";
 
 import * as Styled from "./cluster-selector.styled";
-import Cluster from "../domain/cluster";
+import ClusterUtils from "../domain/cluster";
 import type * as TCluster from "../domain/cluster.d";
 import useBlockchain from "../contexts/solana-connection-context";
 import { clusterValidator } from "../utils/validators";
 import { useSnackbar } from "../contexts/notification-context";
 
-const clusterChangeAlert = (isError: Error | undefined, moniker: string) => {
+const clusterChangeAlert = (isError: boolean | undefined, moniker: string) => {
   const msg = !isError
     ? `Cluster changed to "${moniker}"`
     : "Address should be a proper URL";
@@ -32,16 +32,16 @@ export default function ClusterSelector({ onClose }: { onClose?: () => void }) {
   const { cluster, clusters, presets, setCluster } = useBlockchain();
   const [clusterMoniker, setClusterMoniker] = useState(cluster.moniker);
 
-  const clstr = Cluster(presets.solana);
+  const clusterUtils = ClusterUtils(presets.solana);
 
   const isCustomSelected = clusterMoniker === presets.custom.moniker;
 
   const onSaveCustomEndpoint = useCallback(
     async ({ endpoint }: { endpoint: string }) => {
-      const customCluster: TCluster.CustomClusterInfo = {
+      const customCluster = {
         endpoint,
-        name: "Custom",
-        moniker: "custom",
+        name: presets.custom.name,
+        moniker: presets.custom.moniker,
       };
       const isError = setCluster(customCluster);
 
@@ -53,11 +53,11 @@ export default function ClusterSelector({ onClose }: { onClose?: () => void }) {
 
       if (!isError && onClose) onClose();
     },
-    [clusters, onClose, setCluster]
+    [enqueueSnackbar, onClose, presets, setCluster]
   );
 
   const onSavePresetEndpoint = useCallback(
-    ({ endpoint }: { endpoint: string }) => {
+    ({ endpoint }: { endpoint: TCluster.Moniker }) => {
       const isError = setCluster(endpoint);
 
       const { msg, variant } = clusterChangeAlert(isError, endpoint);
@@ -74,11 +74,11 @@ export default function ClusterSelector({ onClose }: { onClose?: () => void }) {
 
       setClusterMoniker(value);
 
-      if (!clstr.isCustomMoniker(value)) {
+      if (!clusterUtils.isCustomMoniker(value)) {
         onSavePresetEndpoint({ endpoint: value });
       }
     },
-    [onSavePresetEndpoint]
+    [clusterUtils, onSavePresetEndpoint]
   );
 
   return (
