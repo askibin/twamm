@@ -29,18 +29,20 @@ export default ({ data }: Props) => {
 
   return (
     <Styled.CardList>
-      {tokenPairs.map((tokenPair) => (
-        <Styled.CardListItem key={tokenPair.id}>
-          <PairCard
-            aMint={tokenPair.aMint}
-            bMint={tokenPair.bMint}
-            fee={tokenPair.fee}
-            orderVolume={tokenPair.orderVolume}
-            routedVolume={tokenPair.routedVolume}
-            settledVolume={tokenPair.settledVolume}
-          />
-        </Styled.CardListItem>
-      ))}
+      {tokenPairs
+        .sort((a, b) => b.orderVolume - a.orderVolume)
+        .map((tokenPair) => (
+          <Styled.CardListItem key={tokenPair.id}>
+            <PairCard
+              aMint={tokenPair.aMint}
+              bMint={tokenPair.bMint}
+              fee={tokenPair.fee}
+              orderVolume={tokenPair.orderVolume}
+              routedVolume={tokenPair.routedVolume}
+              settledVolume={tokenPair.settledVolume}
+            />
+          </Styled.CardListItem>
+        ))}
     </Styled.CardList>
   );
 };
