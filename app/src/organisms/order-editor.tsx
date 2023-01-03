@@ -9,6 +9,7 @@ import PriceInfo from "./price-info";
 import OrderForm from "./order-form";
 import UniversalPopover, { Ref } from "../molecules/universal-popover";
 import usePrice from "../hooks/use-price";
+import useTIFIntervals from "../hooks/use-tif-intervals";
 import useTokenPairByTokens from "../hooks/use-token-pair-by-tokens";
 import { refreshEach } from "../swr-options";
 
@@ -62,6 +63,14 @@ export default ({
   const selectedPair = useTokenPairByTokens(
     a && b && { aToken: a, bToken: b },
     refreshEach()
+  );
+
+  const intervalTifs = useTIFIntervals(
+    selectedPair.data?.exchangePair[0],
+    selectedPair.data?.tifs,
+    selectedPair.data?.currentPoolPresent,
+    selectedPair.data?.poolCounters,
+    refreshEach(30e3)
   );
 
   useEffect(() => {
@@ -137,11 +146,12 @@ export default ({
           <OrderForm
             lead={a}
             slave={b}
+            intervalTifs={intervalTifs.data}
+            minTimeTillExpiration={selectedPair.data?.minTimeTillExpiration}
             onABSwap={onTokenSwap}
             onASelect={onTokenAChoose}
             onBSelect={onTokenBChoose}
             poolCounters={selectedPair.data?.poolCounters}
-            poolsCurrent={selectedPair.data?.currentPoolPresent}
             poolTifs={selectedPair.data?.tifs}
             side={tradeSide}
             tokenA={a?.symbol}

@@ -14,39 +14,46 @@ const fetcher = (program: Program) => {
   const resolvePair = resolveExchangePair(program);
 
   return async ({ params }: SWRParams<typeof swrKey>) => {
-    const { aToken, bToken } = params;
     const { tokenPairData, exchangePair } = (await resolvePair([
-      aToken,
-      bToken,
+      params.aToken,
+      params.bToken,
     ])) as {
       tokenPairData: TokenPairProgramData;
       exchangePair: [[TokenInfo, TokenInfo], OrderSide];
     };
 
     const {
+      allowDeposits,
+      allowWithdrawals,
       configA,
       configB,
       currentPoolPresent,
       futurePoolPresent,
+      maxSwapPriceDiff,
+      maxUnsettledAmount,
+      minTimeTillExpiration,
       poolCounters,
       statsA,
       statsB,
       tifs,
     } = tokenPairData;
 
-    const pair = {
+    return {
+      allowDeposits,
+      allowWithdrawals,
       configA,
       configB,
       currentPoolPresent,
       exchangePair,
       futurePoolPresent,
+      maxSwapPriceDiff,
+      maxUnsettledAmount,
+      minTimeTillExpiration,
       poolCounters,
       statsA,
       statsB,
       tifs,
     };
-
-    return pair;
   };
 };
 

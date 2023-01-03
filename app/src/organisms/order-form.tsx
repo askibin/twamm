@@ -7,60 +7,49 @@ import { Form } from "react-final-form";
 import JupiterOrderProgress from "./jupiter-order-progress";
 import ProgramOrderProgress from "./program-order-progress";
 import ExchangePairForm from "../molecules/exchange-pair-form";
-import useTIFIntervals from "../hooks/use-tif-intervals";
 import { instantTif } from "../reducers/trade-intervals.reducer";
-import { refreshEach } from "../swr-options";
 import type { ValidationErrors } from "../domain/order";
 import * as formHelpers from "../domain/order";
-
-export interface Props {
-  lead: Voidable<TokenInfo>;
-  slave: Voidable<TokenInfo>;
-  onABSwap: () => void;
-  onASelect: () => void;
-  onBSelect: () => void;
-  poolCounters: Voidable<PoolCounter[]>;
-  poolsCurrent: Voidable<boolean[]>;
-  poolTifs: Voidable<number[]>;
-  side: Voidable<OrderSide>;
-  tokenA?: string;
-  tokenADecimals?: number;
-  tokenB?: string;
-  tokenPair: Voidable<TokenPair<JupToken>>;
-}
 
 export default ({
   lead,
   slave,
+  intervalTifs,
+  minTimeTillExpiration,
   onABSwap,
   onASelect,
   onBSelect,
   poolCounters: counters,
-  poolsCurrent,
   poolTifs,
   side: s,
   tokenA,
   tokenADecimals,
   tokenB,
   tokenPair: pair,
-}: Props) => {
+}: {
+  lead: Voidable<TokenInfo>;
+  slave: Voidable<TokenInfo>;
+  intervalTifs: Voidable<IndexedTIF[]>;
+  minTimeTillExpiration: Voidable<number>;
+  onABSwap: () => void;
+  onASelect: () => void;
+  onBSelect: () => void;
+  poolCounters: Voidable<PoolCounter[]>;
+  poolTifs: Voidable<number[]>;
+  side: Voidable<OrderSide>;
+  tokenA?: string;
+  tokenADecimals?: number;
+  tokenB?: string;
+  tokenPair: Voidable<TokenPair<JupToken>>;
+}) => {
   const [amount, setAmount] = useState<number>(0);
   const [submitting, setSubmitting] = useState<boolean>(false);
   const [tif, setTif] = useState<SelectedTif>();
 
   const tifs = M.withDefault(undefined, M.of(poolTifs));
-  const currentPoolPresent = M.withDefault(undefined, M.of(poolsCurrent));
   const poolCounters = M.withDefault(undefined, M.of(counters));
   const side = M.withDefault(undefined, M.of(s));
   const tokenPair = M.withDefault(undefined, M.of(pair));
-
-  const intervalTifs = useTIFIntervals(
-    tokenPair,
-    tifs,
-    currentPoolPresent,
-    poolCounters,
-    { ...refreshEach(50e3) }
-  );
 
   const onChangeAmount = useCallback(
     (value: number) => {
@@ -114,7 +103,7 @@ export default ({
       const params = formHelpers.prepare4Program(
         timeInForce,
         nextPool,
-        intervalTifs.data,
+        intervalTifs,
         side,
         amount,
         tokenADecimals,
@@ -129,7 +118,7 @@ export default ({
     }
   }, [
     amount,
-    intervalTifs.data,
+    intervalTifs,
     poolCounters,
     side,
     tif,
@@ -153,8 +142,9 @@ export default ({
       {({ handleSubmit, valid }) => (
         <>
           <ExchangePairForm
-            intervalTifs={intervalTifs.data}
+            intervalTifs={intervalTifs}
             lead={lead}
+            minTimeTillExpiration={minTimeTillExpiration}
             onABSwap={onABSwap}
             onASelect={onASelect}
             onBSelect={onBSelect}

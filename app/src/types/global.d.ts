@@ -68,3 +68,5 @@ declare type IndexedTIF = {
   index: TIFIndex;
   left: number;
 };
+
+declare type PoolIndexedTIF = IndexedTIF & { status?: PairPoolStatusStruct };

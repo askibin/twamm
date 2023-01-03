@@ -42,7 +42,9 @@ const populateTokenPairPool = <A, B, C>(
 
 const fetcher =
   (program: Program) =>
-  async ({ params }: SWRParams<typeof swrKey>) => {
+  async ({
+    params,
+  }: SWRParams<typeof swrKey>): Promise<IndexedTIF[] | PoolIndexedTIF[]> => {
     const { tokenPair, tifs, currentPoolPresent, poolCounters } = params;
     const [a, b] = tokenPair;
 
@@ -63,11 +65,13 @@ const fetcher =
       intervals.set(index, nextInterval);
     });
 
-    const indexedTifs = Array.from(intervals.values()).map((interval) => ({
-      tif: interval.tif,
-      index: interval.index,
-      left: interval.tif,
-    }));
+    const indexedTifs: IndexedTIF[] = Array.from(intervals.values()).map(
+      (interval) => ({
+        tif: interval.tif,
+        index: interval.index,
+        left: interval.tif,
+      })
+    );
 
     const poolsToFetch: Array<[TIF, TIFIndex]> = Array.from(intervals.values())
       .filter(({ hasCurrentPool }) => hasCurrentPool)
@@ -96,13 +100,14 @@ const fetcher =
           tif,
           left: expirationTimeToInterval(data?.expirationTime.toNumber(), tif),
           index,
+          status: data?.status,
         }));
 
       availablePools.forEach((p) => {
         availablePoolsRecords.set(p.index, p);
       });
 
-      const allTifs: Array<{ tif: TIF; left: number; index: TIFIndex }> = [];
+      const allTifs: Array<PoolIndexedTIF> = [];
       indexedTifs.forEach((indexedTif) => {
         allTifs.push(
           availablePoolsRecords.has(indexedTif.index)

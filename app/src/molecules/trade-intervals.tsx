@@ -10,22 +10,24 @@ import TimeInterval, { INSTANT_INTERVAL } from "../atoms/time-interval";
 
 export type SelectedTif = [number | undefined, number | undefined];
 
-export interface Props {
-  disabled: boolean;
-  indexedTifs: Voidable<IndexedTIF[]>;
-  onSelect: (arg0: SelectedTif) => void;
-  onSelectInstant: () => void;
-  selectedTif?: SelectedTif;
-}
-
 export default ({
   disabled,
   indexedTifs: tifs,
+  minTimeTillExpiration,
   onSelect,
   onSelectInstant,
   selectedTif,
-}: Props) => {
+}: {
+  disabled: boolean;
+  indexedTifs: Voidable<IndexedTIF[] | PoolIndexedTIF[]>;
+  minTimeTillExpiration: Voidable<number>;
+  onSelect: (arg0: SelectedTif) => void;
+  onSelectInstant: () => void;
+  selectedTif?: SelectedTif;
+}) => {
   const indexedTifs = useMemo(() => Maybe.of(tifs), [tifs]);
+
+  console.log(minTimeTillExpiration); // eslint-disable-line
 
   // @ts-ignore
   const [state, dispatch] = useReducer(intervalsReducer, initialState);

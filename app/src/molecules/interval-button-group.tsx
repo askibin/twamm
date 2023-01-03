@@ -6,17 +6,6 @@ import IntervalButton from "../atoms/interval-button";
 import { formatInterval } from "../utils/index";
 import { instantTif } from "../reducers/trade-intervals.reducer";
 
-export interface Props {
-  disabled: boolean;
-  info?: string;
-  label: string;
-  useInstantOption?: boolean;
-  value?: number;
-  values?: number[];
-  onClick: (arg0: number) => void;
-  onSelectInstant?: (arg0: number) => void;
-}
-
 export const INSTANT_INTERVAL = instantTif;
 
 export default memo(
