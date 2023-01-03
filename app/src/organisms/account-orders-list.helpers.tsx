@@ -87,7 +87,7 @@ export const columns = ({ isMobile }: { isMobile?: boolean }) => [
     resizable: false,
     sortable: true,
     xs: 1,
-    md: 1,
+    md: 2,
   },
   {
     field: "quantity",
@@ -117,7 +117,7 @@ export const columns = ({ isMobile }: { isMobile?: boolean }) => [
     resizable: false,
     sortable: true,
     xs: 2,
-    md: 3,
+    md: 2,
   },
   {
     field: "timeLeft",
