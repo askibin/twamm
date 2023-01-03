@@ -7,11 +7,16 @@ import { TokenPair } from "@twamm/client.js";
 export const populatePairByType = <T = any>(a: T, b: T, type: OrderSide): T[] =>
   type === OrderSide.sell ? [a, b] : [b, a];
 
-export const formatPrice = (a: number) =>
-  new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-  }).format(a);
+export const formatPrice = (a: number, useCurrency = true) => {
+  const opts = useCurrency
+    ? {
+        style: "currency",
+        currency: "USD",
+      }
+    : {};
+
+  return new Intl.NumberFormat("en-US", opts).format(a);
+};
 
 export const resolveExchangePair = (program: Program) => {
   const tokenPair = new TokenPair(program);

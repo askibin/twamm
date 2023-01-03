@@ -96,7 +96,8 @@ export const columns = ({ isMobile }: { isMobile?: boolean }) => [
     sortable: true,
     xs: isMobile ? 3 : 2,
     md: isMobile ? 3 : 2,
-    valueGetter: ({ row }: ValueGetterParams) => formatPrice(row.quantity),
+    valueGetter: ({ row }: ValueGetterParams) =>
+      formatPrice(row.quantity, false),
   },
   {
     field: "filledQuantity",
@@ -106,7 +107,7 @@ export const columns = ({ isMobile }: { isMobile?: boolean }) => [
     xs: isMobile ? 3 : 2,
     md: isMobile ? 3 : 2,
     valueGetter: ({ row }: ValueGetterParams) =>
-      formatPrice(row.filledQuantity),
+      formatPrice(row.filledQuantity, false),
   },
   {
     field: "orderTime",
