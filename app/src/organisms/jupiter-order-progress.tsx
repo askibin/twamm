@@ -44,7 +44,13 @@ function OrderProgress(props: {
         outputMint: pair[1],
         decimals: p.decimals,
       }),
-      Extra.combine2([tokenPair, M.of(props.params)])
+      Extra.combine3([
+        tokenPair,
+        M.of(props.params),
+        M.of(
+          props.params?.amount && props.params.amount > 0 ? true : undefined
+        ),
+      ])
     )
   );
 
@@ -75,12 +81,17 @@ function OrderProgress(props: {
   return (
     <>
       <Button
-        disabled={loading || props.disabled}
+        disabled={loading || props.disabled || routes.error}
         form={props.form}
         loading={loading || props.progress}
         onClick={onClick}
         text="Exchange"
       />
+      {!routes.error ? null : (
+        <Box pt={1}>
+          <Alert severity="error">{routes.error.message}</Alert>
+        </Box>
+      )}
       {!errors ? null : (
         <Box pt={1}>
           <Alert severity="error">
