@@ -1,6 +1,7 @@
 import type { DefaultApi, InlineResponse200Data } from "@jup-ag/api";
 import M, { Extra } from "easy-maybe/lib";
 import useSWR from "swr";
+import { forit } from "a-wait-forit";
 import { useWallet } from "@solana/wallet-adapter-react";
 import useJupiterContext from "../contexts/jupiter-connection-context";
 import useTxContext from "../contexts/transaction-runner-context";
@@ -25,18 +26,26 @@ const convertPercentage = (a: number) => (a === 0 ? 0 : a * 10);
 const fetcher =
   (api: DefaultApi) =>
   async ({ params }: SWRParams<typeof swrKey>) => {
-    const routes = await api.v3QuoteGet({
-      amount: String(params.amount * 10 ** params.decimals),
-      inputMint: params.inputMint,
-      outputMint: params.outputMint,
-      slippageBps: convertPercentage(params.slippage),
-      onlyDirectRoutes: true,
-      userPublicKey: params.userPublicKey,
-    });
+    const routesData = await forit(
+      api.v3QuoteGet({
+        amount: String(params.amount * 10 ** params.decimals),
+        inputMint: params.inputMint,
+        outputMint: params.outputMint,
+        slippageBps: convertPercentage(params.slippage),
+        onlyDirectRoutes: true,
+        userPublicKey: params.userPublicKey,
+      })
+    );
+
+    const [err, routes] = routesData;
+
+    if (err) {
+      throw new Error("Can not load routes for the exchange. Try again later");
+    }
 
     if (!routes.data || routes.data.length === 0)
       throw new Error(
-        "Can not fetch best routes for the order. Try again later"
+        "Can not fetch best route for the order. Try again later"
       );
 
     return { best: routes.data[0] as Route, routes: routes.data as Route[] };
