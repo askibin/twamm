@@ -18,6 +18,9 @@ export default (props: {
 
   const onClick = useCallback(async () => {
     if (!props.params) return;
+
+    // FIXME: remove this 4 prod
+    console.debug("exec", props.params); // eslint-disable-line no-console
     await execute(props.params);
 
     props.onSuccess();

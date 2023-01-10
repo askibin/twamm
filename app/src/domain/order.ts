@@ -82,9 +82,6 @@ export const prepare4Program = (
     tif: finalTif.tif,
   };
 
-  // FIXME: remove this 4 prod
-  console.info(params); // eslint-disable-line
-
   return params;
 };
 
@@ -102,9 +99,6 @@ export const prepare4Jupiter = (
     aMint,
     bMint,
   };
-
-  // FIXME: remove this 4 prod
-  console.info(params); // eslint-disable-line
 
   return params;
 };

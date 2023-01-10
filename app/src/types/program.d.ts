@@ -1,6 +1,8 @@
 declare type OrderTypeStruct = { sell: {} } & { buy: {} };
 
-declare type PairPoolStatusStruct = { expired: {} } & { inactive: {} };
+declare type PairPoolStatusStruct = { expired: {} } & { inactive: {} } & {
+  active: {};
+};
 
 declare type PoolCounter = any;
 
@@ -62,6 +64,8 @@ declare type PairConfigData = PairTokenConfigData;
 declare type PairConfig = Pick<PairConfigData, "mint" | "decimals">;
 
 declare type TokenPairAccountData = {
+  allowDeposits: boolean;
+  allowWithdrawals: boolean;
   configA: PairConfigData;
   configB: PairConfigData;
   currentPoolPresent: boolean[];
@@ -69,6 +73,9 @@ declare type TokenPairAccountData = {
   feeNumerator: BN;
   futurePoolPresent: boolean[];
   inceptionTime: BN;
+  maxSwapPriceDiff: number;
+  maxUnsettledAmount: number;
+  minTimeTillExpiration: number;
   poolCounters: PoolCounter[];
   statsA: PairTokenStatsData;
   statsB: PairTokenStatsData;

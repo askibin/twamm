@@ -6,9 +6,25 @@ import TokenSelect from "../atoms/token-select";
 import TradeIntervals from "./trade-intervals";
 import type { SelectedTif } from "./trade-intervals";
 
-export interface Props {
-  intervalTifs?: { tif: any; index: any; left: any }[];
+export default ({
+  intervalTifs,
+  lead,
+  minTimeTillExpiration,
+  onABSwap,
+  onASelect,
+  onBSelect,
+  onChange,
+  onChangeAmount,
+  onInstantIntervalSelect,
+  onIntervalSelect,
+  onSubmit,
+  slave,
+  submitting,
+  tif,
+}: {
+  intervalTifs: Voidable<IndexedTIF[] | PoolIndexedTIF[]>;
   lead: Voidable<JupToken>;
+  minTimeTillExpiration: Voidable<number>;
   onABSwap: () => void;
   onASelect: () => void;
   onBSelect: () => void;
@@ -20,23 +36,7 @@ export interface Props {
   slave: Voidable<JupToken>;
   submitting: boolean;
   tif?: SelectedTif;
-}
-
-export default ({
-  onChange,
-  onSubmit,
-  lead,
-  slave,
-  intervalTifs,
-  onABSwap,
-  onASelect,
-  onBSelect,
-  onChangeAmount,
-  onInstantIntervalSelect,
-  onIntervalSelect,
-  submitting,
-  tif,
-}: Props) => {
+}) => {
   const [a, b] = [lead, slave];
 
   const handleChangeAmount = (value: number) => {
@@ -93,9 +93,10 @@ export default ({
         <TradeIntervals
           disabled={submitting}
           indexedTifs={intervalTifs}
-          selectedTif={tif}
+          minTimeTillExpiration={minTimeTillExpiration}
           onSelect={handleIntervalSelect}
           onSelectInstant={handleInstantIntervalSelect}
+          selectedTif={tif}
         />
       </Box>
     </form>

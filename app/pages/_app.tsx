@@ -2,25 +2,18 @@ import "../src/why-did-you-render";
 import "@solana/wallet-adapter-react-ui/styles.css";
 import type { AppProps } from "next/app";
 import { CacheProvider, EmotionCache } from "@emotion/react";
-import { LicenseInfo } from "@mui/x-license-pro";
 import { StrictMode } from "react";
 import { SWRConfig } from "swr";
 
 import "../styles/globals.css";
 import createEmotionCache from "../src/emotion-cache";
 import swrConfig from "../src/swr-options";
-import {
-  Provider as BlockchainProvider,
-  endpoints,
-} from "../src/contexts/solana-connection-context";
+import * as SolanaCtx from "../src/contexts/solana-connection-context";
 import { CoingeckoApiProvider } from "../src/contexts/coingecko-api-context";
 import { NotificationProvider } from "../src/contexts/notification-context";
 import { ThemeProvider } from "../src/contexts/theme-context";
 import { Provider as TxProvider } from "../src/contexts/transaction-runner-context";
 import { WalletProvider } from "../src/contexts/wallet-context";
-import { muiLicenseKey } from "../src/env";
-
-LicenseInfo.setLicenseKey(muiLicenseKey);
 
 const clientSideEmotionCache = createEmotionCache();
 
@@ -29,7 +22,7 @@ interface PageProps extends AppProps {
 }
 
 // fail on absent endpoints
-if (!(endpoints.solana.endpoint && endpoints.ankr.endpoint))
+if (!(SolanaCtx.endpoints.solana.endpoint && SolanaCtx.endpoints.ankr.endpoint))
   throw new Error("Absent cluster endpoints");
 
 const App = ({
@@ -42,7 +35,7 @@ const App = ({
       <StrictMode>
         <NotificationProvider>
           <CoingeckoApiProvider>
-            <BlockchainProvider>
+            <SolanaCtx.Provider>
               <WalletProvider>
                 <SWRConfig value={swrConfig}>
                   <TxProvider>
@@ -51,7 +44,7 @@ const App = ({
                   </TxProvider>
                 </SWRConfig>
               </WalletProvider>
-            </BlockchainProvider>
+            </SolanaCtx.Provider>
           </CoingeckoApiProvider>
         </NotificationProvider>
       </StrictMode>

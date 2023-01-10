@@ -87,7 +87,7 @@ export const columns = ({ isMobile }: { isMobile?: boolean }) => [
     resizable: false,
     sortable: true,
     xs: 1,
-    md: 1,
+    md: 2,
   },
   {
     field: "quantity",
@@ -96,7 +96,8 @@ export const columns = ({ isMobile }: { isMobile?: boolean }) => [
     sortable: true,
     xs: isMobile ? 3 : 2,
     md: isMobile ? 3 : 2,
-    valueGetter: ({ row }: ValueGetterParams) => formatPrice(row.quantity),
+    valueGetter: ({ row }: ValueGetterParams) =>
+      formatPrice(row.quantity, false),
   },
   {
     field: "filledQuantity",
@@ -106,7 +107,7 @@ export const columns = ({ isMobile }: { isMobile?: boolean }) => [
     xs: isMobile ? 3 : 2,
     md: isMobile ? 3 : 2,
     valueGetter: ({ row }: ValueGetterParams) =>
-      formatPrice(row.filledQuantity),
+      formatPrice(row.filledQuantity, false),
   },
   {
     field: "orderTime",
@@ -116,7 +117,7 @@ export const columns = ({ isMobile }: { isMobile?: boolean }) => [
     resizable: false,
     sortable: true,
     xs: 2,
-    md: 3,
+    md: 2,
   },
   {
     field: "timeLeft",

@@ -9,17 +9,6 @@ import * as Styled from "./time-interval.styled";
 import Intervals, { Instant } from "../molecules/interval-button-group";
 import { instantTif } from "../reducers/trade-intervals.reducer";
 
-export interface Props {
-  disabled: boolean;
-  info?: string;
-  label: string;
-  useInstantOption?: boolean;
-  value?: number;
-  values?: number[];
-  onSelect: (arg0: number) => void;
-  onSelectInstant?: (arg0: number) => void;
-}
-
 export const INSTANT_INTERVAL = instantTif;
 
 export default ({
@@ -31,7 +20,16 @@ export default ({
   useInstantOption = false,
   value,
   values,
-}: Props) => {
+}: {
+  disabled: boolean;
+  info?: string;
+  label: string;
+  onSelect: (arg0: number) => void;
+  onSelectInstant?: (arg0: number) => void;
+  useInstantOption?: boolean;
+  value?: number;
+  values?: number[];
+}) => {
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
 
   const handlePopoverOpen = (event: MouseEvent<HTMLElement>) => {
