@@ -6,7 +6,27 @@ import IntervalButton from "../atoms/interval-button";
 import { formatInterval } from "../utils/index";
 import { instantTif } from "../reducers/trade-intervals.reducer";
 
-export const INSTANT_INTERVAL = instantTif;
+const INSTANT_INTERVAL = instantTif;
+
+const Instant = (props: {
+  disabled: boolean;
+  onSelect: (e: SyntheticEvent<HTMLElement>) => void;
+  selected: boolean;
+  value: Voidable<number>;
+  values: Voidable<any>;
+}) => {
+  if (!props.values) return null;
+
+  return (
+    <IntervalButton
+      disabled={props.disabled}
+      onClick={props.onSelect}
+      selected={props.selected}
+      text="Instant"
+      value={props.value}
+    />
+  );
+};
 
 export default memo(
   ({
@@ -28,6 +48,20 @@ export default memo(
           .filter((value: number) => value !== 0)
           .map((value: number) => {
             const selected = value === selectedValue;
+            const text = formatInterval(value);
+
+            // FEAT: allow support for other inervals
+            if (value === INSTANT_INTERVAL)
+              return (
+                <Instant
+                  disabled={disabled}
+                  key={`interval-${value}`}
+                  onSelect={onClick}
+                  selected={selectedValue === INSTANT_INTERVAL}
+                  value={value}
+                  values={values}
+                />
+              );
 
             return (
               <IntervalButton
@@ -35,7 +69,7 @@ export default memo(
                 key={`interval-${value}`}
                 onClick={onClick}
                 selected={selected}
-                text={formatInterval(value)}
+                text={text}
                 value={value}
               />
             );
@@ -44,22 +78,3 @@ export default memo(
     );
   }
 );
-
-export const Instant = (props: {
-  onSelect: () => void;
-  value: Voidable<number>;
-  values: Voidable<any>;
-}) => {
-  if (!props.values) return null;
-
-  const selected = props.value === INSTANT_INTERVAL;
-
-  return (
-    <IntervalButton
-      selected={selected}
-      onClick={props.onSelect}
-      text="Instant"
-      value={props.value}
-    />
-  );
-};

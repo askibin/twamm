@@ -2,11 +2,15 @@ import Box from "@mui/material/Box";
 import Maybe from "easy-maybe/lib";
 import { useCallback, useEffect, useMemo, useReducer, useState } from "react";
 
+import type { OptionalIntervals } from "../reducers/trade-intervals.reducer";
 import intervalsReducer, {
   action,
   initialState,
+  instantTif,
 } from "../reducers/trade-intervals.reducer";
-import TimeInterval, { INSTANT_INTERVAL } from "../atoms/time-interval";
+import TimeInterval from "../atoms/time-interval";
+
+const INSTANT_INTERVAL = instantTif;
 
 export type SelectedTif = [number | undefined, number | undefined];
 
@@ -27,20 +31,35 @@ export default ({
 }) => {
   const indexedTifs = useMemo(() => Maybe.of(tifs), [tifs]);
 
-  console.log(minTimeTillExpiration); // eslint-disable-line
-
   // @ts-ignore
   const [state, dispatch] = useReducer(intervalsReducer, initialState);
   const [instant, setInstant] = useState<Voidable<number>>();
 
+  const optionalIntervals: OptionalIntervals = useMemo(
+    () => ({
+      0: [{ tif: instantTif, index: -2, left: instantTif }],
+      // do not use -1 as index to distinct this specific option from `no-delay`
+    }),
+    []
+  );
+
   useEffect(() => {
     Maybe.andMap<IndexedTIF[], void>((data) => {
-      // @ts-ignore
-      dispatch(action.setTifs({ indexedTifs: data, selectedTif }));
+      dispatch(
+        // @ts-ignore
+        action.setTifs({
+          indexedTifs: data,
+          // @ts-ignore
+          minTimeTillExpiration,
+          optionalIntervals,
+          // @ts-ignore
+          selectedTif,
+        })
+      );
     }, indexedTifs);
 
     return () => {};
-  }, [indexedTifs, selectedTif]);
+  }, [indexedTifs, minTimeTillExpiration, optionalIntervals, selectedTif]);
 
   const onScheduleSelect = useCallback(
     (value: number) => {
@@ -88,8 +107,6 @@ export default ({
           info=""
           label="Schedule Order"
           onSelect={onScheduleSelect}
-          onSelectInstant={onScheduleSelect}
-          useInstantOption
           value={instant || pairSelected[1]}
           values={state.scheduleTifs}
         />
