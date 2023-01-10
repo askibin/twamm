@@ -65,15 +65,15 @@ const fetcher =
       intervals.set(index, nextInterval);
     });
 
-    const indexedTifs: IndexedTIF[] = Array.from(intervals.values()).map(
-      (interval) => ({
-        tif: interval.tif,
-        index: interval.index,
-        left: interval.tif,
-      })
-    );
+    const intervalTifs = Array.from(intervals.values());
 
-    const poolsToFetch: Array<[TIF, TIFIndex]> = Array.from(intervals.values())
+    const indexedTifs: IndexedTIF[] = intervalTifs.map((interval) => ({
+      tif: interval.tif,
+      index: interval.index,
+      left: interval.tif,
+    }));
+
+    const poolsToFetch: Array<[TIF, TIFIndex]> = intervalTifs
       .filter(({ hasCurrentPool }) => hasCurrentPool)
       .map(({ tif, index }) => [tif, index]);
 

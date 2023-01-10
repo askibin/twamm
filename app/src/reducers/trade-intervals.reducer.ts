@@ -4,12 +4,18 @@ const SET_SCHEDULE = "SET_SCHEDULE";
 
 const SET_PERIOD = "SET_PERIOD";
 
-const noDelayTif = -1;
+export type OptionalIntervals = {
+  [key: number]: IndexedTIF[];
+};
+
+export const noDelayTif = -1;
 
 export const instantTif = -2;
 
 export interface State {
   indexedTifs: IndexedTIF[];
+  minTimeTillExpiration: number;
+  optional: OptionalIntervals;
   pairSelected: [number | undefined, number];
   periodTifs: TIF[];
   scheduleTifs: TIF[];
@@ -21,6 +27,8 @@ const selectedPair: [number | undefined, number] = [undefined, -1];
 
 export const initialState = {
   indexedTifs: undefined,
+  minTimeTillExpiration: 0,
+  optional: {},
   pairSelected: selectedPair,
   periodTifs: undefined,
   scheduleTifs: undefined,
@@ -32,6 +40,8 @@ export const initialState = {
 
 const setTifs = (payload: {
   indexedTifs: IndexedTIF[];
+  minTimeTillExpiration: number | undefined;
+  optionalIntervals: OptionalIntervals;
   selectedTif: [number | undefined, number | undefined];
 }) => ({
   type: SET_TIFS,
@@ -60,8 +70,12 @@ export default <S extends Partial<State>, A extends Action<any>>(
 
   switch (action.type) {
     case SET_TIFS: {
-      const { indexedTifs, selectedTif }: Parameters<typeof setTifs>[0] =
-        action.payload;
+      const {
+        indexedTifs,
+        minTimeTillExpiration,
+        optionalIntervals,
+        selectedTif,
+      }: Parameters<typeof setTifs>[0] = action.payload;
 
       // TODO: fix closed pools
       // const isIntervalEnded = d.left === 0;
@@ -70,7 +84,10 @@ export default <S extends Partial<State>, A extends Action<any>>(
 
       let periodTifs;
       let scheduledTif;
+
       const tif = selectedTif ? selectedTif[1] : -1;
+      const pairSelected = selectedTif || initialState.pairSelected;
+
       if (tif === noDelayTif) {
         periodTifs = tifsLeft;
       } else {
@@ -78,9 +95,17 @@ export default <S extends Partial<State>, A extends Action<any>>(
         periodTifs = scheduledTif ? [scheduledTif.tif] : [];
       }
 
+      if (pairSelected[1] === noDelayTif) {
+        const optionalTifs = optionalIntervals[0].map((i) => i.tif);
+        periodTifs = optionalTifs.concat(periodTifs);
+      }
+
       return {
         indexedTifs,
-        pairSelected: selectedTif || initialState.pairSelected,
+        minTimeTillExpiration:
+          minTimeTillExpiration ?? state.minTimeTillExpiration,
+        optional: optionalIntervals,
+        pairSelected,
         periodTifs: sortTifs(periodTifs),
         scheduleTifs: sortTifs([noDelayTif].concat(tifsLeft)),
         tifsLeft,
@@ -89,11 +114,19 @@ export default <S extends Partial<State>, A extends Action<any>>(
     }
 
     case SET_SCHEDULE: {
-      const { indexedTifs } = state;
+      const { indexedTifs, minTimeTillExpiration } = state;
       const { tif }: Parameters<typeof setSchedule>[0] = action.payload;
 
       const tifsLeft = sortTifs(
-        indexedTifs?.map((d: IndexedTIF) => d.left) ?? []
+        indexedTifs?.map((d: IndexedTIF) => {
+          // FIXME: remove
+          // eslint-disable-next-line
+          console.log("INT", d.tif * (minTimeTillExpiration ?? 0), d.left, d);
+          if (d.tif * (minTimeTillExpiration ?? 0) >= d.left) return 0;
+          // exclude all the intervals with almost expired life
+
+          return d.left;
+        }) ?? []
       );
 
       let periodTifs;

@@ -6,7 +6,7 @@ import Popover from "@mui/material/Popover";
 import { useCallback, useState } from "react";
 
 import * as Styled from "./time-interval.styled";
-import Intervals, { Instant } from "../molecules/interval-button-group";
+import Intervals from "../molecules/interval-button-group";
 import { instantTif } from "../reducers/trade-intervals.reducer";
 
 export const INSTANT_INTERVAL = instantTif;
@@ -16,8 +16,6 @@ export default ({
   info,
   label,
   onSelect,
-  onSelectInstant,
-  useInstantOption = false,
   value,
   values,
 }: {
@@ -25,8 +23,6 @@ export default ({
   info?: string;
   label: string;
   onSelect: (arg0: number) => void;
-  onSelectInstant?: (arg0: number) => void;
-  useInstantOption?: boolean;
   value?: number;
   values?: number[];
 }) => {
@@ -49,10 +45,6 @@ export default ({
     },
     [onSelect]
   );
-
-  const onInstantIntervalSelect = useCallback(() => {
-    if (onSelectInstant) onSelectInstant(INSTANT_INTERVAL);
-  }, [onSelectInstant]);
 
   const open = Boolean(anchorEl);
 
@@ -88,13 +80,6 @@ export default ({
         )}
       </Box>
       <ButtonGroup variant="outlined" aria-label="outlined button group">
-        {useInstantOption && (
-          <Instant
-            value={value}
-            values={values}
-            onSelect={onInstantIntervalSelect}
-          />
-        )}
         <Intervals
           disabled={disabled}
           onClick={onIntervalSelect}

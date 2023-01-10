@@ -7,7 +7,7 @@ import { Form } from "react-final-form";
 import JupiterOrderProgress from "./jupiter-order-progress";
 import ProgramOrderProgress from "./program-order-progress";
 import ExchangePairForm from "../molecules/exchange-pair-form";
-import { instantTif } from "../reducers/trade-intervals.reducer";
+import { instantTif, noDelayTif } from "../reducers/trade-intervals.reducer";
 import type { ValidationErrors } from "../domain/order";
 import * as formHelpers from "../domain/order";
 
@@ -135,8 +135,6 @@ export default ({
     setSubmitting(false);
   };
 
-  const isScheduled = Boolean(tif && (tif[1] ?? -1) > 0);
-
   return (
     <Form onSubmit={onSubmit} validate={() => errors}>
       {({ handleSubmit, valid }) => (
@@ -158,7 +156,7 @@ export default ({
             tif={tif}
           />
           <Box py={3}>
-            {tif && tif[1] === instantTif ? (
+            {tif && tif[0] === instantTif ? (
               <JupiterOrderProgress
                 disabled={!valid || submitting}
                 form="exchange-form"
@@ -174,7 +172,7 @@ export default ({
                 onSuccess={onSuccess}
                 params={programParams}
                 progress={submitting}
-                scheduled={isScheduled}
+                scheduled={Boolean(tif && (tif[1] ?? noDelayTif) > 0)}
                 validate={() => errors}
               />
             )}

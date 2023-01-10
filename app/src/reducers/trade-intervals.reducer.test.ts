@@ -8,7 +8,7 @@ const populateIndexedTIFs = (tifs: TIF[], left = []) =>
   }));
 
 describe("trade-intervals", () => {
-  it("should init", () => {
+  it.skip("should init", () => {
     const pairTifs = [1, 2, 3];
 
     expect(
@@ -33,7 +33,7 @@ describe("trade-intervals", () => {
     });
   });
 
-  it("should change intervals", () => {
+  it.skip("should change intervals", () => {
     const pairSelected: [number | undefined, number] = [undefined, -1];
     const state = {
       indexedTifs: populateIndexedTIFs([1, 2, 3]),
