@@ -8,6 +8,7 @@ import type { PoolTIF } from "../domain/interval.d";
 import useTradeIntervals, { action as A } from "../hooks/use-trade-intervals";
 import { SpecialIntervals } from "../reducers/trade-intervals.reducer";
 
+// TODO: correct the type. second element might not be undefined
 export type SelectedTif = [number | undefined, number | undefined];
 
 export default ({
@@ -26,6 +27,8 @@ export default ({
   selectedTif?: SelectedTif;
 }) => {
   const indexedTifs = useMemo(() => Maybe.of(tifs), [tifs]);
+
+  console.log("TIF1", selectedTif);
 
   // @ts-ignore
   const [state, dispatch] = useTradeIntervals();
@@ -46,14 +49,13 @@ export default ({
   );
 
   useEffect(() => {
-    Maybe.andMap<PoolTIF[], void>((data) => {
+    Maybe.andMap<PoolTIF[], void>((tifs) => {
       dispatch(
         // @ts-ignore
         A.setTifs({
-          indexedTifs: data,
+          indexedTifs: tifs,
           minTimeTillExpiration,
           optionalIntervals,
-          // @ts-ignore
           selectedTif,
         })
       );

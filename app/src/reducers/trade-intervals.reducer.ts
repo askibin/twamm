@@ -4,7 +4,8 @@ const sortTifs = (tifs: number[]) => tifs.sort((a, b) => a - b);
 
 function byActivePool(tif: PoolTIF) {
   const isIndexedTIF = typeof tif.poolStatus === "undefined";
-  const isActivePool = tif.poolStatus && tif.poolStatus.active;
+  const isActivePool = tif.poolStatus && tif.poolStatus.inactive;
+  console.log("filter");
 
   return isIndexedTIF || isActivePool;
 }

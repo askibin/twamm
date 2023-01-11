@@ -115,7 +115,6 @@ const fetcher =
           allTifs.push(indexedTif);
         }
       });
-      console.info("TIF1", ...allTifs);
       return allTifs;
     }
 
