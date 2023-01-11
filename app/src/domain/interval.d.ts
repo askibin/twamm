@@ -1,6 +1,4 @@
-export declare type TIF = number;
-
-export declare type TIFIndex = number;
+/// <reference types="@twamm/types" />
 
 export declare type IndexedTIF = {
   index: TIFIndex;

@@ -1,5 +1,6 @@
 import Box from "@mui/material/Box";
 import SyncAltIcon from "@mui/icons-material/SyncAlt";
+import type { PoolTIF } from "../domain/interval.d";
 import * as Styled from "./exchange-pair-form.styled";
 import InTokenField from "./in-token-field";
 import TokenSelect from "../atoms/token-select";
@@ -22,7 +23,7 @@ export default ({
   submitting,
   tif,
 }: {
-  intervalTifs: Voidable<IndexedTIF[] | PoolIndexedTIF[]>;
+  intervalTifs: Voidable<PoolTIF[]>;
   lead: Voidable<JupToken>;
   minTimeTillExpiration: Voidable<number>;
   onABSwap: () => void;

@@ -4,12 +4,13 @@ import { OrderSide } from "@twamm/types/lib";
 import { useCallback, useMemo, useState } from "react";
 import { Form } from "react-final-form";
 
+import * as formHelpers from "../domain/order";
+import ExchangePairForm from "../molecules/exchange-pair-form";
 import JupiterOrderProgress from "./jupiter-order-progress";
 import ProgramOrderProgress from "./program-order-progress";
-import ExchangePairForm from "../molecules/exchange-pair-form";
-import { instantTif, noDelayTif } from "../reducers/trade-intervals.reducer";
+import type { PoolTIF } from "../domain/interval.d";
 import type { ValidationErrors } from "../domain/order";
-import * as formHelpers from "../domain/order";
+import { instantTif, noDelayTif } from "../reducers/trade-intervals.reducer";
 
 export default ({
   lead,
@@ -29,7 +30,7 @@ export default ({
 }: {
   lead: Voidable<TokenInfo>;
   slave: Voidable<TokenInfo>;
-  intervalTifs: Voidable<IndexedTIF[]>;
+  intervalTifs: Voidable<PoolTIF[]>;
   minTimeTillExpiration: Voidable<number>;
   onABSwap: () => void;
   onASelect: () => void;

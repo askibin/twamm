@@ -58,15 +58,3 @@ declare type TokenInfo = JupToken & { image: string };
 declare type AddressPair = [string, string];
 
 declare type TokenPair<T> = [T, T];
-
-declare type TIF = number;
-
-declare type TIFIndex = number;
-
-declare type IndexedTIF = {
-  tif: TIF;
-  index: TIFIndex;
-  left: number;
-};
-
-declare type PoolIndexedTIF = IndexedTIF & { status?: PairPoolStatusStruct };

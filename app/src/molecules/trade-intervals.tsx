@@ -2,10 +2,11 @@ import Box from "@mui/material/Box";
 import Maybe from "easy-maybe/lib";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
-import type { OptionalIntervals } from "../reducers/trade-intervals.reducer";
-import { instantTif } from "../reducers/trade-intervals.reducer";
 import TimeInterval from "../atoms/time-interval";
+import type { OptionalIntervals } from "../reducers/trade-intervals.reducer";
+import type { PoolTIF } from "../domain/interval.d";
 import useTradeIntervals, { action as A } from "../hooks/use-trade-intervals";
+import { instantTif } from "../reducers/trade-intervals.reducer";
 
 const INSTANT_INTERVAL = instantTif;
 
@@ -20,7 +21,7 @@ export default ({
   selectedTif,
 }: {
   disabled: boolean;
-  indexedTifs: Voidable<IndexedTIF[] | PoolIndexedTIF[]>;
+  indexedTifs: Voidable<PoolTIF[]>;
   minTimeTillExpiration: Voidable<number>;
   onSelect: (arg0: SelectedTif) => void;
   onSelectInstant: () => void;
@@ -41,7 +42,7 @@ export default ({
   );
 
   useEffect(() => {
-    Maybe.andMap<IndexedTIF[], void>((data) => {
+    Maybe.andMap<PoolTIF[], void>((data) => {
       dispatch(
         // @ts-ignore
         A.setTifs({

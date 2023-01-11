@@ -1,5 +1,6 @@
 import M from "easy-maybe/lib";
 import { OrderSide } from "@twamm/types/lib";
+import type { IndexedTIF } from "./interval.d";
 import { instantTif } from "../reducers/trade-intervals.reducer";
 
 export type ValidationErrors = {
