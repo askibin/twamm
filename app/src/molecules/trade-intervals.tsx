@@ -6,9 +6,7 @@ import TimeInterval from "../atoms/time-interval";
 import type { OptionalIntervals } from "../reducers/trade-intervals.reducer";
 import type { PoolTIF } from "../domain/interval.d";
 import useTradeIntervals, { action as A } from "../hooks/use-trade-intervals";
-import { instantTif } from "../reducers/trade-intervals.reducer";
-
-const INSTANT_INTERVAL = instantTif;
+import { SpecialIntervals } from "../reducers/trade-intervals.reducer";
 
 export type SelectedTif = [number | undefined, number | undefined];
 
@@ -35,8 +33,14 @@ export default ({
 
   const optionalIntervals: OptionalIntervals = useMemo(
     () => ({
-      0: [{ tif: instantTif, index: -2, left: instantTif }],
-      // do not use -1 as index to distinct this specific option from `no-delay`
+      0: [
+        {
+          tif: SpecialIntervals.INSTANT,
+          index: -2,
+          left: SpecialIntervals.INSTANT,
+        },
+      ],
+      // do not use -1 as index to distinct this specific option from `NO_DELAY`
     }),
     []
   );
@@ -47,7 +51,6 @@ export default ({
         // @ts-ignore
         A.setTifs({
           indexedTifs: data,
-          // @ts-ignore
           minTimeTillExpiration,
           optionalIntervals,
           // @ts-ignore
@@ -57,13 +60,19 @@ export default ({
     }, indexedTifs);
 
     return () => {};
-  }, [indexedTifs, minTimeTillExpiration, optionalIntervals, selectedTif]);
+  }, [
+    dispatch,
+    indexedTifs,
+    minTimeTillExpiration,
+    optionalIntervals,
+    selectedTif,
+  ]);
 
   const onScheduleSelect = useCallback(
     (value: number) => {
-      if (value === INSTANT_INTERVAL) {
+      if (value === SpecialIntervals.INSTANT) {
         onSelectInstant();
-        setInstant(INSTANT_INTERVAL);
+        setInstant(SpecialIntervals.INSTANT);
         return;
       }
 

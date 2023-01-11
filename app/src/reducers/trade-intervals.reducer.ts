@@ -1,4 +1,13 @@
+import type { IndexedTIF, PoolTIF } from "../domain/interval.d";
+
 const sortTifs = (tifs: number[]) => tifs.sort((a, b) => a - b);
+
+function byActivePool(tif: PoolTIF) {
+  const isIndexedTIF = typeof tif.poolStatus === "undefined";
+  const isActivePool = tif.poolStatus && tif.poolStatus.active;
+
+  return isIndexedTIF || isActivePool;
+}
 
 export enum SpecialIntervals {
   NO_DELAY = -1,
@@ -46,7 +55,7 @@ enum ActionTypes {
 export const defaultState = initialState;
 
 const setTifs = (payload: {
-  indexedTifs: IndexedTIF[];
+  indexedTifs: PoolTIF[];
   minTimeTillExpiration: number | undefined;
   optionalIntervals: OptionalIntervals;
   selectedTif: [number | undefined, number | undefined];
@@ -83,21 +92,24 @@ export default (state: typeof initialState | State, act: Action) => {
         selectedTif,
       } = act.payload as ActionPayload<typeof setTifs>;
 
+      const availableTifs = indexedTifs.filter(byActivePool);
+      console.info("TIF2", availableTifs);
+
       // TODO: fix closed pools
       // const isIntervalEnded = d.left === 0;
-      const tifsLeft = indexedTifs.map((d: IndexedTIF) => d.left);
-      const tifs = indexedTifs.map((d: IndexedTIF) => d.tif);
+      const tifsLeft = availableTifs.map((d: IndexedTIF) => d.left);
+      const tifs = availableTifs.map((d: IndexedTIF) => d.tif);
 
       let periodTifs;
       let scheduledTif;
 
-      const tif = selectedTif ? selectedTif[1] : -1;
+      const tif = selectedTif ? selectedTif[1] : SpecialIntervals.NO_DELAY;
       const pairSelected = selectedTif || initialState.pairSelected;
 
       if (tif === SpecialIntervals.NO_DELAY) {
         periodTifs = tifsLeft;
       } else {
-        scheduledTif = indexedTifs?.find((d) => d.left === tif);
+        scheduledTif = availableTifs?.find((d) => d.left === tif);
         periodTifs = scheduledTif ? [scheduledTif.tif] : [];
       }
 
@@ -107,7 +119,7 @@ export default (state: typeof initialState | State, act: Action) => {
       }
 
       return {
-        indexedTifs,
+        indexedTifs: availableTifs,
         minTimeTillExpiration:
           minTimeTillExpiration ?? state.minTimeTillExpiration,
         optional: optionalIntervals,
