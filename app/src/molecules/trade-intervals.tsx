@@ -1,14 +1,11 @@
 import Box from "@mui/material/Box";
 import Maybe from "easy-maybe/lib";
-import { useCallback, useEffect, useMemo, useReducer, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 import type { OptionalIntervals } from "../reducers/trade-intervals.reducer";
-import intervalsReducer, {
-  action,
-  initialState,
-  instantTif,
-} from "../reducers/trade-intervals.reducer";
+import { instantTif } from "../reducers/trade-intervals.reducer";
 import TimeInterval from "../atoms/time-interval";
+import useTradeIntervals, { action as A } from "../hooks/use-trade-intervals";
 
 const INSTANT_INTERVAL = instantTif;
 
@@ -32,7 +29,7 @@ export default ({
   const indexedTifs = useMemo(() => Maybe.of(tifs), [tifs]);
 
   // @ts-ignore
-  const [state, dispatch] = useReducer(intervalsReducer, initialState);
+  const [state, dispatch] = useTradeIntervals();
   const [instant, setInstant] = useState<Voidable<number>>();
 
   const optionalIntervals: OptionalIntervals = useMemo(
@@ -47,7 +44,7 @@ export default ({
     Maybe.andMap<IndexedTIF[], void>((data) => {
       dispatch(
         // @ts-ignore
-        action.setTifs({
+        A.setTifs({
           indexedTifs: data,
           // @ts-ignore
           minTimeTillExpiration,
@@ -72,7 +69,7 @@ export default ({
       if (instant) setInstant(undefined);
 
       // @ts-ignore
-      dispatch(action.setSchedule({ tif: value }));
+      dispatch(A.setSchedule({ tif: value }));
 
       Maybe.tap((itifs) => {
         onSelect([
@@ -89,8 +86,8 @@ export default ({
   const onPeriodSelect = useCallback(
     (value: number) => {
       // @ts-ignore
-      // dispatch(action.setPeriod({ tif: tifValue })); // value }));
-      dispatch(action.setPeriod({ tif: value }));
+      // dispatch(A.setPeriod({ tif: tifValue })); // value }));
+      dispatch(A.setPeriod({ tif: value }));
 
       onSelect([value, state.pairSelected[1]]);
     },

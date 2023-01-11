@@ -8,3 +8,5 @@ export default (initialData = undefined) => {
 
   return useReducer(R.default, initialState);
 };
+
+export const { action } = R;

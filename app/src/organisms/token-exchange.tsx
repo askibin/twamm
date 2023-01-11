@@ -1,11 +1,10 @@
 import { useCallback, useEffect } from "react";
 import { OrderSide } from "@twamm/types/lib";
 import M, { Extra } from "easy-maybe/lib";
-import * as R from "../reducers/select-available-tokens.reducer";
 import OrderEditor from "./order-editor";
 import useAddressPairs from "../hooks/use-address-pairs";
 import useJupTokensByMint from "../hooks/use-jup-tokens-by-mint";
-import useTokenExchange from "../hooks/use-token-exchange";
+import useTokenExchange, { action as A } from "../hooks/use-token-exchange";
 
 export type TradeStruct = {
   amount: number;
@@ -26,7 +25,7 @@ export default (props: Props) => {
 
   useEffect(() => {
     M.andMap(([pairs, pair, type]) => {
-      dispatch(R.action.init({ pairs, pair, type }));
+      dispatch(A.init({ pairs, pair, type }));
     }, Extra.combine3([M.of(tokenPairs.data), M.of(tokenPair.data), M.of(props.trade.type)]));
 
     return () => {};
@@ -34,21 +33,21 @@ export default (props: Props) => {
 
   const onSelectA = useCallback(
     (token: TokenInfo) => {
-      dispatch(R.action.selectA({ token }));
+      dispatch(A.selectA({ token }));
     },
     [dispatch]
   );
 
   const onSelectB = useCallback(
     (token: TokenInfo) => {
-      dispatch(R.action.selectB({ token }));
+      dispatch(A.selectB({ token }));
     },
     [dispatch]
   );
 
   const onSwap = useCallback(
     (price: number | undefined) => {
-      dispatch(R.action.swap({ price }));
+      dispatch(A.swap({ price }));
     },
     [dispatch]
   );
