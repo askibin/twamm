@@ -82,6 +82,7 @@ export default ({
 
       // @ts-ignore
       dispatch(A.setSchedule({ tif: value }));
+      console.info("TIF1 setschedule", { tif: value });
 
       Maybe.tap((itifs) => {
         onSelect([
@@ -100,6 +101,8 @@ export default ({
       // @ts-ignore
       // dispatch(A.setPeriod({ tif: tifValue })); // value }));
       dispatch(A.setPeriod({ tif: value }));
+
+      console.log("TIF3", value);
 
       onSelect([value, state.pairSelected[1]]);
     },

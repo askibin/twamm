@@ -2,12 +2,20 @@ import type { IndexedTIF, PoolTIF } from "../domain/interval.d";
 
 const sortTifs = (tifs: number[]) => tifs.sort((a, b) => a - b);
 
-function byActivePool(tif: PoolTIF) {
-  const isIndexedTIF = typeof tif.poolStatus === "undefined";
-  const isActivePool = tif.poolStatus && tif.poolStatus.inactive;
-  console.log("filter");
+function byActivePool(poolTif: PoolTIF) {
+  const isIndexedTIF = typeof poolTif.poolStatus === "undefined";
+  const isActivePool = poolTif.poolStatus && poolTif.poolStatus.active;
 
   return isIndexedTIF || isActivePool;
+}
+
+function byExpirationTime(poolTif: PoolTIF, quota: number = 0) {
+  if (poolTif.tif === poolTif.left) return true;
+  // skip filtering as this interval does not have underlying pool
+
+  const threshold = quota * poolTif.tif;
+
+  return poolTif.left >= threshold;
 }
 
 export enum SpecialIntervals {
@@ -35,6 +43,35 @@ export interface State {
 }
 
 const selectedPair: [number | undefined, number] = [undefined, -1];
+
+const populateTifs = (
+  tif: number,
+  tifsLeft: number[],
+  indexedTifs: IndexedTIF[],
+  optionalIntervals: OptionalIntervals
+) => {
+  let scheduledTif;
+  let periodTifs;
+
+  if (tif === SpecialIntervals.NO_DELAY) {
+    periodTifs = tifsLeft;
+  } else {
+    scheduledTif = indexedTifs.find((t) => t.left === tif);
+    periodTifs = scheduledTif ? [scheduledTif.tif] : [];
+  }
+
+  const pairSelected = scheduledTif
+    ? [scheduledTif.tif, tif]
+    : [undefined, tif];
+
+  if (pairSelected[1] === SpecialIntervals.NO_DELAY) {
+    const optionalTifs = (optionalIntervals[0] ?? []).map((t) => t.tif);
+    periodTifs = optionalTifs.concat(periodTifs);
+    // enhance periods with optional intervals unless tif was selected
+  }
+
+  return { pairSelected, periodTifs };
+};
 
 export const initialState = {
   indexedTifs: undefined,
@@ -93,13 +130,12 @@ export default (state: typeof initialState | State, act: Action) => {
         selectedTif,
       } = act.payload as ActionPayload<typeof setTifs>;
 
-      const availableTifs = indexedTifs.filter(byActivePool);
-      console.info("TIF2", availableTifs);
+      const availableTifs = indexedTifs
+        .filter(byActivePool)
+        .filter((t) => byExpirationTime(t, minTimeTillExpiration));
 
-      // TODO: fix closed pools
-      // const isIntervalEnded = d.left === 0;
-      const tifsLeft = availableTifs.map((d: IndexedTIF) => d.left);
-      const tifs = availableTifs.map((d: IndexedTIF) => d.tif);
+      const tifsLeft = availableTifs.map((d) => d.left);
+      const tifs = availableTifs.map((d) => d.tif);
 
       let periodTifs;
       let scheduledTif;
@@ -131,48 +167,41 @@ export default (state: typeof initialState | State, act: Action) => {
         tifs,
       };
     }
+    // TODO: improve action to support setting the schedule by tif index.
+    // there might be several intervals with the same amount of time left
     case ActionTypes.SET_SCHEDULE: {
-      const { indexedTifs, minTimeTillExpiration } = state;
+      const { indexedTifs = [], optional, tifsLeft = [] } = state;
       const { tif } = act.payload as ActionPayload<typeof setSchedule>;
 
-      const tifsLeft = sortTifs(
-        indexedTifs?.map((d: IndexedTIF) => {
-          // FIXME: remove
-          // eslint-disable-next-line
-          console.log("INT", d.tif * (minTimeTillExpiration ?? 0), d.left, d);
-          if (d.tif * (minTimeTillExpiration ?? 0) >= d.left) return 0;
-          // exclude all the intervals with almost expired life
-
-          return d.left;
-        }) ?? []
+      const { pairSelected, periodTifs } = populateTifs(
+        tif,
+        tifsLeft,
+        indexedTifs,
+        optional
       );
 
-      let periodTifs;
-      let scheduledTif;
-      if (tif === SpecialIntervals.NO_DELAY) {
-        periodTifs = tifsLeft;
-      } else {
-        scheduledTif = indexedTifs?.find((d) => d.left === tif);
-        periodTifs = scheduledTif ? [scheduledTif.tif] : [];
-      }
-
-      const pairSelected = [scheduledTif?.tif, tif];
-
       return {
+        ...state,
         indexedTifs,
         pairSelected,
         periodTifs,
         scheduleTifs: [SpecialIntervals.NO_DELAY].concat(tifsLeft),
-        tifsLeft: state.tifsLeft,
+        tifsLeft,
       };
     }
     case ActionTypes.SET_PERIOD: {
-      const { pairSelected: selected } = state;
+      const {
+        indexedTifs = [],
+        optional,
+        pairSelected: selected,
+        tifsLeft = [],
+      } = state;
+
       const { tif } = act.payload as ActionPayload<typeof setPeriod>;
 
-      const pairSelected = [tif, selected ? selected[1] : undefined];
+      const [, nextTif] = selected;
 
-      return { ...state, pairSelected };
+      return { ...state, pairSelected: [tif, nextTif] };
     }
     default:
       throw new Error(`Unknown action: ${act?.type}`);

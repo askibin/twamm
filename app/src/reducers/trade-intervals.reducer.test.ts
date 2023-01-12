@@ -1,11 +1,26 @@
 import * as R from "./trade-intervals.reducer";
 
-const populateIndexedTIFs = (tifs: TIF[], left = []) =>
+const populateIndexedTIFs = (
+  tifs: TIF[],
+  left: Array<null | number> = [],
+  opts: Array<null | {}> = []
+) =>
   tifs.map((tif, index) => ({
     tif,
     left: left[index] ?? tif,
     index,
+    ...(opts[index] ?? {}),
   }));
+
+const optionalIntervals = {
+  0: [
+    {
+      tif: R.SpecialIntervals.INSTANT,
+      left: R.SpecialIntervals.INSTANT,
+      index: -2,
+    },
+  ],
+};
 
 describe("trade-intervals reducer", () => {
   it("should fail on unsupported action", () => {
@@ -15,64 +30,51 @@ describe("trade-intervals reducer", () => {
   });
 
   it("should `SET_TIFS`", () => {
-    const pairTifs = [300, 900, 1500];
-    const indexedTifs = [
-      { tif: 300, left: 300, index: 0 },
-      { tif: 900, left: 900, index: 1 },
-      { tif: 1500, left: 1500, index: 2 },
-    ];
-
     expect(
       R.default(
         R.defaultState,
         R.action.setTifs({
-          indexedTifs: populateIndexedTIFs(pairTifs),
+          indexedTifs: populateIndexedTIFs([300, 900, 1500]),
           minTimeTillExpiration: undefined,
           optionalIntervals: {},
           selectedTif: [undefined, -1],
         })
       )
-    ).toEqual({
-      indexedTifs,
+    ).toStrictEqual({
+      indexedTifs: [
+        { tif: 300, left: 300, index: 0 },
+        { tif: 900, left: 900, index: 1 },
+        { tif: 1500, left: 1500, index: 2 },
+      ],
       minTimeTillExpiration: 0,
       optional: {},
       pairSelected: [undefined, -1],
       periodTifs: [300, 900, 1500],
       scheduleTifs: [-1, 300, 900, 1500],
-      tifs: pairTifs,
+      tifs: [300, 900, 1500],
       tifsLeft: [300, 900, 1500],
     });
+  });
 
+  it("should `SET_TIFS` with additional options", () => {
     expect(
       R.default(
         R.defaultState,
         R.action.setTifs({
-          indexedTifs: populateIndexedTIFs(pairTifs),
+          indexedTifs: populateIndexedTIFs([300, 900, 1500]),
           minTimeTillExpiration: 0.3,
-          optionalIntervals: {
-            0: [
-              {
-                tif: R.SpecialIntervals.INSTANT,
-                left: R.SpecialIntervals.INSTANT,
-                index: -2,
-              },
-            ],
-          },
+          optionalIntervals,
           selectedTif: [undefined, -1],
         })
       )
-    ).toEqual({
-      indexedTifs,
+    ).toStrictEqual({
+      indexedTifs: [
+        { tif: 300, left: 300, index: 0 },
+        { tif: 900, left: 900, index: 1 },
+        { tif: 1500, left: 1500, index: 2 },
+      ],
       minTimeTillExpiration: 0.3,
-      optional: {
-        0: [
-          {
-            tif: R.SpecialIntervals.INSTANT,
-            left: R.SpecialIntervals.INSTANT,
-            index: -2,
-          },
-        ],
-      },
+      optional: optionalIntervals,
       pairSelected: [undefined, -1],
       periodTifs: [R.SpecialIntervals.INSTANT, 300, 900, 1500],
       scheduleTifs: [-1, 300, 900, 1500],
@@ -81,24 +83,109 @@ describe("trade-intervals reducer", () => {
     });
   });
 
-  it.skip("should change intervals", () => {
-    const pairSelected: [number | undefined, number] = [undefined, -1];
-    const state = {
-      indexedTifs: populateIndexedTIFs([1, 2, 3]),
-      pairSelected,
-      scheduleTifs: [-1, 2, 3, 4],
-      periodTifs: [1, 2, 3],
-      tifs: [1, 2, 3],
-      tifsLeft: [1, 2, 3],
-    };
+  // TODO: recover case
+  console.log("^");
+  it.skip("should `SET_TIFS` and filter out tifs", () => {
+    expect(
+      R.default(
+        R.defaultState,
+        R.action.setTifs({
+          indexedTifs: populateIndexedTIFs(
+            [300, 900, 1500, 1800, 2100, 2400, 2700],
+            [null, null, null, 539, null, null, null],
+            [
+              null,
+              null,
+              null,
+              null,
+              { poolStatus: { inactive: {} } },
+              { poolStatus: { active: {} } },
+              { poolStatus: { expired: {} } },
+            ]
+          ),
+          minTimeTillExpiration: 0.3,
+          optionalIntervals,
+          selectedTif: [undefined, -1],
+        })
+      )
+    ).toStrictEqual({
+      indexedTifs: [
+        { tif: 300, left: 300, index: 0 },
+        { tif: 900, left: 900, index: 1 },
+        { tif: 1500, left: 1500, index: 2 },
+        { tif: 2400, left: 2400, index: 5, poolStatus: { active: {} } },
+      ],
+      minTimeTillExpiration: 0.3,
+      optional: optionalIntervals,
+      pairSelected: [undefined, -1],
+      periodTifs: [R.SpecialIntervals.INSTANT, 300, 900, 1500, 2400],
+      scheduleTifs: [-1, 300, 900, 1500, 2400],
+      tifs: [300, 900, 1500, 2400],
+      tifsLeft: [300, 900, 1500, 2400],
+    });
+  });
 
-    expect(R.default(state, R.action.setPeriod({ tif: 2 }))).toEqual({
-      indexedTifs: populateIndexedTIFs([1, 2, 3]),
-      pairSelected: [2, -1],
-      periodTifs: [1, 2, 3],
-      scheduleTifs: [-1, 2, 3, 4],
-      tifs: [1, 2, 3],
-      tifsLeft: [1, 2, 3],
+  it("should `SET_SCHEDULE`", () => {
+    const state1 = R.default(
+      R.defaultState,
+      R.action.setTifs({
+        indexedTifs: populateIndexedTIFs([300, 900, 1500], [250, null, null]),
+        minTimeTillExpiration: 0,
+        optionalIntervals,
+        pairSelected: [undefined, -1],
+      })
+    );
+    expect(R.default(state1, R.action.setSchedule({ tif: 250 }))).toEqual({
+      indexedTifs: populateIndexedTIFs([300, 900, 1500], [250, null, null]),
+      minTimeTillExpiration: 0,
+      optional: optionalIntervals,
+      pairSelected: [300, 250],
+      periodTifs: [300],
+      scheduleTifs: [-1, 250, 900, 1500],
+      tifs: [300, 900, 1500],
+      tifsLeft: [250, 900, 1500],
+    });
+
+    const state2 = R.default(
+      R.defaultState,
+      R.action.setTifs({
+        indexedTifs: populateIndexedTIFs([300, 900, 1500], [250, null, null]),
+        minTimeTillExpiration: 0,
+        optionalIntervals,
+        pairSelected: [300, 250],
+      })
+    );
+    expect(R.default(state2, R.action.setSchedule({ tif: -1 }))).toEqual({
+      indexedTifs: populateIndexedTIFs([300, 900, 1500], [250, null, null]),
+      minTimeTillExpiration: 0,
+      optional: optionalIntervals,
+      pairSelected: [undefined, -1],
+      periodTifs: [R.SpecialIntervals.INSTANT, 250, 900, 1500],
+      scheduleTifs: [-1, 250, 900, 1500],
+      tifs: [300, 900, 1500],
+      tifsLeft: [250, 900, 1500],
+    });
+  });
+
+  it("should `SET_PERIOD`", () => {
+    const state = R.default(
+      R.defaultState,
+      R.action.setTifs({
+        indexedTifs: populateIndexedTIFs([300, 900, 1500], [250, null, null]),
+        minTimeTillExpiration: 0,
+        optionalIntervals,
+        pairSelected: [undefined, -1],
+      })
+    );
+    expect(R.default(state, R.action.setPeriod({ tif: 250 }))).toEqual({
+      indexedTifs: populateIndexedTIFs([300, 900, 1500], [250, null, null]),
+      minTimeTillExpiration: 0,
+      optional: optionalIntervals,
+      pairSelected: [250, -1],
+      periodTifs: [R.SpecialIntervals.INSTANT, 250, 900, 1500],
+      scheduleTifs: [R.SpecialIntervals.NO_DELAY, 250, 900, 1500],
+      tifs: [300, 900, 1500],
+      tifsLeft: [250, 900, 1500],
     });
   });
 });
