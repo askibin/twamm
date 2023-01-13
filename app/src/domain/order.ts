@@ -1,7 +1,7 @@
 import M from "easy-maybe/lib";
 import { OrderSide } from "@twamm/types/lib";
 import type { IndexedTIF, SelectedTIF } from "./interval.d";
-import { SpecialIntervals } from "../reducers/trade-intervals.reducer.d";
+import { SpecialIntervals } from "./interval.d";
 
 export type ValidationErrors = {
   a?: Error;

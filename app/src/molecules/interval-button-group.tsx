@@ -4,7 +4,7 @@ import { memo } from "react";
 import * as Styled from "./interval-button-group.styled";
 import IntervalButton from "../atoms/interval-button";
 import { formatInterval } from "../utils/index";
-import { SpecialIntervals } from "../reducers/trade-intervals.reducer.d";
+import { SpecialIntervals } from "../domain/interval.d";
 
 const Instant = (props: {
   disabled: boolean;

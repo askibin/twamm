@@ -1,10 +1,17 @@
-import type { IndexedTIF, PoolTIF, SelectedTIF } from "../domain/interval.d";
-import type { OptionalIntervals } from "./trade-intervals.reducer.d";
+import type {
+  IndexedTIF,
+  OptionalIntervals,
+  PoolTIF,
+  SelectedTIF,
+} from "../domain/interval.d";
 import { populateTifs, sortTifs } from "./trade-intervals.reducer.util";
-import { SpecialIntervals } from "./trade-intervals.reducer.d";
+import { SpecialIntervals } from "../domain/interval.d";
 
+// TODO: resolve union type issue
 function byActivePool(poolTif: PoolTIF) {
+  // @ts-expect-error
   const isIndexedTIF = typeof poolTif.poolStatus === "undefined";
+  // @ts-expect-error
   const isActivePool = poolTif.poolStatus && poolTif.poolStatus.active;
 
   return isIndexedTIF || isActivePool;
@@ -19,7 +26,7 @@ function byExpirationTime(poolTif: PoolTIF, quota: number = 0) {
   return poolTif.left >= threshold;
 }
 
-export interface State {
+interface Data {
   indexedTifs: IndexedTIF[];
   minTimeTillExpiration: number;
   optional: {} | OptionalIntervals;
@@ -28,6 +35,10 @@ export interface State {
   scheduleTifs: TIF[];
   tifsLeft: TIF[];
   tifs: TIF[];
+}
+
+export interface State<D = undefined> {
+  data: D;
 }
 
 export const initialState = {
@@ -47,7 +58,9 @@ enum ActionTypes {
   SET_PERIOD = "SET_PERIOD",
 }
 
-export const defaultState = initialState;
+export const defaultState: State = {
+  data: undefined,
+}; // initialState;
 
 const setTifs = (payload: {
   indexedTifs: PoolTIF[];
@@ -76,7 +89,10 @@ type Action =
 
 export const action = { setTifs, setSchedule, setPeriod };
 
-export default (state: typeof initialState | State, act: Action) => {
+export default (
+  state: State | State<Data>,
+  act: Action
+): State | State<Data> => {
   switch (act?.type) {
     case ActionTypes.SET_TIFS: {
       const {
@@ -112,10 +128,9 @@ export default (state: typeof initialState | State, act: Action) => {
         periodTifs = optionalTifs.concat(periodTifs);
       }
 
-      return {
+      const next = {
         indexedTifs: availableTifs,
-        minTimeTillExpiration:
-          minTimeTillExpiration ?? state.minTimeTillExpiration,
+        minTimeTillExpiration: minTimeTillExpiration ?? 0,
         optional: optionalIntervals,
         pairSelected,
         periodTifs: sortTifs(periodTifs),
@@ -123,11 +138,15 @@ export default (state: typeof initialState | State, act: Action) => {
         tifsLeft,
         tifs,
       };
+
+      return { data: next };
     }
     // TODO: improve action to support setting the schedule by tif index.
     // there might be several intervals with the same amount of time left
     case ActionTypes.SET_SCHEDULE: {
-      const { indexedTifs = [], optional, tifsLeft = [] } = state;
+      if (!state.data) return state;
+
+      const { indexedTifs = [], optional, tifsLeft = [] } = state.data;
       const { tif } = act.payload as ActionPayload<typeof setSchedule>;
 
       const { pairSelected, periodTifs } = populateTifs(
@@ -137,23 +156,30 @@ export default (state: typeof initialState | State, act: Action) => {
         optional
       );
 
-      return {
-        ...state,
+      const next = {
+        ...state.data,
         indexedTifs,
         pairSelected,
         periodTifs,
         scheduleTifs: [SpecialIntervals.NO_DELAY].concat(tifsLeft),
         tifsLeft,
       };
+
+      return { data: next };
     }
     case ActionTypes.SET_PERIOD: {
-      const { pairSelected: selected } = state;
+      if (!state.data) return state;
+
+      const { pairSelected: selected } = state.data;
 
       const { tif } = act.payload as ActionPayload<typeof setPeriod>;
 
       const [, nextTif] = selected;
+      const pairSelected: SelectedTIF = [tif, nextTif];
 
-      return { ...state, pairSelected: [tif, nextTif] };
+      const next = { ...state.data, pairSelected };
+
+      return { data: next };
     }
     default:
       throw new Error(`Unknown action: ${act?.type}`);

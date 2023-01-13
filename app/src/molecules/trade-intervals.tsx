@@ -3,10 +3,10 @@ import M from "easy-maybe/lib";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import TimeInterval from "../atoms/time-interval";
-import type { OptionalIntervals } from "../reducers/trade-intervals.reducer.d";
 import type { PoolTIF, SelectedTIF } from "../domain/interval.d";
 import useTradeIntervals, { action as A } from "../hooks/use-trade-intervals";
-import { SpecialIntervals } from "../reducers/trade-intervals.reducer.d";
+import { optionalIntervals } from "../domain/interval";
+import { SpecialIntervals } from "../domain/interval.d";
 
 export default ({
   disabled,
@@ -25,45 +25,23 @@ export default ({
 }) => {
   const indexedTifs = useMemo(() => tifs, [tifs]);
 
-  // @ts-ignore
   const [state, dispatch] = useTradeIntervals();
   const [instant, setInstant] = useState<Voidable<number>>();
-
-  const optionalIntervals: OptionalIntervals = useMemo(
-    () => ({
-      0: [
-        {
-          tif: SpecialIntervals.INSTANT,
-          index: -2,
-          left: SpecialIntervals.INSTANT,
-        },
-      ],
-      // do not use -1 as index to distinct this specific option from `NO_DELAY`
-    }),
-    []
-  );
 
   useEffect(() => {
     M.andMap<PoolTIF[], void>((t) => {
       dispatch(
-        // @ts-ignore
         A.setTifs({
           indexedTifs: t,
           minTimeTillExpiration,
           optionalIntervals,
-          selectedTif,
+          selectedTif: selectedTif ?? [undefined, SpecialIntervals.NO_DELAY],
         })
       );
     }, M.of(indexedTifs));
 
     return () => {};
-  }, [
-    dispatch,
-    indexedTifs,
-    minTimeTillExpiration,
-    optionalIntervals,
-    selectedTif,
-  ]);
+  }, [dispatch, indexedTifs, minTimeTillExpiration, selectedTif]);
 
   const onScheduleSelect = useCallback(
     (value: number) => {
@@ -75,9 +53,7 @@ export default ({
 
       if (instant) setInstant(undefined);
 
-      // @ts-ignore
       dispatch(A.setSchedule({ tif: value }));
-      console.info("TIF1 setschedule", { tif: value });
 
       M.tap((itifs) => {
         onSelect([
@@ -93,16 +69,15 @@ export default ({
 
   const onPeriodSelect = useCallback(
     (value: number) => {
-      // @ts-ignore
-      // dispatch(A.setPeriod({ tif: tifValue })); // value }));
+      if (!state.data?.pairSelected) return;
       dispatch(A.setPeriod({ tif: value }));
 
-      onSelect([value, state.pairSelected[1]]);
+      onSelect([value, state.data.pairSelected[1]]);
     },
-    [dispatch, onSelect, state.pairSelected]
+    [dispatch, onSelect, state.data]
   );
 
-  const { pairSelected = [] } = state;
+  const { pairSelected = [] } = state.data ?? {};
 
   return (
     <>
@@ -113,7 +88,7 @@ export default ({
           label="Schedule Order"
           onSelect={onScheduleSelect}
           value={instant || pairSelected[1]}
-          values={state.scheduleTifs}
+          values={state.data?.scheduleTifs}
         />
       </Box>
       <Box pb={2}>
@@ -123,7 +98,7 @@ export default ({
           label="Execution Period"
           onSelect={onPeriodSelect}
           value={pairSelected[0]}
-          values={state.periodTifs}
+          values={state.data?.periodTifs}
         />
       </Box>
     </>

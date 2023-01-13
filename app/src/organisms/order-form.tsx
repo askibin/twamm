@@ -8,7 +8,7 @@ import * as formHelpers from "../domain/order";
 import ExchangePairForm from "../molecules/exchange-pair-form";
 import JupiterOrderProgress from "./jupiter-order-progress";
 import ProgramOrderProgress from "./program-order-progress";
-import { SpecialIntervals } from "../reducers/trade-intervals.reducer.d";
+import { SpecialIntervals } from "../domain/interval.d";
 import type { PoolTIF, SelectedTIF } from "../domain/interval.d";
 import type { ValidationErrors } from "../domain/order";
 

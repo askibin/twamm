@@ -1,6 +1,9 @@
-import type { OptionalIntervals } from "./trade-intervals.reducer.d";
-import type { IndexedTIF } from "../domain/interval.d";
-import { SpecialIntervals } from "./trade-intervals.reducer.d";
+import type {
+  IndexedTIF,
+  OptionalIntervals,
+  SelectedTIF,
+} from "../domain/interval.d";
+import { SpecialIntervals } from "../domain/interval.d";
 
 export const sortTifs = (tifs: number[]) => tifs.sort((a, b) => a - b);
 
@@ -20,7 +23,7 @@ export const populateTifs = (
     periodTifs = scheduledTif ? [scheduledTif.tif] : [];
   }
 
-  const pairSelected = scheduledTif
+  const pairSelected: SelectedTIF = scheduledTif
     ? [scheduledTif.tif, tif]
     : [undefined, tif];
 
