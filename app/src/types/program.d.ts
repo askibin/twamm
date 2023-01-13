@@ -37,8 +37,6 @@ declare type AccountBalance = {
   };
 };
 
-declare type SelectedTif = [number | undefined, number | undefined];
-
 // TODO: remove type
 declare type PairTokenStatsData = {
   orderVolumeUsd: number;

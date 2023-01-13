@@ -1,7 +1,7 @@
 import M from "easy-maybe/lib";
 import { OrderSide } from "@twamm/types/lib";
-import type { IndexedTIF } from "./interval.d";
-import { instantTif } from "../reducers/trade-intervals.reducer";
+import type { IndexedTIF, SelectedTIF } from "./interval.d";
+import { SpecialIntervals } from "../reducers/trade-intervals.reducer.d";
 
 export type ValidationErrors = {
   a?: Error;
@@ -12,7 +12,7 @@ export type ValidationErrors = {
 
 export const validate = (
   amount: number,
-  tif: SelectedTif | undefined,
+  tif: SelectedTIF | undefined,
   tokenA: string | undefined,
   tokenB: string | undefined
 ) => {
@@ -27,7 +27,7 @@ export const validate = (
   if (tif) {
     const [timeInForce, modes] = tif;
 
-    if (!timeInForce && modes !== instantTif) {
+    if (!timeInForce && modes !== SpecialIntervals.INSTANT) {
       result.tif = new Error("Should choose the interval");
     }
   } else if (!tif) {

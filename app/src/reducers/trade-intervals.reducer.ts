@@ -1,6 +1,7 @@
-import type { IndexedTIF, PoolTIF } from "../domain/interval.d";
-
-const sortTifs = (tifs: number[]) => tifs.sort((a, b) => a - b);
+import type { IndexedTIF, PoolTIF, SelectedTIF } from "../domain/interval.d";
+import type { OptionalIntervals } from "./trade-intervals.reducer.d";
+import { populateTifs, sortTifs } from "./trade-intervals.reducer.util";
+import { SpecialIntervals } from "./trade-intervals.reducer.d";
 
 function byActivePool(poolTif: PoolTIF) {
   const isIndexedTIF = typeof poolTif.poolStatus === "undefined";
@@ -18,66 +19,22 @@ function byExpirationTime(poolTif: PoolTIF, quota: number = 0) {
   return poolTif.left >= threshold;
 }
 
-export enum SpecialIntervals {
-  NO_DELAY = -1,
-  INSTANT = -2,
-}
-
-export type OptionalIntervals = {
-  [key: number]: IndexedTIF[];
-};
-
-export const noDelayTif = SpecialIntervals.NO_DELAY;
-
-export const instantTif = SpecialIntervals.INSTANT;
-
 export interface State {
   indexedTifs: IndexedTIF[];
   minTimeTillExpiration: number;
   optional: {} | OptionalIntervals;
-  pairSelected: [number | undefined, number];
+  pairSelected: SelectedTIF;
   periodTifs: TIF[];
   scheduleTifs: TIF[];
   tifsLeft: TIF[];
   tifs: TIF[];
 }
 
-const selectedPair: [number | undefined, number] = [undefined, -1];
-
-const populateTifs = (
-  tif: number,
-  tifsLeft: number[],
-  indexedTifs: IndexedTIF[],
-  optionalIntervals: OptionalIntervals
-) => {
-  let scheduledTif;
-  let periodTifs;
-
-  if (tif === SpecialIntervals.NO_DELAY) {
-    periodTifs = tifsLeft;
-  } else {
-    scheduledTif = indexedTifs.find((t) => t.left === tif);
-    periodTifs = scheduledTif ? [scheduledTif.tif] : [];
-  }
-
-  const pairSelected = scheduledTif
-    ? [scheduledTif.tif, tif]
-    : [undefined, tif];
-
-  if (pairSelected[1] === SpecialIntervals.NO_DELAY) {
-    const optionalTifs = (optionalIntervals[0] ?? []).map((t) => t.tif);
-    periodTifs = optionalTifs.concat(periodTifs);
-    // enhance periods with optional intervals unless tif was selected
-  }
-
-  return { pairSelected, periodTifs };
-};
-
 export const initialState = {
   indexedTifs: undefined,
   minTimeTillExpiration: 0,
   optional: {},
-  pairSelected: selectedPair,
+  pairSelected: [undefined, -1],
   periodTifs: undefined,
   scheduleTifs: undefined,
   tifsLeft: undefined,
@@ -120,7 +77,6 @@ type Action =
 export const action = { setTifs, setSchedule, setPeriod };
 
 export default (state: typeof initialState | State, act: Action) => {
-  console.log(state, act);
   switch (act?.type) {
     case ActionTypes.SET_TIFS: {
       const {
@@ -190,12 +146,7 @@ export default (state: typeof initialState | State, act: Action) => {
       };
     }
     case ActionTypes.SET_PERIOD: {
-      const {
-        indexedTifs = [],
-        optional,
-        pairSelected: selected,
-        tifsLeft = [],
-      } = state;
+      const { pairSelected: selected } = state;
 
       const { tif } = act.payload as ActionPayload<typeof setPeriod>;
 

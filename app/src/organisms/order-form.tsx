@@ -8,9 +8,9 @@ import * as formHelpers from "../domain/order";
 import ExchangePairForm from "../molecules/exchange-pair-form";
 import JupiterOrderProgress from "./jupiter-order-progress";
 import ProgramOrderProgress from "./program-order-progress";
-import type { PoolTIF } from "../domain/interval.d";
+import { SpecialIntervals } from "../reducers/trade-intervals.reducer.d";
+import type { PoolTIF, SelectedTIF } from "../domain/interval.d";
 import type { ValidationErrors } from "../domain/order";
-import { instantTif, noDelayTif } from "../reducers/trade-intervals.reducer";
 
 export default ({
   lead,
@@ -45,7 +45,7 @@ export default ({
 }) => {
   const [amount, setAmount] = useState<number>(0);
   const [submitting, setSubmitting] = useState<boolean>(false);
-  const [tif, setTif] = useState<SelectedTif>();
+  const [tif, setTif] = useState<SelectedTIF>();
 
   const tifs = M.withDefault(undefined, M.of(poolTifs));
   const poolCounters = M.withDefault(undefined, M.of(counters));
@@ -59,12 +59,12 @@ export default ({
     [setAmount]
   );
 
-  const onIntervalSelect = useCallback((selectedTif: SelectedTif) => {
+  const onIntervalSelect = useCallback((selectedTif: SelectedTIF) => {
     setTif(selectedTif);
   }, []);
 
   const onInstantIntervalSelect = useCallback(() => {
-    setTif([undefined, instantTif]);
+    setTif([undefined, SpecialIntervals.INSTANT]);
   }, []);
 
   const errors = useMemo<Voidable<ValidationErrors>>(
@@ -157,7 +157,7 @@ export default ({
             tif={tif}
           />
           <Box py={3}>
-            {tif && tif[0] === instantTif ? (
+            {tif && tif[0] === SpecialIntervals.INSTANT ? (
               <JupiterOrderProgress
                 disabled={!valid || submitting}
                 form="exchange-form"
@@ -173,7 +173,7 @@ export default ({
                 onSuccess={onSuccess}
                 params={programParams}
                 progress={submitting}
-                scheduled={Boolean(tif && (tif[1] ?? noDelayTif) > 0)}
+                scheduled={Boolean(tif && tif[1] > 0)}
                 validate={() => errors}
               />
             )}

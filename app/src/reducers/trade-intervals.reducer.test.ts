@@ -1,3 +1,4 @@
+import { SpecialIntervals } from "./trade-intervals.reducer.d";
 import * as R from "./trade-intervals.reducer";
 
 const populateIndexedTIFs = (
@@ -15,8 +16,8 @@ const populateIndexedTIFs = (
 const optionalIntervals = {
   0: [
     {
-      tif: R.SpecialIntervals.INSTANT,
-      left: R.SpecialIntervals.INSTANT,
+      tif: SpecialIntervals.INSTANT,
+      left: SpecialIntervals.INSTANT,
       index: -2,
     },
   ],
@@ -76,16 +77,14 @@ describe("trade-intervals reducer", () => {
       minTimeTillExpiration: 0.3,
       optional: optionalIntervals,
       pairSelected: [undefined, -1],
-      periodTifs: [R.SpecialIntervals.INSTANT, 300, 900, 1500],
+      periodTifs: [SpecialIntervals.INSTANT, 300, 900, 1500],
       scheduleTifs: [-1, 300, 900, 1500],
       tifs: [300, 900, 1500],
       tifsLeft: [300, 900, 1500],
     });
   });
 
-  // TODO: recover case
-  console.log("^");
-  it.skip("should `SET_TIFS` and filter out tifs", () => {
+  it("should `SET_TIFS` and filter out tifs", () => {
     expect(
       R.default(
         R.defaultState,
@@ -118,7 +117,7 @@ describe("trade-intervals reducer", () => {
       minTimeTillExpiration: 0.3,
       optional: optionalIntervals,
       pairSelected: [undefined, -1],
-      periodTifs: [R.SpecialIntervals.INSTANT, 300, 900, 1500, 2400],
+      periodTifs: [SpecialIntervals.INSTANT, 300, 900, 1500, 2400],
       scheduleTifs: [-1, 300, 900, 1500, 2400],
       tifs: [300, 900, 1500, 2400],
       tifsLeft: [300, 900, 1500, 2400],
@@ -160,7 +159,7 @@ describe("trade-intervals reducer", () => {
       minTimeTillExpiration: 0,
       optional: optionalIntervals,
       pairSelected: [undefined, -1],
-      periodTifs: [R.SpecialIntervals.INSTANT, 250, 900, 1500],
+      periodTifs: [SpecialIntervals.INSTANT, 250, 900, 1500],
       scheduleTifs: [-1, 250, 900, 1500],
       tifs: [300, 900, 1500],
       tifsLeft: [250, 900, 1500],
@@ -182,8 +181,8 @@ describe("trade-intervals reducer", () => {
       minTimeTillExpiration: 0,
       optional: optionalIntervals,
       pairSelected: [250, -1],
-      periodTifs: [R.SpecialIntervals.INSTANT, 250, 900, 1500],
-      scheduleTifs: [R.SpecialIntervals.NO_DELAY, 250, 900, 1500],
+      periodTifs: [SpecialIntervals.INSTANT, 250, 900, 1500],
+      scheduleTifs: [SpecialIntervals.NO_DELAY, 250, 900, 1500],
       tifs: [300, 900, 1500],
       tifsLeft: [250, 900, 1500],
     });
