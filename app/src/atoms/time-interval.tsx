@@ -7,9 +7,6 @@ import { useCallback, useState } from "react";
 
 import * as Styled from "./time-interval.styled";
 import Intervals from "../molecules/interval-button-group";
-import { instantTif } from "../reducers/trade-intervals.reducer";
-
-export const INSTANT_INTERVAL = instantTif;
 
 export default ({
   disabled,

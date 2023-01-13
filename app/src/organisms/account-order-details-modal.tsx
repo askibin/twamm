@@ -15,14 +15,6 @@ import usePoolDetails from "../hooks/use-pool-details";
 import useTokenPairByPool from "../hooks/use-token-pair-by-pool";
 import useTokensByMint from "../hooks/use-tokens-by-mint";
 
-export interface Props {
-  poolAddress: PublicKey;
-  onCancel: (arg0: CancelOrderData) => void;
-  order: OrderBalanceData;
-  side: OrderTypeStruct;
-  supply: BN;
-}
-
 const Content = ({
   details,
   onCancelOrder,
@@ -45,7 +37,19 @@ const Content = ({
   </Stack>
 );
 
-export default ({ order, poolAddress, onCancel, side, supply }: Props) => {
+export default ({
+  order,
+  poolAddress,
+  onCancel,
+  side,
+  supply,
+}: {
+  poolAddress: PublicKey;
+  onCancel: (arg0: CancelOrderData) => void;
+  order: OrderBalanceData;
+  side: OrderTypeStruct;
+  supply: BN;
+}) => {
   const details = usePoolDetails(poolAddress, order);
   const data = Maybe.of(details.data);
 

@@ -1,5 +1,5 @@
 import { useReducer } from "react";
-import * as R from "../reducers/select-available-tokens.reducer";
+import * as R from "../reducers/trade-intervals.reducer";
 
 export default (initialData = undefined) => {
   const initialState = {

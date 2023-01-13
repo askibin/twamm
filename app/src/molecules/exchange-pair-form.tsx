@@ -1,10 +1,10 @@
 import Box from "@mui/material/Box";
 import SyncAltIcon from "@mui/icons-material/SyncAlt";
+import type { PoolTIF, SelectedTIF } from "../domain/interval.d";
 import * as Styled from "./exchange-pair-form.styled";
 import InTokenField from "./in-token-field";
 import TokenSelect from "../atoms/token-select";
 import TradeIntervals from "./trade-intervals";
-import type { SelectedTif } from "./trade-intervals";
 
 export default ({
   intervalTifs,
@@ -22,7 +22,7 @@ export default ({
   submitting,
   tif,
 }: {
-  intervalTifs: Voidable<IndexedTIF[] | PoolIndexedTIF[]>;
+  intervalTifs: Voidable<PoolTIF[]>;
   lead: Voidable<JupToken>;
   minTimeTillExpiration: Voidable<number>;
   onABSwap: () => void;
@@ -31,11 +31,11 @@ export default ({
   onChange: () => void;
   onChangeAmount: (arg0: number) => void;
   onInstantIntervalSelect: () => void;
-  onIntervalSelect: (tif: SelectedTif) => void;
+  onIntervalSelect: (tif: SelectedTIF) => void;
   onSubmit: () => void;
   slave: Voidable<JupToken>;
   submitting: boolean;
-  tif?: SelectedTif;
+  tif?: SelectedTIF;
 }) => {
   const [a, b] = [lead, slave];
 
@@ -55,7 +55,7 @@ export default ({
     onBSelect();
     onChange();
   };
-  const handleIntervalSelect = (value: SelectedTif) => {
+  const handleIntervalSelect = (value: SelectedTIF) => {
     onIntervalSelect(value);
     onChange();
   };

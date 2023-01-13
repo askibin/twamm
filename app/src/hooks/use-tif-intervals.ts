@@ -4,21 +4,18 @@ import { PoolAuthority } from "@twamm/client.js";
 import { PublicKey } from "@solana/web3.js";
 import { zipWith } from "ramda";
 
+import type { IndexedTIF, PoolTIF } from "../domain/interval.d";
 import useProgram from "./use-program";
 import { expirationTimeToInterval } from "../utils/index";
 
-export type TradeIntervals = IndexedTIF;
-
 type SettledTokenPairPool<T = TokenPairPoolData> = PromiseSettledResult<T>;
 
-type FulfilledTifWithPool = {
-  tif: TIF;
+type TifWithPool = {
+  data?: TokenPairPoolData;
   index: TIFIndex;
   status: "fulfilled" | "rejected";
-  data?: TokenPairPoolData;
+  tif: TIF;
 };
-
-type TifWithPool = FulfilledTifWithPool;
 
 const swrKey = (params: {
   tokenPair: TokenPair<JupToken>;
@@ -34,17 +31,15 @@ const populateTokenPairPool = <A, B, C>(
   x: [A, B],
   y: SettledTokenPairPool<C>
 ) => ({
-  tif: x[0],
+  data: y.status === "fulfilled" ? y.value : undefined,
   index: x[1],
   status: y.status,
-  data: y.status === "fulfilled" ? y.value : undefined,
+  tif: x[0],
 });
 
 const fetcher =
   (program: Program) =>
-  async ({
-    params,
-  }: SWRParams<typeof swrKey>): Promise<IndexedTIF[] | PoolIndexedTIF[]> => {
+  async ({ params }: SWRParams<typeof swrKey>) => {
     const { tokenPair, tifs, currentPoolPresent, poolCounters } = params;
     const [a, b] = tokenPair;
 
@@ -58,26 +53,28 @@ const fetcher =
 
     tifs.forEach((tif: number, index: number) => {
       if (tif === 0) return;
+      // exclude unavailable intervals
 
       const hasCurrentPool = currentPoolPresent[index];
       const nextInterval = { index, tif, hasCurrentPool };
 
       intervals.set(index, nextInterval);
     });
+    // collect initialized intervals
 
     const intervalTifs = Array.from(intervals.values());
 
-    const indexedTifs: IndexedTIF[] = intervalTifs.map((interval) => ({
+    const indexedTifs = intervalTifs.map<IndexedTIF>((interval) => ({
       tif: interval.tif,
       index: interval.index,
       left: interval.tif,
     }));
+    // populate intervals with proper struct
 
-    const poolsToFetch: Array<[TIF, TIFIndex]> = intervalTifs
+    const poolsToFetch = intervalTifs
       .filter(({ hasCurrentPool }) => hasCurrentPool)
-      .map(({ tif, index }) => [tif, index]);
-
-    const availablePoolsRecords = new Map();
+      .map<[TIF, TIFIndex]>(({ tif, index }) => [tif, index]);
+    // aggregate data to fetch active pools
 
     if (poolsToFetch.length) {
       const pools: unknown = await Promise.allSettled(
@@ -95,27 +92,29 @@ const fetcher =
       );
 
       const availablePools = zippedPools
-        .filter(({ status }) => status === "fulfilled")
-        .map(({ tif, index, data }) => ({
+        .filter((d) => d.status === "fulfilled")
+        .map<PoolTIF>(({ tif, index, data }) => ({
           tif,
           left: expirationTimeToInterval(data?.expirationTime.toNumber(), tif),
           index,
-          status: data?.status,
+          poolStatus: data?.status,
         }));
+
+      const availablePoolsRecords = new Map<number, PoolTIF>();
 
       availablePools.forEach((p) => {
         availablePoolsRecords.set(p.index, p);
       });
 
-      const allTifs: Array<PoolIndexedTIF> = [];
+      const allTifs: PoolTIF[] = [];
       indexedTifs.forEach((indexedTif) => {
-        allTifs.push(
-          availablePoolsRecords.has(indexedTif.index)
-            ? availablePoolsRecords.get(indexedTif.index)
-            : indexedTif
-        );
+        if (availablePoolsRecords.has(indexedTif.index)) {
+          const poolTif = availablePoolsRecords.get(indexedTif.index);
+          allTifs.push(poolTif as NonNullable<typeof poolTif>);
+        } else {
+          allTifs.push(indexedTif);
+        }
       });
-
       return allTifs;
     }
 

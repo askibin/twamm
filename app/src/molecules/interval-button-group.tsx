@@ -4,9 +4,7 @@ import { memo } from "react";
 import * as Styled from "./interval-button-group.styled";
 import IntervalButton from "../atoms/interval-button";
 import { formatInterval } from "../utils/index";
-import { instantTif } from "../reducers/trade-intervals.reducer";
-
-const INSTANT_INTERVAL = instantTif;
+import { SpecialIntervals } from "../domain/interval.d";
 
 const Instant = (props: {
   disabled: boolean;
@@ -51,13 +49,13 @@ export default memo(
             const text = formatInterval(value);
 
             // FEAT: allow support for other inervals
-            if (value === INSTANT_INTERVAL)
+            if (value === SpecialIntervals.INSTANT)
               return (
                 <Instant
                   disabled={disabled}
                   key={`interval-${value}`}
                   onSelect={onClick}
-                  selected={selectedValue === INSTANT_INTERVAL}
+                  selected={selectedValue === SpecialIntervals.INSTANT}
                   value={value}
                   values={values}
                 />
