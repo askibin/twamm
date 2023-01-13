@@ -41,17 +41,6 @@ export interface State<D = undefined> {
   data: D;
 }
 
-export const initialState = {
-  indexedTifs: undefined,
-  minTimeTillExpiration: 0,
-  optional: {},
-  pairSelected: [undefined, -1],
-  periodTifs: undefined,
-  scheduleTifs: undefined,
-  tifsLeft: undefined,
-  tifs: undefined,
-};
-
 enum ActionTypes {
   SET_TIFS = "SET_TIFS",
   SET_SCHEDULE = "SET_SCHEDULE",
@@ -60,7 +49,7 @@ enum ActionTypes {
 
 export const defaultState: State = {
   data: undefined,
-}; // initialState;
+};
 
 const setTifs = (payload: {
   indexedTifs: PoolTIF[];
@@ -112,9 +101,8 @@ export default (
       let periodTifs;
       let scheduledTif;
 
-      const tif = selectedTif ? selectedTif[1] : SpecialIntervals.NO_DELAY;
-      const pairSelected: SelectedTIF =
-        selectedTif || initialState.pairSelected;
+      const tif = selectedTif ? selectedTif[1] : SpecialIntervals.NO_DELAY; // ensure that NO_DELAY is used
+      const pairSelected: SelectedTIF = selectedTif;
 
       if (tif === SpecialIntervals.NO_DELAY) {
         periodTifs = tifsLeft;
