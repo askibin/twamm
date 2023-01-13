@@ -1,3 +1,4 @@
+import type { PoolTIF } from "../domain/interval.d";
 import { SpecialIntervals } from "./trade-intervals.reducer.d";
 import * as R from "./trade-intervals.reducer";
 
@@ -5,7 +6,7 @@ const populateIndexedTIFs = (
   tifs: TIF[],
   left: Array<null | number> = [],
   opts: Array<null | {}> = []
-) =>
+): PoolTIF[] =>
   tifs.map((tif, index) => ({
     tif,
     left: left[index] ?? tif,
@@ -131,10 +132,12 @@ describe("trade-intervals reducer", () => {
         indexedTifs: populateIndexedTIFs([300, 900, 1500], [250, null, null]),
         minTimeTillExpiration: 0,
         optionalIntervals,
-        pairSelected: [undefined, -1],
+        selectedTif: [undefined, -1],
       })
     );
-    expect(R.default(state1, R.action.setSchedule({ tif: 250 }))).toEqual({
+    expect(
+      R.default(state1 as R.State, R.action.setSchedule({ tif: 250 }))
+    ).toEqual({
       indexedTifs: populateIndexedTIFs([300, 900, 1500], [250, null, null]),
       minTimeTillExpiration: 0,
       optional: optionalIntervals,
@@ -151,10 +154,12 @@ describe("trade-intervals reducer", () => {
         indexedTifs: populateIndexedTIFs([300, 900, 1500], [250, null, null]),
         minTimeTillExpiration: 0,
         optionalIntervals,
-        pairSelected: [300, 250],
+        selectedTif: [300, 250],
       })
     );
-    expect(R.default(state2, R.action.setSchedule({ tif: -1 }))).toEqual({
+    expect(
+      R.default(state2 as R.State, R.action.setSchedule({ tif: -1 }))
+    ).toEqual({
       indexedTifs: populateIndexedTIFs([300, 900, 1500], [250, null, null]),
       minTimeTillExpiration: 0,
       optional: optionalIntervals,
@@ -173,10 +178,12 @@ describe("trade-intervals reducer", () => {
         indexedTifs: populateIndexedTIFs([300, 900, 1500], [250, null, null]),
         minTimeTillExpiration: 0,
         optionalIntervals,
-        pairSelected: [undefined, -1],
+        selectedTif: [undefined, -1],
       })
     );
-    expect(R.default(state, R.action.setPeriod({ tif: 250 }))).toEqual({
+    expect(
+      R.default(state as R.State, R.action.setPeriod({ tif: 250 }))
+    ).toEqual({
       indexedTifs: populateIndexedTIFs([300, 900, 1500], [250, null, null]),
       minTimeTillExpiration: 0,
       optional: optionalIntervals,

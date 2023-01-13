@@ -53,18 +53,18 @@ const setTifs = (payload: {
   indexedTifs: PoolTIF[];
   minTimeTillExpiration: number | undefined;
   optionalIntervals: OptionalIntervals;
-  selectedTif: [number | undefined, number | undefined];
+  selectedTif: SelectedTIF;
 }) => ({
   type: ActionTypes.SET_TIFS,
   payload,
 });
 
-const setSchedule = (payload: { tif: number }) => ({
+const setSchedule = (payload: { tif: TIF }) => ({
   type: ActionTypes.SET_SCHEDULE,
   payload,
 });
 
-const setPeriod = (payload: { tif: number }) => ({
+const setPeriod = (payload: { tif: TIF }) => ({
   type: ActionTypes.SET_PERIOD,
   payload,
 });
@@ -86,7 +86,7 @@ export default (state: typeof initialState | State, act: Action) => {
         selectedTif,
       } = act.payload as ActionPayload<typeof setTifs>;
 
-      const availableTifs = indexedTifs
+      const availableTifs: IndexedTIF[] = indexedTifs
         .filter(byActivePool)
         .filter((t) => byExpirationTime(t, minTimeTillExpiration));
 
@@ -97,7 +97,8 @@ export default (state: typeof initialState | State, act: Action) => {
       let scheduledTif;
 
       const tif = selectedTif ? selectedTif[1] : SpecialIntervals.NO_DELAY;
-      const pairSelected = selectedTif || initialState.pairSelected;
+      const pairSelected: SelectedTIF =
+        selectedTif || initialState.pairSelected;
 
       if (tif === SpecialIntervals.NO_DELAY) {
         periodTifs = tifsLeft;
