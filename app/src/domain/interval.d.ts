@@ -12,7 +12,7 @@ export declare type PoolTIF =
   | {
       index: TIFIndex;
       left: number;
-      poolStatus: PairPoolStatusStruct | undefined;
+      poolStatus: PoolStatusStruct | undefined;
       tif: TIF;
     };
 

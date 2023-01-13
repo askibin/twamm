@@ -1,9 +1,3 @@
-declare type OrderTypeStruct = { sell: {} } & { buy: {} };
-
-declare type PairPoolStatusStruct = { expired: {} } & { inactive: {} } & {
-  active: {};
-};
-
 declare type PoolCounter = any;
 
 declare type ExchangePair = [TokenPair, OrderSide];
@@ -156,7 +150,7 @@ declare type PoolData = {
   sellSide: PoolTradeSideData;
   timeInForce: number;
   tokenPair: PublicKey;
-  status: PairPoolStatusStruct;
+  status: PoolStatusStruct;
 };
 
 declare type TokenPairPoolData = PoolData;
