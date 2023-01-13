@@ -98,23 +98,16 @@ export default (
       const tifsLeft = availableTifs.map((d) => d.left);
       const tifs = availableTifs.map((d) => d.tif);
 
-      let periodTifs;
-      let scheduledTif;
-
-      const tif = selectedTif ? selectedTif[1] : SpecialIntervals.NO_DELAY; // ensure that NO_DELAY is used
+      const tif = selectedTif ? selectedTif[1] : SpecialIntervals.NO_DELAY;
+      // ensure that NO_DELAY is used
       const pairSelected: SelectedTIF = selectedTif;
 
-      if (tif === SpecialIntervals.NO_DELAY) {
-        periodTifs = tifsLeft;
-      } else {
-        scheduledTif = availableTifs?.find((d) => d.left === tif);
-        periodTifs = scheduledTif ? [scheduledTif.tif] : [];
-      }
-
-      if (pairSelected[1] === SpecialIntervals.NO_DELAY) {
-        const optionalTifs = (optionalIntervals[0] ?? []).map((i) => i.tif);
-        periodTifs = optionalTifs.concat(periodTifs);
-      }
+      const { periodTifs } = populateTifs(
+        tif,
+        tifsLeft,
+        availableTifs,
+        optionalIntervals
+      );
 
       const next = {
         indexedTifs: availableTifs,
