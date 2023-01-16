@@ -141,17 +141,19 @@ export default (props: Props) => {
         )}
       </UniversalPopover>
 
-      <Box py={2}>
-        <Stack direction="row" spacing={2}>
-          <Styled.ControlButton
-            variant="outlined"
-            onClick={onCancelSelectedOrders}
-            disabled={!selectionModel?.length}
-          >
-            Cancel / Withdraw Selected
-          </Styled.ControlButton>
-        </Stack>
-      </Box>
+      {/*
+       *<Box py={2}>
+       *  <Stack direction="row" spacing={2}>
+       *    <Styled.ControlButton
+       *      variant="outlined"
+       *      onClick={onCancelSelectedOrders}
+       *      disabled={!selectionModel?.length}
+       *    >
+       *      Cancel / Withdraw Selected
+       *    </Styled.ControlButton>
+       *  </Stack>
+       *</Box>
+       */}
       <Box>
         <RowColumnList
           checkboxSelection={false}
