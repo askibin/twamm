@@ -5,12 +5,19 @@ import StatsList from "./account-orders-details-stats-list";
 import StatsCards from "./account-orders-details-stats-cards";
 import useBreakpoints from "../hooks/use-breakpoints";
 import { format } from "./account-orders-details-stats.helpers";
+import { formatInterval } from "../utils/index";
 
-export interface Props {
+export default ({
+  details,
+  quantity,
+  filledQuantity,
+  timeInForce,
+}: {
   details: PoolDetails;
-}
-
-export default ({ details }: Props) => {
+  quantity: number;
+  filledQuantity: number;
+  timeInForce: number;
+}) => {
   const { isMobile } = useBreakpoints();
 
   const statsSizes = useMemo(() => ({ xs: 6, sm: 6, md: 4 }), []);
@@ -18,16 +25,16 @@ export default ({ details }: Props) => {
   const fields = useMemo(
     () => [
       {
-        name: "Pool Inception",
-        data: format.inceptionTime(details),
+        name: "Time Frame",
+        data: formatInterval(timeInForce),
       },
       {
         name: "Pool Expiration",
         data: format.expirationTime(details),
       },
       {
-        name: "Last Changed",
-        data: format.lastBalanceChangeTime(details),
+        name: "Filled/Quantity",
+        data: `${filledQuantity}|${quantity}`,
       },
       {
         name: "Total Assets",
@@ -41,8 +48,16 @@ export default ({ details }: Props) => {
         name: "Your average price",
         data: format.userAveragePrice(details),
       },
+      {
+        name: "Pool Inception",
+        data: format.inceptionTime(details),
+      },
+      {
+        name: "Last Changed",
+        data: format.lastBalanceChangeTime(details),
+      },
     ],
-    [details]
+    [details, filledQuantity, quantity, timeInForce]
   );
 
   return (

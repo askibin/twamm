@@ -1,6 +1,6 @@
 import Box from "@mui/material/Box";
-import Maybe from "easy-maybe/lib";
-import Stack from "@mui/material/Stack";
+import M from "easy-maybe/lib";
+// import Stack from "@mui/material/Stack";
 import { useCallback, useMemo, useRef, useState } from "react";
 
 import CancelOrder from "../molecules/cancel-order-modal";
@@ -19,7 +19,7 @@ import {
   populateDetails,
   populateRow,
 } from "./account-orders-list.helpers";
-import * as Styled from "./account-orders-list.styled";
+// import * as Styled from "./account-orders-list.styled";
 
 export interface Props {
   data: Voidable<OrderPoolRecord[]>;
@@ -36,7 +36,7 @@ type DetailsData = ReturnType<typeof populateDetails>;
 const initialSortModel: SortModel = [{ field: "orderTime", sort: "asc" }];
 
 export default (props: Props) => {
-  const data = Maybe.withDefault([], Maybe.of(props.data));
+  const data = M.withDefault([], M.of(props.data));
 
   const cancelRef = useRef<Ref>();
   const detailsRef = useRef<Ref>();
@@ -100,6 +100,7 @@ export default (props: Props) => {
     [setSelectionModel]
   );
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const onCancelSelectedOrders = useCallback(async () => {
     if (!selectionModel.length) return;
 
@@ -132,26 +133,31 @@ export default (props: Props) => {
       <UniversalPopover onClose={onDetailsClose} ref={detailsRef}>
         {details && (
           <OrderDetailsModal
+            filledQuantity={details.filledQuantity}
             onCancel={onCancelOrder}
             order={details.order}
             poolAddress={details.poolAddress}
+            quantity={details.quantity}
             side={details.side}
             supply={details.supply}
+            timeInForce={details.timeInForce}
           />
         )}
       </UniversalPopover>
 
-      <Box py={2}>
-        <Stack direction="row" spacing={2}>
-          <Styled.ControlButton
-            variant="outlined"
-            onClick={onCancelSelectedOrders}
-            disabled={!selectionModel?.length}
-          >
-            Cancel / Withdraw Selected
-          </Styled.ControlButton>
-        </Stack>
-      </Box>
+      {/*
+       *<Box py={2}>
+       *  <Stack direction="row" spacing={2}>
+       *    <Styled.ControlButton
+       *      variant="outlined"
+       *      onClick={onCancelSelectedOrders}
+       *      disabled={!selectionModel?.length}
+       *    >
+       *      Cancel / Withdraw Selected
+       *    </Styled.ControlButton>
+       *  </Stack>
+       *</Box>
+       */}
       <Box>
         <RowColumnList
           checkboxSelection={false}

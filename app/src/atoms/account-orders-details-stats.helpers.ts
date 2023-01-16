@@ -33,7 +33,7 @@ export const format = {
     const value = (({ lpSupply, lpSymbols }) =>
       zip(lpSupply, lpSymbols)
         .map((a) => a.join(" "))
-        .join(", "))(data);
+        .join("|"))(data);
 
     return M.withDefault("-", M.of(value));
   },
@@ -49,25 +49,6 @@ export const format = {
 
   userAveragePrice(data: PoolDetails) {
     const value = (({ prices }) => {
-      /*
-       *      const baseTokenIndex = side.sell ? 0 : 1;
-       *      const supplTokenIndex = side.sell ? 1 : 0;
-       *
-       *      const withdrawData = withdrawAmount(
-       *        withdraw.orderBalance.lpBalance,
-       *        withdraw.tradeSide,
-       *        withdraw.orderBalance,
-       *        withdraw.tokenPair
-       *      );
-       *
-       *      if (!withdrawData[supplTokenIndex]) return undefined;
-       *
-       *      const avg =
-       *        (lpAmount - withdrawData[baseTokenIndex]) /
-       *        withdrawData[supplTokenIndex];
-       *
-       *      return String(isFloat(avg) ? avg.toFixed(2) : avg);
-       */
       // eslint-disable-next-line no-nested-ternary
       const avg = isFloat(prices[1])
         ? Number(prices[1]).toFixed(2)

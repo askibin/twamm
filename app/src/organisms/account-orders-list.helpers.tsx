@@ -55,10 +55,13 @@ export const populateRow = (data: OrderPoolRecord) => {
 export const populateDetails = (
   data: RowParams<ReturnType<typeof populateRow>>
 ) => ({
+  filledQuantity: data.row.filledQuantity,
   order: data.row.orderData,
   poolAddress: data.row.pool,
+  quantity: data.row.quantity,
   side: data.row.side,
   supply: data.row.supply,
+  timeInForce: data.row.tif,
 });
 
 export const columns = ({ isMobile }: { isMobile?: boolean }) => [

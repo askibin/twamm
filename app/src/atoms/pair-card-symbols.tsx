@@ -1,15 +1,8 @@
 import Box from "@mui/material/Box";
-import Maybe from "easy-maybe/lib";
+import M from "easy-maybe/lib";
 import Skeleton from "@mui/material/Skeleton";
-
 import type { MaybeTokens } from "../hooks/use-tokens-by-mint";
 import * as Styled from "./pair-card-symbols.styled";
-
-export interface Props {
-  data: Voidable<MaybeTokens>;
-  displayDirection?: boolean;
-  side?: OrderTypeStruct;
-}
 
 const TokenImage = ({ data }: { data: MaybeTokens[0] }) => {
   if (data instanceof Error)
@@ -26,9 +19,16 @@ const TokenSymbol = ({ data }: { data: MaybeTokens[0] }) => (
   <span>{data instanceof Error ? "Unknown" : data.symbol.toUpperCase()}</span>
 );
 
-export default ({ data, displayDirection, side }: Props) => {
-  const mints = Maybe.of(data);
-  const tokens = Maybe.withDefault(undefined, mints);
+export default ({
+  data,
+  displayDirection,
+  side,
+}: {
+  data: Voidable<MaybeTokens>;
+  displayDirection?: boolean;
+  side?: OrderTypeStruct;
+}) => {
+  const tokens = M.withDefault(undefined, M.of(data));
 
   if (!tokens) return <Skeleton variant="rectangular">Loading...</Skeleton>;
 
