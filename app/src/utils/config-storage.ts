@@ -89,19 +89,20 @@ export default function storage({
       }
       return undefined;
     },
-    set(endpoint: string | undefined): undefined | Error {
-      if (!endpoint) return new Error("Absent address");
-
-      const addrOrError = sanidate(encodeURI(endpoint));
+    set(value: string | undefined): undefined | Error {
+      if (!value) return new Error("Absent value");
+console.log("option stirave", value)
+      const addrOrError = sanidate(encodeURI(value));
 
       if (addrOrError instanceof Error) return addrOrError;
 
       if (globalThis.localStorage) {
         self.enable();
         globalThis.localStorage.setItem(STORAGE_KEY, addrOrError);
+        console.log("option 345345345345", addrOrError)
         return undefined;
       }
-      return new Error("Address is set but not stored");
+      return new Error("Value is set but not stored");
     },
   };
 
