@@ -1,6 +1,8 @@
 import type { PublicKey } from "@solana/web3.js";
 import type { BN } from "@project-serum/anchor";
-import Maybe, { Extra } from "easy-maybe/lib";
+import ScheduleIcon from "@mui/icons-material/Schedule";
+import DoneIcon from "@mui/icons-material/Done";
+import M from "easy-maybe/lib";
 import Stack from "@mui/material/Stack";
 import { useCallback } from "react";
 
@@ -17,18 +19,32 @@ import useTokensByMint from "../hooks/use-tokens-by-mint";
 
 const Content = ({
   details,
+  filledQuantity,
   onCancelOrder,
+  quantity,
+  timeInForce,
   tokens,
 }: {
   details: PoolDetails;
+  filledQuantity: number;
   onCancelOrder: () => void;
+  quantity: number;
+  timeInForce: number;
   tokens: Voidable<MaybeTokens>;
 }) => (
   <Stack direction="column" spacing={2}>
     <Styled.ContentHeader>
-      <PairCardSymbols data={tokens} />
+      <Stack alignItems="baseline" direction="row" spacing={1}>
+        <PairCardSymbols data={tokens} displayDirection side={details.side} />
+        {!details.expired ? <ScheduleIcon /> : <DoneIcon />}
+      </Stack>
     </Styled.ContentHeader>
-    <Stats details={details} />
+    <Stats
+      details={details}
+      filledQuantity={filledQuantity}
+      quantity={quantity}
+      timeInForce={timeInForce}
+    />
     <Control
       expired={details.expired}
       inactive={details.inactive}
@@ -38,29 +54,32 @@ const Content = ({
 );
 
 export default ({
+  filledQuantity,
+  onCancel,
   order,
   poolAddress,
-  onCancel,
+  quantity,
   side,
   supply,
+  timeInForce,
 }: {
-  poolAddress: PublicKey;
+  filledQuantity: number;
   onCancel: (arg0: CancelOrderData) => void;
   order: OrderBalanceData;
+  poolAddress: PublicKey;
+  quantity: number;
   side: OrderTypeStruct;
   supply: BN;
+  timeInForce: number;
 }) => {
   const details = usePoolDetails(poolAddress, order);
-  const data = Maybe.of(details.data);
-
   const tokenPair = useTokenPairByPool(poolAddress);
-  const pairData = Maybe.of(tokenPair.data);
 
-  const pairMints = Maybe.withDefault(
+  const pairMints = M.withDefault(
     undefined,
-    Maybe.andMap<TokenPairProgramData, [PublicKey, PublicKey]>(
+    M.andMap<TokenPairProgramData, [PublicKey, PublicKey]>(
       (pair) => [pair.configA.mint, pair.configB.mint],
-      pairData
+      M.of(tokenPair.data)
     )
   );
   const tokens = useTokensByMint(pairMints);
@@ -68,7 +87,7 @@ export default ({
   const { isMobile } = useBreakpoints();
 
   const onCancelOrder = useCallback(() => {
-    Maybe.tap((d) => {
+    M.tap((d) => {
       const { aAddress, bAddress, expired, inactive, poolAddress: a } = d;
 
       onCancel({
@@ -81,19 +100,22 @@ export default ({
         side,
         supply,
       });
-    }, data);
-  }, [data, onCancel, order, side, supply]);
+    }, M.of(details.data));
+  }, [details, onCancel, order, side, supply]);
 
-  if (details.isLoading || Extra.isNothing(data)) return <Loading />;
+  if (details.isLoading || !details.data) return <Loading />;
 
-  const d = Extra.forkJust(data);
+  const orderDetails = details.data as NonNullable<typeof details.data>;
 
   if (isMobile)
     return (
       <Styled.MobileContainer>
         <Content
-          details={d}
+          details={orderDetails}
+          filledQuantity={filledQuantity}
           onCancelOrder={onCancelOrder}
+          quantity={quantity}
+          timeInForce={timeInForce}
           tokens={tokens.data}
         />
       </Styled.MobileContainer>
@@ -101,7 +123,14 @@ export default ({
 
   return (
     <Styled.Container>
-      <Content details={d} tokens={tokens.data} onCancelOrder={onCancelOrder} />
+      <Content
+        details={orderDetails}
+        filledQuantity={filledQuantity}
+        onCancelOrder={onCancelOrder}
+        quantity={quantity}
+        timeInForce={timeInForce}
+        tokens={tokens.data}
+      />
     </Styled.Container>
   );
 };
