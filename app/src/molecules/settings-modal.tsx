@@ -10,7 +10,9 @@ import { useCallback, useState } from "react";
 import * as Styled from "./settings-modal.styled";
 import ClusterSelector from "./cluster-selector";
 import ExplorerSelector from "./explorer-selector";
+import PerformanceFeeSelector from "./performance-fee-selector";
 import SlippageSelector from "./slippage-selector";
+import useTxRunner from "../contexts/transaction-runner-context";
 import ToggleOption from "./toggle-option";
 
 const jupVersionedInfo =
@@ -23,6 +25,8 @@ export default ({
   id: string;
   onToggle: (arg0: boolean) => void;
 }) => {
+  const { performanceFee } = useTxRunner();
+
   const onClose = () => onToggle(false);
 
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
@@ -55,9 +59,23 @@ export default ({
         <Styled.SettingLabel variant="body2">Slippage</Styled.SettingLabel>
         <SlippageSelector onClose={onClose} />
       </Styled.Setting>
+      <Styled.Setting direction="row" py={1}>
+        <Box>
+          <Styled.SettingLabel variant="body2">
+            Priority Fee
+          </Styled.SettingLabel>
+          {performanceFee > 0 && (
+            <Typography color="text.secondary" variant="body2">
+              You will pay {performanceFee}SOL extra.
+            </Typography>
+          )}
+        </Box>
+        <PerformanceFeeSelector />
+      </Styled.Setting>
+
       <Styled.Setting justifyContent="space-between" direction="row" py={1}>
         <Stack direction="row">
-          <Styled.SettingLabel pr={1} variant="body2">
+          <Styled.SettingLabel color="text.secondary" pr={1} variant="body2">
             Jupiter Versioned Tx.
           </Styled.SettingLabel>
           <IconButton
@@ -68,8 +86,9 @@ export default ({
             <InfoIcon fontSize="small" />
           </IconButton>
         </Stack>
-        <ToggleOption name="enableVersionedTx" onClose={onClose} />
+        <ToggleOption onClose={onClose} />
       </Styled.Setting>
+
       <Box py={2}>
         <Styled.Line />
       </Box>
@@ -79,7 +98,6 @@ export default ({
         </Typography>
         <ClusterSelector onClose={onClose} />
       </Styled.ClusterSetting>
-
       <Popover
         anchorEl={anchorEl}
         open={Boolean(anchorEl)}

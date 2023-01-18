@@ -1,3 +1,5 @@
+const ENABLED_VALUE = "1";
+
 export const sanidateURL = (addr: string | undefined): string | Error => {
   const error = new Error("Address should be a http(s) URL");
 
@@ -54,52 +56,52 @@ export default function storage({
   const ENABLE_STORAGE_KEY = enabled;
 
   const self = {
-    disable() {
+    disable(): void {
       if (global.localStorage) {
         global.localStorage.removeItem(ENABLE_STORAGE_KEY);
         global.localStorage.removeItem(STORAGE_KEY);
       }
     },
-    enable() {
+    enable(): void {
       if (global.localStorage) {
-        global.localStorage.setItem(ENABLE_STORAGE_KEY, "1");
+        global.localStorage.setItem(ENABLE_STORAGE_KEY, ENABLED_VALUE);
       }
     },
-    enabled() {
+    enabled(): boolean {
       if (global.localStorage) {
-        return global.localStorage.getItem(ENABLE_STORAGE_KEY) === "1";
+        return (
+          global.localStorage.getItem(ENABLE_STORAGE_KEY) === ENABLED_VALUE
+        );
       }
 
       return false;
     },
-    get(): string | undefined {
+    get(): number | string | undefined {
       if (global.localStorage) {
         const addr = global.localStorage.getItem(STORAGE_KEY);
 
         if (!addr) return undefined;
 
-        const addrOrError = sanidate(decodeURI(addr));
+        const valueOrError = sanidate(decodeURI(addr));
 
-        if (addrOrError instanceof Error) {
+        if (valueOrError instanceof Error) {
           self.disable();
           return undefined;
         }
 
-        return addrOrError;
+        return valueOrError;
       }
       return undefined;
     },
     set(value: string | undefined): undefined | Error {
       if (!value) return new Error("Absent value");
-console.log("option stirave", value)
-      const addrOrError = sanidate(encodeURI(value));
+      const valueOrError = sanidate(encodeURI(value));
 
-      if (addrOrError instanceof Error) return addrOrError;
+      if (valueOrError instanceof Error) return valueOrError;
 
       if (globalThis.localStorage) {
         self.enable();
-        globalThis.localStorage.setItem(STORAGE_KEY, addrOrError);
-        console.log("option 345345345345", addrOrError)
+        globalThis.localStorage.setItem(STORAGE_KEY, valueOrError);
         return undefined;
       }
       return new Error("Value is set but not stored");

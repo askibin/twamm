@@ -9,6 +9,7 @@ export const Line = styled(Divider)`
 
 export const Setting = styled(Stack)`
   align-items: center;
+  justify-content: space-between;
 `;
 
 export const ClusterSetting = styled(Stack)`

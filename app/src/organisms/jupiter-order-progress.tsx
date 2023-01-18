@@ -58,6 +58,7 @@ function OrderProgress(props: {
 
   const onClick = useCallback(async () => {
     if (!routes.data) throw new Error("Absent routes");
+
     const routesData = routes.data.routes;
 
     // FIXME: remove this 4 prod
