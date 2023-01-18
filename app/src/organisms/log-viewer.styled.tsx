@@ -5,16 +5,15 @@ import { styled } from "@mui/material/styles";
 export const Logs = styled(List)`
   border: 1px solid ${(p) => p.theme.palette.text.secondary};
   border-radius: ${(p) => p.theme.shape.borderRadius}px;
-  overflow-x: scroll;
-  width: ${(p) => p.theme.breakpoints.values.tablet - 90}px;
-  /* adjust width to smooth the layout change */
+  overflow-y: scroll;
+  width: 100%;
   height: 40vh;
 `;
 
 export const MobileLogs = styled(List)`
   border: 1px solid ${(p) => p.theme.palette.text.secondary};
   border-radius: ${(p) => p.theme.shape.borderRadius}px;
-  overflow-x: scroll;
+  overflow-y: scroll;
   max-height: 40vh;
 
   & .MuiTypography-root {
@@ -24,5 +23,6 @@ export const MobileLogs = styled(List)`
 
 export const LogRecord = styled(ListItemText)`
   font-size: 0.6rem;
-  white-space: nowrap;
+  white-space: initial;
+  word-break: break-word;
 `;
