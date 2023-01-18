@@ -109,14 +109,14 @@ export default (props: {
       {!open ? null : (
         <Box pt={2}>
           <Grid container spacing={1}>
-            <Grid item>
+            <Styled.DetailsGridItem item>
               <Styled.DetailsPair direction="row" spacing={2}>
                 <PairCardSymbols data={mints} />
                 <Typography variant="h6">
                   {!price ? "-" : formatPrice(price)}
                 </Typography>
               </Styled.DetailsPair>
-            </Grid>
+            </Styled.DetailsGridItem>
           </Grid>
           <List>
             <Styled.DetailsItem>

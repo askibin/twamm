@@ -1,5 +1,6 @@
 import Box from "@mui/material/Box";
 import IconButton from "@mui/material/IconButton";
+import Grid from "@mui/material/Grid";
 import ListItem from "@mui/material/ListItem";
 import Stack from "@mui/material/Stack";
 import { styled } from "@mui/material/styles";
@@ -22,4 +23,9 @@ export const Toggle = styled(IconButton)`
 
 export const DetailsPair = styled(Stack)`
   align-items: center;
+  justify-content: space-between;
+`;
+
+export const DetailsGridItem = styled(Grid)`
+  width: 100%;
 `;
