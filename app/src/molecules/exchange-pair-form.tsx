@@ -8,8 +8,8 @@ import AmountField from "../atoms/amount-field";
 import InTokenField from "./in-token-field";
 import TokenSelect from "../atoms/token-select";
 import TradeIntervals from "./trade-intervals";
-import usePrice from "../hooks/use-price";
 import type { PoolTIF, SelectedTIF } from "../domain/interval.d";
+import usePrice from "../hooks/use-price";
 import { SpecialIntervals } from "../domain/interval.d";
 
 export default ({
