@@ -11,27 +11,34 @@ import { useMemo } from "react";
 import styles from "./coin-select.module.css";
 import useBreakpoints from "../hooks/use-breakpoints";
 
-export interface Props {
-  coins: Record<string, { symbol: string; image: string; name: string }>;
-  filterCoin?: string;
+export default ({
+  data,
+  filterValue,
+  onClick = () => {},
+}: {
+  data: Record<string, { symbol: string; image: string; name: string }>;
+  filterValue?: string;
   onClick: (arg0: MouseEvent, arg1: string) => void;
-}
-
-export default ({ coins, filterCoin, onClick = () => {} }: Props) => {
+}) => {
   const { isMobile } = useBreakpoints();
+
+  const coins = useMemo(() => data, [data]);
 
   const coinRecords = useMemo(() => {
     const values = Object.values(coins);
 
-    if (!filterCoin) return values;
+    if (!filterValue) return values;
 
-    return values.filter(
-      (coin) =>
-        coin.name.toLowerCase().startsWith(filterCoin) ||
-        coin.name.toLowerCase().includes(filterCoin) ||
-        coin.symbol.toLowerCase().startsWith(filterCoin)
-    );
-  }, [coins, filterCoin]);
+    return values.filter((coin) => {
+      const name = coin.name.toLowerCase();
+      const symbol = coin.symbol.toLowerCase();
+      return (
+        name.startsWith(filterValue) ||
+        name.includes(filterValue) ||
+        symbol.startsWith(filterValue)
+      );
+    });
+  }, [coins, filterValue]);
 
   return (
     <List className={styles.coins} dense={isMobile}>

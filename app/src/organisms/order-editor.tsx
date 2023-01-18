@@ -1,6 +1,6 @@
 import M, { Extra } from "easy-maybe/lib";
 import { OrderSide } from "@twamm/types/lib";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Box from "@mui/material/Box";
 import * as Styled from "./order-editor.styled";
 import CoinSelect from "./coin-select";
@@ -123,6 +123,11 @@ export default ({
     [curToken, onSelectA, onSelectB]
   );
 
+  const tokens = useMemo(
+    () => (curToken === 2 ? available : all),
+    [curToken, available, all]
+  );
+
   if (
     Extra.isNothing(pair) ||
     Extra.isNothing(pairs) ||
@@ -138,7 +143,7 @@ export default ({
           onDelete={onCoinDeselect}
           onSelect={onCoinSelect}
           selected={cancellable}
-          tokens={curToken === 2 ? available : all}
+          tokens={tokens}
         />
       </UniversalPopover>
       <Styled.Swap elevation={1}>
