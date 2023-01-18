@@ -1,5 +1,6 @@
 import Box from "@mui/material/Box";
 import SyncAltIcon from "@mui/icons-material/SyncAlt";
+import { useCallback } from "react";
 import type { PoolTIF, SelectedTIF } from "../domain/interval.d";
 import * as Styled from "./exchange-pair-form.styled";
 import InTokenField from "./in-token-field";
@@ -55,14 +56,17 @@ export default ({
     onBSelect();
     onChange();
   };
-  const handleIntervalSelect = (value: SelectedTIF) => {
-    onIntervalSelect(value);
-    onChange();
-  };
-  const handleInstantIntervalSelect = () => {
+  const handleIntervalSelect = useCallback(
+    (value: SelectedTIF) => {
+      onIntervalSelect(value);
+      onChange();
+    },
+    [onChange, onIntervalSelect]
+  );
+  const handleInstantIntervalSelect = useCallback(() => {
     onInstantIntervalSelect();
     onChange();
-  };
+  }, [onChange, onInstantIntervalSelect]);
 
   return (
     <form onSubmit={onSubmit} id="exchange-form">
