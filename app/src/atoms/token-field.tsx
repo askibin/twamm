@@ -1,29 +1,28 @@
-import type { ChangeEvent } from "react";
 import M from "easy-maybe/lib";
+import type { ChangeEvent } from "react";
 import { useCallback, useState } from "react";
-
 import * as Styled from "./token-field.styled";
 import usePrice from "../hooks/use-price";
-import { isFloat } from "../utils/index";
+import { formatPrice } from "../domain/index";
 
-export interface Props {
+export default ({
+  maxAmount,
+  name,
+  onChange: handleChange,
+}: {
   maxAmount?: number;
   name?: string;
   onChange: (arg0: number) => void;
-}
-
-const possibleAmount = (amount: string) =>
-  isFloat(amount) ? Number(amount).toFixed(2) : amount ?? 0;
-
-export default ({ maxAmount, name, onChange: handleChange }: Props) => {
+}) => {
   const [amount, setAmount] = useState<number>(0);
 
   const price = usePrice(name ? { id: name } : undefined);
 
   const onMaxClick = useCallback(() => {
-    if (!maxAmount) return;
-    setAmount(maxAmount);
-    handleChange(maxAmount);
+    M.andMap((max) => {
+      setAmount(max);
+      handleChange(max);
+    }, M.of(maxAmount));
   }, [handleChange, maxAmount, setAmount]);
 
   const onChange = useCallback(
@@ -36,11 +35,16 @@ export default ({ maxAmount, name, onChange: handleChange }: Props) => {
     [handleChange, setAmount]
   );
 
-  const amountUsd = M.withDefault(
-    undefined,
+  const totalAmount = M.andThen<number, number>(
+    (p) => (Number.isNaN(amount) ? M.of(undefined) : M.of(p * amount)),
+    M.of(price.data)
+  );
+
+  const displayAmount = M.withDefault(
+    "-",
     M.andMap(
-      (p) => (Number.isNaN(amount) ? "0" : String(p * amount)),
-      M.of(price.data)
+      (a) => (a === 0 ? formatPrice(0) : `~${formatPrice(a)}`),
+      totalAmount
     )
   );
 
@@ -52,11 +56,7 @@ export default ({ maxAmount, name, onChange: handleChange }: Props) => {
         onChange={onChange}
       />
       <Styled.SecondaryControls direction="row" spacing={1}>
-        <Styled.TokenAmountInUSD>
-          {!amountUsd || amountUsd === "0"
-            ? `$0`
-            : `~$${possibleAmount(amountUsd)}`}
-        </Styled.TokenAmountInUSD>
+        <Styled.TokenAmountInUSD>{displayAmount}</Styled.TokenAmountInUSD>
         <Styled.TokenAmountMaxButton
           disabled={!maxAmount}
           onClick={onMaxClick}

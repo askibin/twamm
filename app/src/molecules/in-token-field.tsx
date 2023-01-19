@@ -20,7 +20,7 @@ export default ({ address, name, onChange, onSelect, src }: Props) => {
   const balance = useBalance(address, add([keepPrevious(), refreshEach()]));
 
   const displayName = M.withDefault("", M.of(name));
-  const tokenBalance = M.withDefault<string | number>(
+  const displayBalance = M.withDefault<string | number>(
     "...",
     M.of(balance.data)
   );
@@ -43,7 +43,7 @@ export default ({ address, name, onChange, onSelect, src }: Props) => {
             onChange={onChange}
           />
           <Styled.TokenTotal>
-            Your Balance: {tokenBalance} {displayName}
+            Your Balance: {displayBalance} {displayName}
           </Styled.TokenTotal>
         </Grid>
       </Grid>
