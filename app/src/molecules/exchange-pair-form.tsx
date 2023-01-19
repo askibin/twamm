@@ -20,7 +20,6 @@ export default ({
   onABSwap,
   onASelect,
   onBSelect,
-  onChange,
   onChangeAmount,
   onInstantIntervalSelect,
   onIntervalSelect,
@@ -36,7 +35,6 @@ export default ({
   onABSwap: () => void;
   onASelect: () => void;
   onBSelect: () => void;
-  onChange: () => void;
   onChangeAmount: (arg0: number) => void;
   onInstantIntervalSelect: () => void;
   onIntervalSelect: (tif: SelectedTIF) => void;
@@ -79,31 +77,27 @@ export default ({
 
   const handleChangeAmount = (value: number) => {
     onChangeAmount(value);
-    onChange();
   };
   const handleSwap = () => {
     onABSwap();
-    onChange();
   };
   const handleInputSelect = () => {
     onASelect();
-    onChange();
   };
   const handleOutputSelect = () => {
     onBSelect();
-    onChange();
   };
   const handleIntervalSelect = useCallback(
     (value: SelectedTIF) => {
       onIntervalSelect(value);
-      onChange();
     },
-    [onChange, onIntervalSelect]
+    [onIntervalSelect]
   );
   const handleInstantIntervalSelect = useCallback(() => {
     onInstantIntervalSelect();
-    onChange();
-  }, [onChange, onInstantIntervalSelect]);
+  }, [onInstantIntervalSelect]);
+
+  console.log(tif);
 
   return (
     <form onSubmit={onSubmit} id="exchange-form">

@@ -42,6 +42,7 @@ export interface State<D = undefined> {
 }
 
 enum ActionTypes {
+  RESET_TIF = "RESET_TIF",
   SET_TIFS = "SET_TIFS",
   SET_SCHEDULE = "SET_SCHEDULE",
   SET_PERIOD = "SET_PERIOD",
@@ -50,6 +51,11 @@ enum ActionTypes {
 export const defaultState: State = {
   data: undefined,
 };
+
+const resetTif = (payload: { selectedTif: SelectedTIF }) => ({
+  type: ActionTypes.RESET_TIF,
+  payload,
+});
 
 const setTifs = (payload: {
   indexedTifs: PoolTIF[];
@@ -72,17 +78,30 @@ const setPeriod = (payload: { tif: TIF }) => ({
 });
 
 type Action =
+  | ReturnType<typeof resetTif>
   | ReturnType<typeof setTifs>
   | ReturnType<typeof setSchedule>
   | ReturnType<typeof setPeriod>;
 
-export const action = { setTifs, setSchedule, setPeriod };
+export const action = { resetTif, setTifs, setSchedule, setPeriod };
 
 export default (
   state: State | State<Data>,
   act: Action
 ): State | State<Data> => {
   switch (act?.type) {
+    case ActionTypes.RESET_TIF: {
+      return state;
+      if (!state.data) return state;
+
+      const { selectedTif } = act.payload as ActionPayload<typeof resetTif>;
+
+      console.log("s", selectedTif);
+
+      const next = { ...state.data, pairSelected: selectedTif };
+
+      return { data: next };
+    }
     case ActionTypes.SET_TIFS: {
       const {
         indexedTifs,

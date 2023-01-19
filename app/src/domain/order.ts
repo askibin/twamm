@@ -24,8 +24,8 @@ export const validate = (
 ) => {
   const result: ValidationErrors = {};
 
-  if (!tokenA) result.a = new Error("Should select the token");
-  if (!tokenB) result.b = new Error("Should select the token");
+  if (!tokenA) result.a = new Error("Select token to exchange");
+  if (!tokenB) result.b = new Error("Select token to exchange");
   if (!amount) result.amount = new Error("Specify the amount of token");
   if (Number.isNaN(Number(amount)))
     result.amount = new Error("Amount should be the number");
@@ -64,7 +64,6 @@ export const prepare4Program = (
     undefined,
     M.andMap((intervals) => {
       const interval = intervals.find((itif: IndexedTIF) => {
-        // if (nextPool !== -1) return itif.tif === timeInForce;
         if (!usingCurrentPool) return itif.tif === timeInForce;
         return itif.left === timeInForce;
       });
@@ -83,7 +82,7 @@ export const prepare4Program = (
     decimals,
     aMint,
     bMint,
-    nextPool: usingNextPool, // nextPool && nextPool > 0,
+    nextPool: usingNextPool,
     tifs,
     poolCounters,
     tif: finalTif.tif,

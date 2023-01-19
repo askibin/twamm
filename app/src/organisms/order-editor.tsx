@@ -5,13 +5,15 @@ import Box from "@mui/material/Box";
 import * as Styled from "./order-editor.styled";
 import CoinSelect from "./coin-select";
 import Loading from "../atoms/loading";
-import PriceInfo from "./price-info";
 import OrderForm from "./order-form";
+import PriceInfo from "./price-info";
+import type { SelectedTIF } from "../domain/interval.d";
 import UniversalPopover, { Ref } from "../molecules/universal-popover";
 import usePrice from "../hooks/use-price";
 import useTIFIntervals from "../hooks/use-tif-intervals";
 import useTokenPairByTokens from "../hooks/use-token-pair-by-tokens";
 import { refreshEach } from "../swr-options";
+import { SpecialIntervals } from "../domain/interval.d";
 
 export default ({
   a,
@@ -47,6 +49,7 @@ export default ({
   const pairs = M.of(tokenPairs);
   const pair = M.of(tokenPair);
 
+  const [curTif, setCurTif] = useState<SelectedTIF>();
   const [curToken, setCurToken] = useState<number>();
   const selectCoinRef = useRef<Ref>();
 
@@ -123,8 +126,16 @@ export default ({
       if (selectCoinRef.current?.isOpened) selectCoinRef.current.close();
       if (curToken === 1) onSelectA(token);
       if (curToken === 2) onSelectB(token);
+
+      console.log({ token, a, b });
+
+      if (a && b && ![a.symbol, b.symbol].includes(token.symbol)) {
+        // Clean up selected tif as new pair selected
+        setCurTif([undefined, SpecialIntervals.NO_DELAY]);
+        console.log(124234);
+      }
     },
-    [curToken, onSelectA, onSelectB]
+    [a, b, curToken, onSelectA, onSelectB]
   );
 
   const tokens = useMemo(
@@ -160,9 +171,11 @@ export default ({
             onABSwap={onTokenSwap}
             onASelect={onTokenAChoose}
             onBSelect={onTokenBChoose}
+            onTifSelect={setCurTif}
             poolCounters={selectedPair.data?.poolCounters}
             poolTifs={selectedPair.data?.tifs}
             side={tradeSide}
+            tif={curTif}
             tokenA={a?.symbol}
             tokenADecimals={a?.decimals}
             tokenB={b?.symbol}
