@@ -1,11 +1,12 @@
 import Grid from "@mui/material/Grid";
-
+import M from "easy-maybe/lib";
 import type { Props as FieldProps } from "../atoms/token-field";
 import type { Props as SelectProps } from "../atoms/token-select";
 import * as Styled from "./in-token-field.styled";
 import TokenField from "../atoms/token-field";
 import TokenSelect from "../atoms/token-select";
 import useBalance from "../hooks/use-balance";
+import { add, keepPrevious, refreshEach } from "../swr-options";
 
 export interface Props {
   address?: string;
@@ -16,9 +17,13 @@ export interface Props {
 }
 
 export default ({ address, name, onChange, onSelect, src }: Props) => {
-  const balance = useBalance(address);
+  const balance = useBalance(address, add([keepPrevious(), refreshEach()]));
 
-  const displayName = name ?? "";
+  const displayName = M.withDefault("", M.of(name));
+  const tokenBalance = M.withDefault<string | number>(
+    "...",
+    M.of(balance.data)
+  );
 
   return (
     <Styled.TokenField>
@@ -38,7 +43,7 @@ export default ({ address, name, onChange, onSelect, src }: Props) => {
             onChange={onChange}
           />
           <Styled.TokenTotal>
-            Your Balance: {balance.data ?? "..."} {displayName}
+            Your Balance: {tokenBalance} {displayName}
           </Styled.TokenTotal>
         </Grid>
       </Grid>
