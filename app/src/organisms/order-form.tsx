@@ -141,6 +141,7 @@ export default ({
       {({ handleSubmit, valid }) => (
         <>
           <ExchangePairForm
+            amount={amount}
             intervalTifs={intervalTifs}
             lead={lead}
             minTimeTillExpiration={minTimeTillExpiration}

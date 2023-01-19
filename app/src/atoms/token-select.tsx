@@ -9,15 +9,19 @@ import { useState } from "react";
 import * as Styled from "./token-select.styled";
 import useBreakpoints from "../hooks/use-breakpoints";
 
-export interface Props {
+export default ({
+  alt,
+  disabled = false,
+  image,
+  label,
+  onClick,
+}: {
   alt?: string;
   disabled?: boolean;
   image?: string;
   label?: string;
   onClick: (e: MouseEvent) => void;
-}
-
-export default ({ alt, disabled = false, image, label, onClick }: Props) => {
+}) => {
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
   const [open, setOpen] = useState<boolean>(false);
   const { isMobile } = useBreakpoints();

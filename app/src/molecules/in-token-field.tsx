@@ -1,7 +1,5 @@
 import Grid from "@mui/material/Grid";
 import M from "easy-maybe/lib";
-import type { Props as FieldProps } from "../atoms/token-field";
-import type { Props as SelectProps } from "../atoms/token-select";
 import * as Styled from "./in-token-field.styled";
 import TokenField from "../atoms/token-field";
 import TokenSelect from "../atoms/token-select";
@@ -11,8 +9,8 @@ import { add, keepPrevious, refreshEach } from "../swr-options";
 export interface Props {
   address?: string;
   name?: string;
-  onChange: FieldProps["onChange"];
-  onSelect: SelectProps["onClick"];
+  onChange: Parameters<typeof TokenField>[0]["onChange"];
+  onSelect: Parameters<typeof TokenSelect>[0]["onClick"];
   src?: string;
 }
 
