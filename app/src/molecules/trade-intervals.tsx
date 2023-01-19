@@ -67,6 +67,10 @@ export default ({
       );
     }, M.of(indexedTifs));
 
+    //M.andMap((t) => {
+    //dispatch(A.resetTif({ selectedTif: t }));
+    //}, M.of(selectedTif));
+
     return () => {};
   }, [dispatch, indexedTifs, minTimeTillExpiration, selectedTif]);
 

@@ -20,32 +20,35 @@ export default ({
   onABSwap,
   onASelect,
   onBSelect,
+  onTifSelect,
   poolCounters: counters,
   poolTifs,
   side: s,
+  tif,
   tokenA,
   tokenADecimals,
   tokenB,
   tokenPair: pair,
 }: {
-  primary: Voidable<TokenInfo>;
-  secondary: Voidable<TokenInfo>;
-  intervalTifs: Voidable<PoolTIF[]>;
-  minTimeTillExpiration: Voidable<number>;
+  primary?: TokenInfo;
+  secondary?: TokenInfo;
+  intervalTifs?: PoolTIF[];
+  minTimeTillExpiration?: number;
   onABSwap: () => void;
   onASelect: () => void;
   onBSelect: () => void;
-  poolCounters: Voidable<PoolCounter[]>;
-  poolTifs: Voidable<number[]>;
-  side: Voidable<OrderSide>;
+  onTifSelect: (tif: SelectedTIF) => void;
+  poolCounters?: PoolCounter[];
+  poolTifs?: number[];
+  tif?: SelectedTIF;
+  side?: OrderSide;
   tokenA?: string;
   tokenADecimals?: number;
   tokenB?: string;
-  tokenPair: Voidable<TokenPair<JupToken>>;
+  tokenPair?: TokenPair<JupToken>;
 }) => {
   const [amount, setAmount] = useState<number>(0);
   const [submitting, setSubmitting] = useState<boolean>(false);
-  const [tif, setTif] = useState<SelectedTIF>();
 
   const tifs = M.withDefault(undefined, M.of(poolTifs));
   const poolCounters = M.withDefault(undefined, M.of(counters));
@@ -71,13 +74,16 @@ export default ({
     [setAmount]
   );
 
-  const onIntervalSelect = useCallback((selectedTif: SelectedTIF) => {
-    setTif(selectedTif);
-  }, []);
+  const onIntervalSelect = useCallback(
+    (selectedTif: SelectedTIF) => {
+      onTifSelect(selectedTif);
+    },
+    [onTifSelect]
+  );
 
   const onInstantIntervalSelect = useCallback(() => {
-    setTif([undefined, SpecialIntervals.INSTANT]);
-  }, []);
+    onTifSelect([undefined, SpecialIntervals.INSTANT]);
+  }, [onTifSelect]);
 
   const errors = useMemo<Voidable<ValidationErrors>>(
     () => formHelpers.validate(amount, tif, tokenA, tokenB),
@@ -160,7 +166,6 @@ export default ({
             onABSwap={onABSwap}
             onASelect={onASelect}
             onBSelect={onBSelect}
-            onChange={() => {}}
             onChangeAmount={onChangeAmount}
             onInstantIntervalSelect={onInstantIntervalSelect}
             onIntervalSelect={onIntervalSelect}
