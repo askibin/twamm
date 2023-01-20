@@ -5,6 +5,7 @@ import Maybe from "easy-maybe/lib";
 import PairCardSymbols from "./pair-card-symbols";
 import useTokenPairByPool from "../hooks/use-token-pair-by-pool";
 import useTokensByMint from "../hooks/use-tokens-by-mint";
+import { keepPrevious } from "../swr-options";
 
 export interface Props
   extends GridCellParams<
@@ -16,7 +17,7 @@ export interface Props
   > {}
 
 export default ({ row }: Pick<Props, "row">) => {
-  const tokenPair = useTokenPairByPool(row.pool);
+  const tokenPair = useTokenPairByPool(row.pool, keepPrevious());
 
   const mints = Maybe.withDefault(
     undefined,

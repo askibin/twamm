@@ -8,7 +8,6 @@ import { useWallet } from "@solana/wallet-adapter-react";
 import useOrders from "./use-orders";
 import usePools from "./use-pools-by-addresses";
 import useProgram from "./use-program";
-import { dedupeEach, refreshEach } from "../swr-options";
 
 const swrKey = (params: {
   account: PublicKey | null;
@@ -54,10 +53,7 @@ export default (_: void, options = {}) => {
   const { publicKey: account } = useWallet();
   const { program } = useProgram();
 
-  const orders = useOrders(undefined, {
-    ...dedupeEach(60e3),
-    ...refreshEach(3 * 60e3),
-  });
+  const orders = useOrders(undefined, options);
 
   const ordersAddresses = M.withDefault(
     undefined,
