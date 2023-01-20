@@ -26,6 +26,8 @@ export default (poolAddress: PublicKey, order: OrderBalanceData) => {
 
       const { pool, pair } = details.data;
 
+      const [a, b] = tokens.data;
+
       const { configA, configB, inceptionTime, statsA, statsB } = pair;
       const { buySide, expirationTime, sellSide, status } = pool;
 
@@ -37,6 +39,20 @@ export default (poolAddress: PublicKey, order: OrderBalanceData) => {
         minFillPrice,
         weightedFillsSum,
       } = tradeSide;
+
+      const coins = side.sell ? [a, b] : [b, a];
+
+      const configs = side.sell ? [configA, configB] : [configB, configA];
+
+      const supply = side.sell
+        ? [
+            sellSide.sourceBalance / 10 ** configs[0].decimals,
+            sellSide.targetBalance / 10 ** configs[1].decimals,
+          ]
+        : [
+            buySide.sourceBalance / 10 ** configs[0].decimals,
+            buySide.targetBalance / 10 ** configs[1].decimals,
+          ];
 
       const lastChanged = lastBalanceChangeTime.toNumber();
 
@@ -51,17 +67,12 @@ export default (poolAddress: PublicKey, order: OrderBalanceData) => {
           ? undefined
           : new Date(lastChanged * 1e3),
         lpAmount: Number(order.lpBalance),
-        lpSupply: [
-          Number(buySide.sourceBalance) / 10 ** configB.decimals +
-            Number(sellSide.targetBalance) / 10 ** configA.decimals,
-          Number(sellSide.sourceBalance) / 10 ** configA.decimals +
-            Number(buySide.targetBalance) / 10 ** configB.decimals,
-        ],
+        lpSupply: supply,
         lpSupplyRaw: [
           sellSide.lpSupply.toNumber(),
           buySide.lpSupply.toNumber(),
         ],
-        lpSymbols: [tokens.data[0].symbol, tokens.data[1].symbol],
+        lpSymbols: [coins[0].symbol, coins[1].symbol],
         poolAddress,
         prices: [
           Number(minFillPrice),
