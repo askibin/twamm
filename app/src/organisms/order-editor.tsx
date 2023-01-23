@@ -65,6 +65,7 @@ export default ({
     refreshEach()
   );
 
+  // FEAT: consider moving order state to the context
   const intervalTifs = useTIFIntervals(
     selectedPair.data?.exchangePair[0],
     selectedPair.data?.tifs,
