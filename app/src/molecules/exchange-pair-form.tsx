@@ -134,7 +134,7 @@ export default ({
           </Grid>
           {isInstantEnabled && (
             <Grid item xs={12} sm={8}>
-              <AmountField disabled amount={instantAmount} />
+              <AmountField disabled amount={Number(instantAmount.toFixed(9))} />
             </Grid>
           )}
         </Grid>
