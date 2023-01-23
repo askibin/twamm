@@ -3,7 +3,7 @@ import Box from "@mui/material/Box";
 import ButtonGroup from "@mui/material/ButtonGroup";
 import InfoIcon from "@mui/icons-material/Info";
 import Popover from "@mui/material/Popover";
-import { useCallback, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 
 import * as Styled from "./time-interval.styled";
 import Intervals from "../molecules/interval-button-group";
@@ -28,6 +28,8 @@ export default ({
   const handlePopoverOpen = (event: MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
   };
+
+  const intervalValues = useMemo(() => values, [values]);
 
   const handlePopoverClose = () => {
     setAnchorEl(null);
@@ -81,7 +83,7 @@ export default ({
           disabled={disabled}
           onClick={onIntervalSelect}
           value={value}
-          values={values}
+          values={intervalValues}
         />
       </ButtonGroup>
     </Styled.Interval>

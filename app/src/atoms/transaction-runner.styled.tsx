@@ -8,6 +8,19 @@ export const Container = styled(Box)`
   justify-content: center;
 `;
 
+export const DesktopContainer = styled(Box)`
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  width: 90vw;
+`;
+
+export const MobileContainer = styled(Box)`
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+`;
+
 export const RunnerTitle = styled(Typography)`
   text-align: center;
 `;

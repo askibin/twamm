@@ -16,6 +16,7 @@ import { SplToken } from "@twamm/client.js/lib/spl-token";
 
 import useProgram from "./use-program";
 import useTxRunner from "../contexts/transaction-runner-context";
+import { NEXT_PUBLIC_ENABLE_TX_SIMUL } from "../env";
 
 export interface Params {
   amount: number;
@@ -167,13 +168,15 @@ export default () => {
       .accounts(accounts)
       .preInstructions(pre);
 
-    setInfo("Simulating transaction...");
+    if (NEXT_PUBLIC_ENABLE_TX_SIMUL === "1") {
+      setInfo("Simulating transaction...");
 
-    const simResult = await tx.simulate().catch((e) => {
-      console.error("Failed to simulate", e); // eslint-disable-line no-console
-    });
+      const simResult = await tx.simulate().catch((e) => {
+        console.error("Failed to simulate", e); // eslint-disable-line no-console
+      });
 
-    if (simResult) console.debug(simResult.raw, simResult.events); // eslint-disable-line no-console, max-len
+      if (simResult) console.debug(simResult.raw, simResult.events); // eslint-disable-line no-console, max-len
+    }
 
     setInfo("Executing the transaction...");
 

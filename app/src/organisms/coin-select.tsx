@@ -12,14 +12,6 @@ import TokenTags from "../atoms/token-tags";
 import useJupTokensByMint from "../hooks/use-jup-tokens-by-mint";
 import * as Styled from "./coin-select.styled";
 
-export interface Props {
-  id?: string;
-  onDelete: (arg0: string) => void;
-  onSelect: (arg0: TokenInfo) => void;
-  selected?: string[];
-  tokens?: string[];
-}
-
 const STARRED_COINS = ["usdt", "usdc", "sol", "ray"];
 
 const populateTokenRecords = (data?: JupToken[]) => {
@@ -39,7 +31,19 @@ const populateTokenRecords = (data?: JupToken[]) => {
 
 const Loading = () => <CircularProgress />;
 
-export default ({ id, onDelete, onSelect, selected, tokens }: Props) => {
+export default ({
+  id,
+  onDelete,
+  onSelect,
+  selected,
+  tokens,
+}: {
+  id?: string;
+  onDelete: (arg0: string) => void;
+  onSelect: (arg0: TokenInfo) => void;
+  selected?: string[];
+  tokens?: string[];
+}) => {
   const [search, setSearch] = useState<string>();
 
   const { data, isLoading } = useJupTokensByMint(tokens);
@@ -107,8 +111,8 @@ export default ({ id, onDelete, onSelect, selected, tokens }: Props) => {
         Coins
       </Typography>
       <CoinSelect
-        coins={coinRecords}
-        filterCoin={search}
+        data={coinRecords}
+        filterValue={search}
         onClick={onCoinSelect}
       />
     </Styled.Container>

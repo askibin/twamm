@@ -7,8 +7,10 @@ export const Interval = styled(Box)`
 `;
 
 export const Label = styled(Box)`
-  font-size: 13px;
-  font-weight: 600;
+  ${(p) => `
+    font-size: ${p.theme.typography.overline.fontSize};
+    font-weight: ${p.theme.typography.overline.fontWeight};
+  `}
   display: flex;
   flex-direction: row;
   gap: 8px;

@@ -1,12 +1,19 @@
 import Box from "@mui/material/Box";
+import Grid from "@mui/material/Grid";
+import M, { Extra } from "easy-maybe/lib";
 import SyncAltIcon from "@mui/icons-material/SyncAlt";
-import type { PoolTIF, SelectedTIF } from "../domain/interval.d";
+import { useCallback } from "react";
 import * as Styled from "./exchange-pair-form.styled";
+import AmountField from "../atoms/amount-field";
 import InTokenField from "./in-token-field";
 import TokenSelect from "../atoms/token-select";
 import TradeIntervals from "./trade-intervals";
+import usePrice from "../hooks/use-price";
+import type { PoolTIF, SelectedTIF } from "../domain/interval.d";
+import { SpecialIntervals } from "../domain/interval.d";
 
 export default ({
+  amount,
   intervalTifs,
   lead,
   minTimeTillExpiration,
@@ -22,6 +29,7 @@ export default ({
   submitting,
   tif,
 }: {
+  amount?: number;
   intervalTifs: Voidable<PoolTIF[]>;
   lead: Voidable<JupToken>;
   minTimeTillExpiration: Voidable<number>;
@@ -39,6 +47,36 @@ export default ({
 }) => {
   const [a, b] = [lead, slave];
 
+  const isInstantEnabled =
+    tif && tif[0] === SpecialIntervals.INSTANT ? true : undefined;
+
+  const instantParams = M.andMap(
+    ([c, d, e]) => ({
+      id: c.symbol,
+      vsToken: d.symbol,
+      vsAmount: String(e),
+    }),
+    Extra.combine3([M.of(a), M.of(b), M.of(amount)])
+  );
+
+  const instantPrice = usePrice(
+    M.withDefault(
+      undefined,
+      M.andMap(
+        ([params]) => params,
+        Extra.combine2([instantParams, M.of(isInstantEnabled)])
+      )
+    )
+  );
+
+  const instantAmount = M.withDefault(
+    0,
+    M.andMap(
+      ([q, price]) => q * price,
+      Extra.combine2([M.of(amount), M.of(instantPrice.data)])
+    )
+  );
+
   const handleChangeAmount = (value: number) => {
     onChangeAmount(value);
     onChange();
@@ -55,14 +93,17 @@ export default ({
     onBSelect();
     onChange();
   };
-  const handleIntervalSelect = (value: SelectedTIF) => {
-    onIntervalSelect(value);
-    onChange();
-  };
-  const handleInstantIntervalSelect = () => {
+  const handleIntervalSelect = useCallback(
+    (value: SelectedTIF) => {
+      onIntervalSelect(value);
+      onChange();
+    },
+    [onChange, onIntervalSelect]
+  );
+  const handleInstantIntervalSelect = useCallback(() => {
     onInstantIntervalSelect();
     onChange();
-  };
+  }, [onChange, onInstantIntervalSelect]);
 
   return (
     <form onSubmit={onSubmit} id="exchange-form">
@@ -81,13 +122,22 @@ export default ({
       </Styled.OperationImage>
       <Styled.TokenLabelBox>You receive</Styled.TokenLabelBox>
       <Box pb={2}>
-        <TokenSelect
-          alt={b?.symbol}
-          disabled={!a}
-          image={b?.logoURI}
-          label={b?.symbol}
-          onClick={handleOutputSelect}
-        />
+        <Grid container spacing={1}>
+          <Grid item xs={12} sm={4}>
+            <TokenSelect
+              alt={b?.symbol}
+              disabled={!a}
+              image={b?.logoURI}
+              label={b?.symbol}
+              onClick={handleOutputSelect}
+            />
+          </Grid>
+          {isInstantEnabled && (
+            <Grid item xs={12} sm={8}>
+              <AmountField disabled amount={Number(instantAmount.toFixed(9))} />
+            </Grid>
+          )}
+        </Grid>
       </Box>
       <Box py={2}>
         <TradeIntervals

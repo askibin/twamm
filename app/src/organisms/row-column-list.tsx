@@ -9,11 +9,11 @@ import Box from "@mui/material/Box";
 import List from "@mui/material/List";
 import { useCallback, useMemo } from "react";
 
+import * as Styled from "./row-column-list.styled";
 import IntervalProgress from "../atoms/interval-progress";
 import Loading from "../atoms/loading";
 import SortControl from "../atoms/sort-control";
 import useBreakpoints from "../hooks/use-breakpoints";
-import * as Styled from "./row-column-list.styled";
 
 export interface SortItem extends GridSortItem {}
 
@@ -215,13 +215,13 @@ export default (props: Props) => {
   );
 
   const statuses = useMemo(() => {
-    if (props.loading) return <Loading />;
+    if (props.loading && !props.rows.length) return <Loading />;
 
     if (props.error)
       return <Alert severity="error">{props.error.message}</Alert>;
 
     return undefined;
-  }, [props.error, props.loading]);
+  }, [props.error, props.loading, props.rows]);
 
   return (
     <Box>

@@ -1,3 +1,4 @@
+/* eslint-disable react/jsx-props-no-spreading */
 import Box from "@mui/material/Box";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import ErrorIcon from "@mui/icons-material/Error";
@@ -8,6 +9,7 @@ import Typography from "@mui/material/Typography";
 
 import * as Styled from "./transaction-runner.styled";
 import LogViewer from "../organisms/log-viewer";
+import useBreakpoints from "../hooks/use-breakpoints";
 
 const extractErrorMessage = (message: string) => {
   const msgAnchor = "Error Message:";
@@ -23,6 +25,20 @@ const extractErrorMessage = (message: string) => {
   if (msgArr && msgArr.length > 1) return msgArr[1].trim();
 
   return message;
+};
+
+const ResponsiveContainer = ({ children, omitDesktop, ...props }: any) => {
+  const { isMobile } = useBreakpoints();
+
+  if (isMobile || omitDesktop) {
+    return (
+      <Styled.MobileContainer {...props}>{children}</Styled.MobileContainer>
+    );
+  }
+
+  return (
+    <Styled.DesktopContainer {...props}>{children}</Styled.DesktopContainer>
+  );
 };
 
 export const Empty = () => (
@@ -85,7 +101,7 @@ export const Success = ({
 );
 
 export const Error = ({ error, logs }: { error: Error; logs?: string[] }) => (
-  <Styled.Container p={2}>
+  <ResponsiveContainer p={2} omitDesktop={!logs}>
     <Box pb={1}>
       <Styled.ErrorIcon>
         <ErrorIcon />
@@ -99,5 +115,5 @@ export const Error = ({ error, logs }: { error: Error; logs?: string[] }) => (
       </Box>
     )}
     <LogViewer logs={logs} />
-  </Styled.Container>
+  </ResponsiveContainer>
 );

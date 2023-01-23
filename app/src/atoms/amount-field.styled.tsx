@@ -29,8 +29,11 @@ export const TokenAmountTextField = styled(NumericFormat)`
   background: transparent;
   padding: 5px 12px;
   font-size: 32px;
-  font-weight: 600px;
-  color: #fff;
+  font-weight: 400;
+  color: ${(p) => p.theme.palette.text.primary};
+  &:disabled {
+    color: ${(p) => p.theme.palette.text.secondary};
+  }
 `;
 
 export const TokenAmountMaxButton = styled(Button)`

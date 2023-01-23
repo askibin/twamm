@@ -2,14 +2,17 @@ import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 
 import AccountOrdersList from "./account-orders-list";
-import useOrders from "../hooks/use-order-records";
+import useOrderRecords from "../hooks/use-order-records";
 import { ConnectWalletGuard } from "./wallet-guard";
-import { refreshEach } from "../swr-options";
+import { add, keepPrevious, refreshEach } from "../swr-options";
 
-const REFRESH_INTERVAL = 60000;
+const REFRESH_INTERVAL = 30000;
 
 export default () => {
-  const orders = useOrders(undefined, refreshEach(REFRESH_INTERVAL));
+  const orders = useOrderRecords(
+    undefined,
+    add([keepPrevious(), refreshEach(REFRESH_INTERVAL)])
+  );
 
   return (
     <Box pb={2}>

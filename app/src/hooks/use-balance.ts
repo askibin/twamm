@@ -37,7 +37,8 @@ export default (mint: Voidable<string>, options = {}) => {
   const { publicKey: address } = useWallet();
   const { provider } = useProgram();
 
-  const accountTokens = useAccountTokens();
+  const accountTokens = useAccountTokens(undefined, options);
+  // bypass hook options
 
   return useSWR(
     M.withDefault(

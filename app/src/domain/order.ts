@@ -18,11 +18,11 @@ export const validate = (
 ) => {
   const result: ValidationErrors = {};
 
-  if (!tokenA) result.a = new Error("Required");
-  if (!tokenB) result.b = new Error("Required");
+  if (!tokenA) result.a = new Error("Should select the token");
+  if (!tokenB) result.b = new Error("Should select the token");
   if (!amount) result.amount = new Error("Specify the amount of token");
   if (Number.isNaN(Number(amount)))
-    result.amount = new Error("Should be the number");
+    result.amount = new Error("Amount should be the number");
 
   if (tif) {
     const [timeInForce, modes] = tif;

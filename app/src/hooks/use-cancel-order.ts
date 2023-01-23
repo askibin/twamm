@@ -9,6 +9,7 @@ import { isNil } from "ramda";
 
 import useProgram from "./use-program";
 import useTxRunner from "../contexts/transaction-runner-context";
+import { NEXT_PUBLIC_ENABLE_TX_SIMUL } from "../env";
 
 export default () => {
   const { provider, program } = useProgram();
@@ -115,13 +116,15 @@ export default () => {
       .preInstructions(pre)
       .postInstructions(post);
 
-    setInfo("Simulating transaction...");
+    if (NEXT_PUBLIC_ENABLE_TX_SIMUL === "1") {
+      setInfo("Simulating transaction...");
 
-    const simResult = await tx.simulate().catch((e) => {
-      console.error("Failed to simulate", e); // eslint-disable-line no-console
-    });
+      const simResult = await tx.simulate().catch((e) => {
+        console.error("Failed to simulate", e); // eslint-disable-line no-console
+      });
 
-    if (simResult) console.debug(simResult.raw, simResult.events); // eslint-disable-line no-console, max-len
+      if (simResult) console.debug(simResult.raw, simResult.events); // eslint-disable-line no-console, max-len
+    }
 
     setInfo("Executing the transaction...");
 

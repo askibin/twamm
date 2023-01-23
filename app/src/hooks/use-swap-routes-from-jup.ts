@@ -20,8 +20,8 @@ const swrKey = (params: {
   params,
 });
 
-const convertPercentage = (a: number) => (a === 0 ? 0 : a * 10);
-// 1 = 0.1%
+const convertPercentage = (a: number) => (a === 0 ? 0 : a * 100);
+// 0.5% = 50
 
 const fetcher =
   (api: DefaultApi) =>

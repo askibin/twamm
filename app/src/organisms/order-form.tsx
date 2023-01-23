@@ -1,7 +1,7 @@
 import Box from "@mui/material/Box";
 import M from "easy-maybe/lib";
 import { OrderSide } from "@twamm/types/lib";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Form } from "react-final-form";
 
 import * as formHelpers from "../domain/order";
@@ -51,6 +51,18 @@ export default ({
   const poolCounters = M.withDefault(undefined, M.of(counters));
   const side = M.withDefault(undefined, M.of(s));
   const tokenPair = M.withDefault(undefined, M.of(pair));
+
+  const intervalsChecksum = useMemo(() => {
+    if (!intervalTifs) return 0;
+    return intervalTifs.reduce((acc, i) => acc + i.left, 0);
+  }, [intervalTifs]);
+
+  useEffect(() => {
+    if (!intervalsChecksum && tif && tif[0] !== SpecialIntervals.INSTANT) {
+      setTif(undefined);
+    }
+    // cleanup selected interval
+  }, [intervalTifs, intervalsChecksum, tif]);
 
   const onChangeAmount = useCallback(
     (value: number) => {
@@ -141,6 +153,7 @@ export default ({
       {({ handleSubmit, valid }) => (
         <>
           <ExchangePairForm
+            amount={amount}
             intervalTifs={intervalTifs}
             lead={lead}
             minTimeTillExpiration={minTimeTillExpiration}
