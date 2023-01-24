@@ -81,7 +81,7 @@ export default ({
             onClose={handlePopoverClose}
             disableRestoreFocus
           >
-            {info}
+            <Box p={1}>{info}</Box>
           </Popover>
         )}
       </Box>

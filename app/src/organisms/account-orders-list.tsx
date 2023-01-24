@@ -1,8 +1,6 @@
 import Box from "@mui/material/Box";
 import M from "easy-maybe/lib";
-// import Stack from "@mui/material/Stack";
 import { useCallback, useMemo, useRef, useState } from "react";
-
 import CancelOrder from "../molecules/cancel-order-modal";
 import OrderDetailsModal from "./account-order-details-modal";
 import RowColumnList, {
@@ -19,15 +17,6 @@ import {
   populateDetails,
   populateRow,
 } from "./account-orders-list.helpers";
-// import * as Styled from "./account-orders-list.styled";
-
-export interface Props {
-  data: Voidable<OrderPoolRecord[]>;
-  error: Voidable<Error>;
-  loading: boolean;
-  updating: boolean;
-  updatingInterval: number;
-}
 
 type RowData = ReturnType<typeof populateRow>;
 
@@ -35,7 +24,13 @@ type DetailsData = ReturnType<typeof populateDetails>;
 
 const initialSortModel: SortModel = [{ field: "orderTime", sort: "asc" }];
 
-export default (props: Props) => {
+export default (props: {
+  data: Voidable<OrderPoolRecord[]>;
+  error: Voidable<Error>;
+  loading: boolean;
+  updating: boolean;
+  updatingInterval: number;
+}) => {
   const data = M.withDefault([], M.of(props.data));
 
   const cancelRef = useRef<Ref>();
@@ -44,7 +39,7 @@ export default (props: Props) => {
   const [details, setDetails] = useState<DetailsData>();
   const [selectionModel, setSelectionModel] = useState<SelectionModel>([]);
 
-  const { execute, executeMany } = useCancelOrder();
+  const { execute } = useCancelOrder();
   const { isMobile } = useBreakpoints();
 
   const cols = useMemo<ColDef[]>(() => columns({ isMobile }), [isMobile]);
@@ -100,24 +95,6 @@ export default (props: Props) => {
     [setSelectionModel]
   );
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const onCancelSelectedOrders = useCallback(async () => {
-    if (!selectionModel.length) return;
-
-    const selectedRows = rows.filter((row) => selectionModel.includes(row.id));
-
-    const deletionRows = selectedRows.map((row) => ({
-      amount: Number.MAX_SAFE_INTEGER,
-      orderAddress: row.order.address,
-      poolAddress: row.pool,
-    }));
-
-    cancelRef.current?.close();
-    await executeMany(deletionRows);
-
-    setSelectionModel([]);
-  }, [executeMany, rows, selectionModel, setSelectionModel]);
-
   return (
     <>
       <UniversalPopover ref={cancelRef}>
@@ -144,20 +121,6 @@ export default (props: Props) => {
           />
         )}
       </UniversalPopover>
-
-      {/*
-       *<Box py={2}>
-       *  <Stack direction="row" spacing={2}>
-       *    <Styled.ControlButton
-       *      variant="outlined"
-       *      onClick={onCancelSelectedOrders}
-       *      disabled={!selectionModel?.length}
-       *    >
-       *      Cancel / Withdraw Selected
-       *    </Styled.ControlButton>
-       *  </Stack>
-       *</Box>
-       */}
       <Box>
         <RowColumnList
           checkboxSelection={false}

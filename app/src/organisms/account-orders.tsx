@@ -6,7 +6,7 @@ import useOrderRecords from "../hooks/use-order-records";
 import { ConnectWalletGuard } from "./wallet-guard";
 import { add, keepPrevious, refreshEach } from "../swr-options";
 
-const REFRESH_INTERVAL = 30000;
+const REFRESH_INTERVAL = 10000;
 
 export default () => {
   const orders = useOrderRecords(
