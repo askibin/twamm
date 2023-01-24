@@ -28,10 +28,10 @@ export default (poolAddress: PublicKey, order: OrderBalanceData) => {
 
       const [a, b] = tokens.data;
 
-      // TODO: inception = expiration - timeInForce
+      const { configA, configB, statsA, statsB } = pair;
+      const { buySide, expirationTime, sellSide, status, timeInForce } = pool;
 
-      const { configA, configB, inceptionTime, statsA, statsB } = pair;
-      const { buySide, expirationTime, sellSide, status } = pool;
+      const inceptionTime = expirationTime.toNumber() - timeInForce;
 
       const tradeSide = side.sell ? sellSide : buySide;
       const {
@@ -64,7 +64,7 @@ export default (poolAddress: PublicKey, order: OrderBalanceData) => {
         expirationTime: new Date(expirationTime.toNumber() * 1e3),
         expired: Boolean(status.expired),
         inactive: Boolean(status.inactive),
-        inceptionTime: new Date(inceptionTime.toNumber() * 1e3),
+        inceptionTime: new Date(inceptionTime * 1e3),
         lastBalanceChangeTime: !lastChanged
           ? undefined
           : new Date(lastChanged * 1e3),
