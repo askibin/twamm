@@ -28,9 +28,9 @@ export default ({ onClose }: { onClose?: () => void }) => {
         label={label}
         onChange={handleChange}
       >
-        <MenuItem value={performanceFees[0]}>Nah</MenuItem>
+        <MenuItem value={performanceFees[0]}>None</MenuItem>
         <MenuItem value={performanceFees[1]}>High</MenuItem>
-        <MenuItem value={performanceFees[2]}>Swift</MenuItem>
+        <MenuItem value={performanceFees[2]}>Turbo</MenuItem>
       </Select>
     </FormControl>
   );

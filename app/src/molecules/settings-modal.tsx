@@ -66,7 +66,7 @@ export default ({
           </Styled.SettingLabel>
           {performanceFee > 0 && (
             <Typography color="text.secondary" variant="body2">
-              You will pay {performanceFee}SOL extra.
+              You will pay up to {performanceFee}SOL extra.
             </Typography>
           )}
         </Box>
