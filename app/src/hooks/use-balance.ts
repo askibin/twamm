@@ -28,8 +28,6 @@ const fetcher =
     const accounts = params.balances.map((d) => d.account.data.parsed.info);
     const targetInfo = accounts.find((a) => a.mint === params.mint);
 
-    console.log(targetInfo);
-
     if (!targetInfo) return 0;
 
     return targetInfo.tokenAmount.uiAmount;

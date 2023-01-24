@@ -76,7 +76,7 @@ export default function storage({
 
       return false;
     },
-    get(): number | string | undefined {
+    get<T>(): T | undefined {
       if (global.localStorage) {
         const addr = global.localStorage.getItem(STORAGE_KEY);
 

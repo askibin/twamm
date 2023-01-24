@@ -1,32 +1,32 @@
 import type { Connection, PublicKey } from "@solana/web3.js";
 import type { DefaultApi } from "@jup-ag/api";
 import {
-  ComputeBudgetProgram,
+  LAMPORTS_PER_SOL,
   Transaction,
   VersionedTransaction,
 } from "@solana/web3.js";
 import { useWallet } from "@solana/wallet-adapter-react";
+import { isNil } from "ramda";
 import type { Route } from "./use-swap-routes-from-jup";
 import useBlockchain from "../contexts/solana-connection-context";
-import useJupiterContext from "../contexts/jupiter-connection-context";
+// import useJupiterContext from "../contexts/jupiter-connection-context";
 import useTxRunner from "../contexts/transaction-runner-context";
+import useJupiterV4Api from "../contexts/jupiter-v4-api-context";
 import { JUPITER_CONFIG_URI } from "../env";
 
-const predictBestRoute = (r: Route, routes: Route[]) => {
-  const amount = Number(r.otherAmountThreshold);
-  const maxSlippage = 0.05;
-
-  let bestRoute: Route | undefined;
-  routes.forEach((route) => {
-    if (bestRoute) return;
-    const compared = (amount - Number(route.otherAmountThreshold)) / amount;
-
-    if (compared > maxSlippage) return;
-
-    bestRoute = route;
-  });
-
+const predictBestRoute = (routes: Route[]) => {
+  const bestRoute = routes[0];
+  // jupiter returns list of routes with the best one at 0 index
   return bestRoute;
+};
+
+const calculateComputeUnitPrice = (budget: number | undefined) => {
+  if (isNil(budget)) return undefined;
+  const maxUnitsBudget = 1400000;
+  return Number.parseInt(
+    String(((budget * LAMPORTS_PER_SOL) / maxUnitsBudget) * 1e6),
+    10
+  );
 };
 
 const verifyTransaction = async (tx: Transaction, owner: PublicKey) => {
@@ -89,13 +89,23 @@ async function runVersionedTransaction(
 async function runLegacyTransaction(
   connection: Connection,
   signTransaction: (t: Transaction) => Promise<Transaction>,
-  api: DefaultApi,
+  api: ReturnType<typeof useJupiterV4Api>,
   route: Route,
-  userPublicKey: PublicKey
+  userPublicKey: PublicKey,
+  performanceFee: number | undefined
 ) {
-  const { swapTransaction } = await api.v3SwapPost({
-    // @ts-expect-error > Route.swapMode
-    body: { route, userPublicKey: userPublicKey.toBase58() },
+  const args = {
+    route,
+    computeUnitPriceMicroLamports: calculateComputeUnitPrice(performanceFee),
+    asLegacyTransaction: true,
+    userPublicKey: userPublicKey.toBase58(),
+  };
+
+  const { swapTransaction } = await api.v4SwapPost({
+    route: args.route,
+    computeUnitPriceMicroLamports: args.computeUnitPriceMicroLamports,
+    asLegacyTransaction: args.asLegacyTransaction,
+    userPublicKey: args.userPublicKey,
   });
 
   if (!swapTransaction) throw new Error("Could not fetch the transaction data");
@@ -104,43 +114,11 @@ async function runLegacyTransaction(
 
   const transaction = Transaction.from(rawTransaction);
 
-  console.log("opt", transaction);
-
-  const recentBlockhash = await connection.getRecentBlockhash();
-
-  transaction.recentBlockhash = recentBlockhash.blockhash;
-  transaction.feePayer = userPublicKey;
-
   await verifyTransaction(transaction, userPublicKey);
-
-  // await signTransaction(transaction);
-
-  const sim = await connection.simulateTransaction(transaction);
-
-  const txHash = transaction.serialize();
-  console.log("opt", txHash, sim);
-
-  const { unitsConsumed } = sim.value;
-
-  const performanceFee = 5000; // lamports
-
-  const microLamportsCUnitPrice = Number.parseInt(
-    performanceFee / unitsConsumed / 1e-6
-  );
-
-  console.log("opt", microLamportsCUnitPrice);
-
-  transaction.add(
-    ComputeBudgetProgram.setComputeUnitPrice({
-      microLamports: microLamportsCUnitPrice,
-    })
-  );
 
   await signTransaction(transaction);
 
   const txid = await connection.sendRawTransaction(transaction.serialize());
-
-  console.log("opt txid", txid);
 
   // TODO: resolve deprecation
   await connection.confirmTransaction(txid);
@@ -149,29 +127,31 @@ async function runLegacyTransaction(
 }
 
 export default () => {
-  const { publicKey, signTransaction, ...args } = useWallet();
+  const { publicKey, signTransaction } = useWallet();
   const { connection } = useBlockchain();
-  const { api } = useJupiterContext();
-  const { commit } = useTxRunner();
+  // const { api } = useJupiterContext();
+  const { commit, performanceFee /* , versionedAPI */ } = useTxRunner();
+  const apiV4 = useJupiterV4Api();
 
   const run = async (routes: Route[]) => {
     if (!publicKey || !signTransaction)
       throw new Error("Can not find the wallet");
 
-    const route = predictBestRoute(routes[0], routes);
+    const route = predictBestRoute(routes);
 
     if (!route) throw new Error("Can not find the route");
 
-    console.log("opt", { args });
-
     // TODO: resolve issues with wallet provider to support VersionedTransactions
-    return await runLegacyTransaction(
+    const result = await runLegacyTransaction(
       connection,
       signTransaction,
-      api,
+      apiV4,
       route,
-      publicKey
+      publicKey,
+      !performanceFee ? undefined : performanceFee
     );
+
+    return result;
   };
 
   return {

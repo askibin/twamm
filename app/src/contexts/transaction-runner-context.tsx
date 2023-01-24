@@ -21,7 +21,7 @@ const FALLBACK_EXPLORER = EXPLORERS.explorer.uri;
 const SLIPPAGES = [0, 0.1, 0.5, 1, 2]; // %, 0.5 is default
 const FALLBACK_SLIPPAGE = SLIPPAGES[2];
 
-const FALLBACK_VERSIONED_API = 1; // enabled by default
+const FALLBACK_VERSIONED_API = 0; // disabled by default
 
 const PERFORMANCE_FEES = [0, 5e-6, 5e-4]; // SOL, 0 is default
 const FALLBACK_PERFORMANCE_FEE = PERFORMANCE_FEES[0];
@@ -115,8 +115,6 @@ export const Provider: FC<{ children: ReactNode }> = ({ children }) => {
     ? Number(storedPerformaceFee)
     : FALLBACK_PERFORMANCE_FEE;
 
-  console.log({ initialPerformanceFee });
-
   const [active, setActive] = useState<boolean>(false);
   const [error, setError] = useState<Error>();
   const [explorer, setExplorer] = useState<string>(initialExplorer);
@@ -151,7 +149,11 @@ export const Provider: FC<{ children: ReactNode }> = ({ children }) => {
 
       if (err) {
         setActive(false);
-        setError(err);
+        const clientError =
+          err instanceof Error
+            ? err
+            : new Error("Could not execute the request");
+        setError(clientError);
       }
 
       return undefined;

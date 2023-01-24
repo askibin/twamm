@@ -1,12 +1,13 @@
-import type { DefaultApi, InlineResponse200Data } from "@jup-ag/api";
 import M, { Extra } from "easy-maybe/lib";
 import useSWR from "swr";
 import { forit } from "a-wait-forit";
 import { useWallet } from "@solana/wallet-adapter-react";
+import type { Def1 } from "../api/jupiter-v4";
 import useJupiterContext from "../contexts/jupiter-connection-context";
+import useJupiterV4Api from "../contexts/jupiter-v4-api-context";
 import useTxContext from "../contexts/transaction-runner-context";
 
-export interface Route extends InlineResponse200Data {}
+export interface Route extends Def1 {}
 
 const swrKey = (params: {
   amount: number;
@@ -24,17 +25,30 @@ const convertPercentage = (a: number) => (a === 0 ? 0 : a * 100);
 // 0.5% = 50
 
 const fetcher =
-  (api: DefaultApi) =>
+  (api: ReturnType<typeof useJupiterV4Api>) =>
   async ({ params }: SWRParams<typeof swrKey>) => {
+    const args = {
+      amount: String(params.amount * 10 ** params.decimals),
+      inputMint: params.inputMint,
+      outputMint: params.outputMint,
+      slippageBps: convertPercentage(params.slippage),
+      onlyDirectRoutes: true,
+      userPublicKey: params.userPublicKey,
+      asLegacyTransaction: true,
+    };
+
     const routesData = await forit(
-      api.v3QuoteGet({
-        amount: String(params.amount * 10 ** params.decimals),
-        inputMint: params.inputMint,
-        outputMint: params.outputMint,
-        slippageBps: convertPercentage(params.slippage),
-        onlyDirectRoutes: true,
-        userPublicKey: params.userPublicKey,
-      })
+      api.v4QuoteGet(
+        args.inputMint,
+        args.outputMint,
+        args.amount,
+        undefined,
+        args.slippageBps,
+        undefined,
+        args.onlyDirectRoutes,
+        args.userPublicKey,
+        args.asLegacyTransaction
+      )
     );
 
     const [err, routes] = routesData;
@@ -61,8 +75,10 @@ export default (
   options = {}
 ) => {
   const { publicKey } = useWallet();
-  const { ready, api } = useJupiterContext();
+  const { ready } = useJupiterContext();
   const { slippage } = useTxContext();
+
+  const v4Api = useJupiterV4Api();
 
   const data = M.andMap(
     ([p, s]) => ({ ...p, slippage: s }),
@@ -77,7 +93,7 @@ export default (
         Extra.combine3([data, M.of(publicKey), M.of(ready)])
       )
     ),
-    fetcher(api),
+    fetcher(v4Api),
     options
   );
 };
