@@ -39,7 +39,7 @@ export default (props: {
   const [details, setDetails] = useState<DetailsData>();
   const [selectionModel, setSelectionModel] = useState<SelectionModel>([]);
 
-  const { execute, executeMany } = useCancelOrder();
+  const { execute } = useCancelOrder();
   const { isMobile } = useBreakpoints();
 
   const cols = useMemo<ColDef[]>(() => columns({ isMobile }), [isMobile]);
@@ -95,24 +95,6 @@ export default (props: {
     [setSelectionModel]
   );
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const onCancelSelectedOrders = useCallback(async () => {
-    if (!selectionModel.length) return;
-
-    const selectedRows = rows.filter((row) => selectionModel.includes(row.id));
-
-    const deletionRows = selectedRows.map((row) => ({
-      amount: Number.MAX_SAFE_INTEGER,
-      orderAddress: row.order.address,
-      poolAddress: row.pool,
-    }));
-
-    cancelRef.current?.close();
-    await executeMany(deletionRows);
-
-    setSelectionModel([]);
-  }, [executeMany, rows, selectionModel, setSelectionModel]);
-
   return (
     <>
       <UniversalPopover ref={cancelRef}>
@@ -139,20 +121,6 @@ export default (props: {
           />
         )}
       </UniversalPopover>
-
-      {/*
-       *<Box py={2}>
-       *  <Stack direction="row" spacing={2}>
-       *    <Styled.ControlButton
-       *      variant="outlined"
-       *      onClick={onCancelSelectedOrders}
-       *      disabled={!selectionModel?.length}
-       *    >
-       *      Cancel / Withdraw Selected
-       *    </Styled.ControlButton>
-       *  </Stack>
-       *</Box>
-       */}
       <Box>
         <RowColumnList
           checkboxSelection={false}

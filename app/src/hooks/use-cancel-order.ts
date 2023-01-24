@@ -2,7 +2,7 @@ import { assureAccountCreated } from "@twamm/client.js/lib/assure-account-create
 import { BN } from "@project-serum/anchor";
 import { createCloseNativeTokenAccountInstruction } from "@twamm/client.js/lib/create-close-native-token-account-instruction"; // eslint-disable-line max-len
 import { findAddress } from "@twamm/client.js/lib/program";
-import { findAssociatedTokenAddress, TokenPair } from "@twamm/client.js";
+import { findAssociatedTokenAddress } from "@twamm/client.js";
 import { PublicKey, TransactionInstruction } from "@solana/web3.js";
 import { SplToken } from "@twamm/client.js/lib/spl-token";
 import { isNil } from "ramda";
@@ -14,8 +14,6 @@ import { NEXT_PUBLIC_ENABLE_TX_SIMUL } from "../env";
 export default () => {
   const { provider, program } = useProgram();
   const { commit, setInfo } = useTxRunner();
-
-  const pairClient = new TokenPair(program);
 
   const findProgramAddress = findAddress(program);
 
@@ -141,35 +139,6 @@ export default () => {
       const result = await commit(run(params));
 
       return result;
-    },
-    async executeMany(
-      params: Array<{
-        amount: number;
-        orderAddress: PublicKey;
-        poolAddress: PublicKey;
-      }>
-    ) {
-      const poolIds = params.map((data) => data.poolAddress);
-
-      const tokenPairs = await Promise.all(
-        poolIds.map((poolId) => {
-          const d: unknown = pairClient.getPairByPoolAddress(poolId);
-
-          return d as TokenPairProgramData;
-        })
-      );
-
-      const cancelParams = params.map((data, i) => ({
-        ...data,
-        a: tokenPairs[i].configA.mint,
-        b: tokenPairs[i].configB.mint,
-      }));
-
-      const results: Array<string | undefined> = await Promise.all(
-        cancelParams.map((data) => commit(run(data)))
-      );
-
-      return results;
     },
   };
 };
