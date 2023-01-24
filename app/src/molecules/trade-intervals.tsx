@@ -1,5 +1,8 @@
+import type { MouseEvent } from "react";
 import Box from "@mui/material/Box";
+import InfoIcon from "@mui/icons-material/Info";
 import M from "easy-maybe/lib";
+import Popover from "@mui/material/Popover";
 import Stack from "@mui/material/Stack";
 import Switch from "@mui/material/Switch";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -31,6 +34,26 @@ export default ({
   const [scheduled, setScheduled] = useState(false);
   const [state, dispatch] = useTradeIntervals();
   const [instant, setInstant] = useState<number>();
+
+  // FEAT: Consider moving popover to the separate component
+  const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
+
+  const handlePopoverOpen = useCallback(
+    (event: MouseEvent<HTMLElement>) => {
+      if (anchorEl) {
+        setAnchorEl(null);
+      } else {
+        setAnchorEl(event.currentTarget);
+      }
+    },
+    [anchorEl, setAnchorEl]
+  );
+
+  const handlePopoverClose = () => {
+    setAnchorEl(null);
+  };
+
+  const open = Boolean(anchorEl);
 
   useEffect(() => {
     M.andMap<PoolTIF[], void>((t) => {
@@ -97,7 +120,7 @@ export default ({
         {scheduled ? (
           <TimeInterval
             disabled={disabled}
-            info=""
+            info="Chose the interval to schedule the order for"
             label="Schedule Order"
             onSelect={onScheduleSelect}
             value={instant || pairSelected[1]}
@@ -105,21 +128,44 @@ export default ({
           />
         ) : (
           <Stack direction="row" spacing={1} alignItems="center">
-            <Styled.ScheduleToggleLabel>No Delay</Styled.ScheduleToggleLabel>
             <Switch
               checked={scheduled}
               onClick={onToggleSchedule}
               inputProps={{ "aria-label": "schedule order" }}
               size="small"
             />
-            <Styled.ScheduleToggleLabel>Schedule</Styled.ScheduleToggleLabel>
+            <Styled.ScheduleToggleLabel>
+              Schedule Order
+              <Styled.InfoControl onClick={handlePopoverOpen}>
+                <InfoIcon />
+              </Styled.InfoControl>
+            </Styled.ScheduleToggleLabel>
+            <Popover
+              anchorEl={anchorEl}
+              open={open}
+              anchorOrigin={{
+                vertical: "top",
+                horizontal: "right",
+              }}
+              transformOrigin={{
+                vertical: "bottom",
+                horizontal: "center",
+              }}
+              sx={{
+                pointerEvents: "none",
+              }}
+              onClose={handlePopoverClose}
+              disableRestoreFocus
+            >
+              <Box p={1}>Chose the interval to schedule the order for</Box>
+            </Popover>
           </Stack>
         )}
       </Box>
       <Box pb={2}>
         <TimeInterval
           disabled={disabled}
-          info=""
+          info="Execute the order during specified interval"
           label="Execution Period"
           onSelect={onPeriodSelect}
           value={pairSelected[0]}
