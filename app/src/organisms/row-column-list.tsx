@@ -156,6 +156,13 @@ const Rows = (props: {
     });
   }, [props]);
 
+  if (!rows.length)
+    return (
+      <List>
+        <Alert severity="info">No data to display</Alert>
+      </List>
+    );
+
   return (
     <List>
       {rows.map((r) => (

@@ -1,8 +1,6 @@
 import Box from "@mui/material/Box";
 import M from "easy-maybe/lib";
-// import Stack from "@mui/material/Stack";
 import { useCallback, useMemo, useRef, useState } from "react";
-
 import CancelOrder from "../molecules/cancel-order-modal";
 import OrderDetailsModal from "./account-order-details-modal";
 import RowColumnList, {
@@ -19,15 +17,6 @@ import {
   populateDetails,
   populateRow,
 } from "./account-orders-list.helpers";
-// import * as Styled from "./account-orders-list.styled";
-
-export interface Props {
-  data: Voidable<OrderPoolRecord[]>;
-  error: Voidable<Error>;
-  loading: boolean;
-  updating: boolean;
-  updatingInterval: number;
-}
 
 type RowData = ReturnType<typeof populateRow>;
 
@@ -35,7 +24,13 @@ type DetailsData = ReturnType<typeof populateDetails>;
 
 const initialSortModel: SortModel = [{ field: "orderTime", sort: "asc" }];
 
-export default (props: Props) => {
+export default (props: {
+  data: Voidable<OrderPoolRecord[]>;
+  error: Voidable<Error>;
+  loading: boolean;
+  updating: boolean;
+  updatingInterval: number;
+}) => {
   const data = M.withDefault([], M.of(props.data));
 
   const cancelRef = useRef<Ref>();
