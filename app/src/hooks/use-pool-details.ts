@@ -28,6 +28,8 @@ export default (poolAddress: PublicKey, order: OrderBalanceData) => {
 
       const [a, b] = tokens.data;
 
+      // TODO: inception = expiration - timeInForce
+
       const { configA, configB, inceptionTime, statsA, statsB } = pair;
       const { buySide, expirationTime, sellSide, status } = pool;
 
