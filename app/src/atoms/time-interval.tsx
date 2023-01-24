@@ -25,9 +25,16 @@ export default ({
 }) => {
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
 
-  const handlePopoverOpen = (event: MouseEvent<HTMLElement>) => {
-    setAnchorEl(event.currentTarget);
-  };
+  const handlePopoverOpen = useCallback(
+    (event: MouseEvent<HTMLElement>) => {
+      if (anchorEl) {
+        setAnchorEl(null);
+      } else {
+        setAnchorEl(event.currentTarget);
+      }
+    },
+    [anchorEl, setAnchorEl]
+  );
 
   const intervalValues = useMemo(() => values, [values]);
 

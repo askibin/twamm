@@ -72,14 +72,14 @@ export const Provider: FC<{ children: ReactNode }> = ({ children }) => {
     {
       name: endpoints.custom.name,
       endpoint: hasStoredEndpoint
-        ? (clusterStorage.get() as string)
+        ? (clusterStorage.get<string>() as string)
         : endpoints.custom.endpoint,
       moniker: endpoints.custom.moniker,
     },
   ];
 
   const initialCluster = hasStoredEndpoint
-    ? cluster.findBy(clusterStorage.get(), initialClusters)
+    ? cluster.findBy(clusterStorage.get<string>(), initialClusters)
     : fallbackCluster;
 
   const [commitment] = useState<TContext.CommitmentLevel>(COMMITMENT);
