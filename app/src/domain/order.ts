@@ -1,5 +1,12 @@
 import M from "easy-maybe/lib";
+import type { Program } from "@project-serum/anchor";
+import type { WalletProvider } from "@twamm/types/lib";
+import { BN } from "@project-serum/anchor";
+import { findAddress } from "@twamm/client.js/lib/program";
+import { findAssociatedTokenAddress } from "@twamm/client.js";
 import { OrderSide } from "@twamm/types/lib";
+import { PublicKey } from "@solana/web3.js";
+import { SplToken } from "@twamm/client.js/lib/spl-token";
 import type { IndexedTIF } from "./interval.d";
 import { SpecialIntervals } from "./interval.d";
 
@@ -96,4 +103,70 @@ export const prepare4Jupiter = (
   };
 
   return params;
+};
+
+export const cancelOrder = async (
+  provider: WalletProvider,
+  program: Program,
+  aMint: PublicKey,
+  bMint: PublicKey,
+  lpAmount: number,
+  orderAddress: PublicKey,
+  poolAddress: PublicKey
+) => {
+  const findProgramAddress = findAddress(program);
+
+  const TOKEN_PROGRAM_ID = SplToken.getProgramId();
+
+  const transferAuthority = await findProgramAddress("transfer_authority", []);
+
+  const tokenPairAddress = await findProgramAddress("token_pair", [
+    new PublicKey(aMint).toBuffer(),
+    new PublicKey(bMint).toBuffer(),
+  ]);
+
+  const aCustody = await findAssociatedTokenAddress(
+    transferAuthority,
+    aMint,
+    TOKEN_PROGRAM_ID
+  );
+
+  const bCustody = await findAssociatedTokenAddress(
+    transferAuthority,
+    bMint,
+    TOKEN_PROGRAM_ID
+  );
+
+  const aWallet = await findAssociatedTokenAddress(
+    provider.wallet.publicKey,
+    aMint
+  );
+
+  const bWallet = await findAssociatedTokenAddress(
+    provider.wallet.publicKey,
+    bMint
+  );
+
+  const accounts = {
+    payer: provider.wallet.publicKey,
+    owner: provider.wallet.publicKey,
+    userAccountTokenA: aWallet,
+    userAccountTokenB: bWallet,
+    tokenPair: tokenPairAddress,
+    transferAuthority,
+    custodyTokenA: aCustody,
+    custodyTokenB: bCustody,
+    order: orderAddress,
+    pool: poolAddress,
+    tokenProgram: TOKEN_PROGRAM_ID,
+  };
+
+  const tx = program.instruction.cancelOrder(
+    {
+      lpAmount: new BN(lpAmount),
+    },
+    { accounts }
+  );
+
+  return tx;
 };

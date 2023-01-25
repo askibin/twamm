@@ -12,10 +12,12 @@ import { Order } from "@twamm/client.js/lib/order";
 import { OrderSide } from "@twamm/types/lib";
 import { SplToken } from "@twamm/client.js/lib/spl-token";
 import { Transfer } from "@twamm/client.js/lib/transfer";
+import { useWallet } from "@solana/wallet-adapter-react";
 
 import Logger from "../utils/logger";
 import useProgram from "./use-program";
 import useTxRunner from "../contexts/transaction-runner-context";
+import { cancelOrder } from "../domain/order";
 import { NEXT_PUBLIC_ENABLE_TX_SIMUL } from "../env";
 
 const computePoolCounters = (
@@ -95,6 +97,28 @@ export default () => {
       targetCounter
     );
     const [, previousOrder] = await forit(order.getOrder(previousOrderAddress));
+
+    const poolCounterIndex = tifs.findIndex((a) => a === tif);
+    const curPoolCounter = poolCounters[poolCounterIndex];
+
+    console.log({ curPoolCounter, nextPool, tif, poolCounterIndex });
+
+    const curOrders = await order.getKeyByCustodies(
+      transferAccounts.aCustody,
+      transferAccounts.bCustody,
+      tif,
+      curPoolCounter // + (nextPool ? 1 : 0)
+    );
+    console.log({ curOrders });
+    // TODO: cover absent order case
+
+    const prevOrder = await order.getOrder(curOrders);
+
+    /*
+     *const cancelPrevOrderInstruction = program.instruction.cancelOrder(
+     *  prevOrder.lpBalance
+     *);
+     */
 
     let preInstructions = [
       await assureAccountCreated(provider, primary, transferAccounts.aWallet),
