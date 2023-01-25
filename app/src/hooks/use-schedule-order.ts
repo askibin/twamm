@@ -13,9 +13,11 @@ import { Order } from "@twamm/client.js/lib/order";
 import { OrderSide } from "@twamm/types/lib";
 import { Pool } from "@twamm/client.js/lib/pool";
 import { SplToken } from "@twamm/client.js/lib/spl-token";
+import { useWallet } from "@solana/wallet-adapter-react";
 
 import useProgram from "./use-program";
 import useTxRunner from "../contexts/transaction-runner-context";
+import { cancelOrder } from "../domain/order";
 import { NEXT_PUBLIC_ENABLE_TX_SIMUL } from "../env";
 
 export interface Params {
@@ -33,6 +35,7 @@ export interface Params {
 export default () => {
   const { program, provider } = useProgram();
   const { commit, setInfo } = useTxRunner();
+  const { publicKey } = useWallet();
 
   const findProgramAddress = findAddress(program);
 
@@ -85,10 +88,46 @@ export default () => {
       bMintPublicKey
     );
 
+    const poolCounterIndex = tifs.findIndex((a) => a === tif);
+    const curPoolCounter = poolCounters[poolCounterIndex];
+
+    console.log({ curPoolCounter, nextPool, tif, poolCounterIndex });
+
+    const curOrders = await order.getKeyByCustodies(
+      aCustody,
+      bCustody,
+      tif,
+      curPoolCounter // + (nextPool ? 1 : 0)
+    );
+    console.log({ curOrders });
+    // TODO: cover absent order case
+
+    const prevOrder = await order.getOrder(curOrders);
+
+    /*
+     *const cancelPrevOrderInstruction = program.instruction.cancelOrder(
+     *  prevOrder.lpBalance
+     *);
+     */
+
+    const cantx = cancelOrder(
+      provider,
+      program,
+      aMintPublicKey,
+      bMintPublicKey,
+      100000000,
+      curOrders,
+      curOrders
+    );
+
+    console.log("co", await cantx);
+
     let preInstructions = [
+      await cantx,
       await assureAccountCreated(provider, aMintPublicKey, aWallet),
       await assureAccountCreated(provider, bMintPublicKey, bWallet),
     ];
+
 
     const isSell = side === OrderSide.sell;
     const isBuy = side === OrderSide.buy;
@@ -116,6 +155,8 @@ export default () => {
     const pre = preInstructions.filter(
       (i): i is TransactionInstruction => !isNil(i)
     );
+
+    console.log("pre", pre)
 
     const index = tifs.indexOf(tif);
     if (index < 0) throw new Error("Invalid TIF");
