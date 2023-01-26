@@ -2,10 +2,10 @@ import { assureAccountCreated } from "@twamm/client.js/lib/assure-account-create
 import { BN } from "@project-serum/anchor";
 import { createCloseNativeTokenAccountInstruction } from "@twamm/client.js/lib/create-close-native-token-account-instruction"; // eslint-disable-line max-len
 import { findAddress } from "@twamm/client.js/lib/program";
-import { findAssociatedTokenAddress } from "@twamm/client.js";
+import { isNil } from "ramda";
 import { PublicKey, TransactionInstruction } from "@solana/web3.js";
 import { SplToken } from "@twamm/client.js/lib/spl-token";
-import { isNil } from "ramda";
+import { Transfer } from "@twamm/client.js/lib/transfer";
 
 import useProgram from "./use-program";
 import useTxRunner from "../contexts/transaction-runner-context";
@@ -15,14 +15,14 @@ export default () => {
   const { provider, program } = useProgram();
   const { commit, setInfo } = useTxRunner();
 
-  const findProgramAddress = findAddress(program);
+  const transfer = new Transfer(program, provider);
 
   const TOKEN_PROGRAM_ID = SplToken.getProgramId();
 
   const run = async function execute({
-    a: aMint,
+    a: primary,
     amount: lpAmount,
-    b: bMint,
+    b: secondary,
     orderAddress,
     poolAddress,
   }: {
@@ -32,41 +32,14 @@ export default () => {
     orderAddress: PublicKey;
     poolAddress: PublicKey;
   }) {
-    const transferAuthority = await findProgramAddress(
-      "transfer_authority",
-      []
-    );
-
-    const tokenPairAddress = await findProgramAddress("token_pair", [
-      new PublicKey(aMint).toBuffer(),
-      new PublicKey(bMint).toBuffer(),
-    ]);
-
-    const aCustody = await findAssociatedTokenAddress(
-      transferAuthority,
-      aMint,
-      TOKEN_PROGRAM_ID
-    );
-
-    const bCustody = await findAssociatedTokenAddress(
-      transferAuthority,
-      bMint,
-      TOKEN_PROGRAM_ID
-    );
-
-    const aWallet = await findAssociatedTokenAddress(
-      provider.wallet.publicKey,
-      aMint
-    );
-
-    const bWallet = await findAssociatedTokenAddress(
-      provider.wallet.publicKey,
-      bMint
+    const transferAccounts = await transfer.findTransferAccounts(
+      primary,
+      secondary
     );
 
     const preInstructions = [
-      await assureAccountCreated(provider, aMint, aWallet),
-      await assureAccountCreated(provider, bMint, bWallet),
+      await assureAccountCreated(provider, primary, transferAccounts.aWallet),
+      await assureAccountCreated(provider, secondary, transferAccounts.bWallet),
     ];
 
     const pre = preInstructions.filter(
@@ -75,14 +48,14 @@ export default () => {
 
     const postInstructions = [
       await createCloseNativeTokenAccountInstruction(
-        aMint,
-        aWallet,
+        primary,
+        transferAccounts.aWallet,
         provider.wallet.publicKey,
         undefined
       ),
       await createCloseNativeTokenAccountInstruction(
-        bMint,
-        bWallet,
+        secondary,
+        transferAccounts.bWallet,
         provider.wallet.publicKey,
         undefined
       ),
@@ -95,12 +68,12 @@ export default () => {
     const accounts = {
       payer: provider.wallet.publicKey,
       owner: provider.wallet.publicKey,
-      userAccountTokenA: aWallet,
-      userAccountTokenB: bWallet,
-      tokenPair: tokenPairAddress,
-      transferAuthority,
-      custodyTokenA: aCustody,
-      custodyTokenB: bCustody,
+      userAccountTokenA: transferAccounts.aWallet,
+      userAccountTokenB: transferAccounts.bWallet,
+      tokenPair: transferAccounts.tokenPair,
+      transferAuthority: transferAccounts.transferAuthority,
+      custodyTokenA: transferAccounts.aCustody,
+      custodyTokenB: transferAccounts.bCustody,
       order: orderAddress,
       pool: poolAddress,
       tokenProgram: TOKEN_PROGRAM_ID,

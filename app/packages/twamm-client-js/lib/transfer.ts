@@ -20,9 +20,9 @@ export class Transfer {
   async findTransferAccounts(
     primary: PublicKey,
     secondary: PublicKey,
-    tif: number,
-    currentCounter: BN,
-    targetCounter: BN
+    tif?: number,
+    currentCounter?: BN,
+    targetCounter?: BN
   ) {
     const { wallet } = this.provider as WalletProvider;
 
@@ -57,35 +57,47 @@ export class Transfer {
       secondary
     );
 
-    const currentPool = await pool.getKeyByCustodies(
-      aCustody,
-      bCustody,
-      tif,
-      currentCounter
-    );
+    if (tif !== undefined && currentCounter && targetCounter) {
+      const currentPool = await pool.getKeyByCustodies(
+        aCustody,
+        bCustody,
+        tif,
+        currentCounter
+      );
 
-    const targetOrder = await order.getKeyByCustodies(
-      aCustody,
-      bCustody,
-      tif,
-      targetCounter
-    );
-    const targetPool = await pool.getKeyByCustodies(
-      aCustody,
-      bCustody,
-      tif,
-      targetCounter
-    );
+      const targetOrder = await order.getKeyByCustodies(
+        aCustody,
+        bCustody,
+        tif,
+        targetCounter
+      );
+      const targetPool = await pool.getKeyByCustodies(
+        aCustody,
+        bCustody,
+        tif,
+        targetCounter
+      );
+
+      return {
+        aWallet,
+        aCustody,
+        bWallet,
+        bCustody,
+        currentPool,
+        targetOrder,
+        targetPool,
+        tokenPair,
+        transferAuthority,
+      };
+    }
 
     return {
       aWallet,
       aCustody,
       bWallet,
       bCustody,
-      currentPool,
-      targetOrder,
-      targetPool,
       tokenPair,
+      transferAuthority,
     };
   }
 }

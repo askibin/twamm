@@ -1,11 +1,10 @@
 import type { Provider, Program } from "@project-serum/anchor";
 import M from "easy-maybe/lib";
 import { BN } from "@project-serum/anchor";
-import { findAddress } from "@twamm/client.js/lib/program";
-import { findAssociatedTokenAddress } from "@twamm/client.js";
 import { PublicKey } from "@solana/web3.js";
 import { OrderSide } from "@twamm/types/lib";
 import { SplToken } from "@twamm/client.js/lib/spl-token";
+import { Transfer } from "@twamm/client.js/lib/transfer";
 import type { IndexedTIF, SelectedTIF } from "./interval.d";
 import { SpecialIntervals } from "./interval.d";
 
@@ -119,48 +118,21 @@ export const cancelOrder = async (
   orderAddress: PublicKey,
   poolAddress: PublicKey
 ) => {
-  const findProgramAddress = findAddress(program);
+  const transfer = new Transfer(program, provider);
+
+  const transferAccounts = await transfer.findTransferAccounts(aMint, bMint);
 
   const TOKEN_PROGRAM_ID = SplToken.getProgramId();
-
-  const transferAuthority = await findProgramAddress("transfer_authority", []);
-
-  const tokenPairAddress = await findProgramAddress("token_pair", [
-    new PublicKey(aMint).toBuffer(),
-    new PublicKey(bMint).toBuffer(),
-  ]);
-
-  const aCustody = await findAssociatedTokenAddress(
-    transferAuthority,
-    aMint,
-    TOKEN_PROGRAM_ID
-  );
-
-  const bCustody = await findAssociatedTokenAddress(
-    transferAuthority,
-    bMint,
-    TOKEN_PROGRAM_ID
-  );
-
-  const aWallet = await findAssociatedTokenAddress(
-    provider.wallet.publicKey,
-    aMint
-  );
-
-  const bWallet = await findAssociatedTokenAddress(
-    provider.wallet.publicKey,
-    bMint
-  );
 
   const accounts = {
     payer: provider.wallet.publicKey,
     owner: provider.wallet.publicKey,
-    userAccountTokenA: aWallet,
-    userAccountTokenB: bWallet,
-    tokenPair: tokenPairAddress,
-    transferAuthority,
-    custodyTokenA: aCustody,
-    custodyTokenB: bCustody,
+    userAccountTokenA: transferAccounts.aWallet,
+    userAccountTokenB: transferAccounts.bWallet,
+    tokenPair: transferAccounts.tokenPair,
+    transferAuthority: transferAccounts.transferAuthority,
+    custodyTokenA: transferAccounts.aCustody,
+    custodyTokenB: transferAccounts.bCustody,
     order: orderAddress,
     pool: poolAddress,
     tokenProgram: TOKEN_PROGRAM_ID,
