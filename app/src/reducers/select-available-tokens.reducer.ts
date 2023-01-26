@@ -16,7 +16,12 @@ const matchPairs = (pair: AddressPair, pairs: AddressPair[]) => {
   return type;
 };
 
-const selectComplementary = (token: JupToken, pairs: AddressPair[]) => {
+const selectComplementary = (
+  token: JupToken | undefined,
+  pairs: AddressPair[]
+) => {
+  if (!token) return [];
+
   const availablePairs = pairs.filter((pair) => pair.includes(token.address));
 
   const available = flatten(availablePairs).filter(
@@ -100,7 +105,11 @@ export default (
 
       const isChangingType = OrderSide.defaultSide !== type;
 
-      const [a, b] = isChangingType ? [pair[1], pair[0]] : [pair[0], pair[1]];
+      const [a, b]: [JupToken | undefined, JupToken] = isChangingType
+        ? [pair[1], pair[0]]
+        : [pair[0], pair[1]];
+
+      if (!a || !b) return state;
 
       const all = flattenPairs(pairs);
       const available = selectComplementary(a, pairs);
