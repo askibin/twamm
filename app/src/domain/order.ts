@@ -1,12 +1,5 @@
 import M from "easy-maybe/lib";
-import type { Program } from "@project-serum/anchor";
-import type { WalletProvider } from "@twamm/types/lib";
-import { BN } from "@project-serum/anchor";
-import { findAddress } from "@twamm/client.js/lib/program";
-import { findAssociatedTokenAddress } from "@twamm/client.js";
 import { OrderSide } from "@twamm/types/lib";
-import { PublicKey } from "@solana/web3.js";
-import { SplToken } from "@twamm/client.js/lib/spl-token";
 import type { IndexedTIF } from "./interval.d";
 import { SpecialIntervals } from "./interval.d";
 
