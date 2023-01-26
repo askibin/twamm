@@ -31,7 +31,7 @@ const Content = ({
   quantity: number;
   timeInForce: number;
   tokens: Voidable<MaybeTokens>;
-}) => console.log({details}) || (
+}) => (
   <Stack direction="column" spacing={2}>
     <Styled.ContentHeader>
       <Stack alignItems="baseline" direction="row" spacing={1}>

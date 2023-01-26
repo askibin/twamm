@@ -1,7 +1,6 @@
 import { assureAccountCreated } from "@twamm/client.js/lib/assure-account-created";
 import { BN } from "@project-serum/anchor";
 import { createCloseNativeTokenAccountInstruction } from "@twamm/client.js/lib/create-close-native-token-account-instruction"; // eslint-disable-line max-len
-import { findAddress } from "@twamm/client.js/lib/program";
 import { isNil } from "ramda";
 import { PublicKey, TransactionInstruction } from "@solana/web3.js";
 import { SplToken } from "@twamm/client.js/lib/spl-token";
@@ -92,6 +91,8 @@ export default () => {
 
       const simResult = await tx.simulate().catch((e) => {
         console.error("Failed to simulate", e); // eslint-disable-line no-console
+        if (e.simulationResponse?.logs)
+          console.error(e.simulationResponse.logs); // eslint-disable-line no-console, max-len
       });
 
       if (simResult) console.debug(simResult.raw, simResult.events); // eslint-disable-line no-console, max-len

@@ -33,8 +33,6 @@ const computePoolCounters = (
     ? new BN(poolCounter.toNumber() + 1)
     : poolCounter;
 
-  console.log("pcc", counter.toNumber(), poolCounter.toNumber());
-
   return { currentCounter: poolCounter, targetCounter: counter };
 };
 
@@ -87,8 +85,6 @@ export default () => {
       targetCounter
     );
 
-    console.log({ currentCounter, nextPool, tif });
-
     // check that similar order exists
     const previousOrderAddress = await order.getKeyByCustodies(
       transferAccounts.aCustody,
@@ -98,9 +94,7 @@ export default () => {
     );
     const [, previousOrder] = await forit(order.getOrder(previousOrderAddress));
 
-    console.log({ previousOrder });
     let preInstructions = [
-      //await cantx,
       await assureAccountCreated(provider, primary, transferAccounts.aWallet),
       await assureAccountCreated(provider, secondary, transferAccounts.bWallet),
     ];
@@ -109,10 +103,8 @@ export default () => {
       const prevSideStruct = previousOrder.side;
       const hasOppositeSide = Boolean(prevSideStruct[side] === undefined);
 
-      console.log({ hasOppositeSide });
-
       if (hasOppositeSide) {
-        const cantx = cancelOrder(
+        const cancelInstruction = await cancelOrder(
           provider,
           program,
           primary,
@@ -122,7 +114,7 @@ export default () => {
           previousOrder.pool
         );
 
-        preInstructions = preInstructions.concat([await cantx]);
+        preInstructions = preInstructions.concat(cancelInstruction);
       }
     }
 
@@ -159,8 +151,6 @@ export default () => {
       (i): i is TransactionInstruction => !isNil(i)
     );
 
-    console.log("pre", pre);
-
     const accounts = {
       owner: provider.wallet.publicKey,
       userAccountTokenA: transferAccounts.aWallet,
@@ -185,6 +175,8 @@ export default () => {
 
       const simResult = await tx.simulate().catch((e) => {
         console.error("Failed to simulate", e); // eslint-disable-line no-console
+        if (e.simulationResponse?.logs)
+          console.error(e.simulationResponse.logs); // eslint-disable-line no-console, max-len
       });
 
       if (simResult) console.debug(simResult.raw, simResult.events); // eslint-disable-line no-console, max-len

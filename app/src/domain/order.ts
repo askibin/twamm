@@ -1,4 +1,5 @@
-import type { Provider, Program } from "@project-serum/anchor";
+import type { Program } from "@project-serum/anchor";
+import type { WalletProvider } from "@twamm/types/lib";
 import M from "easy-maybe/lib";
 import { BN } from "@project-serum/anchor";
 import { PublicKey } from "@solana/web3.js";
@@ -110,7 +111,7 @@ export const prepare4Jupiter = (
 };
 
 export const cancelOrder = async (
-  provider: Provider,
+  provider: WalletProvider,
   program: Program,
   aMint: PublicKey,
   bMint: PublicKey,
@@ -137,8 +138,6 @@ export const cancelOrder = async (
     pool: poolAddress,
     tokenProgram: TOKEN_PROGRAM_ID,
   };
-
-  console.log({ program });
 
   const tx = program.instruction.cancelOrder(
     {
