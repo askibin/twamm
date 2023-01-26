@@ -11,6 +11,9 @@ export const JUPITER_PRICE_ENDPOINT_V1 = "https://price.jup.ag/v1/price";
 export const NEXT_PUBLIC_ENABLE_TX_SIMUL =
   process.env.NEXT_PUBLIC_ENABLE_TX_SIMUL || "1";
 
+export const NEXT_PUBLIC_SUPPORTED_TOKEN =
+  process.env.NEXT_PUBLIC_SUPPORTED_TOKEN || "";
+
 export const AnkrClusterApiUrl = "https://rpc.ankr.com/solana";
 
 // TODO: cover absent env value

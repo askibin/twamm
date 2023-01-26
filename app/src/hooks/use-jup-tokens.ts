@@ -3,23 +3,22 @@ import useSWR from "swr";
 import { TOKEN_LIST_URL } from "@jup-ag/core";
 import { SplToken } from "@twamm/client.js/lib/spl-token";
 import useBlockchain from "../contexts/solana-connection-context";
+import { NEXT_PUBLIC_SUPPORTED_TOKEN } from "../env";
+
+let ADDRESSES: string[];
+try {
+  ADDRESSES = NEXT_PUBLIC_SUPPORTED_TOKEN.split(",");
+} catch (e) {
+  ADDRESSES = ["EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"];
+}
 
 const swrKey = (params: { moniker: Cluster }) => ({
   key: "JupTokens",
   params,
 });
 
-// @ts-expect-error
-const hasTag = (t: JupToken, tag: string) => t.tags?.includes(tag);
-const isSTL = (t: JupToken) => hasTag(t, "stablecoin");
-const isSolana = (t: JupToken) => hasTag(t, "solana");
 const isSol = (t: JupToken) => SplToken.isNativeAddress(t.address);
-const hasProperAddress = (t: JupToken) =>
-  [
-    "4k3Dyjzvzp8eMZWUXbBCjEvwSkkk59S5iCNLY3QrkX6R",
-    "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
-    "Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB",
-  ].includes(t.address);
+const hasProperAddress = (t: JupToken) => ADDRESSES.includes(t.address);
 
 const fetcher = async ({ params }: SWRParams<typeof swrKey>) => {
   const { moniker } = params;
@@ -29,12 +28,7 @@ const fetcher = async ({ params }: SWRParams<typeof swrKey>) => {
   ).json();
 
   const neededTokens = allTokens
-    .filter((t) =>
-      // @ts-expect-error
-      t?.tags
-        ? isSTL(t) || isSolana(t) || isSol(t)
-        : hasProperAddress(t) || isSol(t)
-    )
+    .filter((t) => hasProperAddress(t) || isSol(t))
     .map(({ address, decimals, logoURI, name, symbol }) => ({
       address,
       decimals,
