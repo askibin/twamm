@@ -95,24 +95,6 @@ export default () => {
     );
     const [, previousOrder] = await forit(order.getOrder(previousOrderAddress));
 
-    const poolCounterIndex = tifs.findIndex((a) => a === tif);
-    const curPoolCounter = poolCounters[poolCounterIndex];
-
-    const curOrders = await order.getKeyByCustodies(
-      transferAccounts.aCustody,
-      transferAccounts.bCustody,
-      tif,
-      curPoolCounter // + (nextPool ? 1 : 0)
-    );
-
-    const prevOrder = await order.getOrder(curOrders);
-
-    /*
-     *const cancelPrevOrderInstruction = program.instruction.cancelOrder(
-     *  prevOrder.lpBalance
-     *);
-     */
-
     let preInstructions = [
       await assureAccountCreated(provider, primary, transferAccounts.aWallet),
       await assureAccountCreated(provider, secondary, transferAccounts.bWallet),
