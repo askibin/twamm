@@ -62,10 +62,10 @@ export default ({
 
   useEffect(() => {
     if (!intervalsChecksum && tif && tif[0] !== SpecialIntervals.INSTANT) {
-      setTif(undefined);
+      onTifSelect([undefined, SpecialIntervals.NO_DELAY]);
     }
     // cleanup selected interval
-  }, [intervalTifs, intervalsChecksum, tif]);
+  }, [intervalTifs, intervalsChecksum, onTifSelect, tif]);
 
   const onChangeAmount = useCallback(
     (value: number) => {
