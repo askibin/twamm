@@ -54,7 +54,10 @@ export default ({
     M.withDefault(
       undefined,
       M.andMap(
-        ([primary, secondary]) => ({ id: primary.address, vsToken: secondary.address }),
+        ([primary, secondary]) => ({
+          id: primary.address,
+          vsToken: secondary.address,
+        }),
         Extra.combine2([M.of(a), M.of(b)])
       )
     )

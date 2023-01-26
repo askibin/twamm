@@ -1,15 +1,12 @@
 import type { BN, Program, Provider } from "@project-serum/anchor";
 import type { PublicKey } from "@solana/web3.js";
+import type { WalletProvider } from "@twamm/types/lib";
 import { encode } from "bs58";
 
 import { fetchMultipleAddresses } from "./utils";
 import { findAddress } from "./program";
 import { getAccountDiscriminator } from "./account";
 import { Pool } from "./pool";
-
-interface WalletProvider extends Provider {
-  wallet: { publicKey: PublicKey };
-}
 
 export class Order {
   program: Program;

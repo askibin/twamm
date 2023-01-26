@@ -1,4 +1,4 @@
-declare type PoolCounter = any;
+declare type PoolCounter = BN;
 
 declare type ExchangePair = [TokenPair, OrderSide];
 

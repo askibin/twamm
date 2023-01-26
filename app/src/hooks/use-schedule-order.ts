@@ -6,40 +6,44 @@ import {
 } from "@solana/web3.js";
 import { assureAccountCreated } from "@twamm/client.js/lib/assure-account-created";
 import { createTransferNativeTokenInstructions } from "@twamm/client.js";
-import { findAddress } from "@twamm/client.js/lib/program";
-import { findAssociatedTokenAddress } from "@twamm/client.js/lib/find-associated-token-address";
+import { forit } from "a-wait-forit";
 import { isNil } from "ramda";
 import { Order } from "@twamm/client.js/lib/order";
 import { OrderSide } from "@twamm/types/lib";
-import { Pool } from "@twamm/client.js/lib/pool";
 import { SplToken } from "@twamm/client.js/lib/spl-token";
-import { useWallet } from "@solana/wallet-adapter-react";
+import { Transfer } from "@twamm/client.js/lib/transfer";
 
 import useProgram from "./use-program";
 import useTxRunner from "../contexts/transaction-runner-context";
 import { cancelOrder } from "../domain/order";
 import { NEXT_PUBLIC_ENABLE_TX_SIMUL } from "../env";
 
-export interface Params {
-  amount: number;
-  decimals: number;
-  side: OrderSide;
-  aMint: string;
-  bMint: string;
-  tif: number;
-  nextPool: boolean;
-  poolCounters: PoolCounter[];
-  tifs: number[];
-}
+const computePoolCounters = (
+  tif: TIF,
+  tifs: TIF[],
+  poolCounters: PoolCounter[],
+  nextPool: boolean
+) => {
+  const tifIndex = tifs.indexOf(tif);
+  if (tifIndex < 0) throw new Error("Invalid TIF");
+
+  const poolCounter = poolCounters[tifIndex];
+
+  const counter: PoolCounter = nextPool
+    ? new BN(poolCounter.toNumber() + 1)
+    : poolCounter;
+
+  console.log("pcc", counter.toNumber(), poolCounter.toNumber());
+
+  return { currentCounter: poolCounter, targetCounter: counter };
+};
 
 export default () => {
   const { program, provider } = useProgram();
   const { commit, setInfo } = useTxRunner();
-  const { publicKey } = useWallet();
 
-  const findProgramAddress = findAddress(program);
+  const transfer = new Transfer(program, provider);
 
-  const pool = new Pool(program);
   const order = new Order(program, provider);
 
   const TOKEN_PROGRAM_ID = SplToken.getProgramId();
@@ -54,90 +58,89 @@ export default () => {
     side,
     tif,
     tifs,
-  }: Params) {
-    const transferAuthority = await findProgramAddress(
-      "transfer_authority",
-      []
-    );
-
-    const aMintPublicKey = new PublicKey(aMint);
-    const bMintPublicKey = new PublicKey(bMint);
-
-    const tokenPairAddress = await findProgramAddress("token_pair", [
-      new PublicKey(aMint).toBuffer(),
-      new PublicKey(bMint).toBuffer(),
-    ]);
-
-    const aCustody = await findAssociatedTokenAddress(
-      transferAuthority,
-      aMintPublicKey
-    );
-
-    const bCustody = await findAssociatedTokenAddress(
-      transferAuthority,
-      bMintPublicKey
-    );
-
-    const aWallet = await findAssociatedTokenAddress(
-      provider.wallet.publicKey,
-      aMintPublicKey
-    );
-
-    const bWallet = await findAssociatedTokenAddress(
-      provider.wallet.publicKey,
-      bMintPublicKey
-    );
-
-    const poolCounterIndex = tifs.findIndex((a) => a === tif);
-    const curPoolCounter = poolCounters[poolCounterIndex];
-
-    console.log({ curPoolCounter, nextPool, tif, poolCounterIndex });
-
-    const curOrders = await order.getKeyByCustodies(
-      aCustody,
-      bCustody,
+  }: {
+    amount: number;
+    decimals: number;
+    side: OrderSide;
+    aMint: string;
+    bMint: string;
+    tif: TIF;
+    nextPool: boolean;
+    poolCounters: PoolCounter[];
+    tifs: TIF[];
+  }) {
+    const { currentCounter, targetCounter } = computePoolCounters(
       tif,
-      curPoolCounter // + (nextPool ? 1 : 0)
-    );
-    console.log({ curOrders });
-    // TODO: cover absent order case
-
-    const prevOrder = await order.getOrder(curOrders);
-
-    /*
-     *const cancelPrevOrderInstruction = program.instruction.cancelOrder(
-     *  prevOrder.lpBalance
-     *);
-     */
-
-    const cantx = cancelOrder(
-      provider,
-      program,
-      aMintPublicKey,
-      bMintPublicKey,
-      100000000,
-      curOrders,
-      curOrders
+      tifs,
+      poolCounters,
+      nextPool
     );
 
-    console.log("co", await cantx);
+    const primary = new PublicKey(aMint);
+    const secondary = new PublicKey(bMint);
 
+    const transferAccounts = await transfer.findTransferAccounts(
+      primary,
+      secondary,
+      tif,
+      currentCounter,
+      targetCounter
+    );
+
+    console.log({ currentCounter, nextPool, tif });
+
+    // check that similar order exists
+    const previousOrderAddress = await order.getKeyByCustodies(
+      transferAccounts.aCustody,
+      transferAccounts.bCustody,
+      tif,
+      targetCounter
+    );
+    const [, previousOrder] = await forit(order.getOrder(previousOrderAddress));
+
+    console.log({ previousOrder });
     let preInstructions = [
-      await cantx,
-      await assureAccountCreated(provider, aMintPublicKey, aWallet),
-      await assureAccountCreated(provider, bMintPublicKey, bWallet),
+      //await cantx,
+      await assureAccountCreated(provider, primary, transferAccounts.aWallet),
+      await assureAccountCreated(provider, secondary, transferAccounts.bWallet),
     ];
 
+    if (previousOrder) {
+      const prevSideStruct = previousOrder.side;
+      const hasOppositeSide = Boolean(prevSideStruct[side] === undefined);
+
+      console.log({ hasOppositeSide });
+
+      if (hasOppositeSide) {
+        const cantx = cancelOrder(
+          provider,
+          program,
+          primary,
+          secondary,
+          previousOrder.lpBalance,
+          previousOrderAddress,
+          previousOrder.pool
+        );
+
+        preInstructions = preInstructions.concat([await cantx]);
+      }
+    }
 
     const isSell = side === OrderSide.sell;
     const isBuy = side === OrderSide.buy;
+
+    const orderParams = {
+      side: isSell ? { sell: {} } : { buy: {} },
+      timeInForce: tif,
+      amount: new BN(amount * 10 ** decimals),
+    };
 
     if (isSell)
       preInstructions = preInstructions.concat(
         await createTransferNativeTokenInstructions(
           provider,
-          aMintPublicKey,
-          aWallet,
+          primary,
+          transferAccounts.aWallet,
           amount
         )
       );
@@ -146,8 +149,8 @@ export default () => {
       preInstructions = preInstructions.concat(
         await createTransferNativeTokenInstructions(
           provider,
-          bMintPublicKey,
-          bWallet,
+          secondary,
+          transferAccounts.bWallet,
           amount
         )
       );
@@ -156,50 +159,18 @@ export default () => {
       (i): i is TransactionInstruction => !isNil(i)
     );
 
-    console.log("pre", pre)
-
-    const index = tifs.indexOf(tif);
-    if (index < 0) throw new Error("Invalid TIF");
-    const counter = poolCounters[index];
-
-    const orderParams = {
-      side: side === OrderSide.sell ? { sell: {} } : { buy: {} },
-      timeInForce: tif,
-      amount: new BN(amount * 10 ** decimals),
-    };
-
-    const poolCounter = nextPool ? Number(counter) + 1 : counter;
-
-    const targetOrder = await order.getKeyByCustodies(
-      aCustody,
-      bCustody,
-      tif,
-      poolCounter
-    );
-
-    const currentPool = await pool.getKeyByCustodies(
-      aCustody,
-      bCustody,
-      tif,
-      counter
-    );
-    const targetPool = await pool.getKeyByCustodies(
-      aCustody,
-      bCustody,
-      tif,
-      poolCounter
-    );
+    console.log("pre", pre);
 
     const accounts = {
       owner: provider.wallet.publicKey,
-      userAccountTokenA: aWallet,
-      userAccountTokenB: bWallet,
-      tokenPair: tokenPairAddress,
-      custodyTokenA: aCustody,
-      custodyTokenB: bCustody,
-      order: targetOrder,
-      currentPool,
-      targetPool,
+      userAccountTokenA: transferAccounts.aWallet,
+      userAccountTokenB: transferAccounts.bWallet,
+      tokenPair: transferAccounts.tokenPair,
+      custodyTokenA: transferAccounts.aCustody,
+      custodyTokenB: transferAccounts.bCustody,
+      order: transferAccounts.targetOrder,
+      currentPool: transferAccounts.currentPool,
+      targetPool: transferAccounts.targetPool,
       systemProgram: SystemProgram.programId,
       tokenProgram: TOKEN_PROGRAM_ID,
     };
