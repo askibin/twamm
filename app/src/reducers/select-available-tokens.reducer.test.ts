@@ -142,7 +142,7 @@ describe("select-available-tokens reducer", () => {
     });
   });
 
-  it("should `SELECT_A` and clean slave token", () => {
+  it("should `SELECT_A` and clean secondary token", () => {
     const richPairs: AddressPair[] = [
       ["address_a", "address_b"],
       ["address_a", "address_c"],

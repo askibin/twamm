@@ -54,7 +54,7 @@ export default ({
     M.withDefault(
       undefined,
       M.andMap(
-        ([lead, slave]) => ({ id: lead.address, vsToken: slave.address }),
+        ([primary, secondary]) => ({ id: primary.address, vsToken: secondary.address }),
         Extra.combine2([M.of(a), M.of(b)])
       )
     )
@@ -150,8 +150,8 @@ export default ({
       <Styled.Swap elevation={1}>
         <Box p={2}>
           <OrderForm
-            lead={a}
-            slave={b}
+            primary={a}
+            secondary={b}
             intervalTifs={intervalTifs.data}
             minTimeTillExpiration={selectedPair.data?.minTimeTillExpiration}
             onABSwap={onTokenSwap}

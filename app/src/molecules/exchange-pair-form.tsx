@@ -15,7 +15,7 @@ import { SpecialIntervals } from "../domain/interval.d";
 export default ({
   amount,
   intervalTifs,
-  lead,
+  primary,
   minTimeTillExpiration,
   onABSwap,
   onASelect,
@@ -25,13 +25,13 @@ export default ({
   onInstantIntervalSelect,
   onIntervalSelect,
   onSubmit,
-  slave,
+  secondary,
   submitting,
   tif,
 }: {
   amount?: number;
   intervalTifs: Voidable<PoolTIF[]>;
-  lead: Voidable<JupToken>;
+  primary: Voidable<JupToken>;
   minTimeTillExpiration: Voidable<number>;
   onABSwap: () => void;
   onASelect: () => void;
@@ -41,11 +41,11 @@ export default ({
   onInstantIntervalSelect: () => void;
   onIntervalSelect: (tif: SelectedTIF) => void;
   onSubmit: () => void;
-  slave: Voidable<JupToken>;
+  secondary: Voidable<JupToken>;
   submitting: boolean;
   tif?: SelectedTIF;
 }) => {
-  const [a, b] = [lead, slave];
+  const [a, b] = [primary, secondary];
 
   const isInstantEnabled =
     tif && tif[0] === SpecialIntervals.INSTANT ? true : undefined;

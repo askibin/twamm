@@ -13,8 +13,8 @@ import type { PoolTIF, SelectedTIF } from "../domain/interval.d";
 import type { ValidationErrors } from "../domain/order";
 
 export default ({
-  lead,
-  slave,
+  primary,
+  secondary,
   intervalTifs,
   minTimeTillExpiration,
   onABSwap,
@@ -28,8 +28,8 @@ export default ({
   tokenB,
   tokenPair: pair,
 }: {
-  lead: Voidable<TokenInfo>;
-  slave: Voidable<TokenInfo>;
+  primary: Voidable<TokenInfo>;
+  secondary: Voidable<TokenInfo>;
   intervalTifs: Voidable<PoolTIF[]>;
   minTimeTillExpiration: Voidable<number>;
   onABSwap: () => void;
@@ -155,7 +155,7 @@ export default ({
           <ExchangePairForm
             amount={amount}
             intervalTifs={intervalTifs}
-            lead={lead}
+            primary={primary}
             minTimeTillExpiration={minTimeTillExpiration}
             onABSwap={onABSwap}
             onASelect={onASelect}
@@ -165,7 +165,7 @@ export default ({
             onInstantIntervalSelect={onInstantIntervalSelect}
             onIntervalSelect={onIntervalSelect}
             onSubmit={handleSubmit}
-            slave={slave}
+            secondary={secondary}
             submitting={submitting}
             tif={tif}
           />

@@ -138,7 +138,7 @@ export default (
       const { token } = act.payload as ActionPayload<typeof selectA>;
 
       if (token.address === b?.address) {
-        // swap the tokens when oppisite token is selected as lead
+        // swap the tokens when oppisite token is selected as primary
         const applyState = pipe(
           set(lensA, b),
           set(lensB, a),
@@ -159,7 +159,7 @@ export default (
       const shouldResetB = b && !available.includes(b.address);
 
       if (shouldResetB) {
-        // set the lead token and cleanup slave one as it does not match the available pairs
+        // set the primary token and cleanup secondary one as it does not match the available pairs
         const applyState = pipe(
           set(lensA, token),
           set(lensB, undefined),
