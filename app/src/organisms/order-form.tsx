@@ -8,6 +8,7 @@ import * as formHelpers from "../domain/order";
 import ExchangePairForm from "../molecules/exchange-pair-form";
 import JupiterOrderProgress from "./jupiter-order-progress";
 import ProgramOrderProgress from "./program-order-progress";
+import useIndexedTIFs from "../contexts/tif-context";
 import { SpecialIntervals } from "../domain/interval.d";
 import type { PoolTIF, SelectedTIF } from "../domain/interval.d";
 import type { ValidationErrors } from "../domain/order";
@@ -47,6 +48,8 @@ export default ({
   tokenB?: string;
   tokenPair?: TokenPair<JupToken>;
 }) => {
+  const { setTif } = useIndexedTIFs();
+
   const [amount, setAmount] = useState<number>(0);
   const [submitting, setSubmitting] = useState<boolean>(false);
 
@@ -62,7 +65,7 @@ export default ({
 
   useEffect(() => {
     if (!intervalsChecksum && tif && tif[0] !== SpecialIntervals.INSTANT) {
-      onTifSelect([undefined, SpecialIntervals.NO_DELAY]);
+      // onTifSelect([undefined, SpecialIntervals.NO_DELAY]);
     }
     // cleanup selected interval
   }, [intervalTifs, intervalsChecksum, onTifSelect, tif]);
@@ -75,15 +78,18 @@ export default ({
   );
 
   const onIntervalSelect = useCallback(
-    (selectedTif: SelectedTIF) => {
+    (selectedTif: SelectedTIF, indexedTIF: IndexedTIF, schedule: boolean) => {
       onTifSelect(selectedTif);
+
+      setTif(indexedTIF, schedule);
     },
-    [onTifSelect]
+    [onTifSelect, setTif]
   );
 
   const onInstantIntervalSelect = useCallback(() => {
     onTifSelect([undefined, SpecialIntervals.INSTANT]);
-  }, [onTifSelect]);
+    setTif(undefined, SpecialIntervals.INSTANT);
+  }, [onTifSelect, setTif]);
 
   const errors = useMemo<Voidable<ValidationErrors>>(
     () => formHelpers.validate(amount, tif, tokenA, tokenB),
