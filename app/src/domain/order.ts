@@ -139,12 +139,16 @@ export const cancelOrder = async (
     tokenProgram: TOKEN_PROGRAM_ID,
   };
 
-  const tx = program.instruction.cancelOrder(
-    {
-      lpAmount: new BN(lpAmount),
-    },
-    { accounts }
-  );
+  /*
+   *const tx = program.instruction.cancelOrder(
+   *  {
+   *    lpAmount: new BN(lpAmount),
+   *  },
+   *  { accounts }
+   *);
+   */
 
-  return tx;
+  const tx = program.methods.cancelOrder({ lpAmount: new BN(lpAmount) });
+
+  return [tx, accounts];
 };
