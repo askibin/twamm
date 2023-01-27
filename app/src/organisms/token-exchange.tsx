@@ -73,7 +73,6 @@ export default (props: Props) => {
       all={state.data?.all}
       available={state.data?.available}
       b={state.data?.b}
-      cancellable={undefined}
       onSelectA={onSelectA}
       onSelectB={onSelectB}
       onSwap={onSwap}
