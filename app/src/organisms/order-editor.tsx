@@ -12,6 +12,7 @@ import UniversalPopover, { Ref } from "../molecules/universal-popover";
 import usePrice from "../hooks/use-price";
 import useTIFIntervals from "../hooks/use-tif-intervals";
 import useTokenPairByTokens from "../hooks/use-token-pair-by-tokens";
+import useIndexedTIFs from "../contexts/tif-context";
 import { refreshEach } from "../swr-options";
 import { SpecialIntervals } from "../domain/interval.d";
 
@@ -46,6 +47,8 @@ export default ({
 }) => {
   const pairs = M.of(tokenPairs);
   const pair = M.of(tokenPair);
+
+  const { setTif } = useIndexedTIFs();
 
   const [curTif, setCurTif] = useState<SelectedTIF>();
   const [curToken, setCurToken] = useState<number>();
@@ -125,15 +128,23 @@ export default ({
       if (curToken === 1) onSelectA(token);
       if (curToken === 2) onSelectB(token);
 
-      console.log({ token, a, b });
-
       if (a && b && ![a.symbol, b.symbol].includes(token.symbol)) {
         // Clean up selected tif as new pair selected
         setCurTif([undefined, SpecialIntervals.NO_DELAY]);
-        console.log(124234);
+        setTif(undefined, SpecialIntervals.NO_DELAY);
+        // reset the interval on pair change
       }
     },
     [a, b, curToken, onSelectA, onSelectB]
+  );
+
+  const onTifSelect = useCallback(
+    (tif: SelectedTIF) => {
+      console.log(tif);
+      setCurTif(tif);
+      setTif(tif[0], tif[1]);
+    },
+    [setCurTif, setTif]
   );
 
   const tokens = useMemo(
@@ -168,7 +179,7 @@ export default ({
             onABSwap={onTokenSwap}
             onASelect={onTokenAChoose}
             onBSelect={onTokenBChoose}
-            onTifSelect={setCurTif}
+            onTifSelect={onTifSelect}
             poolCounters={selectedPair.data?.poolCounters}
             poolTifs={selectedPair.data?.tifs}
             side={tradeSide}

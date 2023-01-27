@@ -21,7 +21,6 @@ export default ({
   onASelect,
   onBSelect,
   onChangeAmount,
-  onInstantIntervalSelect,
   onIntervalSelect,
   onSubmit,
   secondary,
@@ -36,7 +35,6 @@ export default ({
   onASelect: () => void;
   onBSelect: () => void;
   onChangeAmount: (arg0: number) => void;
-  onInstantIntervalSelect: () => void;
   onIntervalSelect: (tif: SelectedTIF) => void;
   onSubmit: () => void;
   secondary: Voidable<JupToken>;
@@ -88,16 +86,12 @@ export default ({
     onBSelect();
   };
   const handleIntervalSelect = useCallback(
-    (value: SelectedTIF) => {
-      onIntervalSelect(value);
+    (value: SelectedTIF, indexed: IndexedTIF, schedule: boolean) => {
+      console.log("indexed", indexed, schedule);
+      onIntervalSelect(value, indexed, schedule);
     },
     [onIntervalSelect]
   );
-  const handleInstantIntervalSelect = useCallback(() => {
-    onInstantIntervalSelect();
-  }, [onInstantIntervalSelect]);
-
-  console.log(tif);
 
   return (
     <form onSubmit={onSubmit} id="exchange-form">
@@ -139,7 +133,6 @@ export default ({
           indexedTifs={intervalTifs}
           minTimeTillExpiration={minTimeTillExpiration}
           onSelect={handleIntervalSelect}
-          onSelectInstant={handleInstantIntervalSelect}
           selectedTif={tif}
         />
       </Box>

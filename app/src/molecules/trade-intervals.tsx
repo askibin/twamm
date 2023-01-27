@@ -19,14 +19,12 @@ export default ({
   indexedTifs: tifs,
   minTimeTillExpiration,
   onSelect,
-  onSelectInstant,
   selectedTif,
 }: {
   disabled: boolean;
   indexedTifs: Voidable<PoolTIF[]>;
   minTimeTillExpiration: Voidable<number>;
   onSelect: (arg0: SelectedTIF) => void;
-  onSelectInstant: () => void;
   selectedTif?: SelectedTIF;
 }) => {
   const indexedTifs = useMemo(() => tifs, [tifs]);
@@ -76,12 +74,7 @@ export default ({
 
   const onScheduleSelect = useCallback(
     (value: number) => {
-      if (value === SpecialIntervals.INSTANT) {
-        onSelectInstant();
-        setInstant(SpecialIntervals.INSTANT);
-        return;
-      }
-
+      console.log("BBBB", value);
       if (value === SpecialIntervals.NO_DELAY) setScheduled(false);
       // hide the schedule buttons when `NO_DELAY` is selected
 
@@ -90,25 +83,53 @@ export default ({
       dispatch(A.setSchedule({ tif: value }));
 
       M.tap((itifs) => {
-        onSelect([
+        console.log("AA", itifs, value);
+
+        const indexedTIF = itifs.find((itif) => itif.left === value);
+
+        const nextValue = [
           value !== -1
             ? itifs.find((itif) => itif.left === value)?.tif
             : undefined,
           value,
-        ]);
+        ];
+
+        if (value === SpecialIntervals.NO_DELAY) {
+          console.log(nextValue, value);
+          onSelect(nextValue, value, false);
+        } else {
+          console.log(nextValue, indexedTIF);
+          onSelect(nextValue, indexedTIF, true);
+        }
       }, M.of(indexedTifs));
     },
-    [dispatch, indexedTifs, instant, onSelect, onSelectInstant]
+    [dispatch, indexedTifs, instant, onSelect]
   );
 
   const onPeriodSelect = useCallback(
     (value: number) => {
+      console.log("AAPP", value);
+
       if (!state.data?.pairSelected) return;
       dispatch(A.setPeriod({ tif: value }));
 
-      onSelect([value, state.data.pairSelected[1]]);
+      const nextValue = [value, state.data.pairSelected[1]];
+      M.tap((itifs) => {
+        const indexedTIF = itifs.find((itif) => itif.left === value);
+
+        if (value === SpecialIntervals.INSTANT) {
+          console.log(nextValue, value);
+          onSelect(nextValue, value, false);
+        } else {
+          console.log(nextValue, indexedTIF);
+          console.log("AAperiod", value, indexedTIF);
+          onSelect(nextValue, indexedTIF, false);
+        }
+      }, M.of(indexedTifs));
+
+      // onSelect(nextValue);
     },
-    [dispatch, onSelect, state.data]
+    [dispatch, indexedTifs, onSelect, state.data]
   );
 
   const onToggleSchedule = useCallback(() => {
