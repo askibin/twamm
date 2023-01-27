@@ -104,7 +104,21 @@ export default () => {
       const hasOppositeSide = Boolean(prevSideStruct[side] === undefined);
 
       if (hasOppositeSide) {
-        const cancelInstruction = await cancelOrder(
+        /*
+         *        const cancelInstruction = await cancelOrder(
+         *          provider,
+         *          program,
+         *          primary,
+         *          secondary,
+         *          previousOrder.lpBalance,
+         *          previousOrderAddress,
+         *          previousOrder.pool
+         *        );
+         *
+         *        preInstructions = preInstructions.concat(cancelInstruction);
+         */
+
+        const [cancelTx, cancelAccounts] = await cancelOrder(
           provider,
           program,
           primary,
@@ -114,7 +128,12 @@ export default () => {
           previousOrder.pool
         );
 
-        preInstructions = preInstructions.concat(cancelInstruction);
+        const cancelResult = await cancelTx
+          .accounts(cancelAccounts)
+          .rpc()
+          .catch((e) => {
+            console.error(e); // eslint-disable-line
+          });
       }
     }
 
