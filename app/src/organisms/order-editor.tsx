@@ -20,7 +20,6 @@ export default ({
   all,
   available,
   b,
-  cancellable,
   onSelectA,
   onSelectB,
   onSwap,
@@ -33,7 +32,6 @@ export default ({
   all: Voidable<TokenInfo["address"][]>;
   available: Voidable<TokenInfo["address"][]>;
   b: Voidable<TokenInfo>;
-  cancellable: undefined;
   onSelectA: (token: TokenInfo) => void;
   onSelectB: (token: TokenInfo) => void;
   onSwap: (price?: number) => void;
@@ -157,7 +155,6 @@ export default ({
           id="select-coin-title"
           onDelete={onCoinDeselect}
           onSelect={onCoinSelect}
-          selected={cancellable}
           tokens={tokens}
         />
       </UniversalPopover>
