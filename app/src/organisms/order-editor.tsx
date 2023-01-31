@@ -13,7 +13,7 @@ import usePrice from "../hooks/use-price";
 import useTIFIntervals from "../hooks/use-tif-intervals";
 import useTokenPairByTokens from "../hooks/use-token-pair-by-tokens";
 import useIndexedTIFs from "../contexts/tif-context";
-import { refreshEach } from "../swr-options";
+import { add, keepPrevious, refreshEach } from "../swr-options";
 import { SpecialIntervals } from "../domain/interval.d";
 
 export default ({
@@ -48,7 +48,7 @@ export default ({
   const pairs = M.of(tokenPairs);
   const pair = M.of(tokenPair);
 
-  const { setTif } = useIndexedTIFs();
+  const { setIntervals, setOptions, setTif } = useIndexedTIFs();
 
   const [curTif, setCurTif] = useState<SelectedTIF>();
   const [curToken, setCurToken] = useState<number>();
@@ -72,14 +72,25 @@ export default ({
     refreshEach()
   );
 
-  // FEAT: consider moving order state to the context
   const intervalTifs = useTIFIntervals(
     selectedPair.data?.exchangePair[0],
     selectedPair.data?.tifs,
     selectedPair.data?.currentPoolPresent,
     selectedPair.data?.poolCounters,
-    refreshEach(30e3)
+    add([keepPrevious(), refreshEach(10e3)]) //50
   );
+
+  useEffect(() => {
+    console.info("interval has changed", intervalTifs.data);
+    setIntervals(intervalTifs.data);
+  }, [intervalTifs.data, setIntervals]);
+
+  useEffect(() => {
+    M.andMap(({ minTimeTillExpiration }) => {
+      console.log({ minTimeTillExpiration });
+      setOptions({ minTimeTillExpiration });
+    }, M.of(selectedPair.data));
+  }, [selectedPair.data, setOptions]);
 
   useEffect(() => {
     const onUnmount = () => {
