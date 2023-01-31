@@ -207,3 +207,128 @@ describe("trade-intervals reducer", () => {
     });
   });
 });
+
+describe("trade-intervals reducer 2.0", () => {
+  it("should fail on unsupported action", () => {
+    expect(R.reducer2).toThrowError(/^Unknown action/);
+    // @ts-expect-error
+    expect(() => R.reducer2(R.defaultState)).toThrowError(/^Unknown action/);
+  });
+
+  it("should `SET_TIFS`", () => {
+    expect(
+      R.reducer2(
+        R.defaultState,
+        R.action.setTifs({
+          indexedTifs: populateIndexedTIFs([300, 900, 1500]),
+          minTimeTillExpiration: undefined,
+          optionalIntervals: {},
+          selectedTif: [-1, false],
+        })
+      )
+    ).toStrictEqual({
+      data: {
+        indexedTifs: [
+          { tif: 300, left: 300, index: 0 },
+          { tif: 900, left: 900, index: 1 },
+          { tif: 1500, left: 1500, index: 2 },
+        ],
+        minTimeTillExpiration: 0,
+        optional: {},
+        pairSelected: [undefined, -1],
+        periodTifs: [300, 900, 1500],
+        scheduleTifs: [-1, 300, 900, 1500],
+        // tifs: [300, 900, 1500],
+        // tifsLeft: [300, 900, 1500],
+      },
+    });
+  });
+
+  it("should `SET_SCHEDULE`", () => {
+    const state1 = R.reducer2(
+      R.defaultState,
+      R.action.setTifs({
+        indexedTifs: populateIndexedTIFs([300, 900, 1500], [250, null, null]),
+        minTimeTillExpiration: 0,
+        optionalIntervals,
+        selectedTif: [-1, false],
+      })
+    );
+
+    console.log("|>", state1);
+    expect(
+      R.reducer2(
+        state1 as R.State,
+        R.action.setSchedule({
+          tif: 300,
+          left: 250,
+          index: 0,
+        })
+      )
+    ).toEqual({
+      data: {
+        indexedTifs: populateIndexedTIFs([300, 900, 1500], [250, null, null]),
+        minTimeTillExpiration: 0,
+        optional: optionalIntervals,
+        pairSelected: { tif: 300, left: 250, index: 0 },
+        periodTifs: [300],
+        scheduleTifs: [-1, 250, 900, 1500],
+        // tifs: [300, 900, 1500],
+        // tifsLeft: [250, 900, 1500],
+      },
+    });
+    /*
+     *const state2 = R.reducer2(
+     *  R.defaultState,
+     *  R.action.setTifs({
+     *    indexedTifs: populateIndexedTIFs([300, 900, 1500], [250, null, null]),
+     *    minTimeTillExpiration: 0,
+     *    optionalIntervals,
+     *    selectedTif: { tif: 300, left: 250, index:0 },
+     *  })
+     *);
+     *expect(
+     *  R.reducer2(state2 as R.State, R.action.setSchedule({ tif: -1 }))
+     *).toEqual({
+     *  data: {
+     *    indexedTifs: populateIndexedTIFs([300, 900, 1500], [250, null, null]),
+     *    minTimeTillExpiration: 0,
+     *    optional: optionalIntervals,
+     *    pairSelected: [undefined, -1],
+     *    periodTifs: [SpecialIntervals.INSTANT, 250, 900, 1500],
+     *    scheduleTifs: [-1, 250, 900, 1500],
+     *    tifs: [300, 900, 1500],
+     *    tifsLeft: [250, 900, 1500],
+     *  },
+     *});
+     */
+  });
+  it("should `SET_PERIOD`", () => {
+    const state = R.reducer2(
+      R.defaultState,
+      R.action.setTifs({
+        indexedTifs: populateIndexedTIFs([300, 900, 1500], [250, null, null]),
+        minTimeTillExpiration: 0,
+        optionalIntervals,
+        selectedTif: [-1, false],
+      })
+    );
+    expect(
+      R.reducer2(
+        state as R.State,
+        R.action.setPeriod({ tif: 300, left: 250, index: 0 })
+      )
+    ).toEqual({
+      data: {
+        indexedTifs: populateIndexedTIFs([300, 900, 1500], [250, null, null]),
+        minTimeTillExpiration: 0,
+        optional: optionalIntervals,
+        pairSelected: { tif: 300, left: 250, index: 0 },
+        periodTifs: [-2, 250, 900, 1500],
+        scheduleTifs: [-1, 250, 900, 1500],
+        // tifs: [300, 900, 1500],
+        // tifsLeft: [250, 900, 1500],
+      },
+    });
+  });
+});

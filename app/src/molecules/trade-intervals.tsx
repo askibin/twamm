@@ -10,6 +10,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import * as Styled from "./trade-intervals.styled";
 import TimeInterval from "../atoms/time-interval";
 import type { PoolTIF, SelectedTIF } from "../domain/interval.d";
+import useIndexedTifs from "../contexts/tif-context";
 import useTradeIntervals, { action as A } from "../hooks/use-trade-intervals";
 import { optionalIntervals } from "../domain/interval";
 import { SpecialIntervals } from "../domain/interval.d";
@@ -29,9 +30,13 @@ export default ({
 }) => {
   const indexedTifs = useMemo(() => tifs, [tifs]);
 
+  const { tif, tifs: it, pairSelected: ps, periodTifs: pt, scheduleTifs: st } = useIndexedTifs();
+
   const [scheduled, setScheduled] = useState(false);
   const [state, dispatch] = useTradeIntervals();
   const [instant, setInstant] = useState<number>();
+
+  console.log({ tif, it, ps, pt, st });
 
   // FEAT: Consider moving popover to the separate component
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
