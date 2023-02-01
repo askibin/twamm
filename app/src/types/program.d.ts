@@ -120,7 +120,6 @@ declare type OrderBalanceData = {
   lpBalance: BN;
   side: OrderTypeStruct;
   tokenDebt: BN;
-  unsettledBalance: BN;
 };
 
 declare type CancelOrderData = {
