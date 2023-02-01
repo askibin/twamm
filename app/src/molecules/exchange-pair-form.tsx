@@ -87,7 +87,6 @@ export default ({
   };
   const handleIntervalSelect = useCallback(
     (value: SelectedTIF, indexed: IndexedTIF, schedule: boolean) => {
-      console.log("indexed", indexed, schedule);
       onIntervalSelect(value, indexed, schedule);
     },
     [onIntervalSelect]

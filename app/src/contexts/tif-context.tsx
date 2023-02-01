@@ -24,18 +24,24 @@ type CurrentTIF = {
 };
 
 export type TIFContext = {
+  readonly pairSelected?: number | IndexedTIF;
+  readonly periodTifs?: TIF[];
+  readonly scheduleTifs?: TIF[];
+  readonly setIntervals: (i?: IndexedTIF[]) => void;
+  readonly setOptions: (o: { minTimeTillExpiration: number }) => void;
   readonly setTif: (e: ExecuteTIF, s: ScheduleTIF) => void;
   readonly tif: CurrentTIF;
+  readonly tifs: IndexedTIF[];
 };
 
 export const Context = createContext<TIFContext | undefined>(undefined);
 
 export const Provider: FC<{ children: ReactNode }> = ({ children }) => {
-  const [intervals, setIntervals] = useState<IndexedTIF[] | undefined>();
+  const [, setIntervals] = useState<IndexedTIF[] | undefined>();
   const [options, setOptions] = useState<{ minTimeTillExpiration: number }>({
     minTimeTillExpiration: 0,
   });
-  const [tif, setTif] = useState<CurrentTIF>({
+  const [tif] = useState<CurrentTIF>({
     execute: SpecialIntervals.NO_DELAY,
     schedule: false,
   });
@@ -52,24 +58,22 @@ export const Provider: FC<{ children: ReactNode }> = ({ children }) => {
   const changeTif = useCallback(
     (execute: ExecuteTIF, schedule: ScheduleTIF) => {
       switch (execute) {
-        case SpecialIntervals.NO_DELAY: {
-          // setTif({ execute: SpecialIntervals.NO_DELAY, schedule: false });
+        case 0: {
+          dispatch(A.setTif({ value: 0 }));
           break;
         }
-        case SpecialIntervals.INSTANT: {
-          console.log("STT A", execute, schedule);
 
-          // setTif({ execute: SpecialIntervals.INSTANT, schedule: false });
+        case SpecialIntervals.NO_DELAY:
+        case SpecialIntervals.INSTANT:
+          dispatch(A.setTif({ value: execute }));
           break;
-        }
+
         default: {
           if (schedule) {
             dispatch(A.setSchedule(execute));
           } else {
             dispatch(A.setPeriod(execute));
           }
-
-          // setTif({ execute, schedule });
         }
       }
     },
@@ -82,8 +86,6 @@ export const Provider: FC<{ children: ReactNode }> = ({ children }) => {
       if (indexedTifs) {
         setIntervals(indexedTifs);
 
-        console.log("STT A", tif.execute, tif.schedule);
-
         dispatch(
           A.setTifs({
             indexedTifs,
@@ -92,8 +94,6 @@ export const Provider: FC<{ children: ReactNode }> = ({ children }) => {
             selectedTif: [tif.execute, tif.schedule],
           })
         );
-
-        console.log("STT", state);
       }
     },
     [dispatch, options, tif]
@@ -101,6 +101,7 @@ export const Provider: FC<{ children: ReactNode }> = ({ children }) => {
 
   const contextValue = useMemo(
     () => ({
+      data: state.data,
       pairSelected: state.data?.pairSelected,
       periodTifs: state.data?.periodTifs,
       scheduleTifs: state.data?.scheduleTifs,

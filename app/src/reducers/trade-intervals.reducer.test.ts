@@ -235,8 +235,8 @@ describe("trade-intervals reducer 2.0", () => {
         ],
         minTimeTillExpiration: 0,
         optional: {},
-        pairSelected: [undefined, -1],
-        periodTifs: [300, 900, 1500],
+        pairSelected: -1,
+        periodTifs: [-2, 300, 900, 1500],
         scheduleTifs: [-1, 300, 900, 1500],
         // tifs: [300, 900, 1500],
         // tifsLeft: [300, 900, 1500],
@@ -255,7 +255,6 @@ describe("trade-intervals reducer 2.0", () => {
       })
     );
 
-    console.log("|>", state1);
     expect(
       R.reducer2(
         state1 as R.State,

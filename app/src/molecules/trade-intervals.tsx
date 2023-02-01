@@ -5,38 +5,34 @@ import M from "easy-maybe/lib";
 import Popover from "@mui/material/Popover";
 import Stack from "@mui/material/Stack";
 import Switch from "@mui/material/Switch";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 
 import * as Styled from "./trade-intervals.styled";
 import TimeInterval from "../atoms/time-interval";
 import type { PoolTIF, SelectedTIF } from "../domain/interval.d";
 import useIndexedTifs from "../contexts/tif-context";
-import useTradeIntervals, { action as A } from "../hooks/use-trade-intervals";
-import { optionalIntervals } from "../domain/interval";
 import { SpecialIntervals } from "../domain/interval.d";
 
 export default ({
   disabled,
   indexedTifs: tifs,
-  minTimeTillExpiration,
   onSelect,
-  selectedTif,
 }: {
   disabled: boolean;
   indexedTifs: Voidable<PoolTIF[]>;
-  minTimeTillExpiration: Voidable<number>;
   onSelect: (arg0: SelectedTIF) => void;
-  selectedTif?: SelectedTIF;
 }) => {
   const indexedTifs = useMemo(() => tifs, [tifs]);
 
-  const { tif, tifs: it, pairSelected: ps, periodTifs: pt, scheduleTifs: st } = useIndexedTifs();
+  const {
+    pairSelected: ps,
+    periodTifs: pt,
+    scheduleTifs: st,
+    data,
+  } = useIndexedTifs();
 
-  const [scheduled, setScheduled] = useState(false);
-  const [state, dispatch] = useTradeIntervals();
+  const [scheduled, setScheduled] = useState(true);
   const [instant, setInstant] = useState<number>();
-
-  console.log({ tif, it, ps, pt, st });
 
   // FEAT: Consider moving popover to the separate component
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
@@ -58,38 +54,16 @@ export default ({
 
   const open = Boolean(anchorEl);
 
-  useEffect(() => {
-    M.andMap<PoolTIF[], void>((t) => {
-      dispatch(
-        A.setTifs({
-          indexedTifs: t,
-          minTimeTillExpiration,
-          optionalIntervals,
-          selectedTif: selectedTif ?? [undefined, SpecialIntervals.NO_DELAY],
-        })
-      );
-    }, M.of(indexedTifs));
-
-    //M.andMap((t) => {
-    //dispatch(A.resetTif({ selectedTif: t }));
-    //}, M.of(selectedTif));
-
-    return () => {};
-  }, [dispatch, indexedTifs, minTimeTillExpiration, selectedTif]);
-
   const onScheduleSelect = useCallback(
     (value: number) => {
-      console.log("BBBB", value);
       if (value === SpecialIntervals.NO_DELAY) setScheduled(false);
       // hide the schedule buttons when `NO_DELAY` is selected
 
       if (instant) setInstant(undefined);
 
-      dispatch(A.setSchedule({ tif: value }));
+      // dispatch(A.setSchedule({ tif: value }));
 
       M.tap((itifs) => {
-        console.log("AA", itifs, value);
-
         const indexedTIF = itifs.find((itif) => itif.left === value);
 
         const nextValue = [
@@ -100,41 +74,31 @@ export default ({
         ];
 
         if (value === SpecialIntervals.NO_DELAY) {
-          console.log(nextValue, value);
           onSelect(nextValue, value, false);
         } else {
-          console.log(nextValue, indexedTIF);
           onSelect(nextValue, indexedTIF, true);
         }
       }, M.of(indexedTifs));
     },
-    [dispatch, indexedTifs, instant, onSelect]
+    [indexedTifs, instant, onSelect]
   );
 
   const onPeriodSelect = useCallback(
     (value: number) => {
-      console.log("AAPP", value);
-
-      if (!state.data?.pairSelected) return;
-      dispatch(A.setPeriod({ tif: value }));
-
-      const nextValue = [value, state.data.pairSelected[1]];
+      const nextValue = undefined; // [value, state.data.pairSelected[1]];
       M.tap((itifs) => {
         const indexedTIF = itifs.find((itif) => itif.left === value);
 
         if (value === SpecialIntervals.INSTANT) {
-          console.log(nextValue, value);
           onSelect(nextValue, value, false);
         } else {
-          console.log(nextValue, indexedTIF);
-          console.log("AAperiod", value, indexedTIF);
           onSelect(nextValue, indexedTIF, false);
         }
       }, M.of(indexedTifs));
 
       // onSelect(nextValue);
     },
-    [dispatch, indexedTifs, onSelect, state.data]
+    [indexedTifs, onSelect]
   );
 
   const onToggleSchedule = useCallback(() => {
@@ -142,7 +106,21 @@ export default ({
     else setScheduled(true);
   }, [scheduled, setScheduled]);
 
-  const { pairSelected = [] } = state.data ?? {};
+  const values = useMemo(() => {
+    let schedule;
+    let period;
+    if (ps === SpecialIntervals.NO_DELAY) {
+      schedule = -1;
+    } else if (ps === SpecialIntervals.INSTANT) {
+      schedule = -1;
+      period = -2;
+    } else if (ps?.tif) {
+      schedule = data.scheduleSelected;
+      period = data.periodSelected;
+    }
+
+    return { schedule, period };
+  }, [ps, data]);
 
   return (
     <>
@@ -153,8 +131,9 @@ export default ({
             info="Chose the interval to schedule the order for"
             label="Schedule Order"
             onSelect={onScheduleSelect}
-            value={instant || pairSelected[1]}
-            values={state.data?.scheduleTifs}
+            value={values.schedule}
+            value2={ps}
+            values={st}
           />
         ) : (
           <Stack direction="row" spacing={1} alignItems="center">
@@ -198,8 +177,9 @@ export default ({
           info="Execute the order during specified interval"
           label="Execution Period"
           onSelect={onPeriodSelect}
-          value={pairSelected[0]}
-          values={state.data?.periodTifs}
+          value={values.period}
+          value2={ps}
+          values={pt}
         />
       </Box>
     </>
