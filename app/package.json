@@ -8,11 +8,13 @@
     "start": "next start",
     "predev": "node scripts/fetch-idl.mjs",
     "prebuild": "node scripts/fetch-idl.mjs",
+    "eslint/fix": "eslint src pages --fix",
     "lint": "next lint",
-    "lint/fix": "prettier pages --write && eslint pages --fix",
+    "lint/fix": "yarn prettier/fix && yarn eslint/fix",
+    "prettier/fix": "prettier src pages --write",
     "test": "yarn test/unit && yarn test/packages",
-    "test/unit": "jest ./*.test.tsx?",
-    "test/packages": "lerna exec \"test --silent\""
+    "test/packages": "lerna exec \"test --silent\"",
+    "test/unit": "jest ./*.test.tsx?"
   },
   "dependencies": {
     "@emotion/cache": "^11.10.3",
@@ -38,6 +40,7 @@
     "@twamm/client.js": "0.0.8",
     "@twamm/types": "0.0.8",
     "a-wait-forit": "0.2.0",
+    "bn.js": "5.2.1",
     "easy-maybe": "0.0.7",
     "final-form": "4.20.7",
     "isomorphic-fetch": "^3.0.0",
@@ -88,7 +91,6 @@
     "@saberhq/token-utils": "1.12",
     "@solana/buffer-layout": "4",
     "@typescript-eslint/parser": "^5.43.0",
-    "bn.js": "5.2.1",
     "bs58": "4.0.1",
     "eslint-plugin-import": "^2.26.0",
     "eslint-plugin-jsx-a11y": "^6.5.1",

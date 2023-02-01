@@ -14,7 +14,6 @@ import useTIFIntervals from "../hooks/use-tif-intervals";
 import useTokenPairByTokens from "../hooks/use-token-pair-by-tokens";
 import useIndexedTIFs from "../contexts/tif-context";
 import { add, keepPrevious, refreshEach } from "../swr-options";
-import { SpecialIntervals } from "../domain/interval.d";
 
 export default ({
   a,
@@ -50,7 +49,7 @@ export default ({
 
   const { setIntervals, setOptions, setTif } = useIndexedTIFs();
 
-  const [curTif, setCurTif] = useState<SelectedTIF>();
+  const [curTif] = useState<SelectedTIF>();
   const [curToken, setCurToken] = useState<number>();
   const selectCoinRef = useRef<Ref>();
 
@@ -81,13 +80,11 @@ export default ({
   );
 
   useEffect(() => {
-    console.info("interval has changed", intervalTifs.data);
     setIntervals(intervalTifs.data);
   }, [intervalTifs.data, setIntervals]);
 
   useEffect(() => {
     M.andMap(({ minTimeTillExpiration }) => {
-      console.log({ minTimeTillExpiration });
       setOptions({ minTimeTillExpiration });
     }, M.of(selectedPair.data));
   }, [selectedPair.data, setOptions]);
@@ -141,21 +138,14 @@ export default ({
 
       if (a && b && ![a.symbol, b.symbol].includes(token.symbol)) {
         // Clean up selected tif as new pair selected
-        setCurTif([undefined, SpecialIntervals.NO_DELAY]);
-        setTif(undefined, SpecialIntervals.NO_DELAY);
+        // setCurTif([undefined, SpecialIntervals.NO_DELAY]);
+        // setTif(undefined, SpecialIntervals.NO_DELAY);
+
+        setTif(0, false);
         // reset the interval on pair change
       }
     },
-    [a, b, curToken, onSelectA, onSelectB]
-  );
-
-  const onTifSelect = useCallback(
-    (tif: SelectedTIF) => {
-      console.log(tif);
-      setCurTif(tif);
-      setTif(tif[0], tif[1]);
-    },
-    [setCurTif, setTif]
+    [a, b, curToken, onSelectA, onSelectB, setTif]
   );
 
   const tokens = useMemo(
@@ -190,7 +180,6 @@ export default ({
             onABSwap={onTokenSwap}
             onASelect={onTokenAChoose}
             onBSelect={onTokenBChoose}
-            onTifSelect={onTifSelect}
             poolCounters={selectedPair.data?.poolCounters}
             poolTifs={selectedPair.data?.tifs}
             side={tradeSide}

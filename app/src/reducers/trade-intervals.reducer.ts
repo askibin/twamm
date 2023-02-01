@@ -26,10 +26,26 @@ function byExpirationTime(poolTif: PoolTIF, quota: number = 0) {
   return poolTif.left >= threshold;
 }
 
+const populateAvailableRecords = (
+  list: IndexedTIF[],
+  minTimeTillExpiration: number
+) =>
+  list
+    .filter(byActivePool)
+    .filter((t) => byExpirationTime(t, minTimeTillExpiration));
+
+const populateIntervals = (list: IndexedTIF[]) => ({
+  left: list.map((i) => i.tif),
+  tifs: list.map((i) => i.tif),
+});
+
 interface Data {
   indexedTifs: IndexedTIF[];
   minTimeTillExpiration: number;
   optional: {} | OptionalIntervals;
+  selected: IndexedTIF | undefined;
+  periodSelected: IndexedTIF | undefined;
+  scheduleSelected: IndexedTIF | undefined;
   pairSelected: SelectedTIF;
   periodTifs: TIF[];
   scheduleTifs: TIF[];
@@ -43,6 +59,7 @@ export interface State<D = undefined> {
 
 enum ActionTypes {
   RESET_TIF = "RESET_TIF",
+  SET_TIF = "SET_TIF",
   SET_TIFS = "SET_TIFS",
   SET_SCHEDULE = "SET_SCHEDULE",
   SET_PERIOD = "SET_PERIOD",
@@ -54,6 +71,11 @@ export const defaultState: State = {
 
 const resetTif = (payload: { selectedTif: SelectedTIF }) => ({
   type: ActionTypes.RESET_TIF,
+  payload,
+});
+
+const setTif = (payload: { value: number | IndexedTIF }) => ({
+  type: ActionTypes.SET_TIF,
   payload,
 });
 
@@ -79,25 +101,23 @@ const setPeriod = (payload: { tif: TIF }) => ({
 
 type Action =
   | ReturnType<typeof resetTif>
+  | ReturnType<typeof setTif>
   | ReturnType<typeof setTifs>
   | ReturnType<typeof setSchedule>
   | ReturnType<typeof setPeriod>;
 
-export const action = { resetTif, setTifs, setSchedule, setPeriod };
+export const action = { resetTif, setTif, setTifs, setSchedule, setPeriod };
 
 export default (
   state: State | State<Data>,
   act: Action
 ): State | State<Data> => {
-  console.log("state", state);
   switch (act?.type) {
     case ActionTypes.RESET_TIF: {
       return state;
       if (!state.data) return state;
 
       const { selectedTif } = act.payload as ActionPayload<typeof resetTif>;
-
-      console.log("s", selectedTif);
 
       const next = { ...state.data, pairSelected: selectedTif };
 
@@ -191,7 +211,6 @@ export const reducer2 = (
   state: State | State<Data>,
   act: Action
 ): State | State<Data> => {
-  console.log("state", state);
   switch (act?.type) {
     case ActionTypes.SET_TIFS: {
       const {
@@ -201,9 +220,20 @@ export const reducer2 = (
         selectedTif,
       } = act.payload as ActionPayload<typeof setTifs>;
 
+      const { periodSelected, scheduleSelected, selected } = state.data ?? {};
+
       const availableTifs: IndexedTIF[] = indexedTifs
         .filter(byActivePool)
         .filter((t) => byExpirationTime(t, minTimeTillExpiration));
+
+      const hasSelectedAtTifs =
+        selected && Boolean(availableTifs?.find((i) => i.tif === selected.tif));
+
+      const nextPeriodSelected = hasSelectedAtTifs ? periodSelected : undefined;
+      const nextScheduleSelected = hasSelectedAtTifs
+        ? scheduleSelected
+        : undefined;
+      const nextSelected = hasSelectedAtTifs ? selected : undefined;
 
       const tifsLeft = availableTifs.map((d) => d.left);
       const tifs = availableTifs.map((d) => d.tif);
@@ -212,27 +242,22 @@ export const reducer2 = (
       // ensure that NO_DELAY is used
       // const pairSelected: SelectedTIF = selectedTif;
 
-      const pairSelected = [
-        undefined, // selectedTif[0],
-        selectedTif[1] === false
-          ? SpecialIntervals.NO_DELAY
-          : SpecialIntervals.NO_DELAY,
-      ];
+      const periodTifs = nextScheduleSelected ? [nextScheduleSelected.tif] : [];
 
-      const { periodTifs } = populateTifs(
-        tif,
-        tifsLeft,
-        availableTifs,
-        optionalIntervals
-      );
+      const { pairSelected: prevSelected } = state.data ?? { pairSelected: -1 };
+
+      const pairSelected = prevSelected;
 
       const next = {
         indexedTifs: availableTifs,
         minTimeTillExpiration: minTimeTillExpiration ?? 0,
         optional: optionalIntervals,
         pairSelected,
-        periodTifs: sortTifs(tifsLeft), // sortTifs(periodTifs),
-        scheduleTifs: sortTifs([SpecialIntervals.NO_DELAY].concat(tifsLeft)),
+        periodTifs: [SpecialIntervals.INSTANT].concat(tifsLeft),
+        scheduleTifs: [SpecialIntervals.NO_DELAY].concat(tifsLeft),
+        selected: nextSelected,
+        periodSelected: nextPeriodSelected,
+        scheduleSelected: nextScheduleSelected,
         // tifsLeft,
         // tifs,
       };
@@ -243,8 +268,10 @@ export const reducer2 = (
     // there might be several intervals with the same amount of time left
     case ActionTypes.SET_SCHEDULE: {
       if (!state.data) return state;
+      if (!act.payload) return state; //rework
 
       const { indexedTifs = [], optional, tifsLeft = [] } = state.data;
+
       const { tif, left, index } = act.payload as ActionPayload<
         typeof setSchedule
       >;
@@ -264,6 +291,9 @@ export const reducer2 = (
         ...state.data,
         indexedTifs,
         pairSelected: selected,
+        selected,
+        scheduleSelected: selected,
+        periodSelected: selected,
         periodTifs: periodTifs2,
         scheduleTifs: [SpecialIntervals.NO_DELAY].concat(tifsLeft2),
         // tifsLeft,
@@ -273,6 +303,7 @@ export const reducer2 = (
     }
     case ActionTypes.SET_PERIOD: {
       if (!state.data) return state;
+      if (!act.payload) return state; //rework
 
       const { pairSelected: selected } = state.data;
 
@@ -292,9 +323,38 @@ export const reducer2 = (
       const next = {
         ...state.data,
         pairSelected: selected2,
+        selected: selected2,
+        scheduleSelected: SpecialIntervals.NO_DELAY,
+        periodSelected: selected2,
         periodTifs,
         scheduleTifs,
       };
+
+      return { data: next };
+    }
+    case ActionTypes.SET_TIF: {
+      if (!state.data) return state;
+
+      const { indexedTifs, minTimeTillExpiration } = state.data;
+      const { value } = act.payload as ActionPayload<typeof setTif>;
+
+      const available = populateAvailableRecords(
+        indexedTifs,
+        minTimeTillExpiration
+      );
+      const { tifs, left } = populateIntervals(available);
+
+      const periodTifs = [SpecialIntervals.INSTANT].concat(left);
+      const scheduleTifs = [SpecialIntervals.NO_DELAY].concat(left);
+
+      let next = state.data;
+      if (value === SpecialIntervals.NO_DELAY) {
+        // const tifsLeft = state.data.indexedTifs.map((i) => i.left);
+
+        next = { ...state.data, pairSelected: -1, periodTifs, scheduleTifs };
+      } else if (value === SpecialIntervals.INSTANT) {
+        next = { ...state.data, pairSelected: -2 };
+      }
 
       return { data: next };
     }

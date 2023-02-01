@@ -1,11 +1,5 @@
-import type { Program } from "@project-serum/anchor";
-import type { WalletProvider } from "@twamm/types/lib";
 import M from "easy-maybe/lib";
-import { BN } from "@project-serum/anchor";
-import { PublicKey } from "@solana/web3.js";
 import { OrderSide } from "@twamm/types/lib";
-import { SplToken } from "@twamm/client.js/lib/spl-token";
-import { Transfer } from "@twamm/client.js/lib/transfer";
 import type { IndexedTIF, SelectedTIF } from "./interval.d";
 import { SpecialIntervals } from "./interval.d";
 
@@ -107,47 +101,4 @@ export const prepare4Jupiter = (
   };
 
   return params;
-};
-
-export const cancelOrder = async (
-  provider: WalletProvider,
-  program: Program,
-  aMint: PublicKey,
-  bMint: PublicKey,
-  lpAmount: number,
-  orderAddress: PublicKey,
-  poolAddress: PublicKey
-) => {
-  const transfer = new Transfer(program, provider);
-
-  const transferAccounts = await transfer.findTransferAccounts(aMint, bMint);
-
-  const TOKEN_PROGRAM_ID = SplToken.getProgramId();
-
-  const accounts = {
-    payer: provider.wallet.publicKey,
-    owner: provider.wallet.publicKey,
-    userAccountTokenA: transferAccounts.aWallet,
-    userAccountTokenB: transferAccounts.bWallet,
-    tokenPair: transferAccounts.tokenPair,
-    transferAuthority: transferAccounts.transferAuthority,
-    custodyTokenA: transferAccounts.aCustody,
-    custodyTokenB: transferAccounts.bCustody,
-    order: orderAddress,
-    pool: poolAddress,
-    tokenProgram: TOKEN_PROGRAM_ID,
-  };
-
-  /*
-   *const tx = program.instruction.cancelOrder(
-   *  {
-   *    lpAmount: new BN(lpAmount),
-   *  },
-   *  { accounts }
-   *);
-   */
-
-  const tx = program.methods.cancelOrder({ lpAmount: new BN(lpAmount) });
-
-  return [tx, accounts];
 };

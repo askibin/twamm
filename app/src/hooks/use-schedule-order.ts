@@ -15,7 +15,6 @@ import { Transfer } from "@twamm/client.js/lib/transfer";
 
 import useProgram from "./use-program";
 import useTxRunner from "../contexts/transaction-runner-context";
-import { cancelOrder } from "../domain/order";
 import { NEXT_PUBLIC_ENABLE_TX_SIMUL } from "../env";
 
 const computePoolCounters = (
@@ -104,36 +103,7 @@ export default () => {
       const hasOppositeSide = Boolean(prevSideStruct[side] === undefined);
 
       if (hasOppositeSide) {
-        /*
-         *        const cancelInstruction = await cancelOrder(
-         *          provider,
-         *          program,
-         *          primary,
-         *          secondary,
-         *          previousOrder.lpBalance,
-         *          previousOrderAddress,
-         *          previousOrder.pool
-         *        );
-         *
-         *        preInstructions = preInstructions.concat(cancelInstruction);
-         */
-
-        const [cancelTx, cancelAccounts] = await cancelOrder(
-          provider,
-          program,
-          primary,
-          secondary,
-          previousOrder.lpBalance,
-          previousOrderAddress,
-          previousOrder.pool
-        );
-
-        const cancelResult = await cancelTx
-          .accounts(cancelAccounts)
-          .rpc()
-          .catch((e) => {
-            console.error(e); // eslint-disable-line
-          });
+        throw new Error("Cancel previous order");
       }
     }
 

@@ -1,17 +1,17 @@
 import Box from "@mui/material/Box";
 import M from "easy-maybe/lib";
-import { OrderSide } from "@twamm/types/lib";
-import { useCallback, useEffect, useMemo, useState } from "react";
 import { Form } from "react-final-form";
+import { OrderSide } from "@twamm/types/lib";
+import { useCallback, useMemo, useState } from "react";
 
 import * as formHelpers from "../domain/order";
 import ExchangePairForm from "../molecules/exchange-pair-form";
 import JupiterOrderProgress from "./jupiter-order-progress";
 import ProgramOrderProgress from "./program-order-progress";
+import type { IndexedTIF, PoolTIF, SelectedTIF } from "../domain/interval.d";
+import type { ValidationErrors } from "../domain/order";
 import useIndexedTIFs from "../contexts/tif-context";
 import { SpecialIntervals } from "../domain/interval.d";
-import type { PoolTIF, SelectedTIF } from "../domain/interval.d";
-import type { ValidationErrors } from "../domain/order";
 
 export default ({
   primary,
@@ -21,7 +21,6 @@ export default ({
   onABSwap,
   onASelect,
   onBSelect,
-  onTifSelect,
   poolCounters: counters,
   poolTifs,
   side: s,
@@ -38,7 +37,6 @@ export default ({
   onABSwap: () => void;
   onASelect: () => void;
   onBSelect: () => void;
-  onTifSelect: (tif: SelectedTIF) => void;
   poolCounters?: PoolCounter[];
   poolTifs?: number[];
   tif?: SelectedTIF;
@@ -58,18 +56,6 @@ export default ({
   const side = M.withDefault(undefined, M.of(s));
   const tokenPair = M.withDefault(undefined, M.of(pair));
 
-  const intervalsChecksum = useMemo(() => {
-    if (!intervalTifs) return 0;
-    return intervalTifs.reduce((acc, i) => acc + i.left, 0);
-  }, [intervalTifs]);
-
-  useEffect(() => {
-    if (!intervalsChecksum && tif && tif[0] !== SpecialIntervals.INSTANT) {
-      // onTifSelect([undefined, SpecialIntervals.NO_DELAY]);
-    }
-    // cleanup selected interval
-  }, [intervalTifs, intervalsChecksum, onTifSelect, tif]);
-
   const onChangeAmount = useCallback(
     (value: number) => {
       setAmount(value);
@@ -79,17 +65,15 @@ export default ({
 
   const onIntervalSelect = useCallback(
     (selectedTif: SelectedTIF, indexedTIF: IndexedTIF, schedule: boolean) => {
-      onTifSelect(selectedTif);
-
       setTif(indexedTIF, schedule);
     },
-    [onTifSelect, setTif]
+    [setTif]
   );
 
   const onInstantIntervalSelect = useCallback(() => {
-    onTifSelect([undefined, SpecialIntervals.INSTANT]);
-    setTif(undefined, SpecialIntervals.INSTANT);
-  }, [onTifSelect, setTif]);
+    // onTifSelect([undefined, SpecialIntervals.INSTANT]);
+    setTif(SpecialIntervals.INSTANT, false);
+  }, [setTif]);
 
   const errors = useMemo<Voidable<ValidationErrors>>(
     () => formHelpers.validate(amount, tif, tokenA, tokenB),
