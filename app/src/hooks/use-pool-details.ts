@@ -22,7 +22,7 @@ export default (poolAddress: PublicKey, order: OrderBalanceData) => {
       if (!details.data) return undefined;
       if (!tokens.data) return undefined;
 
-      const { side } = order;
+      const { side, unsettledBalance } = order;
 
       const { pool, pair } = details.data;
 
@@ -84,6 +84,7 @@ export default (poolAddress: PublicKey, order: OrderBalanceData) => {
           Number(maxFillPrice),
         ],
         side,
+        orderUnsettledBalance: unsettledBalance,
         volume: statsA.orderVolumeUsd + statsB.orderVolumeUsd,
         withdraw: { tradeSide, orderBalance: order, tokenPair: pair },
       };

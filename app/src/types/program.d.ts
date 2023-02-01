@@ -118,6 +118,7 @@ declare type OrderBalanceData = {
   lpBalance: BN;
   side: OrderTypeStruct;
   tokenDebt: BN;
+  unsettledBalance: BN;
 };
 
 declare type CancelOrderData = {
@@ -140,6 +141,7 @@ type PoolTradeSideData = {
   sourceBalance: BN;
   targetBalance: BN;
   tokenDebtTotal: BN;
+  unsettledBalance: BN;
   weightedFillsSum: BN | number;
 };
 

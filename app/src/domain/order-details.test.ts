@@ -22,8 +22,8 @@ describe("order-details", () => {
     const q = (a: number) =>
       set(lensPath(["sellSide", "lpSupply"]), new BN(a), pool);
 
-    expect(quantity(pair, pool, orderType)).toEqual(0);
-    expect(quantity(pair, q(100000), orderType)).toEqual(0.1);
+    expect(quantity(pair, pool, orderType, new BN(0))).toEqual(0);
+    expect(quantity(pair, q(100000), orderType, new BN(100000))).toEqual(0.1);
   });
   it("filledQuantity", () => {
     const fq = (a: number) =>
