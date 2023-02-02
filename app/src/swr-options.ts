@@ -42,7 +42,7 @@ interface ConfigurationWithProvider extends SWRConfiguration {
 
 export default (config?: SWRConfiguration): ConfigurationWithProvider => ({
   ...(config || {}),
-  ...dedupeEach(20e3),
+  ...dedupeEach(10e3),
   ...revalOnFocus(),
   ...retryFor(),
   // provider,

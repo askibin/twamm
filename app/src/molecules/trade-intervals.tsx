@@ -28,6 +28,7 @@ export default ({
     pairSelected: ps,
     periodTifs: pt,
     scheduleTifs: st,
+    selected,
     data,
   } = useIndexedTifs();
 
@@ -132,7 +133,6 @@ export default ({
             label="Schedule Order"
             onSelect={onScheduleSelect}
             value={values.schedule}
-            value2={ps}
             values={st}
           />
         ) : (
@@ -178,7 +178,6 @@ export default ({
           label="Execution Period"
           onSelect={onPeriodSelect}
           value={values.period}
-          value2={ps}
           values={pt}
         />
       </Box>

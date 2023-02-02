@@ -13,7 +13,7 @@ import usePrice from "../hooks/use-price";
 import useTIFIntervals from "../hooks/use-tif-intervals";
 import useTokenPairByTokens from "../hooks/use-token-pair-by-tokens";
 import useIndexedTIFs from "../contexts/tif-context";
-import { add, keepPrevious, refreshEach } from "../swr-options";
+import { add, dedupeEach, keepPrevious, refreshEach } from "../swr-options";
 
 export default ({
   a,
@@ -76,10 +76,11 @@ export default ({
     selectedPair.data?.tifs,
     selectedPair.data?.currentPoolPresent,
     selectedPair.data?.poolCounters,
-    add([keepPrevious(), refreshEach(10e3)]) //50
+    add([keepPrevious(), dedupeEach(5e3), refreshEach(5e3)]) //10
   );
 
   useEffect(() => {
+    console.info("update intervals");
     setIntervals(intervalTifs.data);
   }, [intervalTifs.data, setIntervals]);
 
