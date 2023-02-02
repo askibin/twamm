@@ -1,4 +1,5 @@
 import type { SyntheticEvent } from "react";
+import { isNil } from "ramda";
 
 import * as Styled from "./interval-button-group.styled";
 import IntervalButton from "../atoms/interval-button";
@@ -48,7 +49,7 @@ export default ({
         .map((value: number, index) => {
           const isWildcardSelected = selectedValue === -1 && index === 0;
           const isIntervalSelected =
-            valueIndex && index === valueIndex + valuesOpt;
+            !isNil(valueIndex) && index === valueIndex + valuesOpt;
 
           return {
             value,
