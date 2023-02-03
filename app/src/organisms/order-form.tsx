@@ -11,13 +11,11 @@ import ExecuteProgramOrder from "./program-order-progress";
 import type { IndexedTIF, PoolTIF, SelectedTIF } from "../domain/interval.d";
 import type { ValidationErrors } from "../domain/order";
 import useIndexedTIFs, { selectors } from "../contexts/tif-context";
-import { SpecialIntervals } from "../domain/interval.d";
 
 export default ({
   primary,
   secondary,
   intervalTifs,
-  minTimeTillExpiration,
   onABSwap,
   onASelect,
   onBSelect,
@@ -33,7 +31,6 @@ export default ({
   primary?: TokenInfo;
   secondary?: TokenInfo;
   intervalTifs?: PoolTIF[];
-  minTimeTillExpiration?: number;
   onABSwap: () => void;
   onASelect: () => void;
   onBSelect: () => void;
@@ -63,19 +60,12 @@ export default ({
     [setAmount]
   );
 
-  console.log("SSA", { selected: data });
-
   const onIntervalSelect = useCallback(
-    (selectedTif: SelectedTIF, indexedTIF: IndexedTIF, schedule: boolean) => {
+    (indexedTIF: IndexedTIF, schedule: boolean) => {
       setTif(indexedTIF, schedule);
     },
     [setTif]
   );
-
-  const onInstantIntervalSelect = useCallback(() => {
-    // onTifSelect([undefined, SpecialIntervals.INSTANT]);
-    setTif(SpecialIntervals.INSTANT, false);
-  }, [setTif]);
 
   const errors = useMemo<Voidable<ValidationErrors>>(
     () =>
@@ -108,7 +98,6 @@ export default ({
   }, [amount, side, selectedTif, tokenPair, tokenADecimals]);
 
   const programParams = useMemo(() => {
-    console.log({ selectedTif });
     if (!poolCounters) return undefined;
     if (!selectedTif) return undefined;
     if (!tifs) return undefined;
@@ -119,8 +108,6 @@ export default ({
 
     const timeInForce = selectedTif.tif;
     const nextPool = scheduled;
-
-    //const [timeInForce, nextPool] = tif ?? [];
 
     try {
       const params = formHelpers.prepare4Program(
@@ -169,17 +156,14 @@ export default ({
             amount={amount}
             intervalTifs={intervalTifs}
             primary={primary}
-            minTimeTillExpiration={minTimeTillExpiration}
             onABSwap={onABSwap}
             onASelect={onASelect}
             onBSelect={onBSelect}
             onChangeAmount={onChangeAmount}
-            onInstantIntervalSelect={onInstantIntervalSelect}
             onIntervalSelect={onIntervalSelect}
             onSubmit={handleSubmit}
             secondary={secondary}
             submitting={submitting}
-            tif={tif}
           />
           <Box py={3}>
             {selected.jupiterOrder ? (

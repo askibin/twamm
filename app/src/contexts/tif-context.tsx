@@ -6,7 +6,7 @@ import {
   useCallback,
   useState,
 } from "react";
-import type { IndexedTIF } from "../domain/interval.d";
+import type { IntervalVariant, IndexedTIF } from "../domain/interval.d";
 import useTradeIntervals, { action as A } from "../hooks/use-trade-intervals";
 import { optionalIntervals } from "../domain/interval";
 import { SpecialIntervals } from "../domain/interval.d";
@@ -27,6 +27,7 @@ export type TIFContext = {
   readonly pairSelected?: number | IndexedTIF;
   readonly periodTifs?: TIF[];
   readonly scheduleTifs?: TIF[];
+  readonly selected?: IntervalVariant;
   readonly setIntervals: (i?: IndexedTIF[]) => void;
   readonly setOptions: (o: { minTimeTillExpiration: number }) => void;
   readonly setTif: (e: ExecuteTIF, s: ScheduleTIF) => void;
@@ -46,7 +47,7 @@ export const Provider: FC<{ children: ReactNode }> = ({ children }) => {
     schedule: false,
   });
 
-  const [state, dispatch] = useTradeIntervals(undefined, true);
+  const [state, dispatch] = useTradeIntervals(undefined);
 
   const changeOptions = useCallback(
     (opts: { minTimeTillExpiration: number }) => {

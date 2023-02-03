@@ -1,6 +1,6 @@
 import M from "easy-maybe/lib";
 import { OrderSide } from "@twamm/types/lib";
-import type { IndexedTIF, SelectedTIF } from "./interval.d";
+import type { IndexedTIF } from "./interval.d";
 import { SpecialIntervals } from "./interval.d";
 
 export type ValidationErrors = {
@@ -19,27 +19,18 @@ export const validate = (
 ) => {
   const result: ValidationErrors = {};
 
-  if (!tokenA) result.a = new Error("Select token to exchange");
-  if (!tokenB) result.b = new Error("Select token to exchange");
+  if (!tokenA) result.a = new Error("Select the token to exchange");
+  if (!tokenB) result.b = new Error("Select the token to exchange");
   if (!amount) result.amount = new Error("Choose the token amount");
   if (Number.isNaN(Number(amount)))
     result.amount = new Error("Amount should be the number");
 
   if (tif) {
-    const isInstantOrder = tif == SpecialIntervals.INSTANT;
-    const isScheduledOrder = tif == SpecialIntervals.NO_DELAY && scheduled;
     const isProgramOrder = tif === SpecialIntervals.NO_DELAY;
 
     if (isProgramOrder && !scheduled) {
       result.tif = new Error("Choose the interval");
     }
-
-    //console.log({ isInstantOrder, isScheduledOrder })
-    //if (!isInstantOrder) {
-    //result.tif = new Error("Choose the interval");
-    //} else if (!isScheduledOrder) {
-    //result.tif = new Error("Choose the interval");
-    //}
   } else if (!tif) {
     result.tif = new Error("Choose the interval");
   }
