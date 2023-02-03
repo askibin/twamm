@@ -2,7 +2,6 @@ import type {
   IndexedTIF,
   OptionalIntervals,
   PoolTIF,
-  SelectedTIF,
   IntervalVariant,
 } from "../domain/interval.d";
 import { SpecialIntervals } from "../domain/interval.d";
@@ -75,7 +74,6 @@ const setTifs = (payload: {
   indexedTifs: PoolTIF[];
   minTimeTillExpiration: number | undefined;
   optionalIntervals: OptionalIntervals;
-  selectedTif: SelectedTIF;
 }) => ({
   type: ActionTypes.SET_TIFS,
   payload,

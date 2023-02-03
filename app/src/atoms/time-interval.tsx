@@ -15,6 +15,7 @@ export default ({
   label,
   onSelect,
   value,
+  valueIndex,
   values,
 }: {
   disabled: boolean;
@@ -24,11 +25,13 @@ export default ({
   value?: number | IndexedTIF;
   values?: number[];
 }) => {
-  const valueIndex = useMemo(() => {
+  /*const valueIndex = useMemo(() => {
     if (typeof value === "number") return value;
     if (value?.tif) return value.index;
     return undefined;
   }, [value]);
+*/
+  console.log({ valueIndex });
 
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
 

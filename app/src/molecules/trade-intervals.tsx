@@ -14,7 +14,7 @@ import type {
   IndexedTIF,
   PoolTIF,
 } from "../domain/interval.d";
-import useIndexedTifs from "../contexts/tif-context";
+import useIndexedTIFs from "../contexts/tif-context";
 import { SpecialIntervals } from "../domain/interval.d";
 
 export default ({
@@ -30,7 +30,8 @@ export default ({
 }) => {
   const indexedTifs = useMemo(() => tifs, [tifs]);
 
-  const { periodTifs: pt, scheduleTifs: st, data } = useIndexedTifs();
+  const { periodTifs, scheduleTifs, scheduleSelected, periodSelected } =
+    useIndexedTIFs();
 
   const [scheduled, setScheduled] = useState(true);
   const [instant, setInstant] = useState<number>();
@@ -96,20 +97,39 @@ export default ({
   }, [scheduled, setScheduled]);
 
   const values = useMemo(() => {
-    let schedule;
     let period;
+    let periodIndex;
+    let schedule;
+    let scheduleIndex;
+
+    console.log({ indexedTifs });
+
     if (selected === SpecialIntervals.NO_DELAY) {
       schedule = -1;
+      scheduleIndex = -1;
     } else if (selected === SpecialIntervals.INSTANT) {
       schedule = -1;
       period = -2;
+      scheduleIndex = -1;
+      periodIndex = -2;
     } else if (selected?.tif) {
-      schedule = data.scheduleSelected;
-      period = data.periodSelected;
+      schedule = scheduleSelected;
+      period = periodSelected;
+      if (scheduleSelected && typeof scheduleSelected !== "number") {
+        scheduleIndex = indexedTifs?.findIndex(
+          (t) => t.tif === scheduleSelected.tif
+        );
+      }
+      if (periodSelected && typeof periodSelected !== "number") {
+        periodIndex = indexedTifs?.findIndex(
+          (t) => t.tif === periodSelected.tif
+        );
+        console.log("AA", periodIndex,periodSelected, indexedTifs )
+      }
     }
 
-    return { schedule, period };
-  }, [selected, data]);
+    return { schedule, period, periodIndex, scheduleIndex };
+  }, [indexedTifs, periodSelected, selected, scheduleSelected]);
 
   return (
     <>
@@ -121,7 +141,8 @@ export default ({
             label="Schedule Order"
             onSelect={onScheduleSelect}
             value={values.schedule}
-            values={st}
+            valueIndex={values.scheduleIndex}
+            values={scheduleTifs}
           />
         ) : (
           <Stack direction="row" spacing={1} alignItems="center">
@@ -166,7 +187,8 @@ export default ({
           label="Execution Period"
           onSelect={onPeriodSelect}
           value={values.period}
-          values={pt}
+          valueIndex={values.periodIndex}
+          values={periodTifs}
         />
       </Box>
     </>

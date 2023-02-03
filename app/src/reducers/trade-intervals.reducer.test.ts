@@ -23,7 +23,7 @@ const optionalIntervals = {
     },
   ],
 };
-
+/*
 describe("trade-intervals reducer", () => {
   it("should fail on unsupported action", () => {
     expect(R.default).toThrowError(/^Unknown action/);
@@ -207,17 +207,17 @@ describe("trade-intervals reducer", () => {
     });
   });
 });
-
+*/
 describe("trade-intervals reducer 2.0", () => {
   it("should fail on unsupported action", () => {
-    expect(R.reducer2).toThrowError(/^Unknown action/);
+    expect(R.default).toThrowError(/^Unknown action/);
     // @ts-expect-error
-    expect(() => R.reducer2(R.defaultState)).toThrowError(/^Unknown action/);
+    expect(() => R.default(R.defaultState)).toThrowError(/^Unknown action/);
   });
 
   it("should `SET_TIFS`", () => {
     expect(
-      R.reducer2(
+      R.default(
         R.defaultState,
         R.action.setTifs({
           indexedTifs: populateIndexedTIFs([300, 900, 1500]),
@@ -245,7 +245,7 @@ describe("trade-intervals reducer 2.0", () => {
   });
 
   it("should `SET_SCHEDULE`", () => {
-    const state1 = R.reducer2(
+    const state1 = R.default(
       R.defaultState,
       R.action.setTifs({
         indexedTifs: populateIndexedTIFs([300, 900, 1500], [250, null, null]),
@@ -256,7 +256,7 @@ describe("trade-intervals reducer 2.0", () => {
     );
 
     expect(
-      R.reducer2(
+      R.default(
         state1 as R.State,
         R.action.setSchedule({
           tif: 300,
@@ -277,7 +277,7 @@ describe("trade-intervals reducer 2.0", () => {
       },
     });
     /*
-     *const state2 = R.reducer2(
+     *const state2 = R.default(
      *  R.defaultState,
      *  R.action.setTifs({
      *    indexedTifs: populateIndexedTIFs([300, 900, 1500], [250, null, null]),
@@ -287,7 +287,7 @@ describe("trade-intervals reducer 2.0", () => {
      *  })
      *);
      *expect(
-     *  R.reducer2(state2 as R.State, R.action.setSchedule({ tif: -1 }))
+     *  R.default(state2 as R.State, R.action.setSchedule({ tif: -1 }))
      *).toEqual({
      *  data: {
      *    indexedTifs: populateIndexedTIFs([300, 900, 1500], [250, null, null]),
@@ -303,7 +303,7 @@ describe("trade-intervals reducer 2.0", () => {
      */
   });
   it("should `SET_PERIOD`", () => {
-    const state = R.reducer2(
+    const state = R.default(
       R.defaultState,
       R.action.setTifs({
         indexedTifs: populateIndexedTIFs([300, 900, 1500], [250, null, null]),
@@ -313,7 +313,7 @@ describe("trade-intervals reducer 2.0", () => {
       })
     );
     expect(
-      R.reducer2(
+      R.default(
         state as R.State,
         R.action.setPeriod({ tif: 300, left: 250, index: 0 })
       )

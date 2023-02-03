@@ -11,7 +11,7 @@ import TradeIntervals from "./trade-intervals";
 import type { IndexedTIF, PoolTIF } from "../domain/interval.d";
 import usePrice from "../hooks/use-price";
 import { SpecialIntervals } from "../domain/interval.d";
-import useIndexedTifs from "../contexts/tif-context";
+import useIndexedTIFs from "../contexts/tif-context";
 
 export default ({
   amount,
@@ -40,10 +40,10 @@ export default ({
 }) => {
   const [a, b] = [primary, secondary];
 
-  const { selected } = useIndexedTifs();
+  const { selected: selectedTif } = useIndexedTIFs();
 
   const isInstantEnabled =
-    selected === SpecialIntervals.INSTANT ? true : undefined;
+    selectedTif === SpecialIntervals.INSTANT ? true : undefined;
 
   const instantParams = M.andMap(
     ([c, d, e]) => ({
@@ -130,7 +130,7 @@ export default ({
           disabled={submitting}
           indexedTifs={intervalTifs}
           onSelect={handleIntervalSelect}
-          selected={selected}
+          selected={selectedTif}
         />
       </Box>
     </form>
