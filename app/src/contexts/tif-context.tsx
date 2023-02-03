@@ -105,6 +105,8 @@ export const Provider: FC<{ children: ReactNode }> = ({ children }) => {
       pairSelected: state.data?.pairSelected,
       periodTifs: state.data?.periodTifs,
       scheduleTifs: state.data?.scheduleTifs,
+      selected: state.data?.selected,
+      scheduled: state.data?.scheduled,
       setIntervals: changeIntervals,
       setOptions: changeOptions,
       setTif: changeTif,
@@ -125,3 +127,12 @@ export default () => {
 
   return context;
 };
+
+export const selectors = ({ selected }: TIFContext = {}) => ({
+  get jupiterOrder() {
+    return selected === SpecialIntervals.INSTANT;
+  },
+  get programOrder() {
+    return Boolean(selected);
+  },
+});
