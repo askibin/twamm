@@ -17,12 +17,8 @@ export default (props: {
   const { execute } = useScheduleOrder();
 
   const onClick = useCallback(async () => {
-    console.log({ params: props.params });
-
     if (!props.params) return;
 
-    // FIXME: remove this 4 prod
-    console.debug("exec", props.params); // eslint-disable-line no-console
     await execute(props.params);
 
     props.onSuccess();

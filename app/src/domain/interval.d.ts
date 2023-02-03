@@ -24,3 +24,8 @@ export enum SpecialIntervals {
 export type OptionalIntervals = {
   [key: number]: IndexedTIF[];
 };
+
+export type IntervalVariant =
+  | IndexedTIF
+  | SpecialIntervals.NO_DELAY
+  | SpecialIntervals.INSTANT;

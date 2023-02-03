@@ -8,15 +8,15 @@ import AmountField from "../atoms/amount-field";
 import InTokenField from "./in-token-field";
 import TokenSelect from "../atoms/token-select";
 import TradeIntervals from "./trade-intervals";
-import type { PoolTIF, SelectedTIF } from "../domain/interval.d";
+import type { IndexedTIF, PoolTIF } from "../domain/interval.d";
 import usePrice from "../hooks/use-price";
 import { SpecialIntervals } from "../domain/interval.d";
+import useIndexedTifs from "../contexts/tif-context";
 
 export default ({
   amount,
   intervalTifs,
   primary,
-  minTimeTillExpiration,
   onABSwap,
   onASelect,
   onBSelect,
@@ -25,26 +25,25 @@ export default ({
   onSubmit,
   secondary,
   submitting,
-  tif,
 }: {
   amount?: number;
   intervalTifs: Voidable<PoolTIF[]>;
   primary: Voidable<JupToken>;
-  minTimeTillExpiration: Voidable<number>;
   onABSwap: () => void;
   onASelect: () => void;
   onBSelect: () => void;
   onChangeAmount: (arg0: number) => void;
-  onIntervalSelect: (tif: SelectedTIF) => void;
+  onIntervalSelect: (a: IndexedTIF, b: boolean) => void;
   onSubmit: () => void;
   secondary: Voidable<JupToken>;
   submitting: boolean;
-  tif?: SelectedTIF;
 }) => {
   const [a, b] = [primary, secondary];
 
+  const { selected } = useIndexedTifs();
+
   const isInstantEnabled =
-    tif && tif[0] === SpecialIntervals.INSTANT ? true : undefined;
+    selected === SpecialIntervals.INSTANT ? true : undefined;
 
   const instantParams = M.andMap(
     ([c, d, e]) => ({
@@ -86,8 +85,8 @@ export default ({
     onBSelect();
   };
   const handleIntervalSelect = useCallback(
-    (value: SelectedTIF, indexed: IndexedTIF, schedule: boolean) => {
-      onIntervalSelect(value, indexed, schedule);
+    (indexed: IndexedTIF, schedule: boolean) => {
+      onIntervalSelect(indexed, schedule);
     },
     [onIntervalSelect]
   );
@@ -130,9 +129,8 @@ export default ({
         <TradeIntervals
           disabled={submitting}
           indexedTifs={intervalTifs}
-          minTimeTillExpiration={minTimeTillExpiration}
           onSelect={handleIntervalSelect}
-          selectedTif={tif}
+          selected={selected}
         />
       </Box>
     </form>

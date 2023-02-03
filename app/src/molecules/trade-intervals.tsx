@@ -9,7 +9,11 @@ import { useCallback, useMemo, useState } from "react";
 
 import * as Styled from "./trade-intervals.styled";
 import TimeInterval from "../atoms/time-interval";
-import type { PoolTIF, SelectedTIF } from "../domain/interval.d";
+import type {
+  IntervalVariant,
+  IndexedTIF,
+  PoolTIF,
+} from "../domain/interval.d";
 import useIndexedTifs from "../contexts/tif-context";
 import { SpecialIntervals } from "../domain/interval.d";
 
@@ -17,20 +21,16 @@ export default ({
   disabled,
   indexedTifs: tifs,
   onSelect,
+  selected,
 }: {
   disabled: boolean;
   indexedTifs: Voidable<PoolTIF[]>;
-  onSelect: (arg0: SelectedTIF) => void;
+  onSelect: (arg0: IndexedTIF, arg1: boolean) => void;
+  selected?: IntervalVariant;
 }) => {
   const indexedTifs = useMemo(() => tifs, [tifs]);
 
-  const {
-    pairSelected: ps,
-    periodTifs: pt,
-    scheduleTifs: st,
-    selected,
-    data,
-  } = useIndexedTifs();
+  const { periodTifs: pt, scheduleTifs: st, data } = useIndexedTifs();
 
   const [scheduled, setScheduled] = useState(true);
   const [instant, setInstant] = useState<number>();
@@ -62,22 +62,13 @@ export default ({
 
       if (instant) setInstant(undefined);
 
-      // dispatch(A.setSchedule({ tif: value }));
-
       M.tap((itifs) => {
         const indexedTIF = itifs.find((itif) => itif.left === value);
 
-        const nextValue = [
-          value !== -1
-            ? itifs.find((itif) => itif.left === value)?.tif
-            : undefined,
-          value,
-        ];
-
         if (value === SpecialIntervals.NO_DELAY) {
-          onSelect(nextValue, value, false);
+          onSelect(value, false);
         } else {
-          onSelect(nextValue, indexedTIF, true);
+          onSelect(indexedTIF, true);
         }
       }, M.of(indexedTifs));
     },
@@ -86,18 +77,15 @@ export default ({
 
   const onPeriodSelect = useCallback(
     (value: number) => {
-      const nextValue = undefined; // [value, state.data.pairSelected[1]];
       M.tap((itifs) => {
         const indexedTIF = itifs.find((itif) => itif.left === value);
 
         if (value === SpecialIntervals.INSTANT) {
-          onSelect(nextValue, value, false);
+          onSelect(value, false);
         } else {
-          onSelect(nextValue, indexedTIF, false);
+          onSelect(indexedTIF, false);
         }
       }, M.of(indexedTifs));
-
-      // onSelect(nextValue);
     },
     [indexedTifs, onSelect]
   );
@@ -110,18 +98,18 @@ export default ({
   const values = useMemo(() => {
     let schedule;
     let period;
-    if (ps === SpecialIntervals.NO_DELAY) {
+    if (selected === SpecialIntervals.NO_DELAY) {
       schedule = -1;
-    } else if (ps === SpecialIntervals.INSTANT) {
+    } else if (selected === SpecialIntervals.INSTANT) {
       schedule = -1;
       period = -2;
-    } else if (ps?.tif) {
+    } else if (selected?.tif) {
       schedule = data.scheduleSelected;
       period = data.periodSelected;
     }
 
     return { schedule, period };
-  }, [ps, data]);
+  }, [selected, data]);
 
   return (
     <>
