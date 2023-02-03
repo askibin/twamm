@@ -137,10 +137,6 @@ export default ({
       if (curToken === 2) onSelectB(token);
 
       if (a && b && ![a.symbol, b.symbol].includes(token.symbol)) {
-        // Clean up selected tif as new pair selected
-        // setCurTif([undefined, SpecialIntervals.NO_DELAY]);
-        // setTif(undefined, SpecialIntervals.NO_DELAY);
-
         setTif(0, false);
         // reset the interval on pair change
       }
@@ -176,7 +172,6 @@ export default ({
             primary={a}
             secondary={b}
             intervalTifs={intervalTifs.data}
-            minTimeTillExpiration={selectedPair.data?.minTimeTillExpiration}
             onABSwap={onTokenSwap}
             onASelect={onTokenAChoose}
             onBSelect={onTokenBChoose}

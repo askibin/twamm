@@ -43,7 +43,7 @@ export default ({
   tokenB?: string;
   tokenPair?: TokenPair<JupToken>;
 }) => {
-  const { data, selected: selectedTif, scheduled, setTif } = useIndexedTIFs();
+  const { selected: selectedTif, scheduled, setTif } = useIndexedTIFs();
 
   const [amount, setAmount] = useState<number>(0);
   const [submitting, setSubmitting] = useState<boolean>(false);
@@ -68,15 +68,8 @@ export default ({
   );
 
   const errors = useMemo<Voidable<ValidationErrors>>(
-    () =>
-      formHelpers.validate(
-        amount,
-        data?.selected,
-        tokenA,
-        tokenB,
-        data?.schedule
-      ),
-    [amount, data?.selected, data?.schedule, tokenA, tokenB]
+    () => formHelpers.validate(amount, selectedTif, tokenA, tokenB, scheduled),
+    [amount, selectedTif, scheduled, tokenA, tokenB]
   );
 
   const jupiterParams = useMemo(() => {
@@ -138,7 +131,9 @@ export default ({
     tokenADecimals,
   ]);
 
-  const selected = selectors(data);
+  const selected = selectors(
+    selectedTif ? { selected: selectedTif } : undefined
+  );
 
   const onSubmit = () => {
     setSubmitting(true);

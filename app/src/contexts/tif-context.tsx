@@ -13,38 +13,23 @@ import { SpecialIntervals } from "../domain/interval.d";
 
 type ScheduleTIF = boolean;
 
-type ExecuteTIF =
-  | IndexedTIF
-  | SpecialIntervals.NO_DELAY
-  | SpecialIntervals.INSTANT;
-
-type CurrentTIF = {
-  execute: ExecuteTIF;
-  schedule: ScheduleTIF;
-};
-
 export type TIFContext = {
-  readonly pairSelected?: number | IndexedTIF;
+  readonly periodSelected?: IntervalVariant;
   readonly periodTifs?: TIF[];
+  readonly scheduled?: boolean;
+  readonly scheduleSelected?: IntervalVariant;
   readonly scheduleTifs?: TIF[];
   readonly selected?: IntervalVariant;
   readonly setIntervals: (i?: IndexedTIF[]) => void;
   readonly setOptions: (o: { minTimeTillExpiration: number }) => void;
-  readonly setTif: (e: ExecuteTIF, s: ScheduleTIF) => void;
-  readonly tif: CurrentTIF;
-  readonly tifs: IndexedTIF[];
+  readonly setTif: (e: IntervalVariant, s: ScheduleTIF) => void;
 };
 
 export const Context = createContext<TIFContext | undefined>(undefined);
 
 export const Provider: FC<{ children: ReactNode }> = ({ children }) => {
-  const [, setIntervals] = useState<IndexedTIF[] | undefined>();
   const [options, setOptions] = useState<{ minTimeTillExpiration: number }>({
     minTimeTillExpiration: 0,
-  });
-  const [tif] = useState<CurrentTIF>({
-    execute: SpecialIntervals.NO_DELAY,
-    schedule: false,
   });
 
   const [state, dispatch] = useTradeIntervals(undefined);
@@ -57,7 +42,7 @@ export const Provider: FC<{ children: ReactNode }> = ({ children }) => {
   );
 
   const changeTif = useCallback(
-    (execute: ExecuteTIF, schedule: ScheduleTIF) => {
+    (execute: IntervalVariant, schedule: ScheduleTIF) => {
       switch (execute) {
         case 0: {
           dispatch(A.setTif({ value: 0 }));
@@ -85,36 +70,31 @@ export const Provider: FC<{ children: ReactNode }> = ({ children }) => {
     (indexedTifs: IndexedTIF[] | undefined) => {
       // TODO: consider using comparing method to reduce the number of updates;
       if (indexedTifs) {
-        setIntervals(indexedTifs);
-
         dispatch(
           A.setTifs({
             indexedTifs,
             minTimeTillExpiration: options.minTimeTillExpiration,
             optionalIntervals,
-            selectedTif: [tif.execute, tif.schedule],
           })
         );
       }
     },
-    [dispatch, options, tif]
+    [dispatch, options]
   );
 
   const contextValue = useMemo(
     () => ({
-      data: state.data,
-      pairSelected: state.data?.pairSelected,
+      periodSelected: state.data?.periodSelected,
       periodTifs: state.data?.periodTifs,
+      scheduled: state.data?.scheduled,
+      scheduleSelected: state.data?.scheduleSelected,
       scheduleTifs: state.data?.scheduleTifs,
       selected: state.data?.selected,
-      scheduled: state.data?.scheduled,
       setIntervals: changeIntervals,
       setOptions: changeOptions,
       setTif: changeTif,
-      tif,
-      tifs: state.data?.indexedTifs,
     }),
-    [changeIntervals, changeOptions, changeTif, state, tif]
+    [changeIntervals, changeOptions, changeTif, state]
   );
 
   return <Context.Provider value={contextValue}>{children}</Context.Provider>;
@@ -129,11 +109,11 @@ export default () => {
   return context;
 };
 
-export const selectors = ({ selected }: TIFContext = {}) => ({
+export const selectors = (data?: { selected: IntervalVariant }) => ({
   get jupiterOrder() {
-    return selected === SpecialIntervals.INSTANT;
+    return data?.selected === SpecialIntervals.INSTANT;
   },
   get programOrder() {
-    return Boolean(selected);
+    return Boolean(data?.selected);
   },
 });
