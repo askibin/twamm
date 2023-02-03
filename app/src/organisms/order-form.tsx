@@ -6,11 +6,11 @@ import { useCallback, useMemo, useState } from "react";
 
 import * as formHelpers from "../domain/order";
 import ExchangePairForm from "../molecules/exchange-pair-form";
-import JupiterOrderProgress from "./jupiter-order-progress";
-import ProgramOrderProgress from "./program-order-progress";
+import ExecuteJupiterOrder from "./jupiter-order-progress";
+import ExecuteProgramOrder from "./program-order-progress";
 import type { IndexedTIF, PoolTIF, SelectedTIF } from "../domain/interval.d";
 import type { ValidationErrors } from "../domain/order";
-import useIndexedTIFs from "../contexts/tif-context";
+import useIndexedTIFs, { selectors } from "../contexts/tif-context";
 import { SpecialIntervals } from "../domain/interval.d";
 
 export default ({
@@ -46,7 +46,7 @@ export default ({
   tokenB?: string;
   tokenPair?: TokenPair<JupToken>;
 }) => {
-  const { setTif } = useIndexedTIFs();
+  const { data, selected: selectedTif, scheduled, setTif } = useIndexedTIFs();
 
   const [amount, setAmount] = useState<number>(0);
   const [submitting, setSubmitting] = useState<boolean>(false);
@@ -63,6 +63,8 @@ export default ({
     [setAmount]
   );
 
+  console.log("SSA", { selected: data });
+
   const onIntervalSelect = useCallback(
     (selectedTif: SelectedTIF, indexedTIF: IndexedTIF, schedule: boolean) => {
       setTif(indexedTIF, schedule);
@@ -76,13 +78,20 @@ export default ({
   }, [setTif]);
 
   const errors = useMemo<Voidable<ValidationErrors>>(
-    () => formHelpers.validate(amount, tif, tokenA, tokenB),
-    [amount, tif, tokenA, tokenB]
+    () =>
+      formHelpers.validate(
+        amount,
+        data?.selected,
+        tokenA,
+        tokenB,
+        data?.schedule
+      ),
+    [amount, data?.selected, data?.schedule, tokenA, tokenB]
   );
 
   const jupiterParams = useMemo(() => {
     if (!side) return undefined;
-    if (!tif) return undefined;
+    if (!selectedTif) return undefined;
     if (!tokenADecimals) return undefined;
     if (!tokenPair) return undefined;
 
@@ -96,17 +105,22 @@ export default ({
     );
 
     return params;
-  }, [amount, side, tif, tokenPair, tokenADecimals]);
+  }, [amount, side, selectedTif, tokenPair, tokenADecimals]);
 
   const programParams = useMemo(() => {
+    console.log({ selectedTif });
     if (!poolCounters) return undefined;
-    if (!tif) return undefined;
+    if (!selectedTif) return undefined;
     if (!tifs) return undefined;
     if (!tokenADecimals) return undefined;
     if (!side) return undefined;
     if (!tokenPair) return undefined;
     const [a, b] = tokenPair;
-    const [timeInForce, nextPool] = tif ?? [];
+
+    const timeInForce = selectedTif.tif;
+    const nextPool = scheduled;
+
+    //const [timeInForce, nextPool] = tif ?? [];
 
     try {
       const params = formHelpers.prepare4Program(
@@ -129,12 +143,15 @@ export default ({
     amount,
     intervalTifs,
     poolCounters,
+    selectedTif,
+    scheduled,
     side,
-    tif,
     tifs,
     tokenPair,
     tokenADecimals,
   ]);
+
+  const selected = selectors(data);
 
   const onSubmit = () => {
     setSubmitting(true);
@@ -165,9 +182,9 @@ export default ({
             tif={tif}
           />
           <Box py={3}>
-            {tif && tif[0] === SpecialIntervals.INSTANT ? (
-              <JupiterOrderProgress
-                disabled={!valid || submitting}
+            {selected.jupiterOrder ? (
+              <ExecuteJupiterOrder
+                disabled={!jupiterParams || !valid || submitting}
                 form="exchange-form"
                 onSuccess={onSuccess}
                 params={jupiterParams}
@@ -175,8 +192,8 @@ export default ({
                 validate={() => errors}
               />
             ) : (
-              <ProgramOrderProgress
-                disabled={!valid || submitting}
+              <ExecuteProgramOrder
+                disabled={!programParams || !valid || submitting}
                 form="exchange-form"
                 onSuccess={onSuccess}
                 params={programParams}

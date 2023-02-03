@@ -35,7 +35,7 @@ const populateAvailableRecords = (
     .filter((t) => byExpirationTime(t, minTimeTillExpiration));
 
 const populateIntervals = (list: IndexedTIF[]) => ({
-  left: list.map((i) => i.tif),
+  left: list.map((i) => i.left),
   tifs: list.map((i) => i.tif),
 });
 
@@ -243,21 +243,9 @@ export const reducer2 = (
         : undefined;
       const nextSelected = hasSelectedAtTifs ? selected : undefined;
 
-      const tif = selectedTif ? selectedTif[1] : SpecialIntervals.NO_DELAY;
-      // ensure that NO_DELAY is used
-      // const pairSelected: SelectedTIF = selectedTif;
-
-      /*
-       *const periodTifs = scheduled [>nextScheduleSelected<]
-       *  ? [nextScheduleSelected?.tif]
-       *  : [];
-       */
-
       const { pairSelected: prevSelected } = state.data ?? { pairSelected: -1 };
 
       const pairSelected = prevSelected;
-
-      console.log({ scheduled, hasSelectedAtTifs, prevSelected });
 
       const periodTifs = scheduled
         ? [(prevSelected as IndexedTIF).tif]
@@ -268,9 +256,10 @@ export const reducer2 = (
         minTimeTillExpiration: minTimeTillExpiration ?? 0,
         optional: optionalIntervals,
         pairSelected,
+        selected: pairSelected,
         periodTifs,
         scheduleTifs: [SpecialIntervals.NO_DELAY].concat(tifsLeft),
-        selected: nextSelected,
+        // selected: nextSelected,
         periodSelected: nextPeriodSelected,
         scheduleSelected: nextScheduleSelected,
         scheduled,
@@ -322,7 +311,6 @@ export const reducer2 = (
       if (!state.data) return state;
       if (!act.payload) return state; // rework
 
-
       const { pairSelected: selected } = state.data;
 
       const { tif, left, index } = act.payload as ActionPayload<
@@ -354,10 +342,23 @@ export const reducer2 = (
     case ActionTypes.SET_TIF: {
       if (!state.data) return state;
 
-      const { indexedTifs, minTimeTillExpiration } = state.data;
+      const { indexedTifs, minTimeTillExpiration, pairSelected, selected } =
+        state.data;
       const { value } = act.payload as ActionPayload<typeof setTif>;
 
-      console.log({ value })
+      console.log({ value });
+
+      const isInstantSelected = pairSelected === -2 || selected === -2;
+      if (value === 0 && !isInstantSelected) {
+        const next = {
+          ...state.data,
+          pairSelected: -1,
+          selected: -1,
+          scheduled: false,
+        };
+
+        return { data: next };
+      }
 
       const available = populateAvailableRecords(
         indexedTifs,
@@ -375,12 +376,18 @@ export const reducer2 = (
         next = {
           ...state.data,
           pairSelected: -1,
+          selected: -1,
           scheduled: false,
           periodTifs,
           scheduleTifs,
         };
       } else if (value === SpecialIntervals.INSTANT) {
-        next = { ...state.data, pairSelected: -2, scheduled: false };
+        next = {
+          ...state.data,
+          pairSelected: -2,
+          selected: -2,
+          scheduled: false,
+        };
       }
 
       return { data: next };

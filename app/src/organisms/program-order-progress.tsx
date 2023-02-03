@@ -17,6 +17,8 @@ export default (props: {
   const { execute } = useScheduleOrder();
 
   const onClick = useCallback(async () => {
+    console.log({ params: props.params });
+
     if (!props.params) return;
 
     // FIXME: remove this 4 prod

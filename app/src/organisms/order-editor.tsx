@@ -76,11 +76,10 @@ export default ({
     selectedPair.data?.tifs,
     selectedPair.data?.currentPoolPresent,
     selectedPair.data?.poolCounters,
-    add([keepPrevious(), dedupeEach(5e3), refreshEach(5e3)]) //10
+    add([keepPrevious(), dedupeEach(5e3), refreshEach(5e3)]) // 10
   );
 
   useEffect(() => {
-    console.info("update intervals");
     setIntervals(intervalTifs.data);
   }, [intervalTifs.data, setIntervals]);
 
