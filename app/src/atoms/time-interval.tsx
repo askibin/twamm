@@ -94,7 +94,7 @@ export default ({
           onClick={onIntervalSelect}
           value={value}
           valueIndex={valueIndex}
-          valuesOpt={1} // add number of optional values to adjust the interval to select
+          valuesOpt={1} // add the number of optional values to adjust the interval to select
           values={intervalValues}
         />
       </ButtonGroup>
