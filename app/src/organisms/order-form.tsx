@@ -8,11 +8,7 @@ import * as formHelpers from "../domain/order";
 import ExchangePairForm from "../molecules/exchange-pair-form";
 import ExecuteJupiterOrder from "./jupiter-order-progress";
 import ExecuteProgramOrder from "./program-order-progress";
-import type {
-  IntervalVariant,
-  PoolTIF,
-  SelectedTIF,
-} from "../domain/interval.d";
+import type { IntervalVariant, PoolTIF } from "../domain/interval.d";
 import type { ValidationErrors } from "../domain/order";
 import useIndexedTIFs, { selectors } from "../contexts/tif-context";
 
@@ -26,7 +22,6 @@ export default ({
   poolCounters: counters,
   poolTifs,
   side: s,
-  tif,
   tokenA,
   tokenADecimals,
   tokenB,
@@ -40,7 +35,6 @@ export default ({
   onBSelect: () => void;
   poolCounters?: PoolCounter[];
   poolTifs?: number[];
-  tif?: SelectedTIF;
   side?: OrderSide;
   tokenA?: string;
   tokenADecimals?: number;
@@ -182,7 +176,7 @@ export default ({
                 onSuccess={onSuccess}
                 params={programParams}
                 progress={submitting}
-                scheduled={Boolean(tif && tif[1] > 0)}
+                scheduled={scheduled}
                 validate={() => errors}
               />
             )}

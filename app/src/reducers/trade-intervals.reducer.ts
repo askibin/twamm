@@ -1,6 +1,5 @@
 import type {
   IndexedTIF,
-  OptionalIntervals,
   PoolTIF,
   IntervalVariant,
 } from "../domain/interval.d";
@@ -41,7 +40,6 @@ const populateIntervals = (list: IndexedTIF[]) => ({
 interface Data {
   indexedTifs: IndexedTIF[];
   minTimeTillExpiration: number;
-  optional: {} | OptionalIntervals;
   periodSelected: IntervalVariant | undefined;
   periodTifs: TIF[];
   scheduled: boolean;
@@ -73,7 +71,6 @@ const setTif = (payload: { value: number | IndexedTIF }) => ({
 const setTifs = (payload: {
   indexedTifs: PoolTIF[];
   minTimeTillExpiration: number | undefined;
-  optionalIntervals: OptionalIntervals;
 }) => ({
   type: ActionTypes.SET_TIFS,
   payload,
@@ -103,11 +100,8 @@ export default (
 ): State | State<Data> => {
   switch (act?.type) {
     case ActionTypes.SET_TIFS: {
-      const {
-        indexedTifs,
-        minTimeTillExpiration = 0,
-        optionalIntervals,
-      } = act.payload as ActionPayload<typeof setTifs>;
+      const { indexedTifs, minTimeTillExpiration = 0 } =
+        act.payload as ActionPayload<typeof setTifs>;
 
       const {
         periodSelected,
@@ -139,16 +133,17 @@ export default (
         ? [(selected as IndexedTIF).tif]
         : [SpecialIntervals.INSTANT].concat(tifsLeft);
 
+      const scheduleTifs = [SpecialIntervals.NO_DELAY].concat(tifsLeft);
+
       const next = {
         indexedTifs: available,
-        minTimeTillExpiration: minTimeTillExpiration ?? 0,
-        optional: optionalIntervals,
-        selected: isSelectedGone ? undefined : selected,
-        periodTifs,
-        scheduleTifs: [SpecialIntervals.NO_DELAY].concat(tifsLeft),
+        minTimeTillExpiration,
         periodSelected: nextPeriodSelected,
-        scheduleSelected: nextScheduleSelected,
+        periodTifs,
         scheduled,
+        scheduleSelected: nextScheduleSelected,
+        scheduleTifs,
+        selected: isSelectedGone ? undefined : selected,
       };
 
       return { data: next };

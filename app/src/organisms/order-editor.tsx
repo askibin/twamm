@@ -7,7 +7,6 @@ import CoinSelect from "./coin-select";
 import Loading from "../atoms/loading";
 import OrderForm from "./order-form";
 import PriceInfo from "./price-info";
-import type { SelectedTIF } from "../domain/interval.d";
 import UniversalPopover, { Ref } from "../molecules/universal-popover";
 import usePrice from "../hooks/use-price";
 import useTIFIntervals from "../hooks/use-tif-intervals";
@@ -49,7 +48,6 @@ export default ({
 
   const { setIntervals, setOptions, setTif } = useIndexedTIFs();
 
-  const [curTif] = useState<SelectedTIF>();
   const [curToken, setCurToken] = useState<number>();
   const selectCoinRef = useRef<Ref>();
 
@@ -178,7 +176,6 @@ export default ({
             poolCounters={selectedPair.data?.poolCounters}
             poolTifs={selectedPair.data?.tifs}
             side={tradeSide}
-            tif={curTif}
             tokenA={a?.symbol}
             tokenADecimals={a?.decimals}
             tokenB={b?.symbol}
