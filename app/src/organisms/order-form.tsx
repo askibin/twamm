@@ -45,6 +45,7 @@ export default ({
 
   const [amount, setAmount] = useState<number>(0);
   const [submitting, setSubmitting] = useState<boolean>(false);
+  const [prepareError, setPrepareError] = useState<Error>();
 
   const tifs = M.withDefault(undefined, M.of(poolTifs));
   const poolCounters = M.withDefault(undefined, M.of(counters));
@@ -66,8 +67,10 @@ export default ({
   );
 
   const errors = useMemo<Voidable<ValidationErrors>>(
-    () => formHelpers.validate(amount, selectedTif, tokenA, tokenB, scheduled),
-    [amount, selectedTif, scheduled, tokenA, tokenB]
+    () =>
+      formHelpers.validate(amount, selectedTif, tokenA, tokenB, scheduled) ||
+      (prepareError ? { tif: prepareError } : undefined),
+    [amount, prepareError, selectedTif, scheduled, tokenA, tokenB]
   );
 
   const jupiterParams = useMemo(() => {
@@ -115,8 +118,10 @@ export default ({
         tifs,
         poolCounters
       );
+      setPrepareError(undefined);
       return params;
-    } catch (e) {
+    } catch (e: unknown) {
+      setPrepareError(e as Error);
       return undefined;
     }
   }, [

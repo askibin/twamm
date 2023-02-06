@@ -52,19 +52,13 @@ export const prepare4Program = (
 ) => {
   if (!timeInForce) throw new Error("Absent tif");
 
-  const usingCurrentPool = !nextPool;
-  const usingNextPool = nextPool;
-
   const finalTif = M.withDefault(
     undefined,
-    M.andMap((intervals) => {
-      const interval = intervals.find((itif: IndexedTIF) => {
-        if (!usingCurrentPool) return itif.tif === timeInForce;
-        return itif.left === timeInForce;
-      });
-
-      return interval;
-    }, M.of(tifIntervals))
+    M.andMap(
+      (intervals) =>
+        intervals.find((itif: IndexedTIF) => itif.tif === timeInForce),
+      M.of(tifIntervals)
+    )
   );
 
   if (!finalTif) throw new Error("Wrong tif");
@@ -77,7 +71,7 @@ export const prepare4Program = (
     decimals,
     aMint,
     bMint,
-    nextPool: usingNextPool,
+    nextPool,
     tifs,
     poolCounters,
     tif: finalTif.tif,
