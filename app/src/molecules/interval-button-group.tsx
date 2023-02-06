@@ -44,8 +44,6 @@ export default ({
 }) => {
   if (!values) return <Styled.BlankIntervals variant="rectangular" />;
 
-  console.log({ value, values });
-
   return (
     <>
       {values

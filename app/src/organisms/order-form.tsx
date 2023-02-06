@@ -8,7 +8,11 @@ import * as formHelpers from "../domain/order";
 import ExchangePairForm from "../molecules/exchange-pair-form";
 import ExecuteJupiterOrder from "./jupiter-order-progress";
 import ExecuteProgramOrder from "./program-order-progress";
-import type { IndexedTIF, PoolTIF, SelectedTIF } from "../domain/interval.d";
+import type {
+  IntervalVariant,
+  PoolTIF,
+  SelectedTIF,
+} from "../domain/interval.d";
 import type { ValidationErrors } from "../domain/order";
 import useIndexedTIFs, { selectors } from "../contexts/tif-context";
 
@@ -61,7 +65,7 @@ export default ({
   );
 
   const onIntervalSelect = useCallback(
-    (indexedTIF: IndexedTIF, schedule: boolean) => {
+    (indexedTIF: IntervalVariant, schedule: boolean) => {
       setTif(indexedTIF, schedule);
     },
     [setTif]
@@ -97,8 +101,10 @@ export default ({
     if (!tokenADecimals) return undefined;
     if (!side) return undefined;
     if (!tokenPair) return undefined;
-    const [a, b] = tokenPair;
 
+    if (typeof selectedTif === "number") return undefined;
+
+    const [a, b] = tokenPair;
     const timeInForce = selectedTif.tif;
     const nextPool = scheduled;
 
@@ -149,7 +155,6 @@ export default ({
         <>
           <ExchangePairForm
             amount={amount}
-            intervalTifs={intervalTifs}
             primary={primary}
             onABSwap={onABSwap}
             onASelect={onASelect}

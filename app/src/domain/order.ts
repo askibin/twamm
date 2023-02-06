@@ -40,7 +40,7 @@ export const validate = (
 
 export const prepare4Program = (
   timeInForce: TIF | undefined,
-  nextPool: number | undefined,
+  nextPool: boolean,
   tifIntervals: IndexedTIF[] | undefined,
   side: OrderSide,
   amount: number,
@@ -52,8 +52,8 @@ export const prepare4Program = (
 ) => {
   if (!timeInForce) throw new Error("Absent tif");
 
-  const usingCurrentPool = nextPool === -1;
-  const usingNextPool = Boolean(nextPool && nextPool > 0);
+  const usingCurrentPool = !nextPool;
+  const usingNextPool = nextPool;
 
   const finalTif = M.withDefault(
     undefined,

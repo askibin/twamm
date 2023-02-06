@@ -16,13 +16,14 @@ type ScheduleTIF = boolean;
 export type TIFContext = {
   readonly periodSelected?: IntervalVariant;
   readonly periodTifs?: TIF[];
-  readonly scheduled?: boolean;
+  readonly scheduled: boolean;
   readonly scheduleSelected?: IntervalVariant;
   readonly scheduleTifs?: TIF[];
   readonly selected?: IntervalVariant;
   readonly setIntervals: (i?: IndexedTIF[]) => void;
   readonly setOptions: (o: { minTimeTillExpiration: number }) => void;
   readonly setTif: (e: IntervalVariant, s: ScheduleTIF) => void;
+  readonly tifs?: IndexedTIF[];
 };
 
 export const Context = createContext<TIFContext | undefined>(undefined);
@@ -32,7 +33,7 @@ export const Provider: FC<{ children: ReactNode }> = ({ children }) => {
     minTimeTillExpiration: 0,
   });
 
-  const [state, dispatch] = useTradeIntervals(undefined);
+  const [state, dispatch] = useTradeIntervals();
 
   const changeOptions = useCallback(
     (opts: { minTimeTillExpiration: number }) => {
@@ -86,13 +87,14 @@ export const Provider: FC<{ children: ReactNode }> = ({ children }) => {
     () => ({
       periodSelected: state.data?.periodSelected,
       periodTifs: state.data?.periodTifs,
-      scheduled: state.data?.scheduled,
+      scheduled: Boolean(state.data?.scheduled),
       scheduleSelected: state.data?.scheduleSelected,
       scheduleTifs: state.data?.scheduleTifs,
       selected: state.data?.selected,
       setIntervals: changeIntervals,
       setOptions: changeOptions,
       setTif: changeTif,
+      tifs: state.data?.indexedTifs,
     }),
     [changeIntervals, changeOptions, changeTif, state]
   );

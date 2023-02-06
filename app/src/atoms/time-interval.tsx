@@ -23,16 +23,9 @@ export default ({
   label: string;
   onSelect: (arg0: number) => void;
   value?: number | IndexedTIF;
+  valueIndex?: number;
   values?: number[];
 }) => {
-  /*const valueIndex = useMemo(() => {
-    if (typeof value === "number") return value;
-    if (value?.tif) return value.index;
-    return undefined;
-  }, [value]);
-*/
-  console.log({ valueIndex });
-
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
 
   const handlePopoverOpen = useCallback(

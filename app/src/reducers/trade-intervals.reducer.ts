@@ -42,10 +42,10 @@ interface Data {
   indexedTifs: IndexedTIF[];
   minTimeTillExpiration: number;
   optional: {} | OptionalIntervals;
-  periodSelected: IndexedTIF | undefined;
+  periodSelected: IntervalVariant | undefined;
   periodTifs: TIF[];
   scheduled: boolean;
-  scheduleSelected: IndexedTIF | undefined;
+  scheduleSelected: IntervalVariant | undefined;
   scheduleTifs: TIF[];
   selected: IntervalVariant | undefined;
 }
@@ -79,12 +79,12 @@ const setTifs = (payload: {
   payload,
 });
 
-const setSchedule = (payload: { tif: TIF }) => ({
+const setSchedule = (payload: IndexedTIF) => ({
   type: ActionTypes.SET_SCHEDULE,
   payload,
 });
 
-const setPeriod = (payload: { tif: TIF }) => ({
+const setPeriod = (payload: IndexedTIF) => ({
   type: ActionTypes.SET_PERIOD,
   payload,
 });
@@ -123,11 +123,15 @@ export default (
 
       const { left: tifsLeft } = populateIntervals(available);
 
-      const hasSelectedAtTifs =
-        selected && Boolean(available?.find((i) => i.tif === selected.tif));
+      let isSelectedGone = false;
+      if (selected && typeof selected === "number") {
+        isSelectedGone = false;
+      } else if (selected) {
+        isSelectedGone = !available.find((i) => i.tif === selected.tif);
+      }
 
-      const nextPeriodSelected = hasSelectedAtTifs ? periodSelected : undefined;
-      const nextScheduleSelected = hasSelectedAtTifs
+      const nextPeriodSelected = !isSelectedGone ? periodSelected : undefined;
+      const nextScheduleSelected = !isSelectedGone
         ? scheduleSelected
         : undefined;
 
@@ -139,7 +143,7 @@ export default (
         indexedTifs: available,
         minTimeTillExpiration: minTimeTillExpiration ?? 0,
         optional: optionalIntervals,
-        selected,
+        selected: isSelectedGone ? undefined : selected,
         periodTifs,
         scheduleTifs: [SpecialIntervals.NO_DELAY].concat(tifsLeft),
         periodSelected: nextPeriodSelected,
@@ -165,7 +169,6 @@ export default (
 
       const next = {
         ...state.data,
-        indexedTifs,
         selected,
         scheduleSelected: selected,
         periodSelected: selected,
