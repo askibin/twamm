@@ -9,27 +9,21 @@ import { useCallback, useMemo, useState } from "react";
 
 import * as Styled from "./trade-intervals.styled";
 import TimeInterval from "../atoms/time-interval";
-import type {
-  IntervalVariant,
-  IndexedTIF,
-  PoolTIF,
-} from "../domain/interval.d";
+import type { IntervalVariant, PoolTIF } from "../domain/interval.d";
 import useIndexedTIFs from "../contexts/tif-context";
 import { SpecialIntervals } from "../domain/interval.d";
 
 export default ({
   disabled,
-  indexedTifs: tifs,
+  indexedTifs,
   onSelect,
   selected,
 }: {
   disabled: boolean;
   indexedTifs: Voidable<PoolTIF[]>;
-  onSelect: (arg0: IndexedTIF, arg1: boolean) => void;
+  onSelect: (arg0: IntervalVariant, arg1: boolean) => void;
   selected?: IntervalVariant;
 }) => {
-  const indexedTifs = useMemo(() => tifs, [tifs]);
-
   const { periodTifs, scheduleTifs, scheduleSelected, periodSelected } =
     useIndexedTIFs();
 
@@ -68,7 +62,7 @@ export default ({
 
         if (value === SpecialIntervals.NO_DELAY) {
           onSelect(value, false);
-        } else {
+        } else if (indexedTIF) {
           onSelect(indexedTIF, true);
         }
       }, M.of(indexedTifs));
@@ -83,7 +77,7 @@ export default ({
 
         if (value === SpecialIntervals.INSTANT) {
           onSelect(value, false);
-        } else {
+        } else if (indexedTIF) {
           onSelect(indexedTIF, false);
         }
       }, M.of(indexedTifs));
@@ -101,8 +95,6 @@ export default ({
     let periodIndex;
     let schedule;
     let scheduleIndex;
-
-    console.log({ indexedTifs });
 
     if (selected === SpecialIntervals.NO_DELAY) {
       schedule = -1;
@@ -124,7 +116,6 @@ export default ({
         periodIndex = indexedTifs?.findIndex(
           (t) => t.tif === periodSelected.tif
         );
-        console.log("AA", periodIndex,periodSelected, indexedTifs )
       }
     }
 

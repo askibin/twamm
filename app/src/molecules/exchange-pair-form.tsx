@@ -8,14 +8,15 @@ import AmountField from "../atoms/amount-field";
 import InTokenField from "./in-token-field";
 import TokenSelect from "../atoms/token-select";
 import TradeIntervals from "./trade-intervals";
-import type { IndexedTIF, PoolTIF } from "../domain/interval.d";
+import type { IntervalVariant } from "../domain/interval.d";
+import useIndexedTIFs from "../contexts/tif-context";
 import usePrice from "../hooks/use-price";
 import { SpecialIntervals } from "../domain/interval.d";
-import useIndexedTIFs from "../contexts/tif-context";
+
+// TODO: molecule > organism
 
 export default ({
   amount,
-  intervalTifs,
   primary,
   onABSwap,
   onASelect,
@@ -27,20 +28,19 @@ export default ({
   submitting,
 }: {
   amount?: number;
-  intervalTifs: Voidable<PoolTIF[]>;
   primary: Voidable<JupToken>;
   onABSwap: () => void;
   onASelect: () => void;
   onBSelect: () => void;
   onChangeAmount: (arg0: number) => void;
-  onIntervalSelect: (a: IndexedTIF, b: boolean) => void;
+  onIntervalSelect: (a: IntervalVariant, b: boolean) => void;
   onSubmit: () => void;
   secondary: Voidable<JupToken>;
   submitting: boolean;
 }) => {
   const [a, b] = [primary, secondary];
 
-  const { selected: selectedTif } = useIndexedTIFs();
+  const { tifs: intervalTifs, selected: selectedTif } = useIndexedTIFs();
 
   const isInstantEnabled =
     selectedTif === SpecialIntervals.INSTANT ? true : undefined;
@@ -85,7 +85,7 @@ export default ({
     onBSelect();
   };
   const handleIntervalSelect = useCallback(
-    (indexed: IndexedTIF, schedule: boolean) => {
+    (indexed: IntervalVariant, schedule: boolean) => {
       onIntervalSelect(indexed, schedule);
     },
     [onIntervalSelect]
