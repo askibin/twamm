@@ -11,6 +11,7 @@
     "eslint/fix": "eslint src pages --fix",
     "lint": "next lint",
     "lint/fix": "yarn prettier/fix && yarn eslint/fix",
+    "prettier": "prettier src pages --check",
     "prettier/fix": "prettier src pages --write",
     "test": "yarn test/unit && yarn test/packages",
     "test/packages": "lerna exec \"test --silent\"",

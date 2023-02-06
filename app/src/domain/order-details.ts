@@ -1,20 +1,20 @@
+import BN from "bn.js";
 import { lensPath, view } from "ramda";
 
 export const quantity = (
   pair: TokenPairProgramData,
   pool: PoolData,
-  orderType: OrderTypeStruct
+  orderType: OrderTypeStruct,
+  unsettledBalance: BN
 ) => {
   const decimals = lensPath(["decimals"]);
   const selling = Boolean(orderType.sell);
-
-  const orderTypeData = selling ? pool.sellSide : pool.buySide;
 
   const d = selling
     ? view(decimals, pair.configA)
     : view(decimals, pair.configB);
 
-  return Number(orderTypeData.lpSupply) / 10 ** d;
+  return Number(unsettledBalance) / 10 ** d;
 };
 
 export const filledQuantity = (

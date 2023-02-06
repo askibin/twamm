@@ -41,6 +41,7 @@ const fetcher = (program: Program) => {
       record.poolData = params.pools[i];
       record.order = o.pubkey;
       record.tokenPairData = tokenPairs[i];
+      record.unsettledBalance = o.unsettledBalance;
 
       return record;
     });

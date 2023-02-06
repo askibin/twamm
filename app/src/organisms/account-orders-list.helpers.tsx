@@ -27,7 +27,12 @@ export const populateRow = (data: OrderPoolRecord) => {
     tokenDebt: data.tokenDebt,
   };
 
-  const amount = quantity(data.tokenPairData, data.poolData, data.side);
+  const amount = quantity(
+    data.tokenPairData,
+    data.poolData,
+    data.side,
+    data.unsettledBalance
+  );
   const filledAmount = filledQuantity(
     data.tokenPairData,
     data.poolData,

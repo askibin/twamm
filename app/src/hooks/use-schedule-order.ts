@@ -13,6 +13,7 @@ import { OrderSide } from "@twamm/types/lib";
 import { SplToken } from "@twamm/client.js/lib/spl-token";
 import { Transfer } from "@twamm/client.js/lib/transfer";
 
+import Logger from "../utils/logger";
 import useProgram from "./use-program";
 import useTxRunner from "../contexts/transaction-runner-context";
 import { NEXT_PUBLIC_ENABLE_TX_SIMUL } from "../env";
@@ -44,6 +45,8 @@ export default () => {
   const order = new Order(program, provider);
 
   const TOKEN_PROGRAM_ID = SplToken.getProgramId();
+
+  const logger = Logger();
 
   const run = async function execute({
     aMint,
@@ -163,18 +166,20 @@ export default () => {
       setInfo("Simulating transaction...");
 
       const simResult = await tx.simulate().catch((e) => {
-        console.error("Failed to simulate", e); // eslint-disable-line no-console
-        if (e.simulationResponse?.logs)
-          console.error(e.simulationResponse.logs); // eslint-disable-line no-console, max-len
+        logger.error(e, "Failed to simulate");
+        if (e.simulationResponse?.logs) logger.debug(e.simulationResponse.logs);
       });
 
-      if (simResult) console.debug(simResult.raw, simResult.events); // eslint-disable-line no-console, max-len
+      if (simResult) {
+        logger.debug(simResult.raw);
+        logger.debug(simResult.events);
+      }
     }
 
     setInfo("Executing the transaction...");
 
     const result = await tx.rpc().catch((e: Error) => {
-      console.error(e); // eslint-disable-line no-console
+      logger.error(e);
       throw e;
     });
 
