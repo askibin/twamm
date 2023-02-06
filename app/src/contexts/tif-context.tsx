@@ -8,7 +8,6 @@ import {
 } from "react";
 import type { IntervalVariant, IndexedTIF } from "../domain/interval.d";
 import useTradeIntervals, { action as A } from "../hooks/use-trade-intervals";
-import { optionalIntervals } from "../domain/interval";
 import { SpecialIntervals } from "../domain/interval.d";
 
 type ScheduleTIF = boolean;
@@ -75,7 +74,6 @@ export const Provider: FC<{ children: ReactNode }> = ({ children }) => {
           A.setTifs({
             indexedTifs,
             minTimeTillExpiration: options.minTimeTillExpiration,
-            optionalIntervals,
           })
         );
       }
