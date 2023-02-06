@@ -8,47 +8,42 @@ import AmountField from "../atoms/amount-field";
 import InTokenField from "./in-token-field";
 import TokenSelect from "../atoms/token-select";
 import TradeIntervals from "./trade-intervals";
+import type { IntervalVariant } from "../domain/interval.d";
+import useIndexedTIFs from "../contexts/tif-context";
 import usePrice from "../hooks/use-price";
-import type { PoolTIF, SelectedTIF } from "../domain/interval.d";
 import { SpecialIntervals } from "../domain/interval.d";
+
+// TODO: molecule > organism
 
 export default ({
   amount,
-  intervalTifs,
-  lead,
-  minTimeTillExpiration,
+  primary,
   onABSwap,
   onASelect,
   onBSelect,
-  onChange,
   onChangeAmount,
-  onInstantIntervalSelect,
   onIntervalSelect,
   onSubmit,
-  slave,
+  secondary,
   submitting,
-  tif,
 }: {
   amount?: number;
-  intervalTifs: Voidable<PoolTIF[]>;
-  lead: Voidable<JupToken>;
-  minTimeTillExpiration: Voidable<number>;
+  primary: Voidable<JupToken>;
   onABSwap: () => void;
   onASelect: () => void;
   onBSelect: () => void;
-  onChange: () => void;
   onChangeAmount: (arg0: number) => void;
-  onInstantIntervalSelect: () => void;
-  onIntervalSelect: (tif: SelectedTIF) => void;
+  onIntervalSelect: (a: IntervalVariant, b: boolean) => void;
   onSubmit: () => void;
-  slave: Voidable<JupToken>;
+  secondary: Voidable<JupToken>;
   submitting: boolean;
-  tif?: SelectedTIF;
 }) => {
-  const [a, b] = [lead, slave];
+  const [a, b] = [primary, secondary];
+
+  const { tifs: intervalTifs, selected: selectedTif } = useIndexedTIFs();
 
   const isInstantEnabled =
-    tif && tif[0] === SpecialIntervals.INSTANT ? true : undefined;
+    selectedTif === SpecialIntervals.INSTANT ? true : undefined;
 
   const instantParams = M.andMap(
     ([c, d, e]) => ({
@@ -79,31 +74,22 @@ export default ({
 
   const handleChangeAmount = (value: number) => {
     onChangeAmount(value);
-    onChange();
   };
   const handleSwap = () => {
     onABSwap();
-    onChange();
   };
   const handleInputSelect = () => {
     onASelect();
-    onChange();
   };
   const handleOutputSelect = () => {
     onBSelect();
-    onChange();
   };
   const handleIntervalSelect = useCallback(
-    (value: SelectedTIF) => {
-      onIntervalSelect(value);
-      onChange();
+    (indexed: IntervalVariant, schedule: boolean) => {
+      onIntervalSelect(indexed, schedule);
     },
-    [onChange, onIntervalSelect]
+    [onIntervalSelect]
   );
-  const handleInstantIntervalSelect = useCallback(() => {
-    onInstantIntervalSelect();
-    onChange();
-  }, [onChange, onInstantIntervalSelect]);
 
   return (
     <form onSubmit={onSubmit} id="exchange-form">
@@ -143,10 +129,8 @@ export default ({
         <TradeIntervals
           disabled={submitting}
           indexedTifs={intervalTifs}
-          minTimeTillExpiration={minTimeTillExpiration}
           onSelect={handleIntervalSelect}
-          onSelectInstant={handleInstantIntervalSelect}
-          selectedTif={tif}
+          selected={selectedTif}
         />
       </Box>
     </form>

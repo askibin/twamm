@@ -1,6 +1,8 @@
 import type { SyntheticEvent } from "react";
+import { isNil } from "ramda";
 
 import * as Styled from "./interval-button-group.styled";
+import type { IntervalVariant } from "../domain/interval.d";
 import IntervalButton from "../atoms/interval-button";
 import { formatInterval } from "../utils/index";
 import { SpecialIntervals } from "../domain/interval.d";
@@ -28,12 +30,16 @@ const Instant = (props: {
 export default ({
   disabled,
   onClick,
-  value: selectedValue,
+  value,
+  valueIndex,
+  valuesOpt,
   values,
 }: {
   disabled: boolean;
   onClick: (e: SyntheticEvent<HTMLElement>) => void;
-  value?: number;
+  value?: IntervalVariant;
+  valueIndex?: number;
+  valuesOpt: number;
   values?: number[];
 }) => {
   if (!values) return <Styled.BlankIntervals variant="rectangular" />;
@@ -41,20 +47,33 @@ export default ({
   return (
     <>
       {values
-        .filter((value: number) => value !== 0)
-        .map((value: number) => {
-          const selected = value === selectedValue;
-          const text = formatInterval(value);
+        .map((intervalValue: number, index) => {
+          const isWildcardSelected =
+            value === SpecialIntervals.NO_DELAY && index === 0;
+          const isIntervalSelected =
+            !isNil(valueIndex) && index === valueIndex + valuesOpt;
 
-          // FEAT: allow support for other inervals
-          if (value === SpecialIntervals.INSTANT)
+          return {
+            value: intervalValue,
+            selected: isWildcardSelected || isIntervalSelected,
+          };
+        })
+        .filter((d) => d.value !== 0)
+        .map((d) => {
+          const text = formatInterval(d.value);
+          const isComplementaryInterval = values.length === 1 && values[0] > 0;
+          // make the interval selected when using scheduled interval
+
+          const isSelected = d.selected || isComplementaryInterval;
+
+          if (d.value === SpecialIntervals.INSTANT)
             return (
               <Instant
                 disabled={disabled}
-                key={`interval-${value}`}
+                key={`interval-${d.value}`}
                 onSelect={onClick}
-                selected={selectedValue === SpecialIntervals.INSTANT}
-                value={value}
+                selected={value === SpecialIntervals.INSTANT}
+                value={d.value}
                 values={values}
               />
             );
@@ -62,11 +81,11 @@ export default ({
           return (
             <IntervalButton
               disabled={disabled}
-              key={`interval-${value}`}
+              key={`interval-${d.value}`}
               onClick={onClick}
-              selected={selected}
+              selected={isSelected}
               text={text}
-              value={value}
+              value={d.value}
             />
           );
         })}

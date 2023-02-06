@@ -61,9 +61,6 @@ function OrderProgress(props: {
 
     const routesData = routes.data.routes;
 
-    // FIXME: remove this 4 prod
-    console.debug("exec", props.params); // eslint-disable-line no-console
-
     await execute(routesData);
 
     props.onSuccess();

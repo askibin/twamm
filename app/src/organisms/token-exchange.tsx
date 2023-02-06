@@ -5,6 +5,7 @@ import OrderEditor from "./order-editor";
 import useAddressPairs from "../hooks/use-address-pairs";
 import useJupTokensByMint from "../hooks/use-jup-tokens-by-mint";
 import useTokenExchange, { action as A } from "../hooks/use-token-exchange";
+import { Provider as TIFProvider } from "../contexts/tif-context";
 
 export type TradeStruct = {
   amount: number;
@@ -68,19 +69,20 @@ export default (props: Props) => {
   );
 
   return (
-    <OrderEditor
-      a={state.data?.a}
-      all={state.data?.all}
-      available={state.data?.available}
-      b={state.data?.b}
-      cancellable={undefined}
-      onSelectA={onSelectA}
-      onSelectB={onSelectB}
-      onSwap={onSwap}
-      onTradeChange={onTradeChange}
-      tokenPair={tokenPair.data}
-      tokenPairs={tokenPairs.data}
-      tradeSide={state.data?.type}
-    />
+    <TIFProvider>
+      <OrderEditor
+        a={state.data?.a}
+        all={state.data?.all}
+        available={state.data?.available}
+        b={state.data?.b}
+        onSelectA={onSelectA}
+        onSelectB={onSelectB}
+        onSwap={onSwap}
+        onTradeChange={onTradeChange}
+        tokenPair={tokenPair.data}
+        tokenPairs={tokenPairs.data}
+        tradeSide={state.data?.type}
+      />
+    </TIFProvider>
   );
 };

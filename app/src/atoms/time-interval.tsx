@@ -5,6 +5,7 @@ import InfoIcon from "@mui/icons-material/Info";
 import Popover from "@mui/material/Popover";
 import { useCallback, useMemo, useState } from "react";
 
+import type { IndexedTIF } from "../domain/interval.d";
 import * as Styled from "./time-interval.styled";
 import Intervals from "../molecules/interval-button-group";
 
@@ -14,13 +15,15 @@ export default ({
   label,
   onSelect,
   value,
+  valueIndex,
   values,
 }: {
   disabled: boolean;
   info?: string;
   label: string;
   onSelect: (arg0: number) => void;
-  value?: number;
+  value?: number | IndexedTIF;
+  valueIndex?: number;
   values?: number[];
 }) => {
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
@@ -90,6 +93,8 @@ export default ({
           disabled={disabled}
           onClick={onIntervalSelect}
           value={value}
+          valueIndex={valueIndex}
+          valuesOpt={1} // add the number of optional values to adjust the interval to select
           values={intervalValues}
         />
       </ButtonGroup>

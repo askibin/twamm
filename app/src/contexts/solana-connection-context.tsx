@@ -1,12 +1,14 @@
 import type { FC, ReactNode } from "react";
+import type { Commitment } from "@solana/web3.js";
 import { clusterApiUrl, Connection } from "@solana/web3.js";
 import R, { useCallback, useContext, useMemo, useRef, useState } from "react";
 import { ENV as ChainIdEnv } from "@solana/spl-token-registry";
 import ClusterUtils from "../domain/cluster";
 import storage, { sanidateURL } from "../utils/config-storage";
-import type * as TContext from "./solana-connection-context.d";
 import type * as T from "../domain/cluster.d";
 import { AnkrClusterApiUrl, ClusterApiUrl } from "../env";
+
+type CommitmentLevel = Extract<Commitment, "confirmed">;
 
 const STORAGE_KEY = "twammClusterEndpoint";
 const ENABLE_STORAGE_KEY = "twammEnableClusterEndpoint";
@@ -47,11 +49,9 @@ export type SolanaConnectionContext = {
   readonly presets: typeof endpoints;
   readonly cluster: T.ClusterInfo;
   readonly clusters: T.ClusterInfo[];
-  readonly commitment: TContext.CommitmentLevel;
+  readonly commitment: CommitmentLevel;
   readonly connection: Connection;
-  readonly createConnection: (
-    commitment?: TContext.CommitmentLevel
-  ) => Connection;
+  readonly createConnection: (commitment?: CommitmentLevel) => Connection;
   readonly setCluster: (cluster: T.ClusterInfo | T.Moniker) => boolean;
 };
 
@@ -82,7 +82,7 @@ export const Provider: FC<{ children: ReactNode }> = ({ children }) => {
     ? cluster.findBy(clusterStorage.get<string>(), initialClusters)
     : fallbackCluster;
 
-  const [commitment] = useState<TContext.CommitmentLevel>(COMMITMENT);
+  const [commitment] = useState<CommitmentLevel>(COMMITMENT);
   const [clusters] = useState<T.ClusterInfo[]>(initialClusters);
   const [currentCluster, setCurrentCluster] = useState(initialCluster);
   const [presets] = useState(endpoints);
@@ -112,7 +112,7 @@ export const Provider: FC<{ children: ReactNode }> = ({ children }) => {
   );
 
   const createConnection = useCallback(
-    (commit: TContext.CommitmentLevel = commitment) => {
+    (commit: CommitmentLevel = commitment) => {
       const prevEndpoint =
         connectionRef.current && connectionRef.current.rpcEndpoint;
 

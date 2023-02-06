@@ -1,6 +1,6 @@
 import M from "easy-maybe/lib";
 import { OrderSide } from "@twamm/types/lib";
-import type { IndexedTIF, SelectedTIF } from "./interval.d";
+import type { IndexedTIF } from "./interval.d";
 import { SpecialIntervals } from "./interval.d";
 
 export type ValidationErrors = {
@@ -12,26 +12,27 @@ export type ValidationErrors = {
 
 export const validate = (
   amount: number,
-  tif: SelectedTIF | undefined,
+  tif: undefined | number | IndexedTIF,
   tokenA: string | undefined,
-  tokenB: string | undefined
+  tokenB: string | undefined,
+  scheduled: boolean | undefined
 ) => {
   const result: ValidationErrors = {};
 
-  if (!tokenA) result.a = new Error("Should select the token");
-  if (!tokenB) result.b = new Error("Should select the token");
-  if (!amount) result.amount = new Error("Specify the amount of token");
+  if (!tokenA) result.a = new Error("Select the token to exchange");
+  if (!tokenB) result.b = new Error("Select the token to exchange");
+  if (!amount) result.amount = new Error("Choose the token amount");
   if (Number.isNaN(Number(amount)))
     result.amount = new Error("Amount should be the number");
 
   if (tif) {
-    const [timeInForce, modes] = tif;
+    const isProgramOrder = tif === SpecialIntervals.NO_DELAY;
 
-    if (!timeInForce && modes !== SpecialIntervals.INSTANT) {
-      result.tif = new Error("Should choose the interval");
+    if (isProgramOrder && !scheduled) {
+      result.tif = new Error("Choose the interval");
     }
   } else if (!tif) {
-    result.tif = new Error("Should choose the interval");
+    result.tif = new Error("Choose the interval");
   }
 
   return Object.keys(result).length ? result : undefined;
@@ -39,7 +40,7 @@ export const validate = (
 
 export const prepare4Program = (
   timeInForce: TIF | undefined,
-  nextPool: number | undefined,
+  nextPool: boolean,
   tifIntervals: IndexedTIF[] | undefined,
   side: OrderSide,
   amount: number,
@@ -51,20 +52,13 @@ export const prepare4Program = (
 ) => {
   if (!timeInForce) throw new Error("Absent tif");
 
-  const usingCurrentPool = nextPool === -1;
-  const usingNextPool = Boolean(nextPool && nextPool > 0);
-
   const finalTif = M.withDefault(
     undefined,
-    M.andMap((intervals) => {
-      const interval = intervals.find((itif: IndexedTIF) => {
-        // if (nextPool !== -1) return itif.tif === timeInForce;
-        if (!usingCurrentPool) return itif.tif === timeInForce;
-        return itif.left === timeInForce;
-      });
-
-      return interval;
-    }, M.of(tifIntervals))
+    M.andMap(
+      (intervals) =>
+        intervals.find((itif: IndexedTIF) => itif.tif === timeInForce),
+      M.of(tifIntervals)
+    )
   );
 
   if (!finalTif) throw new Error("Wrong tif");
@@ -77,7 +71,7 @@ export const prepare4Program = (
     decimals,
     aMint,
     bMint,
-    nextPool: usingNextPool, // nextPool && nextPool > 0,
+    nextPool,
     tifs,
     poolCounters,
     tif: finalTif.tif,

@@ -6,37 +6,41 @@ import {
 } from "@solana/web3.js";
 import { assureAccountCreated } from "@twamm/client.js/lib/assure-account-created";
 import { createTransferNativeTokenInstructions } from "@twamm/client.js";
-import { findAddress } from "@twamm/client.js/lib/program";
-import { findAssociatedTokenAddress } from "@twamm/client.js/lib/find-associated-token-address";
+import { forit } from "a-wait-forit";
 import { isNil } from "ramda";
 import { Order } from "@twamm/client.js/lib/order";
 import { OrderSide } from "@twamm/types/lib";
-import { Pool } from "@twamm/client.js/lib/pool";
 import { SplToken } from "@twamm/client.js/lib/spl-token";
+import { Transfer } from "@twamm/client.js/lib/transfer";
 
 import useProgram from "./use-program";
 import useTxRunner from "../contexts/transaction-runner-context";
 import { NEXT_PUBLIC_ENABLE_TX_SIMUL } from "../env";
 
-export interface Params {
-  amount: number;
-  decimals: number;
-  side: OrderSide;
-  aMint: string;
-  bMint: string;
-  tif: number;
-  nextPool: boolean;
-  poolCounters: PoolCounter[];
-  tifs: number[];
-}
+const computePoolCounters = (
+  tif: TIF,
+  tifs: TIF[],
+  poolCounters: PoolCounter[],
+  nextPool: boolean
+) => {
+  const tifIndex = tifs.indexOf(tif);
+  if (tifIndex < 0) throw new Error("Invalid TIF");
+
+  const poolCounter = poolCounters[tifIndex];
+
+  const counter: PoolCounter = nextPool
+    ? new BN(poolCounter.toNumber() + 1)
+    : poolCounter;
+
+  return { currentCounter: poolCounter, targetCounter: counter };
+};
 
 export default () => {
   const { program, provider } = useProgram();
   const { commit, setInfo } = useTxRunner();
 
-  const findProgramAddress = findAddress(program);
+  const transfer = new Transfer(program, provider);
 
-  const pool = new Pool(program);
   const order = new Order(program, provider);
 
   const TOKEN_PROGRAM_ID = SplToken.getProgramId();
@@ -51,54 +55,73 @@ export default () => {
     side,
     tif,
     tifs,
-  }: Params) {
-    const transferAuthority = await findProgramAddress(
-      "transfer_authority",
-      []
+  }: {
+    amount: number;
+    decimals: number;
+    side: OrderSide;
+    aMint: string;
+    bMint: string;
+    tif: TIF;
+    nextPool: boolean;
+    poolCounters: PoolCounter[];
+    tifs: TIF[];
+  }) {
+    const { currentCounter, targetCounter } = computePoolCounters(
+      tif,
+      tifs,
+      poolCounters,
+      nextPool
     );
 
-    const aMintPublicKey = new PublicKey(aMint);
-    const bMintPublicKey = new PublicKey(bMint);
+    const primary = new PublicKey(aMint);
+    const secondary = new PublicKey(bMint);
 
-    const tokenPairAddress = await findProgramAddress("token_pair", [
-      new PublicKey(aMint).toBuffer(),
-      new PublicKey(bMint).toBuffer(),
-    ]);
-
-    const aCustody = await findAssociatedTokenAddress(
-      transferAuthority,
-      aMintPublicKey
+    const transferAccounts = await transfer.findTransferAccounts(
+      primary,
+      secondary,
+      tif,
+      currentCounter,
+      targetCounter
     );
 
-    const bCustody = await findAssociatedTokenAddress(
-      transferAuthority,
-      bMintPublicKey
+    // check that similar order exists
+    const previousOrderAddress = await order.getKeyByCustodies(
+      transferAccounts.aCustody,
+      transferAccounts.bCustody,
+      tif,
+      targetCounter
     );
-
-    const aWallet = await findAssociatedTokenAddress(
-      provider.wallet.publicKey,
-      aMintPublicKey
-    );
-
-    const bWallet = await findAssociatedTokenAddress(
-      provider.wallet.publicKey,
-      bMintPublicKey
-    );
+    const [, previousOrder] = await forit(order.getOrder(previousOrderAddress));
 
     let preInstructions = [
-      await assureAccountCreated(provider, aMintPublicKey, aWallet),
-      await assureAccountCreated(provider, bMintPublicKey, bWallet),
+      await assureAccountCreated(provider, primary, transferAccounts.aWallet),
+      await assureAccountCreated(provider, secondary, transferAccounts.bWallet),
     ];
+
+    if (previousOrder) {
+      const prevSideStruct = previousOrder.side;
+      const hasOppositeSide = Boolean(prevSideStruct[side] === undefined);
+
+      if (hasOppositeSide) {
+        throw new Error("Cancel previous order");
+      }
+    }
 
     const isSell = side === OrderSide.sell;
     const isBuy = side === OrderSide.buy;
+
+    const orderParams = {
+      side: isSell ? { sell: {} } : { buy: {} },
+      timeInForce: tif,
+      amount: new BN(amount * 10 ** decimals),
+    };
 
     if (isSell)
       preInstructions = preInstructions.concat(
         await createTransferNativeTokenInstructions(
           provider,
-          aMintPublicKey,
-          aWallet,
+          primary,
+          transferAccounts.aWallet,
           amount
         )
       );
@@ -107,8 +130,8 @@ export default () => {
       preInstructions = preInstructions.concat(
         await createTransferNativeTokenInstructions(
           provider,
-          bMintPublicKey,
-          bWallet,
+          secondary,
+          transferAccounts.bWallet,
           amount
         )
       );
@@ -117,48 +140,16 @@ export default () => {
       (i): i is TransactionInstruction => !isNil(i)
     );
 
-    const index = tifs.indexOf(tif);
-    if (index < 0) throw new Error("Invalid TIF");
-    const counter = poolCounters[index];
-
-    const orderParams = {
-      side: side === OrderSide.sell ? { sell: {} } : { buy: {} },
-      timeInForce: tif,
-      amount: new BN(amount * 10 ** decimals),
-    };
-
-    const poolCounter = nextPool ? Number(counter) + 1 : counter;
-
-    const targetOrder = await order.getKeyByCustodies(
-      aCustody,
-      bCustody,
-      tif,
-      poolCounter
-    );
-
-    const currentPool = await pool.getKeyByCustodies(
-      aCustody,
-      bCustody,
-      tif,
-      counter
-    );
-    const targetPool = await pool.getKeyByCustodies(
-      aCustody,
-      bCustody,
-      tif,
-      poolCounter
-    );
-
     const accounts = {
       owner: provider.wallet.publicKey,
-      userAccountTokenA: aWallet,
-      userAccountTokenB: bWallet,
-      tokenPair: tokenPairAddress,
-      custodyTokenA: aCustody,
-      custodyTokenB: bCustody,
-      order: targetOrder,
-      currentPool,
-      targetPool,
+      userAccountTokenA: transferAccounts.aWallet,
+      userAccountTokenB: transferAccounts.bWallet,
+      tokenPair: transferAccounts.tokenPair,
+      custodyTokenA: transferAccounts.aCustody,
+      custodyTokenB: transferAccounts.bCustody,
+      order: transferAccounts.targetOrder,
+      currentPool: transferAccounts.currentPool,
+      targetPool: transferAccounts.targetPool,
       systemProgram: SystemProgram.programId,
       tokenProgram: TOKEN_PROGRAM_ID,
     };
@@ -173,6 +164,8 @@ export default () => {
 
       const simResult = await tx.simulate().catch((e) => {
         console.error("Failed to simulate", e); // eslint-disable-line no-console
+        if (e.simulationResponse?.logs)
+          console.error(e.simulationResponse.logs); // eslint-disable-line no-console, max-len
       });
 
       if (simResult) console.debug(simResult.raw, simResult.events); // eslint-disable-line no-console, max-len

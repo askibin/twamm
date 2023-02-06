@@ -5,20 +5,20 @@ import Box from "@mui/material/Box";
 import * as Styled from "./order-editor.styled";
 import CoinSelect from "./coin-select";
 import Loading from "../atoms/loading";
-import PriceInfo from "./price-info";
 import OrderForm from "./order-form";
+import PriceInfo from "./price-info";
 import UniversalPopover, { Ref } from "../molecules/universal-popover";
 import usePrice from "../hooks/use-price";
 import useTIFIntervals from "../hooks/use-tif-intervals";
 import useTokenPairByTokens from "../hooks/use-token-pair-by-tokens";
-import { refreshEach } from "../swr-options";
+import useIndexedTIFs from "../contexts/tif-context";
+import { add, dedupeEach, keepPrevious, refreshEach } from "../swr-options";
 
 export default ({
   a,
   all,
   available,
   b,
-  cancellable,
   onSelectA,
   onSelectB,
   onSwap,
@@ -31,7 +31,6 @@ export default ({
   all: Voidable<TokenInfo["address"][]>;
   available: Voidable<TokenInfo["address"][]>;
   b: Voidable<TokenInfo>;
-  cancellable: undefined;
   onSelectA: (token: TokenInfo) => void;
   onSelectB: (token: TokenInfo) => void;
   onSwap: (price?: number) => void;
@@ -47,6 +46,8 @@ export default ({
   const pairs = M.of(tokenPairs);
   const pair = M.of(tokenPair);
 
+  const { setIntervals, setOptions, setTif } = useIndexedTIFs();
+
   const [curToken, setCurToken] = useState<number>();
   const selectCoinRef = useRef<Ref>();
 
@@ -54,7 +55,10 @@ export default ({
     M.withDefault(
       undefined,
       M.andMap(
-        ([lead, slave]) => ({ id: lead.address, vsToken: slave.address }),
+        ([primary, secondary]) => ({
+          id: primary.address,
+          vsToken: secondary.address,
+        }),
         Extra.combine2([M.of(a), M.of(b)])
       )
     )
@@ -65,14 +69,23 @@ export default ({
     refreshEach()
   );
 
-  // FEAT: consider moving order state to the context
   const intervalTifs = useTIFIntervals(
     selectedPair.data?.exchangePair[0],
     selectedPair.data?.tifs,
     selectedPair.data?.currentPoolPresent,
     selectedPair.data?.poolCounters,
-    refreshEach(30e3)
+    add([keepPrevious(), dedupeEach(10e3), refreshEach(10e3)])
   );
+
+  useEffect(() => {
+    setIntervals(intervalTifs.data);
+  }, [intervalTifs.data, setIntervals]);
+
+  useEffect(() => {
+    M.andMap(({ minTimeTillExpiration }) => {
+      setOptions({ minTimeTillExpiration });
+    }, M.of(selectedPair.data));
+  }, [selectedPair.data, setOptions]);
 
   useEffect(() => {
     const onUnmount = () => {
@@ -120,8 +133,13 @@ export default ({
       if (selectCoinRef.current?.isOpened) selectCoinRef.current.close();
       if (curToken === 1) onSelectA(token);
       if (curToken === 2) onSelectB(token);
+
+      if (a && b && ![a.symbol, b.symbol].includes(token.symbol)) {
+        setTif(0, false);
+        // reset the interval on pair change
+      }
     },
-    [curToken, onSelectA, onSelectB]
+    [a, b, curToken, onSelectA, onSelectB, setTif]
   );
 
   const tokens = useMemo(
@@ -143,17 +161,15 @@ export default ({
           id="select-coin-title"
           onDelete={onCoinDeselect}
           onSelect={onCoinSelect}
-          selected={cancellable}
           tokens={tokens}
         />
       </UniversalPopover>
       <Styled.Swap elevation={1}>
         <Box p={2}>
           <OrderForm
-            lead={a}
-            slave={b}
+            primary={a}
+            secondary={b}
             intervalTifs={intervalTifs.data}
-            minTimeTillExpiration={selectedPair.data?.minTimeTillExpiration}
             onABSwap={onTokenSwap}
             onASelect={onTokenAChoose}
             onBSelect={onTokenBChoose}
