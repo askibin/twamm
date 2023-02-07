@@ -1,13 +1,15 @@
 import type { Provider } from "@project-serum/anchor";
+import type { WalletProvider } from "@twamm/types/lib";
+import type { createSyncNativeInstruction as Fn } from "@solana/spl-token/lib/types/index.d"; // eslint-disable-line max-len
 import {
   TOKEN_PROGRAM_ID,
-  createSyncNativeInstruction,
+  createSyncNativeInstruction as createInstruction,
 } from "@solana/spl-token";
 import { PublicKey, SystemProgram } from "@solana/web3.js";
 import { SplToken } from "./spl-token";
 
-interface WalletProvider extends Provider {
-  wallet: { publicKey: PublicKey };
+declare module "@solana/spl-token" {
+  const createSyncNativeInstruction: typeof Fn;
 }
 
 export const createTransferNativeTokenInstructions = async (
@@ -27,7 +29,7 @@ export const createTransferNativeTokenInstructions = async (
         toPubkey: address,
         lamports: uiAmount * 1e9,
       }),
-      createSyncNativeInstruction(address, programId),
+      createInstruction(address, programId),
     ];
   }
 
