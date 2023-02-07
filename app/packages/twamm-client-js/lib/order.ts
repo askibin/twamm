@@ -1,4 +1,4 @@
-import type { BN, Program, Provider } from "@project-serum/anchor";
+import type { Program, Provider } from "@project-serum/anchor";
 import type { PublicKey } from "@solana/web3.js";
 import type { WalletProvider } from "@twamm/types/lib";
 import { encode } from "bs58";
@@ -6,7 +6,6 @@ import { encode } from "bs58";
 import { fetchMultipleAddresses } from "./utils";
 import { findAddress } from "./program";
 import { getAccountDiscriminator } from "./account";
-import { Pool } from "./pool";
 
 export class Order {
   program: Program;
@@ -19,30 +18,6 @@ export class Order {
   }
 
   async getAddressByPool(poolAddress: PublicKey) {
-    const { wallet } = this.provider as WalletProvider;
-
-    if (!wallet) throw new Error("Absent wallet");
-
-    return findAddress(this.program)("order", [
-      wallet.publicKey.toBuffer(),
-      poolAddress.toBuffer(),
-    ]);
-  }
-
-  async getKeyByCustodies(
-    aCustody: PublicKey,
-    bCustody: PublicKey,
-    tif: number,
-    poolCounter: BN
-  ) {
-    const pool = new Pool(this.program);
-    const poolAddress = await pool.getKeyByCustodies(
-      aCustody,
-      bCustody,
-      tif,
-      poolCounter
-    );
-
     const { wallet } = this.provider as WalletProvider;
 
     if (!wallet) throw new Error("Absent wallet");

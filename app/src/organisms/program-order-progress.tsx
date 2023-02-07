@@ -1,7 +1,10 @@
 import Alert from "@mui/material/Alert";
 import Box from "@mui/material/Box";
-import { useCallback, useMemo } from "react";
+import { PublicKey } from "@solana/web3.js";
+import { useCallback, useMemo, useRef } from "react";
 import Button from "../molecules/progress-button";
+import SimpleCancelOrder from "../molecules/cancel-order-simple-modal";
+import UniversalPopover, { Ref } from "../molecules/universal-popover";
 import useScheduleOrder from "../hooks/use-schedule-order";
 import { prepare4Program } from "../domain/order";
 
@@ -14,20 +17,47 @@ export default (props: {
   scheduled: boolean;
   validate: () => { [key: string]: Error } | undefined;
 }) => {
+  const cancelRef = useRef<Ref>();
   const { execute } = useScheduleOrder();
+
+  console.log("AA", props.params);
+
+  const cancelDetails = useMemo(
+    () =>
+      props.params
+        ? {
+            a: new PublicKey(props.params.aMint),
+            b: new PublicKey(props.params.bMint),
+          }
+        : undefined,
+    [props.params]
+  );
+
+  const onApproveCancel = useCallback(() => {}, []);
+
+  const onExecuteError = useCallback(async () => {
+    console.log(567, props.params);
+
+    cancelRef.current?.open();
+  }, [cancelRef, props.params]);
 
   const onClick = useCallback(async () => {
     if (!props.params) return;
 
-    await execute(props.params);
+    await execute(props.params, onExecuteError);
 
     props.onSuccess();
-  }, [execute, props]);
+  }, [execute, onExecuteError, props]);
 
   const errors = useMemo(() => props.validate(), [props]);
 
   return (
     <>
+      <UniversalPopover ref={cancelRef}>
+        {cancelRef.current?.isOpened && (
+          <SimpleCancelOrder data={cancelDetails} onApprove={onApproveCancel} />
+        )}
+      </UniversalPopover>
       <Button
         disabled={props.disabled}
         form={props.form}

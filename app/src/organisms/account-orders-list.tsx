@@ -106,7 +106,6 @@ export default (props: {
           />
         )}
       </UniversalPopover>
-
       <UniversalPopover onClose={onDetailsClose} ref={detailsRef}>
         {details && (
           <OrderDetailsModal

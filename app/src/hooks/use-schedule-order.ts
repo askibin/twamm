@@ -10,30 +10,15 @@ import { forit } from "a-wait-forit";
 import { isNil } from "ramda";
 import { Order } from "@twamm/client.js/lib/order";
 import { OrderSide } from "@twamm/types/lib";
+import { Pool, PoolAuthority } from "@twamm/client.js/lib/pool";
 import { SplToken } from "@twamm/client.js/lib/spl-token";
+import { TimeInForce } from "@twamm/client.js/lib/time-in-force";
 import { Transfer } from "@twamm/client.js/lib/transfer";
 import Logger from "../utils/logger";
 import useProgram from "./use-program";
 import useTxRunner from "../contexts/transaction-runner-context";
 import { NEXT_PUBLIC_ENABLE_TX_SIMUL } from "../env";
-
-const computePoolCounters = (
-  tif: TIF,
-  tifs: TIF[],
-  poolCounters: PoolCounter[],
-  nextPool: boolean
-) => {
-  const tifIndex = tifs.indexOf(tif);
-  if (tifIndex < 0) throw new Error("Invalid TIF");
-
-  const poolCounter = poolCounters[tifIndex];
-
-  const counter: PoolCounter = nextPool
-    ? new BN(poolCounter.toNumber() + 1)
-    : poolCounter;
-
-  return { currentCounter: poolCounter, targetCounter: counter };
-};
+import { OrderSideCollisionError } from "../utils/errors";
 
 export default () => {
   const { program, provider } = useProgram();
@@ -41,6 +26,7 @@ export default () => {
 
   const transfer = new Transfer(program, provider);
 
+  const pool = new Pool(program);
   const order = new Order(program, provider);
 
   const TOKEN_PROGRAM_ID = SplToken.getProgramId();
@@ -68,15 +54,15 @@ export default () => {
     poolCounters: PoolCounter[];
     tifs: TIF[];
   }) {
-    const { currentCounter, targetCounter } = computePoolCounters(
-      tif,
-      tifs,
-      poolCounters,
-      nextPool
-    );
-
     const primary = new PublicKey(aMint);
     const secondary = new PublicKey(bMint);
+
+    const poolAuthority = new PoolAuthority(program, primary, secondary);
+
+    await poolAuthority.init();
+
+    const { current: currentCounter, target: targetCounter } =
+      TimeInForce.poolTifCounters(tif, tifs, poolCounters, nextPool);
 
     const transferAccounts = await transfer.findTransferAccounts(
       primary,
@@ -86,28 +72,34 @@ export default () => {
       targetCounter
     );
 
-    // check that similar order exists
-    const previousOrderAddress = await order.getKeyByCustodies(
-      transferAccounts.aCustody,
-      transferAccounts.bCustody,
+    /* check that there is no order' collision */
+    const targetPool = await poolAuthority.getKey(
+      //transferAccounts.aCustody,
+      //transferAccounts.bCustody,
       tif,
       targetCounter
     );
-    const [, previousOrder] = await forit(order.getOrder(previousOrderAddress));
+
+    const overlapingOrderAddress = await order.getAddressByPool(targetPool);
+    const [, overlapingOrder] = await forit(
+      order.getOrder(overlapingOrderAddress)
+    );
+
+    if (overlapingOrder) {
+      const prevSideStruct = overlapingOrder.side;
+      const hasOppositeSide = Boolean(prevSideStruct[side] === undefined);
+
+      if (hasOppositeSide) {
+        throw new OrderSideCollisionError(
+          "Order with opposite direction already exists"
+        );
+      }
+    }
 
     let preInstructions = [
       await assureAccountCreated(provider, primary, transferAccounts.aWallet),
       await assureAccountCreated(provider, secondary, transferAccounts.bWallet),
     ];
-
-    if (previousOrder) {
-      const prevSideStruct = previousOrder.side;
-      const hasOppositeSide = Boolean(prevSideStruct[side] === undefined);
-
-      if (hasOppositeSide) {
-        throw new Error("Cancel previous order");
-      }
-    }
 
     const isSell = side === OrderSide.sell;
     const isBuy = side === OrderSide.buy;
@@ -186,8 +178,21 @@ export default () => {
   };
 
   return {
-    async execute(params: Parameters<typeof run>[0]) {
-      const result = await commit(run(params));
+    async execute(
+      params: Parameters<typeof run>[0],
+      onErrorCb: () => Promise<void>
+    ) {
+      const operation = run(params);
+
+      const [err] = await forit(operation);
+
+      if (err instanceof OrderSideCollisionError) {
+        const res = await onErrorCb();
+        // show specific flow on collision
+        return res;
+      }
+
+      const result = await commit(operation);
 
       return result;
     },

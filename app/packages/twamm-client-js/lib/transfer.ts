@@ -3,9 +3,9 @@ import type { PublicKey } from "@solana/web3.js";
 import type { WalletProvider } from "@twamm/types/lib";
 
 import { findAddress } from "./program";
-import { findAssociatedTokenAddress } from "./find-associated-token-address";
+import { getAssocTokenAddress } from "./address";
 import { Order } from "./order";
-import { Pool } from "./pool";
+import { Pool, PoolAuthority } from "./pool";
 
 export class Transfer {
   program: Program;
@@ -31,52 +31,44 @@ export class Transfer {
     const findProgramAddress = findAddress(this.program);
     const order = new Order(this.program, this.provider);
     const pool = new Pool(this.program);
+    const poolAuthority = new PoolAuthority(this.program, primary, secondary);
 
-    const transferAuthority = await findProgramAddress(
+    await poolAuthority.init();
+    // init authority
+
+    const transferAuthority1 = await findProgramAddress(
       "transfer_authority",
       []
     );
+
+    const transferAuthority = poolAuthority.transferAuthority as PublicKey;
 
     const tokenPair = await findProgramAddress("token_pair", [
       primary.toBuffer(),
       secondary.toBuffer(),
     ]);
 
-    const aCustody = await findAssociatedTokenAddress(
-      transferAuthority,
-      primary
-    );
-    const aWallet = await findAssociatedTokenAddress(wallet.publicKey, primary);
+    const aCustody = await getAssocTokenAddress(primary, transferAuthority);
+    const aWallet = await getAssocTokenAddress(primary, wallet.publicKey);
 
-    const bCustody = await findAssociatedTokenAddress(
-      transferAuthority,
-      secondary
-    );
-    const bWallet = await findAssociatedTokenAddress(
-      wallet.publicKey,
-      secondary
-    );
+    const bCustody = await getAssocTokenAddress(secondary, transferAuthority);
+    const bWallet = await getAssocTokenAddress(secondary, wallet.publicKey);
 
     if (tif !== undefined && currentCounter && targetCounter) {
-      const currentPool = await pool.getKeyByCustodies(
-        aCustody,
-        bCustody,
+      const currentPool = await poolAuthority.getKey(
+        //aCustody,
+        //bCustody,
         tif,
         currentCounter
       );
+      const targetPool = await poolAuthority.getKey(
+        //aCustody,
+        //bCustody,
+        tif,
+        targetCounter
+      );
 
-      const targetOrder = await order.getKeyByCustodies(
-        aCustody,
-        bCustody,
-        tif,
-        targetCounter
-      );
-      const targetPool = await pool.getKeyByCustodies(
-        aCustody,
-        bCustody,
-        tif,
-        targetCounter
-      );
+      const targetOrder = await order.getAddressByPool(targetPool);
 
       return {
         aWallet,

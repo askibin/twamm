@@ -1,12 +1,10 @@
 /* eslint-disable max-classes-per-file */
 import type { BN, Program } from "@project-serum/anchor";
-// TODO: make a PR to resolve the type
-// @ts-ignore
-import { getAssociatedTokenAddress } from "@solana/spl-token";
 import { PublicKey } from "@solana/web3.js";
 
 import { fetchMultipleAddresses } from "./utils";
 import { findAddress } from "./program";
+import { getAssocTokenAddress } from "./address";
 
 export class Pool {
   program: Program;
@@ -30,12 +28,15 @@ export class Pool {
     return all;
   };
 
-  getKeyByCustodies = async (
+  // FEAT: to consider using PoolAuthority.getKey to replace custodies usage with mints
+  getAddressByCustodiesAndTIF = async (
     aCustody: PublicKey,
     bCustody: PublicKey,
     tif: number,
     poolCounter: BN
   ) => {
+    console.warn("DEPRECATED");
+
     const tifBuf = Buffer.alloc(4);
     tifBuf.writeUInt32LE(tif, 0);
 
@@ -80,16 +81,17 @@ export class PoolAuthority {
     const counterBuf = Buffer.alloc(8);
     counterBuf.writeBigUInt64LE(BigInt(poolCounter.toString()), 0);
 
-    const tokenACustody = await getAssociatedTokenAddress(
+    if (!this.transferAuthority)
+      throw new Error("Transfer authority is absent");
+
+    const tokenACustody = await getAssocTokenAddress(
       this.tokenAMint,
-      this.transferAuthority,
-      true
+      this.transferAuthority
     );
 
-    const tokenBCustody = await getAssociatedTokenAddress(
+    const tokenBCustody = await getAssocTokenAddress(
       this.tokenBMint,
-      this.transferAuthority,
-      true
+      this.transferAuthority
     );
 
     return findAddress(this.program)("pool", [
