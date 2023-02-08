@@ -6,6 +6,7 @@ import Button from "../molecules/progress-button";
 import i18n from "../i18n";
 import SimpleCancelOrder from "../molecules/cancel-order-simple-modal";
 import UniversalPopover, { Ref } from "../molecules/universal-popover";
+import useCancelOrder from "../hooks/use-cancel-order";
 import useScheduleOrder from "../hooks/use-schedule-order";
 import { prepare4Program } from "../domain/order";
 
@@ -20,8 +21,7 @@ export default (props: {
 }) => {
   const cancelRef = useRef<Ref>();
   const { execute } = useScheduleOrder();
-
-  console.log("AA", props.params);
+  const { execute: executeCancel } = useCancelOrder();
 
   const cancelDetails = useMemo(
     () =>
@@ -34,13 +34,19 @@ export default (props: {
     [props.params]
   );
 
-  const onApproveCancel = useCallback(() => {}, []);
+  const onApproveCancel = useCallback(
+    async (d) => {
+      console.log("AA", props.params);
+      console.log({ d });
+
+      await executeCancel();
+    },
+    [executeCancel, props.params]
+  );
 
   const onExecuteError = useCallback(async () => {
-    console.log(567, props.params);
-
     cancelRef.current?.open();
-  }, [cancelRef, props.params]);
+  }, [cancelRef]);
 
   const onClick = useCallback(async () => {
     if (!props.params) return;
@@ -56,7 +62,7 @@ export default (props: {
     <>
       <UniversalPopover ref={cancelRef}>
         {cancelDetails && (
-          <SimpleCancelOrder data={cancelDetails} onApprove={onApproveCancel} />
+          <SimpleCancelOrder data={cancelDetails} onClick={onApproveCancel} />
         )}
       </UniversalPopover>
       <Button

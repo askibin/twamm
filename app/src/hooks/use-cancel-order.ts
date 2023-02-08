@@ -34,6 +34,8 @@ export default () => {
     orderAddress: PublicKey;
     poolAddress: PublicKey;
   }) {
+    await transfer.init(primary, secondary);
+
     const transferAccounts = await transfer.findTransferAccounts(
       primary,
       secondary

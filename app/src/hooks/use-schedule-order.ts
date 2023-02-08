@@ -10,7 +10,7 @@ import { forit } from "a-wait-forit";
 import { isNil } from "ramda";
 import { Order } from "@twamm/client.js/lib/order";
 import { OrderSide } from "@twamm/types/lib";
-import { Pool, PoolAuthority } from "@twamm/client.js/lib/pool";
+import { PoolAuthority } from "@twamm/client.js/lib/pool";
 import { SplToken } from "@twamm/client.js/lib/spl-token";
 import { TimeInForce } from "@twamm/client.js/lib/time-in-force";
 import { Transfer } from "@twamm/client.js/lib/transfer";
@@ -26,7 +26,6 @@ export default () => {
 
   const transfer = new Transfer(program, provider);
 
-  const pool = new Pool(program);
   const order = new Order(program, provider);
 
   const TOKEN_PROGRAM_ID = SplToken.getProgramId();
@@ -57,9 +56,9 @@ export default () => {
     const primary = new PublicKey(aMint);
     const secondary = new PublicKey(bMint);
 
-    const poolAuthority = new PoolAuthority(program, primary, secondary);
+    await transfer.init(primary, secondary);
 
-    await poolAuthority.init();
+    const poolAuthority = transfer.authority as PoolAuthority;
 
     const { current: currentCounter, target: targetCounter } =
       TimeInForce.poolTifCounters(tif, tifs, poolCounters, nextPool);
@@ -73,12 +72,7 @@ export default () => {
     );
 
     /* check that there is no order' collision */
-    const targetPool = await poolAuthority.getKey(
-      //transferAccounts.aCustody,
-      //transferAccounts.bCustody,
-      tif,
-      targetCounter
-    );
+    const targetPool = await poolAuthority.getAddress(tif, targetCounter);
 
     const overlapingOrderAddress = await order.getAddressByPool(targetPool);
     const [, overlapingOrder] = await forit(

@@ -1,59 +1,56 @@
+import Alert from "@mui/material/Alert";
+import AlertTitle from "@mui/material/AlertTitle";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Maybe, { Extra } from "easy-maybe/lib";
+import type { PublicKey } from "@solana/web3.js";
 import Typography from "@mui/material/Typography";
 import { BN } from "@project-serum/anchor";
-import { useCallback, useState } from "react";
+import { useCallback } from "react";
 
 import * as Styled from "./cancel-order-simple-modal.styled";
+import i18n from "../i18n";
 import Loading from "../atoms/loading";
 
-export interface Props {
-  data: Voidable<CancelOrderData>;
-  onApprove: (arg0: CancelOrderData) => void;
-}
-
-export default ({ data, onApprove }: Props) => {
-  const [percentage] = useState<number>(100);
-
+export default ({
+  data,
+  onClick,
+}: {
+  data?: CancelOrderData;
+  onClick: (arg0: { a: PublicKey; b: PublicKey; supply: BN }) => void;
+}) => {
   const order = Maybe.of(data);
 
-  const mints = Maybe.withDefault(
-    undefined,
-    Maybe.andMap(({ a, b }) => [a.toBase58(), b.toBase58()], order)
-  );
-
   const onCancel = useCallback(() => {
-    Maybe.tap((cd) => {
-      const { supply } = cd;
-      const cancellableAmount = (supply.toNumber() * percentage) / 100;
-
-      onApprove({
-        ...cd,
-        supply: new BN(cancellableAmount),
+    Maybe.tap((d) => {
+      onClick({
+        a: d.a,
+        b: d.b,
+        supply: new BN(Number.MAX_SAFE_INTEGER),
       });
     }, order);
-  }, [onApprove, order, percentage]);
-
-  console.log("3453");
+  }, [onClick, order]);
 
   return (
     <Styled.Container>
       <Typography pt={3} pb={2} align="center" variant="h4">
-        Cancel Order
+        {i18n.OrderFlowCancelTitle}
       </Typography>
       {Extra.isNothing(order) && <Loading />}
       {Extra.isJust(order) && (
-        <Box p={2}>
-          <Button
-            disabled={!percentage}
-            variant="contained"
-            fullWidth
-            onClick={onCancel}
-          >
-            Approve
-          </Button>
-        </Box>
+        <>
+          <Box p={2}>
+            <Alert severity="warning" variant="filled">
+              <AlertTitle>{i18n.Warning}</AlertTitle>
+              {i18n.OrderCollisionWarning}
+            </Alert>
+          </Box>
+          <Box p={2}>
+            <Button variant="contained" fullWidth onClick={onCancel}>
+              {i18n.OrderControlCancelConcurrentOrder}
+            </Button>
+          </Box>
+        </>
       )}
     </Styled.Container>
   );

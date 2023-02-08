@@ -27,6 +27,7 @@ export default {
   OrderControlsScheduleOrder: "Schedule Order",
   OrderControlsWithdrawOrder: "Withdraw Liquidity",
   OrderControlsCancelOrder: "Cancel Order",
+  OrderControlCancelConcurrentOrder: "Cancel Order",
   OrderDetailsLastUpdated: "Last Changed",
   OrderDetailsPoolExpiration: "Pool Expiration",
   OrderDetailsPoolInception: "Pool Inception",
