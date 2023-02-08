@@ -3,6 +3,7 @@ import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 
 import * as Styled from "./pair-card.styled";
+import i18n from "../i18n";
 import Metric, { formatDeposited } from "./pair-card-metrics";
 import PairCardSymbols from "./pair-card-symbols";
 import useTokensByMint from "../hooks/use-tokens-by-mint";
@@ -36,17 +37,30 @@ export default ({
           </Styled.FundName>
         </Styled.Fund>
         <Box pt={2}>
-          <Typography variant="h6">Volume</Typography>
+          <Typography variant="h6">{i18n.StatsPairsPairVolume}</Typography>
         </Box>
         <Box pt={1}>
           <Styled.FundMetrics>
-            <Metric formatted title="Order" value={orderVolume} />
-            <Metric formatted title="Routed" value={routedVolume} />
-            <Metric formatted title="Settled" value={settledVolume} />
+            <Metric
+              formatted
+              title={i18n.StatsPairsPairOrderVolume}
+              value={orderVolume}
+            />
+            <Metric
+              formatted
+              title={i18n.StatsPairsPairRoutedVolume}
+              value={routedVolume}
+            />
+            <Metric
+              formatted
+              title={i18n.StatsPairsPairSettledVolume}
+              value={settledVolume}
+            />
           </Styled.FundMetrics>
         </Box>
         <Box pt={2}>
-          Protocol Fee: {fee ? `$${formatDeposited(fee)}` : formatPrice(0)}
+          {i18n.StatsPairsPairProtocolFee}:{" "}
+          {fee ? `$${formatDeposited(fee)}` : formatPrice(0)}
         </Box>
       </Styled.Card>
     </Styled.Root>

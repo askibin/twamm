@@ -4,6 +4,7 @@ import type {
   RowParams,
   ValueGetterParams,
 } from "./row-column-list";
+import i18n from "../i18n";
 import PoolOrderTimeCell from "../atoms/account-order-pool-order-time-cell";
 import PoolTIFCell from "../atoms/account-order-pool-tif-cell";
 import PoolTIFLeftCell from "../atoms/account-order-pool-tif-left-cell";
@@ -79,7 +80,7 @@ export const columns = ({ isMobile }: { isMobile?: boolean }) => [
   },
   {
     field: "tokenPair",
-    headerName: "Token Pair",
+    headerName: i18n.OrdersColumnsPair,
     hideable: false,
     renderCell: TokenPairCell,
     sortable: false,
@@ -89,7 +90,7 @@ export const columns = ({ isMobile }: { isMobile?: boolean }) => [
   },
   {
     field: "tif",
-    headerName: "Time Frame",
+    headerName: i18n.OrdersColumnsTimeFrame,
     hideable: true,
     renderCell: PoolTIFCell,
     resizable: false,
@@ -99,7 +100,7 @@ export const columns = ({ isMobile }: { isMobile?: boolean }) => [
   },
   {
     field: "quantity",
-    headerName: "Quantity",
+    headerName: i18n.OrdersColumnsQunatity,
     hideable: false,
     sortable: true,
     xs: isMobile ? 3 : 2,
@@ -109,7 +110,7 @@ export const columns = ({ isMobile }: { isMobile?: boolean }) => [
   },
   {
     field: "filledQuantity",
-    headerName: "Filled Qty",
+    headerName: i18n.OrdersColumnsFilledQuantity,
     hideable: false,
     sortable: true,
     xs: isMobile ? 3 : 2,
@@ -119,7 +120,7 @@ export const columns = ({ isMobile }: { isMobile?: boolean }) => [
   },
   {
     field: "orderTime",
-    headerName: "Order Time",
+    headerName: i18n.OrdersColumnsOrderTime,
     hideable: true,
     renderCell: PoolOrderTimeCell,
     resizable: false,
@@ -129,7 +130,7 @@ export const columns = ({ isMobile }: { isMobile?: boolean }) => [
   },
   {
     field: "timeLeft",
-    headerName: "Expiration",
+    headerName: i18n.OrdersColumnsExpiration,
     hideable: true,
     renderCell: PoolTIFLeftCell,
     resizable: false,

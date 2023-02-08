@@ -8,6 +8,7 @@ import { useCallback, useState } from "react";
 import * as Styled from "./cancel-order-modal.styled";
 import CancelOrderAmount from "./cancel-order-amount";
 import CancelOrderDetails from "./cancel-order-details";
+import i18n from "../i18n";
 import Loading from "../atoms/loading";
 import useJupTokensByMint from "../hooks/use-jup-tokens-by-mint";
 import usePoolDetails from "../hooks/use-pool-details";
@@ -56,7 +57,7 @@ export default ({ data, detailsData, onApprove }: Props) => {
   return (
     <Styled.Container>
       <Typography pt={3} pb={2} align="center" variant="h4">
-        Cancel Order
+        {i18n.OrderFlowCancelTitle}
       </Typography>
       {Extra.isNothing(order) && <Loading />}
       {Extra.isJust(order) && (

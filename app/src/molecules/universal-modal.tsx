@@ -5,6 +5,7 @@ import Fade from "@mui/material/Fade";
 import { useCallback, useMemo } from "react";
 
 import * as Styled from "./universal-modal.styled";
+import i18n from "../i18n";
 
 export interface Props {
   ariaLabelledBy?: string;
@@ -40,7 +41,7 @@ export default ({
     >
       <Fade in={open}>
         <Styled.Inner>
-          <Styled.Close aria-label="close" onClick={handleClose}>
+          <Styled.Close aria-label={i18n.AriaLabelClose} onClick={handleClose}>
             <CloseIcon />
           </Styled.Close>
           {children}

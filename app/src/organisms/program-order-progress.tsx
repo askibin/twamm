@@ -3,6 +3,7 @@ import Box from "@mui/material/Box";
 import { PublicKey } from "@solana/web3.js";
 import { useCallback, useMemo, useRef } from "react";
 import Button from "../molecules/progress-button";
+import i18n from "../i18n";
 import SimpleCancelOrder from "../molecules/cancel-order-simple-modal";
 import UniversalPopover, { Ref } from "../molecules/universal-popover";
 import useScheduleOrder from "../hooks/use-schedule-order";
@@ -54,7 +55,7 @@ export default (props: {
   return (
     <>
       <UniversalPopover ref={cancelRef}>
-        {cancelRef.current?.isOpened && (
+        {cancelDetails && (
           <SimpleCancelOrder data={cancelDetails} onApprove={onApproveCancel} />
         )}
       </UniversalPopover>
@@ -63,7 +64,11 @@ export default (props: {
         form={props.form}
         loading={props.progress}
         onClick={onClick}
-        text={props.scheduled ? "Schedule Order" : "Place Order"}
+        text={
+          props.scheduled
+            ? i18n.OrderControlsScheduleOrder
+            : i18n.OrderControlsPlaceOrder
+        }
       />
       {!errors ? null : (
         <Box pt={1}>

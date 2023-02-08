@@ -1,7 +1,7 @@
 import type { MouseEvent } from "react";
 import { useCallback } from "react";
-
 import * as Styled from "./mode-toggle.styled";
+import i18n from "../i18n";
 
 export interface Props {
   mode: string;
@@ -31,16 +31,16 @@ export default ({ mode, onChange: handleChange = () => {} }: Props) => {
       value={mode}
       exclusive
       onChange={onChange}
-      aria-label="mode"
+      aria-label={i18n.AriaLabelSpaces}
     >
       <Styled.ModeButton value={exchange} aria-label={exchange}>
-        Trade
+        {i18n.SpacesTabsTrade}
       </Styled.ModeButton>
       <Styled.ModeButton value={orders} aria-label={orders}>
-        Orders
+        {i18n.SpacesTabsOrders}
       </Styled.ModeButton>
       <Styled.ModeButton value={pools} aria-label={pools}>
-        Stats
+        {i18n.SpacesTabsStats}
       </Styled.ModeButton>
     </Styled.ModeButtonGroup>
   );

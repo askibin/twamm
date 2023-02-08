@@ -5,6 +5,7 @@ import SyncAltIcon from "@mui/icons-material/SyncAlt";
 import { useCallback } from "react";
 import * as Styled from "./exchange-pair-form.styled";
 import AmountField from "../atoms/amount-field";
+import i18n from "../i18n";
 import InTokenField from "./in-token-field";
 import TokenSelect from "../atoms/token-select";
 import TradeIntervals from "./trade-intervals";
@@ -93,7 +94,7 @@ export default ({
 
   return (
     <form onSubmit={onSubmit} id="exchange-form">
-      <Styled.TokenLabelBox>You pay</Styled.TokenLabelBox>
+      <Styled.TokenLabelBox>{i18n.TradeOrderYouPay}</Styled.TokenLabelBox>
       <InTokenField
         address={a?.address}
         name={a?.symbol}
@@ -106,7 +107,7 @@ export default ({
           <SyncAltIcon />
         </Styled.OperationButton>
       </Styled.OperationImage>
-      <Styled.TokenLabelBox>You receive</Styled.TokenLabelBox>
+      <Styled.TokenLabelBox>{i18n.TradeOrderYouReceive}</Styled.TokenLabelBox>
       <Box pb={2}>
         <Grid container spacing={1}>
           <Grid item xs={12} sm={4}>

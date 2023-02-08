@@ -1,6 +1,7 @@
 import Grid from "@mui/material/Grid";
 import M from "easy-maybe/lib";
 import * as Styled from "./in-token-field.styled";
+import i18n from "../i18n";
 import TokenField from "../atoms/token-field";
 import TokenSelect from "../atoms/token-select";
 import useBalance from "../hooks/use-balance";
@@ -41,7 +42,7 @@ export default ({ address, name, onChange, onSelect, src }: Props) => {
             onChange={onChange}
           />
           <Styled.TokenTotal>
-            Your Balance: {displayBalance} {displayName}
+            {i18n.TokenUserBalance}: {displayBalance} {displayName}
           </Styled.TokenTotal>
         </Grid>
       </Grid>

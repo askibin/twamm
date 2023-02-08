@@ -10,6 +10,7 @@ import { DataGridPro } from "@mui/x-data-grid-pro";
 import type { ChangeEvent, MouseEvent } from "react";
 
 import * as Styled from "./table.styled";
+import i18n from "../i18n";
 
 interface Props {
   filterColumnField: string;
@@ -69,7 +70,7 @@ export default ({
         <Styled.Search>
           <TextField
             size="small"
-            placeholder={searchBoxPlaceholderText ?? "Search"}
+            placeholder={searchBoxPlaceholderText ?? i18n.Search}
             onChange={onFilterChange}
             disabled
           />

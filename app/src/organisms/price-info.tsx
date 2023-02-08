@@ -10,6 +10,7 @@ import { OrderSide } from "@twamm/types/lib";
 import { useState } from "react";
 
 import * as Styled from "./price-info.styled";
+import i18n from "../i18n";
 import IntervalProgress from "../atoms/interval-progress";
 import PairCardSymbols from "../atoms/pair-card-symbols";
 import useBreakpoints from "../hooks/use-breakpoints";
@@ -100,7 +101,7 @@ export default (props: {
               refresh={tokenPairPrice.isValidating}
             />
           </Box>
-          <Box>Token Pair Info</Box>
+          <Box>{i18n.TradeTokenInfo}</Box>
           <Styled.Toggle onClick={() => setOpen(!open)}>
             {open ? <ExpandLessIcon /> : <ExpandMoreIcon />}
           </Styled.Toggle>
@@ -120,19 +121,25 @@ export default (props: {
           </Grid>
           <List>
             <Styled.DetailsItem>
-              <Typography variant="body2">Order volume</Typography>
+              <Typography variant="body2">
+                {i18n.TradeTokenOrderVolume}
+              </Typography>
               <Typography variant="body2">
                 {stats?.orderVolume ?? "-"}
               </Typography>
             </Styled.DetailsItem>
             <Styled.DetailsItem>
-              <Typography variant="body2">Routed volume</Typography>
+              <Typography variant="body2">
+                {i18n.TradeTokenRoutedVolume}
+              </Typography>
               <Typography variant="body2">
                 {stats?.routedVolume ?? "-"}
               </Typography>
             </Styled.DetailsItem>
             <Styled.DetailsItem>
-              <Typography variant="body2">Settled volume</Typography>
+              <Typography variant="body2">
+                {i18n.TradeTokenSettledVolume}
+              </Typography>
               <Typography variant="body2">
                 {stats?.settledVolume ?? "-"}
               </Typography>

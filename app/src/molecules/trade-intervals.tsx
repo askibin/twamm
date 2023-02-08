@@ -8,6 +8,7 @@ import Switch from "@mui/material/Switch";
 import { useCallback, useMemo, useState } from "react";
 
 import * as Styled from "./trade-intervals.styled";
+import i18n from "../i18n";
 import TimeInterval from "../atoms/time-interval";
 import type { IntervalVariant, PoolTIF } from "../domain/interval.d";
 import useIndexedTIFs from "../contexts/tif-context";
@@ -128,8 +129,8 @@ export default ({
         {scheduled ? (
           <TimeInterval
             disabled={disabled}
-            info="Chose the interval to schedule the order for"
-            label="Schedule Order"
+            info={i18n.OrderControlsIntervalsScheduleOrder}
+            label={i18n.OrderControlsIntervalsScheduleOrder}
             onSelect={onScheduleSelect}
             value={values.schedule}
             valueIndex={values.scheduleIndex}
@@ -140,7 +141,7 @@ export default ({
             <Switch
               checked={scheduled}
               onClick={onToggleSchedule}
-              inputProps={{ "aria-label": "schedule order" }}
+              inputProps={{ "aria-label": i18n.AriaLabelScheduleOrder }}
               size="small"
             />
             <Styled.ScheduleToggleLabel>
@@ -166,7 +167,7 @@ export default ({
               onClose={handlePopoverClose}
               disableRestoreFocus
             >
-              <Box p={1}>Chose the interval to schedule the order for</Box>
+              <Box p={1}>{i18n.OrderControlsIntervalsScheduleOrderInfo}</Box>
             </Popover>
           </Stack>
         )}
@@ -174,8 +175,8 @@ export default ({
       <Box pb={2}>
         <TimeInterval
           disabled={disabled}
-          info="Execute the order during specified interval"
-          label="Execution Period"
+          info={i18n.OrderControlsIntervalsExecutionPeriodInfo}
+          label={i18n.OrderControlsIntervalsExecutionPeriod}
           onSelect={onPeriodSelect}
           value={values.period}
           valueIndex={values.periodIndex}

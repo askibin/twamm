@@ -8,6 +8,7 @@ import RefreshIcon from "@mui/icons-material/Refresh";
 import Typography from "@mui/material/Typography";
 
 import * as Styled from "./transaction-runner.styled";
+import i18n from "../i18n";
 import LogViewer from "../organisms/log-viewer";
 import useBreakpoints from "../hooks/use-breakpoints";
 
@@ -49,10 +50,10 @@ export const Empty = () => (
       </Styled.IdleIcon>
     </Box>
     <Box pb={1}>
-      <Styled.RunnerTitle variant="h5">Idle</Styled.RunnerTitle>
+      <Styled.RunnerTitle variant="h5">{i18n.TxRunnerIdle}</Styled.RunnerTitle>
     </Box>
     <Typography textAlign="center" variant="body1">
-      No active transaction.
+      {i18n.TxRunnerIdleDescription}
     </Typography>
   </Styled.Container>
 );
@@ -65,10 +66,12 @@ export const Progress = ({ info }: { info: string | undefined }) => (
       </Styled.RefreshIcon>
     </Box>
     <Box pb={1}>
-      <Styled.RunnerTitle variant="h5">Working</Styled.RunnerTitle>
+      <Styled.RunnerTitle variant="h5">
+        {i18n.TxRunnerProgress}
+      </Styled.RunnerTitle>
     </Box>
     <Typography textAlign="center" variant="body1">
-      {info || "Crunching current transaction"}
+      {info || i18n.TxRunnerProgressDescription}
     </Typography>
   </Styled.Container>
 );
@@ -87,14 +90,16 @@ export const Success = ({
       </Styled.SuccessIcon>
     </Box>
     <Box pb={1}>
-      <Styled.RunnerTitle variant="h5">Done!</Styled.RunnerTitle>
+      <Styled.RunnerTitle variant="h5">
+        {i18n.TxRunnerSuccess}
+      </Styled.RunnerTitle>
     </Box>
     <Typography textAlign="center" variant="body1">
-      You transaction was validated.
+      {i18n.TxRunnerSuccessDescription}
     </Typography>
     <Typography textAlign="center" variant="body1">
       <Link rel="noopener" target="_blank" href={view(signature)}>
-        See details here
+        {i18n.TxRunnerTransactionDetails}
       </Link>
     </Typography>
   </Styled.Container>
