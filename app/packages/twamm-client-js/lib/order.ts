@@ -8,16 +8,16 @@ import { findAddress } from "./program";
 import { getAccountDiscriminator } from "./account";
 
 export class Order {
-  program: Program;
+  readonly program: Program;
 
-  provider: Provider;
+  readonly provider: Provider;
 
   constructor(program: Program, provider: Provider) {
     this.program = program;
     this.provider = provider;
   }
 
-  async getAddressByPool(poolAddress: PublicKey) {
+  getAddressByPool = async (poolAddress: PublicKey) => {
     const { wallet } = this.provider as WalletProvider;
 
     if (!wallet) throw new Error("Absent wallet");
@@ -26,7 +26,7 @@ export class Order {
       wallet.publicKey.toBuffer(),
       poolAddress.toBuffer(),
     ]);
-  }
+  };
 
   getAddresses = async (account: PublicKey | null) => {
     const discriminator = getAccountDiscriminator("Order");

@@ -7,7 +7,7 @@ import { findAddress } from "./program";
 import { getAssocTokenAddress } from "./address";
 
 export class Pool {
-  program: Program;
+  readonly program: Program;
 
   constructor(program: Program) {
     this.program = program;
@@ -27,71 +27,54 @@ export class Pool {
 
     return all;
   };
-
-  // FEAT: to consider using PoolAuthority.getKey to replace custodies usage with mints
-  getAddressByCustodiesAndTIF = async (
-    aCustody: PublicKey,
-    bCustody: PublicKey,
-    tif: number,
-    poolCounter: BN
-  ) => {
-    console.warn("DEPRECATED");
-
-    const tifBuf = Buffer.alloc(4);
-    tifBuf.writeUInt32LE(tif, 0);
-
-    const counterBuf = Buffer.alloc(8);
-    counterBuf.writeBigUInt64LE(BigInt(poolCounter.toString()), 0);
-
-    return findAddress(this.program)("pool", [
-      aCustody.toBuffer(),
-      bCustody.toBuffer(),
-      tifBuf,
-      counterBuf,
-    ]);
-  };
 }
 
 export class PoolAuthority {
-  program: Program;
+  private transferAuthority?: PublicKey;
 
-  tokenAMint: PublicKey;
+  readonly program: Program;
 
-  tokenBMint: PublicKey;
+  readonly tokenAMint: PublicKey;
 
-  transferAuthority?: PublicKey;
+  readonly tokenBMint: PublicKey;
 
   constructor(program: Program, aMint: PublicKey, bMint: PublicKey) {
     this.program = program;
     this.tokenAMint = aMint;
     this.tokenBMint = bMint;
-    this.transferAuthority = undefined;
+  }
+
+  get authority() {
+    return this.transferAuthority;
   }
 
   init = async () => {
-    const findProgramAddress = findAddress(this.program);
-
-    this.transferAuthority = await findProgramAddress("transfer_authority", []);
+    this.transferAuthority = await findAddress(this.program)(
+      "transfer_authority",
+      []
+    );
   };
 
-  getKey = async (tif: number, poolCounter: BN) => {
+  getAddress = async (tif: number, poolCounter: BN) => {
+    if (!this.transferAuthority)
+      throw new Error("Can't find the transfer_authority");
+
     const tifBuf = Buffer.alloc(4);
     tifBuf.writeUInt32LE(tif, 0);
 
     const counterBuf = Buffer.alloc(8);
     counterBuf.writeBigUInt64LE(BigInt(poolCounter.toString()), 0);
 
-    if (!this.transferAuthority)
-      throw new Error("Transfer authority is absent");
-
     const tokenACustody = await getAssocTokenAddress(
       this.tokenAMint,
-      this.transferAuthority
+      this.transferAuthority,
+      true
     );
 
     const tokenBCustody = await getAssocTokenAddress(
       this.tokenBMint,
-      this.transferAuthority
+      this.transferAuthority,
+      true
     );
 
     return findAddress(this.program)("pool", [
@@ -103,7 +86,7 @@ export class PoolAuthority {
   };
 
   getPoolByTIF = async (tif: number, poolCounter: BN) => {
-    const key = await this.getKey(tif, poolCounter);
+    const key = await this.getAddress(tif, poolCounter);
 
     return this.program.account.pool.fetch(key);
   };

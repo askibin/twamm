@@ -6,9 +6,9 @@ import { findAddress } from "./program";
 import { fetchMultipleAddresses } from "./utils";
 
 export class TokenPair {
-  program: Program;
+  readonly pool: Pool;
 
-  pool: Pool;
+  readonly program: Program;
 
   constructor(program: Program) {
     this.program = program;

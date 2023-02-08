@@ -5,65 +5,71 @@ import type { WalletProvider } from "@twamm/types/lib";
 import { findAddress } from "./program";
 import { getAssocTokenAddress } from "./address";
 import { Order } from "./order";
-import { Pool, PoolAuthority } from "./pool";
+import { PoolAuthority } from "./pool";
 
 export class Transfer {
-  program: Program;
+  private poolAuthority?: PoolAuthority;
 
-  provider: Provider;
+  readonly program: Program;
+
+  readonly provider: Provider;
 
   constructor(program: Program, provider: Provider) {
     this.program = program;
     this.provider = provider;
   }
 
-  async findTransferAccounts(
+  get authority() {
+    return this.poolAuthority;
+  }
+
+  init = async (primary: PublicKey, secondary: PublicKey) => {
+    this.poolAuthority = new PoolAuthority(this.program, primary, secondary);
+    await this.poolAuthority.init();
+  };
+
+  findTransferAccounts = async (
     primary: PublicKey,
     secondary: PublicKey,
     tif?: number,
     currentCounter?: BN,
     targetCounter?: BN
-  ) {
+  ) => {
     const { wallet } = this.provider as WalletProvider;
 
-    if (!wallet) throw new Error("Absent wallet");
+    if (!wallet) throw new Error("Can't find the wallet");
 
-    const findProgramAddress = findAddress(this.program);
+    if (!this.poolAuthority) throw new Error("Can't find the authority");
+
     const order = new Order(this.program, this.provider);
-    const pool = new Pool(this.program);
-    const poolAuthority = new PoolAuthority(this.program, primary, secondary);
 
-    await poolAuthority.init();
-    // init authority
+    const transferAuthority = this.poolAuthority.authority as PublicKey;
 
-    const transferAuthority1 = await findProgramAddress(
-      "transfer_authority",
-      []
-    );
-
-    const transferAuthority = poolAuthority.transferAuthority as PublicKey;
-
-    const tokenPair = await findProgramAddress("token_pair", [
+    const tokenPair = await findAddress(this.program)("token_pair", [
       primary.toBuffer(),
       secondary.toBuffer(),
     ]);
 
-    const aCustody = await getAssocTokenAddress(primary, transferAuthority);
+    const aCustody = await getAssocTokenAddress(
+      primary,
+      transferAuthority,
+      true
+    );
     const aWallet = await getAssocTokenAddress(primary, wallet.publicKey);
 
-    const bCustody = await getAssocTokenAddress(secondary, transferAuthority);
+    const bCustody = await getAssocTokenAddress(
+      secondary,
+      transferAuthority,
+      true
+    );
     const bWallet = await getAssocTokenAddress(secondary, wallet.publicKey);
 
     if (tif !== undefined && currentCounter && targetCounter) {
-      const currentPool = await poolAuthority.getKey(
-        //aCustody,
-        //bCustody,
+      const currentPool = await this.poolAuthority.getAddress(
         tif,
         currentCounter
       );
-      const targetPool = await poolAuthority.getKey(
-        //aCustody,
-        //bCustody,
+      const targetPool = await this.poolAuthority.getAddress(
         tif,
         targetCounter
       );
@@ -91,5 +97,5 @@ export class Transfer {
       tokenPair,
       transferAuthority,
     };
-  }
+  };
 }
