@@ -3,6 +3,14 @@ import { lensPath, view } from "ramda";
 
 export const lensMode = lensPath(["palette", "mode"]);
 
+export const muiPaperCustomVariant = {
+  background:
+    "linear-gradient(110.5deg, rgba(26, 31, 46) 3.75%, rgba(36, 41, 57) 117.62%)",
+  border: "0.5px solid rgba(255, 255, 255, 0.16)",
+  boxShadow: "0px 8px 32px rgba(0, 0, 0, 0.08)",
+  borderRadius: "8px",
+};
+
 const palette = {
   neutral: {
     100: "#F3F4F6",
@@ -109,14 +117,6 @@ export const light = {
       },
     },
   },
-};
-
-const muiPaperCustomVariant = {
-  background:
-    "linear-gradient(110.5deg, rgba(26, 31, 46) 3.75%, rgba(36, 41, 57) 117.62%)",
-  border: "0.5px solid rgba(255, 255, 255, 0.16)",
-  boxShadow: "0px 8px 32px rgba(0, 0, 0, 0.08)",
-  borderRadius: "8px",
 };
 
 export const dark = {

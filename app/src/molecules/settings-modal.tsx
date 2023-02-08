@@ -16,9 +16,6 @@ import SlippageSelector from "./slippage-selector";
 import useTxRunner from "../contexts/transaction-runner-context";
 import ToggleOption from "./toggle-option";
 
-const jupVersionedInfo =
-  "Enable Jupiter's Versioned API for instant exchange. Phantom, Solflare, Glow and Backpack wallets are supported. Please turn this setting off unless using one of the listed wallets."; // eslint-disable-line max-len
-
 export default ({
   id,
   onToggle,
@@ -56,13 +53,19 @@ export default ({
         <Styled.SettingLabel variant="body2">
           {i18n.SettingsSettingExplorer}
         </Styled.SettingLabel>
-        <ExplorerSelector onClose={onClose} />
+        <ExplorerSelector
+          label={i18n.SettingsSettingExplorer}
+          onClose={onClose}
+        />
       </Styled.Setting>
       <Styled.Setting direction="row" py={1}>
         <Styled.SettingLabel variant="body2">
           {i18n.SettingsSettingSlippage}
         </Styled.SettingLabel>
-        <SlippageSelector onClose={onClose} />
+        <SlippageSelector
+          label={i18n.SettingsSettingSlippage}
+          onClose={onClose}
+        />
       </Styled.Setting>
       <Styled.Setting direction="row" py={1}>
         <Box>

@@ -12,9 +12,9 @@ import {
 import storage, { sanidateString, sanidateURL } from "../utils/config-storage";
 
 const EXPLORERS = {
-  explorer: { uri: "https://explorer.solana.com/tx" },
-  solscan: { uri: "https://solscan.io/tx" },
-  solanafm: { uri: "https://solana.fm/tx" },
+  explorer: { uri: "https://explorer.solana.com/tx", label: "Explorer" },
+  solscan: { uri: "https://solscan.io/tx", label: "Solscan" },
+  solanafm: { uri: "https://solana.fm/tx", label: "SolanaFM" },
 }; // explorer is default
 const FALLBACK_EXPLORER = EXPLORERS.explorer.uri;
 

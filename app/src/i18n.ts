@@ -47,9 +47,11 @@ export default {
   SettingsSettingClusterSelector: "Cluster Selector",
   SettingsSettingExplorer: "Explorer",
   SettingsSettingPerformaceFee: "Priority Fee",
+  SettingsSettingPerformaceFeeLabel: "Fee",
   SettingsSettingPerformanceFeeValuePost: "SOL extra.",
   SettingsSettingPerformanceFeeValuePre: "You will pay up to",
   SettingsSettingSlippage: "Slippage",
+  SettingsSettingSlippageLabel: "Val, %",
   SettingsSettingVersionedTx: "Jupiter Versioned Tx.",
   SettingsSettingVersionedTxInfo:
     "Enable Jupiter's Versioned API for instant exchange. Phantom, Solflare, Glow and Backpack wallets are supported. Please turn this setting off unless using one of the listed wallets.",
