@@ -2,6 +2,12 @@ import Box from "@mui/material/Box";
 import SwipeableDrawer from "@mui/material/SwipeableDrawer";
 import { styled } from "@mui/material/styles";
 
+declare module "@mui/material/SwipeableDrawer" {
+  interface SwipeableDrawerProps {
+    variant: string;
+  }
+}
+
 export const Drawer = styled(SwipeableDrawer)`
   & .MuiDrawer-paper {
     border-bottom-right-radius: 0;

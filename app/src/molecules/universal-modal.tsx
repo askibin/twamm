@@ -36,6 +36,7 @@ export default ({
       closeAfterTransition
       onClose={handleClose}
       open={open}
+      variant="custom"
     >
       <Fade in={open}>
         <Styled.Inner>

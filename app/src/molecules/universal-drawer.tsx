@@ -51,6 +51,7 @@ export default ({ children, onClose, open, setOpen }: Props) => {
       onOpen={openDrawer}
       open={open}
       swipeAreaWidth={drawerBleeding}
+      variant="custom"
     >
       <Box sx={drawerSx}>
         <Puller onClick={closeDrawer} />
