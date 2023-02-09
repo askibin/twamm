@@ -5,7 +5,7 @@ import { styled } from "@mui/material/styles";
 
 declare module "@mui/material/Modal" {
   interface ModalUnstyledOwnProps {
-    variant: string;
+    variant?: string;
   }
 }
 
