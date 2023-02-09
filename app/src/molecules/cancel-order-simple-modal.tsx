@@ -3,7 +3,6 @@ import AlertTitle from "@mui/material/AlertTitle";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Maybe, { Extra } from "easy-maybe/lib";
-import type { PublicKey } from "@solana/web3.js";
 import Typography from "@mui/material/Typography";
 import { BN } from "@project-serum/anchor";
 import { useCallback } from "react";
@@ -16,28 +15,24 @@ export default ({
   data,
   onClick,
 }: {
-  data?: CancelOrderData;
-  onClick: (arg0: { a: PublicKey; b: PublicKey; supply: BN }) => void;
+  data: {};
+  onClick: (arg0: { supply: BN }) => void;
 }) => {
-  const order = Maybe.of(data);
+  const orderData = Maybe.of(data);
 
   const onCancel = useCallback(() => {
-    Maybe.tap((d) => {
-      onClick({
-        a: d.a,
-        b: d.b,
-        supply: new BN(Number.MAX_SAFE_INTEGER),
-      });
-    }, order);
-  }, [onClick, order]);
+    onClick({
+      supply: new BN(Number.MAX_SAFE_INTEGER),
+    });
+  }, [onClick]);
 
   return (
     <Styled.Container>
       <Typography pt={3} pb={2} align="center" variant="h4">
         {i18n.OrderFlowCancelTitle}
       </Typography>
-      {Extra.isNothing(order) && <Loading />}
-      {Extra.isJust(order) && (
+      {Extra.isNothing(orderData) && <Loading />}
+      {Extra.isJust(orderData) && (
         <>
           <Box p={2}>
             <Alert severity="warning" variant="filled">

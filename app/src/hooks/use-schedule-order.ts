@@ -10,10 +10,10 @@ import { forit } from "a-wait-forit";
 import { isNil } from "ramda";
 import { Order } from "@twamm/client.js/lib/order";
 import { OrderSide } from "@twamm/types/lib";
-import { PoolAuthority } from "@twamm/client.js/lib/pool";
 import { SplToken } from "@twamm/client.js/lib/spl-token";
 import { TimeInForce } from "@twamm/client.js/lib/time-in-force";
 import { Transfer } from "@twamm/client.js/lib/transfer";
+import i18n from "../i18n";
 import Logger from "../utils/logger";
 import useProgram from "./use-program";
 import useTxRunner from "../contexts/transaction-runner-context";
@@ -24,13 +24,12 @@ export default () => {
   const { program, provider } = useProgram();
   const { commit, setInfo } = useTxRunner();
 
-  const transfer = new Transfer(program, provider);
+  const logger = Logger();
 
   const order = new Order(program, provider);
+  const transfer = new Transfer(program, provider);
 
   const TOKEN_PROGRAM_ID = SplToken.getProgramId();
-
-  const logger = Logger();
 
   const run = async function execute({
     aMint,
@@ -58,7 +57,9 @@ export default () => {
 
     await transfer.init(primary, secondary);
 
-    const poolAuthority = transfer.authority as PoolAuthority;
+    const poolAuthority = transfer.authority as NonNullable<
+      typeof transfer.authority
+    >;
 
     const { current: currentCounter, target: targetCounter } =
       TimeInForce.poolTifCounters(tif, tifs, poolCounters, nextPool);
@@ -148,10 +149,10 @@ export default () => {
       .preInstructions(pre);
 
     if (NEXT_PUBLIC_ENABLE_TX_SIMUL === "1") {
-      setInfo("Simulating transaction...");
+      setInfo(i18n.TxRunnerSimulation);
 
       const simResult = await tx.simulate().catch((e) => {
-        logger.error(e, "Failed to simulate");
+        logger.error(e, i18n.TxRunnerSimulationFailure);
         if (e.simulationResponse?.logs) logger.debug(e.simulationResponse.logs);
       });
 
@@ -161,7 +162,7 @@ export default () => {
       }
     }
 
-    setInfo("Executing the transaction...");
+    setInfo(i18n.TxRunnerExecution);
 
     const result = await tx.rpc().catch((e: Error) => {
       logger.error(e);
@@ -176,19 +177,14 @@ export default () => {
       params: Parameters<typeof run>[0],
       onErrorCb: () => Promise<void>
     ) {
-      const operation = run(params);
+      const result = await commit(run(params));
 
-      const [err] = await forit(operation);
-
-      if (err instanceof OrderSideCollisionError) {
-        const res = await onErrorCb();
+      // FEAT: in case of collision there will be two modals on screen
+      // might need to improve the behaviour
+      if (result instanceof OrderSideCollisionError) {
+        await onErrorCb();
         // show specific flow on collision
-        return res;
       }
-
-      const result = await commit(operation);
-
-      return result;
     },
   };
 };

@@ -7,6 +7,7 @@ export default {
   AriaLabelOffline: "offline",
   AriaLabelIntervals: "interval group",
   AriaLabelClose: "close",
+  Error: "Error",
   ErrorCreateOrderAbsentTif: "Absent interval",
   ErrorCreateOrderStalePool: "Can not place order to the closed pool",
   ErrorCreateOrderWrongTif: "Wrong interval",
@@ -16,7 +17,7 @@ export default {
   ErrorTokenAmountConstraint: "Amount should be the number",
   Offline: "You are offline. Waiting for connection.",
   OrderCollisionWarning:
-    "You have the order with the opposite direction at this pool already. Cancel it to create a new one.",
+    "You have the order with the opposite direction at this pool already. Cancel it first, then try create the order again.",
   OrderControlsIntervalsExecutionPeriod: "Execution Period",
   OrderControlsIntervalsExecutionPeriodInfo:
     "Execute the order during specified interval",
@@ -76,6 +77,10 @@ export default {
   TxRunnerIdleDescription: "No active transaction.",
   TxRunnerProgress: "Working",
   TxRunnerProgressDescription: "Crunching current transaction",
+  TxRunnerRequestFailure: "Could not execute the request",
+  TxRunnerSimulation: "Simulating transaction...",
+  TxRunnerSimulationFailure: "Failed to simulate",
+  TxRunnerExecution: "Executing transaction...",
   TxRunnerSuccess: "Done!",
   TxRunnerSuccessDescription: "You transaction was validated.",
   TxRunnerTransactionDetails: "See details here",

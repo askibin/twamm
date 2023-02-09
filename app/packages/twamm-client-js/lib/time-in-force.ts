@@ -8,6 +8,9 @@ export const TimeInForce = {
     poolCounters: BN[],
     nextPool: boolean
   ) {
+    if (tifs.length !== poolCounters.length)
+      throw new Error("Counter' shape mismatch");
+
     const tifIndex = tifs.indexOf(tif);
     if (tifIndex < 0) throw new Error("Invalid TIF");
 

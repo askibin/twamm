@@ -1,5 +1,7 @@
 import Alert from "@mui/material/Alert";
 import Box from "@mui/material/Box";
+import M, { Extra } from "easy-maybe/lib";
+import { BN } from "@project-serum/anchor";
 import { PublicKey } from "@solana/web3.js";
 import { useCallback, useMemo, useRef } from "react";
 import Button from "../molecules/progress-button";
@@ -23,25 +25,31 @@ export default (props: {
   const { execute } = useScheduleOrder();
   const { execute: executeCancel } = useCancelOrder();
 
-  const cancelDetails = useMemo(
-    () =>
-      props.params
-        ? {
-            a: new PublicKey(props.params.aMint),
-            b: new PublicKey(props.params.bMint),
-          }
-        : undefined,
-    [props.params]
-  );
-
   const onApproveCancel = useCallback(
-    async (d) => {
-      console.log("AA", props.params);
-      console.log({ d });
+    async ({ supply }: { supply: BN }) => {
+      cancelRef.current?.close();
 
-      await executeCancel();
+      const data = M.withDefault(
+        undefined,
+        M.andMap(
+          ([d, s]) => ({
+            a: new PublicKey(d.aMint),
+            b: new PublicKey(d.bMint),
+            amount: s.toNumber(),
+            counters: {
+              tif: d.tif,
+              tifs: d.tifs,
+              poolCounters: d.poolCounters,
+              nextPool: d.nextPool,
+            },
+          }),
+          Extra.combine2([M.of(props.params), M.of(supply)])
+        )
+      );
+
+      if (data) await executeCancel(data);
     },
-    [executeCancel, props.params]
+    [cancelRef, executeCancel, props.params]
   );
 
   const onExecuteError = useCallback(async () => {
@@ -61,8 +69,8 @@ export default (props: {
   return (
     <>
       <UniversalPopover ref={cancelRef}>
-        {cancelDetails && (
-          <SimpleCancelOrder data={cancelDetails} onClick={onApproveCancel} />
+        {props.params && (
+          <SimpleCancelOrder data={props.params} onClick={onApproveCancel} />
         )}
       </UniversalPopover>
       <Button
