@@ -5,9 +5,10 @@ import InfoIcon from "@mui/icons-material/Info";
 import Popover from "@mui/material/Popover";
 import { useCallback, useMemo, useState } from "react";
 
-import type { IndexedTIF } from "../domain/interval.d";
 import * as Styled from "./time-interval.styled";
+import i18n from "../i18n";
 import Intervals from "../molecules/interval-button-group";
+import type { IndexedTIF } from "../domain/interval.d";
 
 export default ({
   disabled,
@@ -88,7 +89,7 @@ export default ({
           </Popover>
         )}
       </Box>
-      <ButtonGroup variant="outlined" aria-label="outlined button group">
+      <ButtonGroup variant="outlined" aria-label={i18n.AriaLabelIntervals}>
         <Intervals
           disabled={disabled}
           onClick={onIntervalSelect}

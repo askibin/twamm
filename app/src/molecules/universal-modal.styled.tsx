@@ -3,6 +3,12 @@ import Modal from "@mui/material/Modal";
 import Paper from "@mui/material/Paper";
 import { styled } from "@mui/material/styles";
 
+declare module "@mui/material/Modal" {
+  interface ModalUnstyledOwnProps {
+    variant?: string;
+  }
+}
+
 export const Popover = styled(Modal)`
   @media (min-width: ${(p) => p.theme.breakpoints.values.tablet}px) {
     .MuiPaper-root {

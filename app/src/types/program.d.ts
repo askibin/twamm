@@ -1,4 +1,6 @@
-declare type PoolCounter = BN;
+/// <reference types="@twamm/types" />
+
+declare type PoolCounter = Counter;
 
 declare type ExchangePair = [TokenPair, OrderSide];
 
@@ -129,6 +131,18 @@ declare type CancelOrderData = {
   poolAddress: PublicKey;
   side: OrderTypeStruct;
   supply: BN;
+};
+
+declare type CancelOrderWithCountersData = {
+  a: PublicKey;
+  b: PublicKey;
+  supply?: BN; // allow to omit the amount
+  counters: {
+    tif: TIF;
+    tifs: TIF[];
+    poolCounters: BN[];
+    nextPool: boolean;
+  };
 };
 
 type PoolTradeSideData = {

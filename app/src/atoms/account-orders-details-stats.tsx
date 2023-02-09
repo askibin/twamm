@@ -1,6 +1,7 @@
 import Box from "@mui/material/Box";
 import { useMemo } from "react";
 
+import i18n from "../i18n";
 import StatsList from "./account-orders-details-stats-list";
 import StatsCards from "./account-orders-details-stats-cards";
 import useBreakpoints from "../hooks/use-breakpoints";
@@ -25,35 +26,35 @@ export default ({
   const fields = useMemo(
     () => [
       {
-        name: "Time Frame",
+        name: i18n.OrderDetailsTimeFrame,
         data: formatInterval(timeInForce),
       },
       {
-        name: "Pool Expiration",
+        name: i18n.OrderDetailsPoolExpiration,
         data: format.expirationTime(details),
       },
       {
-        name: "Filled/Quantity",
+        name: i18n.OrderDetailsQuantity,
         data: `${filledQuantity}|${quantity}`,
       },
       {
-        name: "Total Assets",
+        name: i18n.OrderDetailsTotalAssets,
         data: format.totalAssets(details),
       },
       {
-        name: "Min/Avg/Max Price",
+        name: i18n.OrderDetailsPrices,
         data: format.prices(details),
       },
       {
-        name: "Your average price",
+        name: i18n.OrderDetailsUserAveragePrice,
         data: format.userAveragePrice(details),
       },
       {
-        name: "Pool Inception",
+        name: i18n.OrderDetailsPoolInception,
         data: format.inceptionTime(details),
       },
       {
-        name: "Last Changed",
+        name: i18n.OrderDetailsLastUpdated,
         data: format.lastBalanceChangeTime(details),
       },
     ],

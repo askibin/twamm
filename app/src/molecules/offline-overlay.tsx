@@ -1,12 +1,9 @@
 import Backdrop from "@mui/material/Backdrop";
 import Box from "@mui/material/Box";
 import CircularProgress from "@mui/material/CircularProgress";
+import i18n from "../i18n";
 
-interface Props {
-  open: boolean;
-}
-
-const OfflineOverlay = ({ open }: Props) =>
+const OfflineOverlay = ({ open }: { open: boolean }) =>
   !open ? null : (
     <Backdrop
       sx={{
@@ -16,10 +13,10 @@ const OfflineOverlay = ({ open }: Props) =>
       }}
       open={open}
     >
-      <Box mb="16px" role="dialog" aria-labelledby="offline">
+      <Box mb="16px" role="dialog" aria-label={i18n.AriaLabelOffline}>
         <CircularProgress color="inherit" />
       </Box>
-      <Box>You are offline. Waiting for connection.</Box>
+      <Box>{i18n.Offline}</Box>
     </Backdrop>
   );
 

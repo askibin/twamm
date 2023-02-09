@@ -4,6 +4,8 @@ import MenuItem from "@mui/material/MenuItem";
 import Select, { SelectChangeEvent } from "@mui/material/Select";
 import type { ReactNode } from "react";
 import useTxRunner from "../contexts/transaction-runner-context";
+import { muiPaperCustomVariant } from "../theme/overrides";
+import i18n from "../i18n";
 
 export default ({ onClose }: { onClose?: () => void }) => {
   const { performanceFee, performanceFees, setPerformanceFee } = useTxRunner();
@@ -15,18 +17,25 @@ export default ({ onClose }: { onClose?: () => void }) => {
     if (onClose) onClose();
   };
 
-  const label = "Fee";
+  const menuProps = {
+    sx: {
+      "& > .MuiPaper-root": muiPaperCustomVariant,
+    },
+  };
 
   return (
     <FormControl size="small">
-      <InputLabel id="select-performanceFee">{label}</InputLabel>
+      <InputLabel id="select-performanceFee-label">
+        {i18n.SettingsSettingPerformaceFeeLabel}
+      </InputLabel>
       <Select
-        sx={{ width: 110 }}
-        labelId="select-performanceFee"
         id="select-performanceFee"
-        value={performanceFee}
-        label={label}
+        label={i18n.SettingsSettingPerformaceFeeLabel}
+        labelId="select-performanceFee-label"
+        MenuProps={menuProps}
         onChange={handleChange}
+        sx={{ width: 110 }}
+        value={performanceFee}
       >
         <MenuItem value={performanceFees[0]}>None</MenuItem>
         <MenuItem value={performanceFees[1]}>High</MenuItem>

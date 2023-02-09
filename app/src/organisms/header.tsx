@@ -6,6 +6,7 @@ import { useCallback, useEffect, useRef } from "react";
 import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
 
 import * as Styled from "./header.styled";
+import i18n from "../i18n";
 import SettingsModal from "../molecules/settings-modal";
 import TransactionRunnerModal from "../molecules/transaction-runner-modal";
 import TransactionProgress from "./transaction-progress";
@@ -48,7 +49,7 @@ export default () => {
         <SettingsModal id="settings-modal-title" onToggle={onSettingsToggle} />
       </UniversalPopover>
 
-      <AppBar aria-labelledby="header" position="sticky">
+      <AppBar aria-label={i18n.AriaLabelHeader} position="sticky">
         <Styled.Header variant={isDesktop ? "dense" : undefined}>
           <Styled.Logo direction="row" pr={2}>
             <Styled.Image src="/images/solana-logo.png">Solana</Styled.Image>

@@ -1,15 +1,13 @@
 /* eslint-disable max-classes-per-file */
 import type { BN, Program } from "@project-serum/anchor";
-// TODO: make a PR to resolve the type
-// @ts-ignore
-import { getAssociatedTokenAddress } from "@solana/spl-token";
 import { PublicKey } from "@solana/web3.js";
 
 import { fetchMultipleAddresses } from "./utils";
 import { findAddress } from "./program";
+import { getAssocTokenAddress } from "./address";
 
 export class Pool {
-  program: Program;
+  readonly program: Program;
 
   constructor(program: Program) {
     this.program = program;
@@ -29,64 +27,51 @@ export class Pool {
 
     return all;
   };
-
-  getKeyByCustodies = async (
-    aCustody: PublicKey,
-    bCustody: PublicKey,
-    tif: number,
-    poolCounter: BN
-  ) => {
-    const tifBuf = Buffer.alloc(4);
-    tifBuf.writeUInt32LE(tif, 0);
-
-    const counterBuf = Buffer.alloc(8);
-    counterBuf.writeBigUInt64LE(BigInt(poolCounter.toString()), 0);
-
-    return findAddress(this.program)("pool", [
-      aCustody.toBuffer(),
-      bCustody.toBuffer(),
-      tifBuf,
-      counterBuf,
-    ]);
-  };
 }
 
 export class PoolAuthority {
-  program: Program;
+  private transferAuthority?: PublicKey;
 
-  tokenAMint: PublicKey;
+  readonly program: Program;
 
-  tokenBMint: PublicKey;
+  readonly tokenAMint: PublicKey;
 
-  transferAuthority?: PublicKey;
+  readonly tokenBMint: PublicKey;
 
   constructor(program: Program, aMint: PublicKey, bMint: PublicKey) {
     this.program = program;
     this.tokenAMint = aMint;
     this.tokenBMint = bMint;
-    this.transferAuthority = undefined;
+  }
+
+  get authority() {
+    return this.transferAuthority;
   }
 
   init = async () => {
-    const findProgramAddress = findAddress(this.program);
-
-    this.transferAuthority = await findProgramAddress("transfer_authority", []);
+    this.transferAuthority = await findAddress(this.program)(
+      "transfer_authority",
+      []
+    );
   };
 
-  getKey = async (tif: number, poolCounter: BN) => {
+  getAddress = async (tif: number, poolCounter: BN) => {
+    if (!this.transferAuthority)
+      throw new Error("Can't find the transfer_authority");
+
     const tifBuf = Buffer.alloc(4);
     tifBuf.writeUInt32LE(tif, 0);
 
     const counterBuf = Buffer.alloc(8);
     counterBuf.writeBigUInt64LE(BigInt(poolCounter.toString()), 0);
 
-    const tokenACustody = await getAssociatedTokenAddress(
+    const tokenACustody = await getAssocTokenAddress(
       this.tokenAMint,
       this.transferAuthority,
       true
     );
 
-    const tokenBCustody = await getAssociatedTokenAddress(
+    const tokenBCustody = await getAssocTokenAddress(
       this.tokenBMint,
       this.transferAuthority,
       true
@@ -101,7 +86,7 @@ export class PoolAuthority {
   };
 
   getPoolByTIF = async (tif: number, poolCounter: BN) => {
-    const key = await this.getKey(tif, poolCounter);
+    const key = await this.getAddress(tif, poolCounter);
 
     return this.program.account.pool.fetch(key);
   };

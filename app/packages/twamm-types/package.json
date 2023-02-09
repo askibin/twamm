@@ -3,7 +3,7 @@
   "publishConfig": {
     "access": "public"
   },
-  "version": "0.0.9",
+  "version": "0.1.0",
   "description": "> Twamm Program Client Typedefs",
   "homepage": "https://github.com/askibin/twamm#readme",
   "license": "MIT",
@@ -26,5 +26,8 @@
   "bugs": {
     "url": "https://github.com/askibin/twamm/issues"
   },
-  "gitHead": "2557c6304565c052ff242fc7efeb541c6d858293"
+  "gitHead": "2557c6304565c052ff242fc7efeb541c6d858293",
+  "dependencies": {
+    "bn.js": "5.2.1"
+  }
 }

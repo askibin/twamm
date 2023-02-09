@@ -9,12 +9,13 @@ import {
   useCallback,
   useState,
 } from "react";
+import i18n from "../i18n";
 import storage, { sanidateString, sanidateURL } from "../utils/config-storage";
 
 const EXPLORERS = {
-  explorer: { uri: "https://explorer.solana.com/tx" },
-  solscan: { uri: "https://solscan.io/tx" },
-  solanafm: { uri: "https://solana.fm/tx" },
+  explorer: { uri: "https://explorer.solana.com/tx", label: "Explorer" },
+  solscan: { uri: "https://solscan.io/tx", label: "Solscan" },
+  solanafm: { uri: "https://solana.fm/tx", label: "SolanaFM" },
 }; // explorer is default
 const FALLBACK_EXPLORER = EXPLORERS.explorer.uri;
 
@@ -28,7 +29,7 @@ const FALLBACK_PERFORMANCE_FEE = PERFORMANCE_FEES[0];
 
 export type TransactionRunnerContext = {
   readonly active: boolean;
-  readonly commit: (arg0: Promise<string>) => Promise<string | undefined>;
+  readonly commit: (arg0: Promise<{}>) => Promise<string | Error | undefined>;
   readonly error?: Error;
   readonly explorer: string;
   readonly explorers: typeof EXPLORERS;
@@ -150,10 +151,10 @@ export const Provider: FC<{ children: ReactNode }> = ({ children }) => {
       if (err) {
         setActive(false);
         const clientError =
-          err instanceof Error
-            ? err
-            : new Error("Could not execute the request");
+          err instanceof Error ? err : new Error(i18n.TxRunnerRequestFailure);
         setError(clientError);
+
+        return clientError;
       }
 
       return undefined;

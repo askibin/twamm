@@ -1,4 +1,5 @@
 import * as Styled from "./account-orders-details-control.styled";
+import i18n from "../i18n";
 
 export interface Props {
   expired: boolean;
@@ -8,7 +9,9 @@ export interface Props {
 
 export default ({ expired, inactive, onClick }: Props) => {
   const actionName =
-    expired || inactive ? "Withdraw Liquidity" : "Cancel Order";
+    expired || inactive
+      ? i18n.OrderControlsWithdrawOrder
+      : i18n.OrderControlsCancelOrder;
 
   return (
     <Styled.ControlButton variant="outlined" onClick={onClick}>

@@ -2,10 +2,13 @@ import { assureAccountCreated } from "@twamm/client.js/lib/assure-account-create
 import { BN } from "@project-serum/anchor";
 import { createCloseNativeTokenAccountInstruction } from "@twamm/client.js/lib/create-close-native-token-account-instruction"; // eslint-disable-line max-len
 import { isNil } from "ramda";
+import { Order } from "@twamm/client.js/lib/order";
 import { PublicKey, TransactionInstruction } from "@solana/web3.js";
 import { SplToken } from "@twamm/client.js/lib/spl-token";
+import { TimeInForce } from "@twamm/client.js/lib/time-in-force";
 import { Transfer } from "@twamm/client.js/lib/transfer";
 
+import i18n from "../i18n";
 import Logger from "../utils/logger";
 import useProgram from "./use-program";
 import useTxRunner from "../contexts/transaction-runner-context";
@@ -15,11 +18,12 @@ export default () => {
   const { provider, program } = useProgram();
   const { commit, setInfo } = useTxRunner();
 
+  const logger = Logger();
+
+  const order = new Order(program, provider);
   const transfer = new Transfer(program, provider);
 
   const TOKEN_PROGRAM_ID = SplToken.getProgramId();
-
-  const logger = Logger();
 
   const run = async function execute({
     a: primary,
@@ -90,10 +94,10 @@ export default () => {
       .postInstructions(post);
 
     if (NEXT_PUBLIC_ENABLE_TX_SIMUL === "1") {
-      setInfo("Simulating transaction...");
+      setInfo(i18n.TxRunnerSimulation);
 
       const simResult = await tx.simulate().catch((e) => {
-        logger.error(e, "Failed to simulate");
+        logger.error(e, i18n.TxRunnerSimulationFailure);
         if (e.simulationResponse?.logs) logger.debug(e.simulationResponse.logs);
       });
 
@@ -103,7 +107,7 @@ export default () => {
       }
     }
 
-    setInfo("Executing the transaction...");
+    setInfo(i18n.TxRunnerExecution);
 
     const result = await tx.rpc().catch((e: Error) => {
       logger.error(e);
@@ -113,11 +117,70 @@ export default () => {
     return result;
   };
 
-  return {
-    async execute(params: Parameters<typeof run>[0]) {
-      const result = await commit(run(params));
+  const runWithMultipleParams =
+    async function executeWithMultipleParams(params: {
+      a: PublicKey;
+      amount: number;
+      b: PublicKey;
+      orderAddress?: PublicKey;
+      poolAddress?: PublicKey;
+      counters?: {
+        tif: TIF;
+        tifs: TIF[];
+        poolCounters: BN[];
+        nextPool: boolean;
+      };
+    }) {
+      const primary = params.a;
+      const secondary = params.b;
 
-      return result;
+      if (params.poolAddress && params.orderAddress) {
+        return run({
+          a: primary,
+          amount: params.amount,
+          b: secondary,
+          orderAddress: params.orderAddress,
+          poolAddress: params.poolAddress,
+        });
+      }
+
+      if (params.counters) {
+        const { tif, tifs, poolCounters, nextPool } = params.counters;
+        const { target } = TimeInForce.poolTifCounters(
+          tif,
+          tifs,
+          poolCounters,
+          nextPool
+        );
+
+        const poolAuthority = transfer.authority as NonNullable<
+          typeof transfer.authority
+        >;
+
+        const poolAddress = await poolAuthority.getAddress(tif, target);
+        const orderAddress = await order.getAddressByPool(poolAddress);
+
+        return run({
+          a: primary,
+          amount: params.amount,
+          b: secondary,
+          orderAddress,
+          poolAddress,
+        });
+      }
+
+      throw new Error(i18n.Error);
+    };
+
+  return {
+    async execute(params: Parameters<typeof runWithMultipleParams>[0]) {
+      const primary = params.a;
+      const secondary = params.b;
+
+      await transfer.init(primary, secondary);
+      // initialize the authority to execute the operation
+
+      await commit(runWithMultipleParams(params));
     },
   };
 };

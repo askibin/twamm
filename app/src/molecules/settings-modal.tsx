@@ -10,13 +10,11 @@ import { useCallback, useState } from "react";
 import * as Styled from "./settings-modal.styled";
 import ClusterSelector from "./cluster-selector";
 import ExplorerSelector from "./explorer-selector";
+import i18n from "../i18n";
 import PerformanceFeeSelector from "./performance-fee-selector";
 import SlippageSelector from "./slippage-selector";
 import useTxRunner from "../contexts/transaction-runner-context";
 import ToggleOption from "./toggle-option";
-
-const jupVersionedInfo =
-  "Enable Jupiter's Versioned API for instant exchange. Phantom, Solflare, Glow and Backpack wallets are supported. Please turn this setting off unless using one of the listed wallets."; // eslint-disable-line max-len
 
 export default ({
   id,
@@ -49,24 +47,35 @@ export default ({
   return (
     <Box p={2}>
       <Typography id={id} variant="h5" pb={1}>
-        Settings
+        {i18n.Settings}
       </Typography>
       <Styled.Setting direction="row" py={1}>
-        <Styled.SettingLabel variant="body2">Explorer</Styled.SettingLabel>
-        <ExplorerSelector onClose={onClose} />
+        <Styled.SettingLabel variant="body2">
+          {i18n.SettingsSettingExplorer}
+        </Styled.SettingLabel>
+        <ExplorerSelector
+          label={i18n.SettingsSettingExplorer}
+          onClose={onClose}
+        />
       </Styled.Setting>
       <Styled.Setting direction="row" py={1}>
-        <Styled.SettingLabel variant="body2">Slippage</Styled.SettingLabel>
-        <SlippageSelector onClose={onClose} />
+        <Styled.SettingLabel variant="body2">
+          {i18n.SettingsSettingSlippage}
+        </Styled.SettingLabel>
+        <SlippageSelector
+          label={i18n.SettingsSettingSlippage}
+          onClose={onClose}
+        />
       </Styled.Setting>
       <Styled.Setting direction="row" py={1}>
         <Box>
           <Styled.SettingLabel variant="body2">
-            Priority Fee
+            {i18n.SettingsSettingPerformaceFee}
           </Styled.SettingLabel>
           {performanceFee > 0 && (
             <Typography color="text.secondary" variant="body2">
-              You will pay up to {performanceFee}SOL extra.
+              {i18n.SettingsSettingPerformanceFeeValuePre} {performanceFee}
+              {i18n.SettingsSettingPerformanceFeeValuePost}
             </Typography>
           )}
         </Box>
@@ -76,7 +85,7 @@ export default ({
       <Styled.Setting justifyContent="space-between" direction="row" py={1}>
         <Stack direction="row">
           <Styled.SettingLabel color="text.secondary" pr={1} variant="body2">
-            Jupiter Versioned Tx.
+            {i18n.SettingsSettingVersionedTx}
           </Styled.SettingLabel>
           <IconButton
             sx={{ padding: 0 }}
@@ -94,7 +103,7 @@ export default ({
       </Box>
       <Styled.ClusterSetting>
         <Typography variant="body2" pb={1}>
-          Cluster Selector
+          {i18n.SettingsSettingClusterSelector}
         </Typography>
         <ClusterSelector onClose={onClose} />
       </Styled.ClusterSetting>
@@ -120,7 +129,7 @@ export default ({
           variant="body2"
           onClick={handlePopoverClose}
         >
-          {jupVersionedInfo}
+          {i18n.SettingsSettingVersionedTxInfo}
         </Typography>
       </Popover>
     </Box>
