@@ -1,7 +1,7 @@
 import type { Program } from "@project-serum/anchor";
 import { PublicKey } from "@solana/web3.js";
-import { Pool } from "./pool";
 
+import { Pool } from "./pool";
 import { findAddress } from "./program";
 import { fetchMultipleAddresses } from "./utils";
 
