@@ -1,4 +1,5 @@
 import type { Program } from "@project-serum/anchor";
+import type { Counter, TokenPair } from "@twamm/types";
 import useSWR from "swr";
 import { PoolAuthority } from "@twamm/client.js";
 import { PublicKey } from "@solana/web3.js";
@@ -8,20 +9,20 @@ import type { IndexedTIF, PoolTIF } from "../domain/interval.d";
 import useProgram from "./use-program";
 import { expirationTimeToInterval } from "../utils/index";
 
-type SettledTokenPairPool<T = TokenPairPoolData> = PromiseSettledResult<T>;
+type SettledTokenPairPool<T = TokenPair> = PromiseSettledResult<T>;
 
 type TifWithPool = {
-  data?: TokenPairPoolData;
+  data?: TokenPair;
   index: TIFIndex;
   status: "fulfilled" | "rejected";
   tif: TIF;
 };
 
 const swrKey = (params: {
-  tokenPair: TokenPair<JupToken>;
+  tokenPair: TokenTuple<JupToken>;
   tifs: number[];
   currentPoolPresent: boolean[];
-  poolCounters: PoolCounter[];
+  poolCounters: Counter[];
 }) => ({
   key: "tokenPairOrderIntervals",
   params,
@@ -122,10 +123,10 @@ const fetcher =
   };
 
 export default (
-  tokenPair: TokenPair<JupToken> | undefined,
+  tokenPair: TokenTuple<JupToken> | undefined,
   tifs: number[] | undefined,
   currentPoolPresent: boolean[] | undefined,
-  poolCounters: PoolCounter[] | undefined,
+  poolCounters: Counter[] | undefined,
   options = {}
 ) => {
   const { program } = useProgram();

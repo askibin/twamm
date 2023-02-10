@@ -1,27 +1,11 @@
 import type { BN } from "@project-serum/anchor";
-
-export const lpAmount = (
-  poolSide: PoolTradeSideData,
-  order: { side: OrderTypeStruct; lpBalance: BN; tokenDebt: BN }
-) => {
-  let result;
-
-  if (Number(poolSide.sourceBalance) === 0) {
-    result = Number(order.lpBalance);
-  } else {
-    result =
-      (Number(order.lpBalance) * Number(poolSide.lpSupply)) /
-      Number(poolSide.sourceBalance);
-  }
-
-  return result;
-};
+import type { PoolTradeSide, TokenPair } from "@twamm/types";
 
 export const withdrawAmount = (
   lpBalance: number | BN,
-  poolSide: PoolTradeSideData,
+  poolSide: PoolTradeSide,
   order: { side: OrderTypeStruct; lpBalance: BN; tokenDebt: BN },
-  tokenPair: TokenPairProgramData
+  tokenPair: TokenPair
 ) => {
   const withdrawAmountSource =
     (Number(lpBalance) * Number(poolSide.sourceBalance)) /

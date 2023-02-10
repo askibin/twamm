@@ -46,6 +46,7 @@ export default {
   OrdersColumnsPair: "Token Pair",
   OrdersColumnsQunatity: "Quantity",
   OrdersColumnsTimeFrame: "Time Frame",
+  OrdersCellExpirationDone: "Done",
   Search: "Search",
   Settings: "Settings",
   SettingsSettingClusterSelector: "Cluster Selector",

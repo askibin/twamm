@@ -1,3 +1,4 @@
+import type { Pool, TokenPair } from "@twamm/types";
 import { BN } from "@project-serum/anchor";
 import { lensPath, set } from "ramda";
 import { quantity, filledQuantity } from "./order-details";
@@ -7,14 +8,14 @@ describe("order-details", () => {
     configA: {
       decimals: 6,
     },
-  } as TokenPairProgramData;
+  } as TokenPair;
 
   const pool = {
     sellSide: {
       lpSupply: new BN(0),
       fillsVolume: new BN(0),
     },
-  } as PoolData;
+  } as Pool;
 
   const orderType = { sell: {} } as OrderTypeStruct;
 

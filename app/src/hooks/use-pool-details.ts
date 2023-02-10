@@ -14,8 +14,8 @@ export default (poolAddress: PublicKey, order: OrderBalanceData) => {
     M.andMap((pair) => {
       const mint = lensPath(["mint"]);
       return [
-        view<PairConfig, PublicKey>(mint, pair.configA),
-        view<PairConfig, PublicKey>(mint, pair.configB),
+        view<PairConfig, PairConfig["mint"]>(mint, pair.configA),
+        view<PairConfig, PairConfig["mint"]>(mint, pair.configB),
       ];
     }, M.of(details.data?.pair))
   );

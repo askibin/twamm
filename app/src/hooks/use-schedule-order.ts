@@ -1,3 +1,4 @@
+import type { Counter } from "@twamm/types";
 import { BN } from "@project-serum/anchor";
 import {
   PublicKey,
@@ -49,7 +50,7 @@ export default () => {
     bMint: string;
     tif: TIF;
     nextPool: boolean;
-    poolCounters: PoolCounter[];
+    poolCounters: Counter[];
     tifs: TIF[];
   }) {
     const primary = new PublicKey(aMint);

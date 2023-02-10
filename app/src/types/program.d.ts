@@ -1,6 +1,5 @@
 /// <reference types="@twamm/types" />
-
-declare type PoolCounter = Counter;
+declare type PoolCounter = BN;
 
 declare type ExchangePair = [TokenPair, OrderSide];
 
@@ -156,18 +155,6 @@ type PoolTradeSideData = {
   tokenDebtTotal: BN;
   weightedFillsSum: BN | number;
 };
-
-declare type PoolData = {
-  buySide: PoolTradeSideData;
-  counter: BN;
-  expirationTime: BN;
-  sellSide: PoolTradeSideData;
-  timeInForce: number;
-  tokenPair: PublicKey;
-  status: PoolStatusStruct;
-};
-
-declare type TokenPairPoolData = PoolData;
 
 declare type PoolDetails = {
   aAddress: PublicKey;

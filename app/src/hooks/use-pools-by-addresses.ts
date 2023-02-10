@@ -1,3 +1,4 @@
+import type { Pool as TPool } from "@twamm/types";
 import type { Provider, Program } from "@project-serum/anchor";
 import type { PublicKey } from "@solana/web3.js";
 import useSWR from "swr";
@@ -14,9 +15,9 @@ const fetcher = (provider: Provider, program: Program) => {
   const pool = new Pool(program);
 
   return async ({ params }: SWRParams<typeof swrKey>) => {
-    const pools = (await pool.getPools(params.addresses)) as PoolData[];
+    const pools = await pool.getPools(params.addresses);
 
-    return pools;
+    return pools as TPool[];
   };
 };
 

@@ -1,6 +1,7 @@
+import M, { Extra } from "easy-maybe/lib";
+import type { Pool } from "@twamm/types";
 import type { Program } from "@project-serum/anchor";
 import type { PublicKey } from "@solana/web3.js";
-import M, { Extra } from "easy-maybe/lib";
 import useSWR from "swr";
 import { TokenPair } from "@twamm/client.js";
 import { useWallet } from "@solana/wallet-adapter-react";
@@ -12,7 +13,7 @@ import useProgram from "./use-program";
 const swrKey = (params: {
   account: PublicKey | null;
   orders: OrderData[];
-  pools: PoolData[];
+  pools: Pool[];
 }) => ({
   key: "orderRecords",
   params,

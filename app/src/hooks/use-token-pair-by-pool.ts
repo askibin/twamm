@@ -1,7 +1,8 @@
+import M, { Extra } from "easy-maybe/lib";
 import type { Program } from "@project-serum/anchor";
 import type { PublicKey } from "@solana/web3.js";
+import type { TokenPair as TTokenPair } from "@twamm/types";
 import useSWR from "swr";
-import M, { Extra } from "easy-maybe/lib";
 import { TokenPair } from "@twamm/client.js";
 
 import usePool from "./use-pool";
@@ -18,7 +19,7 @@ const fetcher = (program: Program) => {
   return async ({ params }: SWRParams<typeof swrKey>) => {
     const tp: unknown = await pair.getPair(params.tokenPair);
 
-    return tp as TokenPairProgramData;
+    return tp as TTokenPair;
   };
 };
 

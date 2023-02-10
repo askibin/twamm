@@ -53,8 +53,8 @@ export class Order {
     return o;
   };
 
-  getOrders = async (addresses: PublicKey[]) => {
-    const all = await fetchMultipleAddresses(
+  getOrders = async <T>(addresses: PublicKey[]) => {
+    const all = await fetchMultipleAddresses<T>(
       this.program.account.order.fetchMultiple.bind(this.program.account.order),
       addresses
     );

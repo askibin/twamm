@@ -1,3 +1,4 @@
+import type { Pool as TPool, TokenPair as TTokenPair } from "@twamm/types";
 import type { Program } from "@project-serum/anchor";
 import type { PublicKey } from "@solana/web3.js";
 import { Pool, TokenPair } from "@twamm/client.js";
@@ -15,12 +16,10 @@ const fetcher = (program: Program) => {
   const pairClient = new TokenPair(program);
 
   return async ({ params }: SWRParams<typeof swrKey>) => {
-    const pool = (await poolClient.getPool(params.address)) as PoolData;
+    const pool = (await poolClient.getPool(params.address)) as TPool;
+    const pair = (await pairClient.getPair(pool.tokenPair)) as TTokenPair;
 
-    const tp: unknown = await pairClient.getPair(pool.tokenPair);
-    const tokenPair = tp as TokenPairProgramData;
-
-    return { pool, pair: tokenPair };
+    return { pool, pair };
   };
 };
 

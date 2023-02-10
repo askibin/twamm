@@ -1,9 +1,10 @@
-import BN from "bn.js";
+import type { Pool } from "@twamm/types";
+import { BN } from "@project-serum/anchor";
 import { lensPath, view } from "ramda";
 
 export const quantity = (
   pair: TokenPairProgramData,
-  pool: PoolData,
+  pool: Pool,
   orderType: OrderTypeStruct,
   unsettledBalance: BN
 ) => {
@@ -19,7 +20,7 @@ export const quantity = (
 
 export const filledQuantity = (
   pair: TokenPairProgramData,
-  pool: PoolData,
+  pool: Pool,
   orderType: OrderTypeStruct
 ) => {
   const decimals = lensPath(["decimals"]);
