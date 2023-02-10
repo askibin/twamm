@@ -7,6 +7,8 @@ export default {
   AriaLabelOffline: "offline",
   AriaLabelIntervals: "interval group",
   AriaLabelClose: "close",
+  CoinSelector: "Coins",
+  CoinSelectorSearch: "Search coin",
   Error: "Error",
   ErrorCreateOrderAbsentTif: "Absent interval",
   ErrorCreateOrderStalePool: "Can not place order to the closed pool",
