@@ -1,9 +1,10 @@
-import type { ChangeEvent, MouseEvent } from "react";
 import Box from "@mui/material/Box";
 import CircularProgress from "@mui/material/CircularProgress";
 import Divider from "@mui/material/Divider";
 import SearchIcon from "@mui/icons-material/Search";
 import TextField from "@mui/material/TextField";
+import type { ChangeEvent, MouseEvent } from "react";
+import type { PublicKey } from "@solana/web3.js";
 import Typography from "@mui/material/Typography";
 import { useCallback, useMemo, useState } from "react";
 
@@ -41,8 +42,8 @@ export default ({
   id?: string;
   onDelete: (arg0: string) => void;
   onSelect: (arg0: TokenInfo) => void;
-  selected?: string[];
-  tokens?: string[];
+  selected?: PublicKey[];
+  tokens?: PublicKey[];
 }) => {
   const [search, setSearch] = useState<string>();
 

@@ -1,8 +1,11 @@
-import useSWR from "swr";
 import M, { Extra } from "easy-maybe/lib";
+import useSWR from "swr";
+import { PublicKey } from "@solana/web3.js";
 import useJupTokens from "./use-jup-tokens";
 
-const swrKey = (params: { mints: string[] }) => ({
+const castKeys = (keys: PublicKey[] | string[]) => keys.map((k) => String(k));
+
+const swrKey = (params: { mints: PublicKey[] | string[] }) => ({
   key: "jupTokensByMint",
   params,
 });
@@ -12,7 +15,7 @@ const fetcher =
   async ({ params }: SWRParams<typeof swrKey>) => {
     if (!tokens) return [];
 
-    const { mints } = params;
+    const mints = castKeys(params.mints);
 
     const selectedTokens = tokens.filter((token) =>
       mints.includes(token.address)
@@ -21,7 +24,7 @@ const fetcher =
     return selectedTokens;
   };
 
-export default (mints: string[] | undefined, options = {}) => {
+export default (mints?: SWRArgs<typeof swrKey>["mints"], options = {}) => {
   const jupTokens = useJupTokens();
 
   return useSWR(

@@ -1,14 +1,4 @@
-import type { Address, BN } from "@project-serum/anchor";
-import { translateAddress } from "@project-serum/anchor";
-
-export const address = (account: Address) => ({
-  toString() {
-    return translateAddress(account).toBase58();
-  },
-  toAddress() {
-    return translateAddress(account);
-  },
-});
+import type { BN } from "@project-serum/anchor";
 
 export const lpAmount = (
   poolSide: PoolTradeSideData,

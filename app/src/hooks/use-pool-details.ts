@@ -1,19 +1,26 @@
 import type { PublicKey } from "@solana/web3.js";
+import M from "easy-maybe/lib";
 import useSWR from "swr";
+import { view, lensPath } from "ramda";
 
 import useJupTokensByMint from "./use-jup-tokens-by-mint";
 import usePoolWithPair from "./use-pool-with-pair";
-import { address as addr } from "../utils/twamm-client";
-
-const mintsKey = (pair?: TokenPairAccountData) =>
-  pair
-    ? [addr(pair.configA.mint).toString(), addr(pair.configB.mint).toString()]
-    : undefined;
 
 export default (poolAddress: PublicKey, order: OrderBalanceData) => {
   const details = usePoolWithPair(poolAddress);
 
-  const tokens = useJupTokensByMint(mintsKey(details.data?.pair));
+  const mints = M.withDefault(
+    undefined,
+    M.andMap((pair) => {
+      const mint = lensPath(["mint"]);
+      return [
+        view<PairConfig, PublicKey>(mint, pair.configA),
+        view<PairConfig, PublicKey>(mint, pair.configB),
+      ];
+    }, M.of(details.data?.pair))
+  );
+
+  const tokens = useJupTokensByMint(mints);
 
   const isValid = poolAddress && details.data && tokens.data && order;
   return useSWR(

@@ -1,6 +1,6 @@
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
-import Maybe, { Extra } from "easy-maybe/lib";
+import M, { Extra } from "easy-maybe/lib";
 import Typography from "@mui/material/Typography";
 import { BN } from "@project-serum/anchor";
 import { useCallback, useState } from "react";
@@ -23,14 +23,14 @@ export default ({ data, detailsData, onApprove }: Props) => {
   const [percentage, setPercentage] = useState<number>(100);
   const [detailsOpen, setDetailsOpen] = useState<boolean>(false);
 
-  const order = Maybe.of(data);
+  const order = M.of(data);
 
-  const mints = Maybe.withDefault(
-    undefined,
-    Maybe.andMap(({ a, b }) => [a.toBase58(), b.toBase58()], order)
+  const tokens = useJupTokensByMint(
+    M.withDefault(
+      undefined,
+      M.andMap(({ a, b }) => [a, b], order)
+    )
   );
-
-  const tokens = useJupTokensByMint(mints);
 
   const details = usePoolDetails(detailsData.poolAddress, detailsData.order);
 
@@ -39,7 +39,7 @@ export default ({ data, detailsData, onApprove }: Props) => {
   }, []);
 
   const onCancel = useCallback(() => {
-    Maybe.tap((cd) => {
+    M.tap((cd) => {
       const { supply } = cd;
       const cancellableAmount = (supply.toNumber() * percentage) / 100;
 
