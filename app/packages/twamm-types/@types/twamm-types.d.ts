@@ -27,6 +27,8 @@ declare module "@twamm/types" {
     unsettledBalance: BN;
   };
 
+  export type OrderExt = Order & { pubkey: PublicKey };
+
   export type PoolTradeSide = {
     fillsVolume: BN;
     lastBalanceChangeTime: BN;

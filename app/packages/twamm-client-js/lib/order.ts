@@ -1,7 +1,10 @@
+import type { Order as TOrder, OrderExt } from "@twamm/types";
 import type { Program, Provider } from "@project-serum/anchor";
 import type { PublicKey } from "@solana/web3.js";
-import type { WalletProvider } from "@twamm/types/lib";
+// TODO: rename file 👇 to prevent confusement
+import type { WalletProvider } from "@twamm/types/lib/twamm-types";
 import { encode } from "bs58";
+import { lensPath, set } from "ramda";
 
 import { fetchMultipleAddresses } from "./utils";
 import { findAddress } from "./program";
@@ -67,8 +70,18 @@ export class Order {
 
     const orderAddresses = addresses.map((oa) => oa.pubkey);
 
-    const all = await this.getOrders(orderAddresses);
+    const all = await this.getOrders<TOrder>(orderAddresses);
 
-    return all.map((o, i) => ({ ...o, pubkey: orderAddresses[i] }));
+    function presentOrder(o: typeof all[0]): o is TOrder {
+      return o !== null;
+    }
+
+    const orders = all.filter(presentOrder);
+
+    return orders.map((o, i) => {
+      const order: OrderExt = set(lensPath(["pubkey"]), orderAddresses[i], o);
+
+      return order;
+    });
   };
 }
