@@ -1,4 +1,3 @@
-console.log("FIX tests");
 import type { Pool, TokenPair } from "@twamm/types";
 import { BN } from "@project-serum/anchor";
 import { lensPath, set } from "ramda";
