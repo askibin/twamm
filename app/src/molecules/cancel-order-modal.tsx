@@ -5,6 +5,7 @@ import Typography from "@mui/material/Typography";
 import { BN } from "@project-serum/anchor";
 import { useCallback, useState } from "react";
 
+import type { OrderDetails } from "../types/decl.d";
 import * as Styled from "./cancel-order-modal.styled";
 import CancelOrderAmount from "./cancel-order-amount";
 import CancelOrderDetails from "./cancel-order-details";
@@ -13,13 +14,15 @@ import Loading from "../atoms/loading";
 import useJupTokensByMint from "../hooks/use-jup-tokens-by-mint";
 import usePoolDetails from "../hooks/use-pool-details";
 
-export interface Props {
-  data: Voidable<CancelOrderData>;
-  detailsData: DetailsData;
+export default ({
+  data,
+  detailsData,
+  onApprove,
+}: {
+  data?: CancelOrderData;
+  detailsData: OrderDetails;
   onApprove: (arg0: CancelOrderData) => void;
-}
-
-export default ({ data, detailsData, onApprove }: Props) => {
+}) => {
   const [percentage, setPercentage] = useState<number>(100);
   const [detailsOpen, setDetailsOpen] = useState<boolean>(false);
 
@@ -84,7 +87,7 @@ export default ({ data, detailsData, onApprove }: Props) => {
               fullWidth
               onClick={onCancel}
             >
-              Approve
+              {i18n.OrderFlowCancelControl}
             </Button>
           </Box>
         </>

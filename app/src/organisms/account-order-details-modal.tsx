@@ -1,12 +1,14 @@
-import type { PublicKey } from "@solana/web3.js";
 import type { BN } from "@project-serum/anchor";
-import ScheduleIcon from "@mui/icons-material/Schedule";
+import type { PublicKey } from "@solana/web3.js";
+import type { TokenPair } from "@twamm/types";
 import DoneIcon from "@mui/icons-material/Done";
 import M from "easy-maybe/lib";
+import ScheduleIcon from "@mui/icons-material/Schedule";
 import Stack from "@mui/material/Stack";
 import { useCallback } from "react";
 
 import type { MaybeTokens } from "../hooks/use-tokens-by-mint";
+import type { OrderRecord, PoolDetails } from "../types/decl.d";
 import * as Styled from "./account-order-details-modal.styled";
 import Control from "../atoms/account-orders-details-control";
 import Loading from "../atoms/loading";
@@ -30,7 +32,7 @@ const Content = ({
   onCancelOrder: () => void;
   quantity: number;
   timeInForce: number;
-  tokens: Voidable<MaybeTokens>;
+  tokens?: MaybeTokens;
 }) => (
   <Stack direction="column" spacing={2}>
     <Styled.ContentHeader>
@@ -65,7 +67,7 @@ export default ({
 }: {
   filledQuantity: number;
   onCancel: (arg0: CancelOrderData) => void;
-  order: OrderBalanceData;
+  order: OrderRecord["order"];
   poolAddress: PublicKey;
   quantity: number;
   side: OrderTypeStruct;
@@ -77,7 +79,7 @@ export default ({
 
   const pairMints = M.withDefault(
     undefined,
-    M.andMap<TokenPairProgramData, [PublicKey, PublicKey]>(
+    M.andMap<TokenPair, [PublicKey, PublicKey]>(
       (pair) => [pair.configA.mint, pair.configB.mint],
       M.of(tokenPair.data)
     )

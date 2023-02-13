@@ -1,7 +1,10 @@
+import type { TokenPair } from "@twamm/types";
 import { lensPath, view } from "ramda";
 
+import type { PairConfig, PairStats } from "../types/decl.d";
+
 export const populateStats = (
-  pair: Pick<TokenPairProgramData, "statsA" | "statsB" | "configA" | "configB">
+  pair: Pick<TokenPair, "statsA" | "statsB" | "configA" | "configB">
 ) => {
   const decimals = lensPath(["decimals"]);
   const feesCollected = lensPath(["feesCollected"]);

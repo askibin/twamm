@@ -9,7 +9,7 @@ import useProgram from "./use-program";
 
 const swrKey = (params: {
   address: PublicKey;
-  balances: AccountBalance[];
+  balances: NonNullable<ReturnType<typeof useAccountTokens>["data"]>;
   mint: string;
 }) => ({
   key: "balance",
@@ -38,7 +38,6 @@ export default (mint: Voidable<string>, options = {}) => {
   const { provider } = useProgram();
 
   const accountTokens = useAccountTokens(undefined, options);
-  // bypass hook options
 
   return useSWR(
     M.withDefault(

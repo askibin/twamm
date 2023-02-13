@@ -79,9 +79,9 @@ export class Order {
     const orders = all.filter(presentOrder);
 
     return orders.map((o, i) => {
-      const order: OrderExt = set(lensPath(["pubkey"]), orderAddresses[i], o);
+      const order: unknown = set(lensPath(["pubkey"]), orderAddresses[i], o);
 
-      return order;
+      return order as OrderExt;
     });
   };
 }

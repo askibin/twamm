@@ -93,11 +93,11 @@ export default ({
       if (selectedPair.data) {
         const { exchangePair } = selectedPair.data;
 
-        const [p, t]: ExchangePair = exchangePair;
+        const [p, t] = exchangePair;
 
         onTradeChange({
           amount: 0,
-          pair: p.map((_a: JupToken) => _a.address),
+          pair: [p[0].address, p[1].address],
           type: t,
         });
       }

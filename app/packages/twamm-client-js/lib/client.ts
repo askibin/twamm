@@ -1,6 +1,7 @@
 import * as account from "./account";
 import * as address from "./address";
 import * as program from "./program";
+import * as protocol from "./protocol";
 import { Order } from "./order";
 import { Pool, PoolAuthority } from "./pool";
 import { SplToken } from "./spl-token";
@@ -11,6 +12,7 @@ export {
   account,
   address,
   program,
+  protocol,
   Order,
   Pool,
   PoolAuthority,

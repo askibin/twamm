@@ -40,6 +40,7 @@ export default {
   OrderDetailsUserAveragePrice: "Your average price",
   OrderDetailsQuantity: "Filled/Quantity",
   OrderFlowCancelTitle: "Cancel Order",
+  OrderFlowCancelControl: "Approve",
   OrdersColumnsExpiration: "Expiration",
   OrdersColumnsFilledQuantity: "Filled Qty",
   OrdersColumnsOrderTime: "OrderTime",

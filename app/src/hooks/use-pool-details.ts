@@ -3,10 +3,11 @@ import M from "easy-maybe/lib";
 import useSWR from "swr";
 import { view, lensPath } from "ramda";
 
+import type { OrderRecord, PairConfig, PoolDetails } from "../types/decl.d";
 import useJupTokensByMint from "./use-jup-tokens-by-mint";
 import usePoolWithPair from "./use-pool-with-pair";
 
-export default (poolAddress: PublicKey, order: OrderBalanceData) => {
+export default (poolAddress: PublicKey, order: OrderRecord["order"]) => {
   const details = usePoolWithPair(poolAddress);
 
   const mints = M.withDefault(
@@ -64,38 +65,44 @@ export default (poolAddress: PublicKey, order: OrderBalanceData) => {
           ];
 
       const lastChanged = lastBalanceChangeTime.toNumber();
+      const lastChangeTime = !lastChanged
+        ? undefined
+        : new Date(lastChanged * 1e3);
 
-      const next = {
+      const lpSupplyRaw = [
+        sellSide.lpSupply.toNumber(),
+        buySide.lpSupply.toNumber(),
+      ];
+
+      const prices = [
+        Number(minFillPrice),
+        Number(fillsVolume)
+          ? Number(weightedFillsSum) / Number(fillsVolume)
+          : -1,
+        Number(maxFillPrice),
+      ];
+
+      return {
         aAddress: configA.mint,
         bAddress: configB.mint,
         expirationTime: new Date(expirationTime.toNumber() * 1e3),
         expired: Boolean(status.expired),
         inactive: Boolean(status.inactive),
         inceptionTime: new Date(inceptionTime * 1e3),
-        lastBalanceChangeTime: !lastChanged
-          ? undefined
-          : new Date(lastChanged * 1e3),
+        lastBalanceChangeTime: lastChangeTime,
         lpAmount: Number(order.lpBalance),
         lpSupply: supply,
-        lpSupplyRaw: [
-          sellSide.lpSupply.toNumber(),
-          buySide.lpSupply.toNumber(),
-        ],
+        lpSupplyRaw,
         lpSymbols: [coins[0].symbol, coins[1].symbol],
         poolAddress,
-        prices: [
-          Number(minFillPrice),
-          Number(fillsVolume)
-            ? Number(weightedFillsSum) / Number(fillsVolume)
-            : -1,
-          Number(maxFillPrice),
-        ],
+        prices,
         side,
         volume: statsA.orderVolumeUsd + statsB.orderVolumeUsd,
         withdraw: { tradeSide, orderBalance: order, tokenPair: pair },
+        tradeSide,
+        orderBalance: order,
+        tokenPair: pair,
       };
-
-      return next;
     }
   );
 };

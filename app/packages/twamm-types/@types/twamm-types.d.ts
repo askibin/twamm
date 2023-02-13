@@ -19,7 +19,6 @@ declare module "@twamm/types" {
     lpBalance: BN;
     owner: PublicKey;
     pool: PublicKey;
-    pubkey: PublicKey;
     settlementDebt: BN;
     side: OrderTypeStruct;
     time: BN;

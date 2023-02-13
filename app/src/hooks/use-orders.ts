@@ -16,9 +16,9 @@ const fetcher = (provider: Provider, program: Program) => {
   const order = new Order(program, provider);
 
   return async ({ params }: SWRParams<typeof swrKey>) => {
-    const orders: unknown = await order.getOrdersByAccount(params.account);
+    const orders = await order.getOrdersByAccount(params.account);
 
-    return orders as TOrder[];
+    return orders;
   };
 };
 

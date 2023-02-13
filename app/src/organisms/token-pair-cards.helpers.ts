@@ -1,8 +1,9 @@
+import type { TokenPair } from "@twamm/types";
 import { populateStats } from "../domain/token-pair-details";
 
 export const populate = (
-  pair: Pick<TokenPairProgramData, "statsA" | "statsB" | "configA" | "configB">
-): PerfPair => {
+  pair: Pick<TokenPair, "statsA" | "statsB" | "configA" | "configB">
+) => {
   const { a, b, fee, orderVolume, settledVolume, routedVolume } =
     populateStats(pair);
 

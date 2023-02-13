@@ -1,4 +1,7 @@
 import type { PublicKey } from "@solana/web3.js";
+import { filledQuantity, quantity } from "@twamm/client.js/lib/protocol";
+
+import type { OrderData } from "../types/decl.d";
 import type {
   ComparatorFn,
   RowParams,
@@ -9,7 +12,6 @@ import PoolOrderTimeCell from "../atoms/account-order-pool-order-time-cell";
 import PoolTIFCell from "../atoms/account-order-pool-tif-cell";
 import PoolTIFLeftCell from "../atoms/account-order-pool-tif-left-cell";
 import TokenPairCell from "../atoms/account-order-token-pair-cell";
-import { filledQuantity, quantity } from "../domain/order-details";
 import { formatPrice } from "../domain/index";
 
 const sortByTokenPair: ComparatorFn<PublicKey> = (a, b) => {
@@ -20,7 +22,7 @@ const sortByTokenPair: ComparatorFn<PublicKey> = (a, b) => {
   return aKey < bKey ? -1 : 1;
 };
 
-export const populateRow = (data: OrderPoolRecord) => {
+export const populateRow = (data: OrderData) => {
   const order = {
     address: data.order,
     lpBalance: data.lpBalance,
@@ -28,12 +30,7 @@ export const populateRow = (data: OrderPoolRecord) => {
     tokenDebt: data.tokenDebt,
   };
 
-  const amount = quantity(
-    data.tokenPairData,
-    data.poolData,
-    data.side,
-    data.unsettledBalance
-  );
+  const amount = quantity(data.tokenPairData, data.side, data.unsettledBalance);
   const filledAmount = filledQuantity(
     data.tokenPairData,
     data.poolData,
@@ -42,14 +39,12 @@ export const populateRow = (data: OrderPoolRecord) => {
 
   return {
     id: data.id,
-    // FIXME: replace data with address V
     filledQuantity: filledAmount,
     order,
     orderData: order,
     orderTime: data.time,
     pool: data.pool,
     poolData: data.poolData,
-    // TODO: check availability to remove the field
     quantity: amount,
     side: data.side,
     supply: data.lpBalance,
@@ -62,7 +57,7 @@ export const populateDetails = (
   data: RowParams<ReturnType<typeof populateRow>>
 ) => ({
   filledQuantity: data.row.filledQuantity,
-  order: data.row.orderData,
+  order: data.row.order, // Data,
   poolAddress: data.row.pool,
   quantity: data.row.quantity,
   side: data.row.side,

@@ -1,7 +1,9 @@
 import Box from "@mui/material/Box";
 import M from "easy-maybe/lib";
 import { useCallback, useMemo, useRef, useState } from "react";
-import CancelOrder from "../molecules/cancel-order-modal";
+
+import type { OrderData, OrderDetails, OrderRecord } from "../types/decl.d";
+import CancelOrderModal from "../molecules/cancel-order-modal";
 import OrderDetailsModal from "./account-order-details-modal";
 import RowColumnList, {
   ColDef,
@@ -18,15 +20,11 @@ import {
   populateRow,
 } from "./account-orders-list.helpers";
 
-type RowData = ReturnType<typeof populateRow>;
-
-type DetailsData = ReturnType<typeof populateDetails>;
-
 const initialSortModel: SortModel = [{ field: "orderTime", sort: "asc" }];
 
 export default (props: {
-  data: Voidable<OrderPoolRecord[]>;
-  error: Voidable<Error>;
+  data?: OrderData[];
+  error?: Error;
   loading: boolean;
   updating: boolean;
   updatingInterval: number;
@@ -36,14 +34,14 @@ export default (props: {
   const cancelRef = useRef<Ref>();
   const detailsRef = useRef<Ref>();
   const [accounts, setAccounts] = useState<CancelOrderData | undefined>();
-  const [details, setDetails] = useState<DetailsData>();
+  const [details, setDetails] = useState<OrderDetails>();
   const [selectionModel, setSelectionModel] = useState<SelectionModel>([]);
 
   const { execute } = useCancelOrder();
   const { isMobile } = useBreakpoints();
 
   const cols = useMemo<ColDef[]>(() => columns({ isMobile }), [isMobile]);
-  const rows = useMemo<RowData[]>(() => data.map(populateRow), [data]);
+  const rows = useMemo<OrderRecord[]>(() => data.map(populateRow), [data]);
 
   const [sortModel, setSortModel] = useState<SortModel>(initialSortModel);
 
@@ -65,7 +63,7 @@ export default (props: {
   );
 
   const onRowClick = useCallback(
-    (params: RowParams<RowData>) => {
+    (params: RowParams<OrderRecord>) => {
       setDetails(populateDetails(params));
       detailsRef.current?.open();
     },
@@ -99,7 +97,7 @@ export default (props: {
     <>
       <UniversalPopover ref={cancelRef}>
         {details && (
-          <CancelOrder
+          <CancelOrderModal
             data={accounts}
             detailsData={details}
             onApprove={onApproveCancel}

@@ -82,7 +82,7 @@ const fetcher = (program: Program, provider: Provider) => {
       | "statsA"
       | "statsB"
       | "tifs"
-    >;
+    > & { exchangePair: typeof exchangePairData };
   };
 };
 
