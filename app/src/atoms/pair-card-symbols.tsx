@@ -4,6 +4,8 @@ import Skeleton from "@mui/material/Skeleton";
 import type { MaybeTokens } from "../hooks/use-tokens-by-mint";
 import * as Styled from "./pair-card-symbols.styled";
 
+// FEAT: rework MaybeTokens thing
+
 const TokenImage = ({ data }: { data: MaybeTokens[0] }) => {
   if (data instanceof Error)
     return (

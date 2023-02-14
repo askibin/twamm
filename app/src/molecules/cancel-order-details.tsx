@@ -30,13 +30,13 @@ export default ({ data, details, onToggle, percentage }: Props) => {
   );
   const withdrawAmount = M.andMap(([td, det]) => {
     const [a, b] = td;
-    const { withdraw } = det;
+    const { order, tradeSide, tokenPair } = det;
 
     const [wda, wdb] = protocol.withdrawAmount(
-      (withdraw.orderBalance.lpBalance * percentage) / 100,
-      withdraw.tradeSide,
-      withdraw.orderBalance,
-      withdraw.tokenPair
+      (order.lpBalance * percentage) / 100,
+      tradeSide,
+      order,
+      tokenPair
     );
 
     const withdrawPair = [
@@ -47,7 +47,6 @@ export default ({ data, details, onToggle, percentage }: Props) => {
     return withdrawPair;
   }, Extra.combine2([d, M.of(details)]));
 
-  // TODO: format result
   const amount = M.withDefault<Array<number | string>>(
     ["-", "-"],
     withdrawAmount

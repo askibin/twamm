@@ -16,8 +16,16 @@ export default () => {
       return <BlankTokenPairs />;
     }
 
-    return <TokenPairCards data={tokenPairs.data} />;
-  }, [tokenPairs.data]);
+    type TokenPair = typeof tokenPairs.data[0];
+
+    function presentPair(t: TokenPair): t is NonNullable<TokenPair> {
+      return t !== null;
+    }
+
+    const pairs = tokenPairs.data.filter(presentPair);
+
+    return <TokenPairCards data={pairs} />;
+  }, [tokenPairs]);
 
   return (
     <Box pb={2}>

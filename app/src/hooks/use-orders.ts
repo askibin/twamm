@@ -1,4 +1,3 @@
-import type { Order as TOrder } from "@twamm/types";
 import type { Provider, Program } from "@project-serum/anchor";
 import type { PublicKey } from "@solana/web3.js";
 import useSWR from "swr";

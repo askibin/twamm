@@ -4,6 +4,17 @@ import {
   populateDetails,
 } from "../organisms/account-orders-list.helpers";
 
+export type CancelOrderData = {
+  a: PublicKey;
+  b: PublicKey;
+  expired: boolean;
+  inactive: boolean;
+  orderAddress: PublicKey;
+  poolAddress: PublicKey;
+  side: OrderTypeStruct;
+  supply: BN;
+};
+
 export type OrderData = OrderExt & {
   poolData: PoolData;
   order: PublicKey;
@@ -27,15 +38,13 @@ export type PoolDetails = {
   lpSupply: number[];
   lpSupplyRaw: number[];
   lpSymbols: string[];
-  side: OrderTypeStruct;
+  order: OrderRecord["order"];
   poolAddress: PublicKey;
   prices: number[];
+  side: OrderTypeStruct;
+  tokenPair: TokenPair;
+  tradeSide: PoolTradeSide;
   volume: number;
-  withdraw: {
-    tradeSide: PoolTradeSide;
-    orderBalance: OrderBalanceData;
-    tokenPair: TokenPair;
-  };
 };
 
 export type PairConfig = Pick<TokenPair["configA"], "decimals" | "mint">;

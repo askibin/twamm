@@ -1,5 +1,5 @@
 import type { Program } from "@project-serum/anchor";
-import type { Counter, TokenPair } from "@twamm/types";
+import type { Counter, Pool } from "@twamm/types";
 import useSWR from "swr";
 import { PoolAuthority } from "@twamm/client.js";
 import { PublicKey } from "@solana/web3.js";
@@ -9,10 +9,10 @@ import type { IndexedTIF, PoolTIF } from "../domain/interval.d";
 import useProgram from "./use-program";
 import { expirationTimeToInterval } from "../utils/index";
 
-type SettledTokenPairPool<T = TokenPair> = PromiseSettledResult<T>;
+type SettledResult<T> = PromiseSettledResult<T>;
 
-type TifWithPool = {
-  data?: TokenPair;
+type TifWithPool<T> = {
+  data?: T;
   index: TIFIndex;
   status: "fulfilled" | "rejected";
   tif: TIF;
@@ -28,10 +28,7 @@ const swrKey = (params: {
   params,
 });
 
-const populateTokenPairPool = <A, B, C>(
-  x: [A, B],
-  y: SettledTokenPairPool<C>
-) => ({
+const populateTokenPairPool = <A, B, C>(x: [A, B], y: SettledResult<C>) => ({
   data: y.status === "fulfilled" ? y.value : undefined,
   index: x[1],
   status: y.status,
@@ -84,9 +81,9 @@ const fetcher =
         )
       );
 
-      const fetchedPools = pools as Array<SettledTokenPairPool>;
+      const fetchedPools = pools as Array<SettledResult<Pool>>;
 
-      const zippedPools: TifWithPool[] = zipWith(
+      const zippedPools: TifWithPool<Pool>[] = zipWith(
         (x, y) => populateTokenPairPool(x, y),
         poolsToFetch,
         fetchedPools

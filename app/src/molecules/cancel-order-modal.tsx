@@ -5,7 +5,7 @@ import Typography from "@mui/material/Typography";
 import { BN } from "@project-serum/anchor";
 import { useCallback, useState } from "react";
 
-import type { OrderDetails } from "../types/decl.d";
+import type { CancelOrderData, OrderDetails } from "../types/decl.d";
 import * as Styled from "./cancel-order-modal.styled";
 import CancelOrderAmount from "./cancel-order-amount";
 import CancelOrderDetails from "./cancel-order-details";

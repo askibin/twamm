@@ -8,7 +8,7 @@ import Stack from "@mui/material/Stack";
 import { useCallback } from "react";
 
 import type { MaybeTokens } from "../hooks/use-tokens-by-mint";
-import type { OrderRecord, PoolDetails } from "../types/decl.d";
+import type { CancelOrderData, OrderRecord, PoolDetails } from "../types/decl.d";
 import * as Styled from "./account-order-details-modal.styled";
 import Control from "../atoms/account-orders-details-control";
 import Loading from "../atoms/loading";

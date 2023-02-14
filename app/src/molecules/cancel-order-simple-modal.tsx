@@ -2,7 +2,7 @@ import Alert from "@mui/material/Alert";
 import AlertTitle from "@mui/material/AlertTitle";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
-import Maybe, { Extra } from "easy-maybe/lib";
+import M, { Extra } from "easy-maybe/lib";
 import Typography from "@mui/material/Typography";
 import { BN } from "@project-serum/anchor";
 import { useCallback } from "react";
@@ -18,7 +18,7 @@ export default ({
   data: {};
   onClick: (arg0: { supply: BN }) => void;
 }) => {
-  const orderData = Maybe.of(data);
+  const orderData = M.of(data);
 
   const onCancel = useCallback(() => {
     onClick({

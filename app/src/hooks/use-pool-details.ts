@@ -94,14 +94,13 @@ export default (poolAddress: PublicKey, order: OrderRecord["order"]) => {
         lpSupply: supply,
         lpSupplyRaw,
         lpSymbols: [coins[0].symbol, coins[1].symbol],
+        order,
         poolAddress,
         prices,
         side,
-        volume: statsA.orderVolumeUsd + statsB.orderVolumeUsd,
-        withdraw: { tradeSide, orderBalance: order, tokenPair: pair },
-        tradeSide,
-        orderBalance: order,
         tokenPair: pair,
+        tradeSide,
+        volume: statsA.orderVolumeUsd + statsB.orderVolumeUsd,
       };
     }
   );

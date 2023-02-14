@@ -1,3 +1,4 @@
+import type { TokenPair } from "@twamm/types";
 import Box from "@mui/material/Box";
 import ExpandLessIcon from "@mui/icons-material/ExpandLess";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
@@ -9,7 +10,6 @@ import Typography from "@mui/material/Typography";
 import { OrderSide } from "@twamm/types/lib";
 import { useState } from "react";
 
-import type { PairConfig, PairStats } from "../types/decl.d";
 import * as Styled from "./price-info.styled";
 import i18n from "../i18n";
 import IntervalProgress from "../atoms/interval-progress";
@@ -25,12 +25,7 @@ const REFRESH_INTERVAL = 0.5 * 60000;
 export default (props: {
   a?: JupToken;
   b?: JupToken;
-  tokenPair?: {
-    configA: PairConfig;
-    configB: PairConfig;
-    statsA: PairStats;
-    statsB: PairStats;
-  };
+  tokenPair?: Pick<TokenPair, "configA" | "configB" | "statsA" | "statsB">;
   type?: OrderSide;
 }) => {
   const [open, setOpen] = useState<boolean>(false);
