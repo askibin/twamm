@@ -1,7 +1,6 @@
 import Alert from "@mui/material/Alert";
 import AlertTitle from "@mui/material/AlertTitle";
 import Box from "@mui/material/Box";
-import Button from "@mui/material/Button";
 import M, { Extra } from "easy-maybe/lib";
 import Typography from "@mui/material/Typography";
 import { BN } from "@project-serum/anchor";
@@ -41,9 +40,9 @@ export default ({
             </Alert>
           </Box>
           <Box p={2}>
-            <Button variant="contained" fullWidth onClick={onCancel}>
+            <Styled.Control variant="contained" fullWidth onClick={onCancel}>
               {i18n.OrderControlCancelConcurrentOrder}
-            </Button>
+            </Styled.Control>
           </Box>
         </>
       )}
