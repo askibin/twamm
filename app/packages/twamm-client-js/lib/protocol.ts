@@ -1,38 +1,6 @@
 import type { BN } from "@project-serum/anchor";
-import type { Pool, PoolTradeSide, TokenPair } from "@twamm/types";
+import type { Order, Pool, PoolTradeSide, TokenPair } from "@twamm/types";
 import { lensPath, view } from "ramda";
-
-export const filledQuantity = (
-  pair: TokenPair,
-  pool: Pool,
-  orderType: OrderTypeStruct
-) => {
-  const decimals = lensPath(["decimals"]);
-  const selling = Boolean(orderType.sell);
-
-  const poolTradeData = selling ? pool.sellSide : pool.buySide;
-
-  const d = selling
-    ? view(decimals, pair.configA)
-    : view(decimals, pair.configB);
-
-  return Number(poolTradeData.fillsVolume) / 10 ** d;
-};
-
-export const quantity = (
-  pair: TokenPair,
-  orderType: OrderTypeStruct,
-  unsettledBalance: BN
-) => {
-  const decimals = lensPath(["decimals"]);
-  const selling = Boolean(orderType.sell);
-
-  const d = selling
-    ? view(decimals, pair.configA)
-    : view(decimals, pair.configB);
-
-  return Number(unsettledBalance) / 10 ** d;
-};
 
 export const withdrawAmount = (
   lpBalance: number | BN,
@@ -71,4 +39,42 @@ export const withdrawAmount = (
     : [amountTarget - amountFees, amountSource];
 
   return [withdrawAmountA, withdrawAmountB];
+};
+
+export const filledQuantity = (pair: TokenPair, pool: Pool, order: Order) => {
+  const decimals = lensPath(["decimals"]);
+  const selling = Boolean(order.side.sell);
+
+  const poolTradeData = selling ? pool.sellSide : pool.buySide;
+
+  const withdraw = withdrawAmount(
+    order.lpBalance,
+    poolTradeData,
+    {
+      side: order.side,
+      lpBalance: order.lpBalance,
+      tokenDebt: order.tokenDebt,
+    },
+    pair
+  );
+
+  const filledBalance =
+    Number(order.unsettledBalance) - withdraw[selling ? 0 : 1];
+
+  const d = selling
+    ? view(decimals, pair.configA)
+    : view(decimals, pair.configB);
+
+  return filledBalance / 10 ** d;
+};
+
+export const quantity = (pair: TokenPair, order: Order) => {
+  const decimals = lensPath(["decimals"]);
+  const selling = Boolean(order.side.sell);
+
+  const d = selling
+    ? view(decimals, pair.configA)
+    : view(decimals, pair.configB);
+
+  return Number(order.unsettledBalance) / 10 ** d;
 };
