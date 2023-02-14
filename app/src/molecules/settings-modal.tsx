@@ -82,21 +82,23 @@ export default ({
         <PerformanceFeeSelector />
       </Styled.Setting>
 
-      <Styled.Setting justifyContent="space-between" direction="row" py={1}>
-        <Stack direction="row">
-          <Styled.SettingLabel color="text.secondary" pr={1} variant="body2">
-            {i18n.SettingsSettingVersionedTx}
-          </Styled.SettingLabel>
-          <IconButton
-            sx={{ padding: 0 }}
-            color="warning"
-            onClick={handlePopoverOpen}
-          >
-            <InfoIcon fontSize="small" />
-          </IconButton>
-        </Stack>
-        <ToggleOption onClose={onClose} />
-      </Styled.Setting>
+      {/*
+       *<Styled.Setting justifyContent="space-between" direction="row" py={1}>
+       *  <Stack direction="row">
+       *    <Styled.SettingLabel color="text.secondary" pr={1} variant="body2">
+       *      {i18n.SettingsSettingVersionedTx}
+       *    </Styled.SettingLabel>
+       *    <IconButton
+       *      sx={{ padding: 0 }}
+       *      color="warning"
+       *      onClick={handlePopoverOpen}
+       *    >
+       *      <InfoIcon fontSize="small" />
+       *    </IconButton>
+       *  </Stack>
+       *  <ToggleOption onClose={onClose} />
+       *</Styled.Setting>
+       */}
 
       <Box py={2}>
         <Styled.Line />
