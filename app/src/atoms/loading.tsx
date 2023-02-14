@@ -2,8 +2,8 @@ import CircularProgress from "@mui/material/CircularProgress";
 
 import * as Styled from "./loading.styled";
 
-export default () => (
+export default (props: { size?: number }) => (
   <Styled.Container>
-    <CircularProgress />
+    <CircularProgress size={props.size} />
   </Styled.Container>
 );

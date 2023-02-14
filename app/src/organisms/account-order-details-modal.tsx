@@ -1,6 +1,7 @@
 import type { BN } from "@project-serum/anchor";
 import type { PublicKey } from "@solana/web3.js";
 import type { TokenPair } from "@twamm/types";
+import Box from "@mui/material/Box";
 import DoneIcon from "@mui/icons-material/Done";
 import M from "easy-maybe/lib";
 import ScheduleIcon from "@mui/icons-material/Schedule";
@@ -109,7 +110,12 @@ export default ({
     }, M.of(details.data));
   }, [details, onCancel, order, side, supply]);
 
-  if (details.isLoading || !details.data) return <Loading />;
+  if (details.isLoading || !details.data)
+    return (
+      <Box p={2}>
+        <Loading size={20} />
+      </Box>
+    );
 
   const orderDetails = details.data as NonNullable<typeof details.data>;
 

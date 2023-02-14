@@ -1,5 +1,4 @@
 import Box from "@mui/material/Box";
-import Button from "@mui/material/Button";
 import M, { Extra } from "easy-maybe/lib";
 import Typography from "@mui/material/Typography";
 import { BN } from "@project-serum/anchor";
@@ -81,14 +80,14 @@ export default ({
             />
           )}
           <Box p={2}>
-            <Button
+            <Styled.Control
               disabled={!percentage}
               variant="contained"
               fullWidth
               onClick={onCancel}
             >
               {i18n.OrderFlowCancelControl}
-            </Button>
+            </Styled.Control>
           </Box>
         </>
       )}
