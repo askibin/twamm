@@ -31,12 +31,24 @@ export default ({
         data: formatInterval(timeInForce),
       },
       {
-        name: i18n.OrderDetailsPoolExpiration,
-        data: format.expirationTime(details),
+        name: i18n.OrderDetailsCompletionRate,
+        data: (() => {
+          const progress = (filledQuantity / quantity) * 100;
+
+          return `${progress >= 99 ? 100 : Math.ceil(progress)}%`;
+        })(),
+      },
+      {
+        name: i18n.OrderDetailsFilledQuantity,
+        data: String(filledQuantity),
       },
       {
         name: i18n.OrderDetailsQuantity,
-        data: `${filledQuantity}|${quantity}`,
+        data: String(quantity),
+      },
+      {
+        name: i18n.OrderDetailsPoolExpiration,
+        data: format.expirationTime(details),
       },
       {
         name: i18n.OrderDetailsTotalAssets,
