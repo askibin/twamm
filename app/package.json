@@ -13,8 +13,9 @@
     "lint/fix": "yarn prettier/fix && yarn eslint/fix",
     "prettier": "prettier src pages --check",
     "prettier/fix": "prettier src pages --write",
-    "test": "yarn test/unit && yarn test/packages",
+    "test": "yarn test/unit && yarn test/packages && test/types",
     "test/packages": "lerna exec \"test --silent\"",
+    "test/types": "tsc --noEmit",
     "test/unit": "jest ./*.test.tsx?"
   },
   "dependencies": {

@@ -2,7 +2,12 @@ import Box from "@mui/material/Box";
 import M from "easy-maybe/lib";
 import { useCallback, useMemo, useRef, useState } from "react";
 
-import type { CancelOrderData, OrderData, OrderDetails, OrderRecord } from "../types/decl.d";
+import type {
+  CancelOrderData,
+  OrderData,
+  OrderDetails,
+  OrderRecord,
+} from "../types/decl.d";
 import CancelOrderModal from "../molecules/cancel-order-modal";
 import OrderDetailsModal from "./account-order-details-modal";
 import RowColumnList, {
