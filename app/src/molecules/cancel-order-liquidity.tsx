@@ -2,7 +2,7 @@ import Alert from "@mui/material/Alert";
 import Box from "@mui/material/Box";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
-import Maybe, { Extra } from "easy-maybe/lib";
+import M, { Extra } from "easy-maybe/lib";
 import { useMemo } from "react";
 
 import * as Styled from "./cancel-order-liquidity.styled";
@@ -18,8 +18,8 @@ export interface Props {
 const formatRate = (a: number) => (!isFloat(a) ? a : Number(a).toFixed(2));
 
 export default ({ ab, amount, errorData, priceData }: Props) => {
-  const data = Maybe.of(priceData);
-  const error = Maybe.of(errorData);
+  const data = M.of(priceData);
+  const error = M.of(errorData);
 
   const pair = useMemo(
     () =>
@@ -33,12 +33,12 @@ export default ({ ab, amount, errorData, priceData }: Props) => {
 
   const [a, b] = pair;
 
-  const price = Maybe.andThen(
-    (d) => Maybe.of(Extra.isJust(error) ? undefined : d),
+  const price = M.andThen(
+    (d) => M.of(Extra.isJust(error) ? undefined : d),
     data
   );
 
-  const p = Maybe.withDefault(undefined, price);
+  const p = M.withDefault(undefined, price);
 
   return (
     <>
@@ -57,7 +57,7 @@ export default ({ ab, amount, errorData, priceData }: Props) => {
       </Card>
       {Extra.isJust(error) && (
         <Box py={2}>
-          <Alert severity="error">{Maybe.unwrap(error)?.message}</Alert>
+          <Alert severity="error">{M.unwrap(error)?.message}</Alert>
         </Box>
       )}
       {Extra.isJust(price) && (

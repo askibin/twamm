@@ -1,26 +1,35 @@
-import type { Program } from "@project-serum/anchor";
+import type { Program, Provider } from "@project-serum/anchor";
+import type { TokenPair as TTokenPair } from "@twamm/types";
 import useSWR from "swr";
 import { OrderSide } from "@twamm/types/lib";
+import { TokenPair } from "@twamm/client.js";
 
 import useProgram from "./use-program";
-import { resolveExchangePair } from "../domain/index";
 
 const swrKey = (params: { aToken: TokenInfo; bToken: TokenInfo }) => ({
   key: "tokenPairByTokens",
   params,
 });
 
-const fetcher = (program: Program) => {
-  const resolvePair = resolveExchangePair(program);
+const fetcher = (program: Program, provider: Provider) => {
+  const tokenPair = new TokenPair(program, provider);
 
   return async ({ params }: SWRParams<typeof swrKey>) => {
-    const { tokenPairData, exchangePair } = (await resolvePair([
-      params.aToken,
-      params.bToken,
-    ])) as {
-      tokenPairData: TokenPairProgramData;
-      exchangePair: [[TokenInfo, TokenInfo], OrderSide];
-    };
+    const primary = params.aToken.address;
+    const secondary = params.bToken.address;
+
+    const {
+      data,
+      primary: a,
+      assumedType,
+    } = await tokenPair.getExchangePair<TTokenPair>(primary, secondary);
+
+    let actualPair: [TokenInfo, TokenInfo];
+    if (String(a) === primary) {
+      actualPair = [params.aToken, params.bToken];
+    } else {
+      actualPair = [params.bToken, params.aToken];
+    }
 
     const {
       allowDeposits,
@@ -36,7 +45,12 @@ const fetcher = (program: Program) => {
       statsA,
       statsB,
       tifs,
-    } = tokenPairData;
+    } = data;
+
+    const exchangePairData: [[TokenInfo, TokenInfo], OrderSide] = [
+      actualPair,
+      assumedType,
+    ];
 
     return {
       allowDeposits,
@@ -44,7 +58,7 @@ const fetcher = (program: Program) => {
       configA,
       configB,
       currentPoolPresent,
-      exchangePair,
+      exchangePair: exchangePairData,
       futurePoolPresent,
       maxSwapPriceDiff,
       maxUnsettledAmount,
@@ -53,12 +67,27 @@ const fetcher = (program: Program) => {
       statsA,
       statsB,
       tifs,
-    };
+    } as Pick<
+      TTokenPair,
+      | "allowDeposits"
+      | "allowWithdrawals"
+      | "configA"
+      | "configB"
+      | "currentPoolPresent"
+      | "futurePoolPresent"
+      | "maxSwapPriceDiff"
+      | "maxUnsettledAmount"
+      | "minTimeTillExpiration"
+      | "poolCounters"
+      | "statsA"
+      | "statsB"
+      | "tifs"
+    > & { exchangePair: typeof exchangePairData };
   };
 };
 
 export default (params?: SWRArgs<typeof swrKey>, options = {}) => {
-  const { program } = useProgram();
+  const { program, provider } = useProgram();
 
-  return useSWR(params && swrKey(params), fetcher(program), options);
+  return useSWR(params && swrKey(params), fetcher(program, provider), options);
 };

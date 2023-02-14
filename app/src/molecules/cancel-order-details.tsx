@@ -1,41 +1,42 @@
-import Box from "@mui/material/Box";
 import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
-import Maybe, { Extra } from "easy-maybe/lib";
+import Box from "@mui/material/Box";
+import M, { Extra } from "easy-maybe/lib";
+import { protocol } from "@twamm/client.js";
 
+import type { PoolDetails } from "../types/decl.d";
 import * as Styled from "./cancel-order-details.styled";
 import CancelOrderLiquidity from "./cancel-order-liquidity";
 import Loading from "../atoms/loading";
 import usePrice from "../hooks/use-price";
 import { refreshEach } from "../swr-options";
-import { withdrawAmount as calcWithdraw } from "../utils/twamm-client";
 
 export interface Props {
-  data: Voidable<JupToken[]>;
-  details: Voidable<PoolDetails>;
+  data?: JupToken[];
+  details?: PoolDetails;
   onToggle: () => void;
   percentage: number;
 }
 
 export default ({ data, details, onToggle, percentage }: Props) => {
-  const d = Maybe.of(data);
+  const d = M.of(data);
 
-  const tokens = Maybe.withDefault(undefined, d);
-  const priceParams = Maybe.withDefault(
+  const tokens = M.withDefault(undefined, d);
+  const priceParams = M.withDefault(
     undefined,
-    Maybe.andMap((t) => {
+    M.andMap((t) => {
       const [{ symbol: id }, { symbol: vsToken }] = t;
       return { id, vsToken };
     }, d)
   );
-  const withdrawAmount = Maybe.andMap(([td, det]) => {
+  const withdrawAmount = M.andMap(([td, det]) => {
     const [a, b] = td;
-    const { withdraw } = det;
+    const { order, tradeSide, tokenPair } = det;
 
-    const [wda, wdb] = calcWithdraw(
-      (withdraw.orderBalance.lpBalance * percentage) / 100,
-      withdraw.tradeSide,
-      withdraw.orderBalance,
-      withdraw.tokenPair
+    const [wda, wdb] = protocol.withdrawAmount(
+      (order.lpBalance * percentage) / 100,
+      tradeSide,
+      order,
+      tokenPair
     );
 
     const withdrawPair = [
@@ -44,10 +45,9 @@ export default ({ data, details, onToggle, percentage }: Props) => {
     ];
 
     return withdrawPair;
-  }, Extra.combine2([d, Maybe.of(details)]));
+  }, Extra.combine2([d, M.of(details)]));
 
-  // TODO: format result
-  const amount = Maybe.withDefault<Array<number | string>>(
+  const amount = M.withDefault<Array<number | string>>(
     ["-", "-"],
     withdrawAmount
   );

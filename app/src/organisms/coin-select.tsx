@@ -1,13 +1,15 @@
-import type { ChangeEvent, MouseEvent } from "react";
 import Box from "@mui/material/Box";
 import CircularProgress from "@mui/material/CircularProgress";
 import Divider from "@mui/material/Divider";
 import SearchIcon from "@mui/icons-material/Search";
 import TextField from "@mui/material/TextField";
+import type { ChangeEvent, MouseEvent } from "react";
+import type { PublicKey } from "@solana/web3.js";
 import Typography from "@mui/material/Typography";
 import { useCallback, useMemo, useState } from "react";
 
 import CoinSelect from "../molecules/coin-select";
+import i18n from "../i18n";
 import TokenTags from "../atoms/token-tags";
 import useJupTokensByMint from "../hooks/use-jup-tokens-by-mint";
 import * as Styled from "./coin-select.styled";
@@ -41,8 +43,8 @@ export default ({
   id?: string;
   onDelete: (arg0: string) => void;
   onSelect: (arg0: TokenInfo) => void;
-  selected?: string[];
-  tokens?: string[];
+  selected?: PublicKey[];
+  tokens?: PublicKey[];
 }) => {
   const [search, setSearch] = useState<string>();
 
@@ -90,7 +92,7 @@ export default ({
       <Box p={2}>
         <TextField
           fullWidth
-          label="Search coin"
+          label={i18n.CoinSelectorSearch}
           onChange={onSearch}
           variant="standard"
           InputProps={{
@@ -108,7 +110,7 @@ export default ({
       </Styled.Tags>
       <Divider />
       <Typography id={id} p={2} variant="h6">
-        Coins
+        {i18n.CoinSelector}
       </Typography>
       <CoinSelect
         data={coinRecords}

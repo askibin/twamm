@@ -1,10 +1,11 @@
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
-import Maybe, { Extra } from "easy-maybe/lib";
+import M, { Extra } from "easy-maybe/lib";
 import Typography from "@mui/material/Typography";
 import { BN } from "@project-serum/anchor";
 import { useCallback, useState } from "react";
 
+import type { CancelOrderData, OrderDetails } from "../types/decl.d";
 import * as Styled from "./cancel-order-modal.styled";
 import CancelOrderAmount from "./cancel-order-amount";
 import CancelOrderDetails from "./cancel-order-details";
@@ -13,24 +14,26 @@ import Loading from "../atoms/loading";
 import useJupTokensByMint from "../hooks/use-jup-tokens-by-mint";
 import usePoolDetails from "../hooks/use-pool-details";
 
-export interface Props {
-  data: Voidable<CancelOrderData>;
-  detailsData: DetailsData;
+export default ({
+  data,
+  detailsData,
+  onApprove,
+}: {
+  data?: CancelOrderData;
+  detailsData: OrderDetails;
   onApprove: (arg0: CancelOrderData) => void;
-}
-
-export default ({ data, detailsData, onApprove }: Props) => {
+}) => {
   const [percentage, setPercentage] = useState<number>(100);
   const [detailsOpen, setDetailsOpen] = useState<boolean>(false);
 
-  const order = Maybe.of(data);
+  const order = M.of(data);
 
-  const mints = Maybe.withDefault(
-    undefined,
-    Maybe.andMap(({ a, b }) => [a.toBase58(), b.toBase58()], order)
+  const tokens = useJupTokensByMint(
+    M.withDefault(
+      undefined,
+      M.andMap(({ a, b }) => [a, b], order)
+    )
   );
-
-  const tokens = useJupTokensByMint(mints);
 
   const details = usePoolDetails(detailsData.poolAddress, detailsData.order);
 
@@ -39,7 +42,7 @@ export default ({ data, detailsData, onApprove }: Props) => {
   }, []);
 
   const onCancel = useCallback(() => {
-    Maybe.tap((cd) => {
+    M.tap((cd) => {
       const { supply } = cd;
       const cancellableAmount = (supply.toNumber() * percentage) / 100;
 
@@ -84,7 +87,7 @@ export default ({ data, detailsData, onApprove }: Props) => {
               fullWidth
               onClick={onCancel}
             >
-              Approve
+              {i18n.OrderFlowCancelControl}
             </Button>
           </Box>
         </>

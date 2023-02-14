@@ -1,6 +1,7 @@
 import type { Provider, Program } from "@project-serum/anchor";
+import type { TokenPair as TTokenPair } from "@twamm/types";
 import useSWR from "swr";
-import { account } from "@twamm/client.js";
+import { TokenPair } from "@twamm/client.js";
 
 import useProgram from "./use-program";
 
@@ -9,32 +10,20 @@ const swrKey = (params: {}) => ({
   params,
 });
 
-const fetcher = <T>(provider: Provider, program: Program) => {
-  const data = account.getEncodedDiscriminator("TokenPair");
+const fetcher = (provider: Provider, program: Program) => {
+  const tokenPair = new TokenPair(program, provider);
 
   return async () => {
-    const pairs = await provider.connection.getProgramAccounts(
-      program.programId,
-      {
-        filters: [{ dataSize: 592 }, { memcmp: { bytes: data, offset: 0 } }],
-      }
-    );
+    const addresses = await tokenPair.getAddresses();
 
-    const fetchPair = (pair: any) =>
-      program.account.tokenPair.fetch(pair.pubkey);
+    const pairs = await tokenPair.getPairs<TTokenPair>(addresses);
 
-    const pairsData: unknown = await Promise.all(pairs.map(fetchPair));
-
-    return pairsData as T;
+    return pairs;
   };
 };
 
 export default (_: void, options = {}) => {
   const { program, provider } = useProgram();
 
-  return useSWR(
-    swrKey({}),
-    fetcher<TokenPairProgramData[]>(provider, program),
-    options
-  );
+  return useSWR(swrKey({}), fetcher(provider, program), options);
 };

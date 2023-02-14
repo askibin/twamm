@@ -1,5 +1,7 @@
 import M from "easy-maybe/lib";
 import { zip } from "ramda";
+
+import type { PoolDetails } from "../types/decl.d";
 import { isFloat } from "../utils/index";
 
 export const format = {

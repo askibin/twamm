@@ -1,18 +1,20 @@
-import type { Program } from "@project-serum/anchor";
-import type { PublicKey } from "@solana/web3.js";
 import M, { Extra } from "easy-maybe/lib";
+import type { OrderExt, Pool, TokenPair as TTokenPair } from "@twamm/types";
+import type { Program, Provider } from "@project-serum/anchor";
+import type { PublicKey } from "@solana/web3.js";
 import useSWR from "swr";
 import { TokenPair } from "@twamm/client.js";
 import { useWallet } from "@solana/wallet-adapter-react";
 
+import type { OrderData } from "../types/decl.d";
 import useOrders from "./use-orders";
 import usePools from "./use-pools-by-addresses";
 import useProgram from "./use-program";
 
 const swrKey = (params: {
   account: PublicKey | null;
-  orders: OrderData[];
-  pools: PoolData[];
+  orders: OrderExt[];
+  pools: Pool[];
 }) => ({
   key: "orderRecords",
   params,
@@ -20,28 +22,22 @@ const swrKey = (params: {
 
 const generateId = (arr: Array<string>) => arr[0];
 
-const fetcher = (program: Program) => {
-  const pair = new TokenPair(program);
+const fetcher = (program: Program, provider: Provider) => {
+  const pair = new TokenPair(program, provider);
 
   return async ({ params }: SWRParams<typeof swrKey>) => {
-    const list = params.orders as OrderData[];
-
     const poolAddresses = params.pools.map((p) => p.tokenPair);
 
-    const tokenPairs = (await pair.getPairs(
-      poolAddresses
-    )) as TokenPairProgramData[];
+    const tokenPairs = await pair.getPairs<TTokenPair>(poolAddresses);
 
-    // TODO: improve type resolving
-    const records = list.map((orderData, i) => {
-      const o = orderData as OrderPoolRecord;
-      const record = { ...orderData } as OrderPoolRecord;
+    const records = params.orders.map((order, i) => {
+      const record = { ...order } as OrderData;
 
-      record.id = generateId([String(o.pool)]);
+      record.id = generateId([String(order.pool)]);
       record.poolData = params.pools[i];
-      record.order = o.pubkey;
-      record.tokenPairData = tokenPairs[i];
-      record.unsettledBalance = o.unsettledBalance;
+      record.order = order.pubkey;
+      record.tokenPairData = tokenPairs[i] as NonNullable<typeof tokenPairs[0]>;
+      // assume all the pairs should be resolved
 
       return record;
     });
@@ -52,7 +48,7 @@ const fetcher = (program: Program) => {
 
 export default (_: void, options = {}) => {
   const { publicKey: account } = useWallet();
-  const { program } = useProgram();
+  const { program, provider } = useProgram();
 
   const orders = useOrders(undefined, options);
 
@@ -75,7 +71,7 @@ export default (_: void, options = {}) => {
         ])
       )
     ),
-    fetcher(program),
+    fetcher(program, provider),
     options
   );
 };

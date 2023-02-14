@@ -1,6 +1,7 @@
 import Box from "@mui/material/Box";
 import { useMemo } from "react";
 
+import type { PoolDetails } from "../types/decl.d";
 import i18n from "../i18n";
 import StatsList from "./account-orders-details-stats-list";
 import StatsCards from "./account-orders-details-stats-cards";

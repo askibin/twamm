@@ -1,24 +1,24 @@
+import type { TokenPair } from "@twamm/types";
 import Alert from "@mui/material/Alert";
-import Maybe from "easy-maybe/lib";
+import M from "easy-maybe/lib";
 import { useMemo } from "react";
 
 import * as Styled from "./token-pair-cards.styled";
 import PairCard from "../atoms/pair-card";
 import { populate } from "./token-pair-cards.helpers";
 
-export interface Props {
-  data: Voidable<TokenPairProgramData[]>;
-}
-
-export default ({ data }: Props) => {
-  const tokenPairs = useMemo(() => {
-    const programPairs = Maybe.andMap<TokenPairProgramData[], PerfPair[]>(
-      (pairs) => pairs.map(populate),
-      Maybe.of(data)
-    );
-
-    return Maybe.withDefault([], programPairs);
-  }, [data]);
+export default ({ data }: { data?: TokenPair[] }) => {
+  const tokenPairs = useMemo(
+    () =>
+      M.withDefault(
+        [],
+        M.andMap<TokenPair[], ReturnType<typeof populate>[]>(
+          (pairs) => pairs.map(populate),
+          M.of(data)
+        )
+      ),
+    [data]
+  );
 
   if (!tokenPairs.length)
     return (

@@ -1,5 +1,6 @@
 import Box from "@mui/material/Box";
 import M from "easy-maybe/lib";
+import type { Counter } from "@twamm/types";
 import { Form } from "react-final-form";
 import { OrderSide } from "@twamm/types/lib";
 import { useCallback, useMemo, useState } from "react";
@@ -33,13 +34,13 @@ export default ({
   onABSwap: () => void;
   onASelect: () => void;
   onBSelect: () => void;
-  poolCounters?: PoolCounter[];
+  poolCounters?: Counter[];
   poolTifs?: number[];
   side?: OrderSide;
   tokenA?: string;
   tokenADecimals?: number;
   tokenB?: string;
-  tokenPair?: TokenPair<JupToken>;
+  tokenPair?: TokenTuple<JupToken>;
 }) => {
   const { selected: selectedTif, scheduled, setTif } = useIndexedTIFs();
 

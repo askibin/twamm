@@ -13,12 +13,10 @@ export type TradeStruct = {
   type: OrderSide;
 };
 
-export interface Props {
+export default (props: {
   onTradeChange: (arg0: TradeStruct) => void;
   trade: TradeStruct;
-}
-
-export default (props: Props) => {
+}) => {
   const tokenPairs = useAddressPairs();
   const tokenPair = useJupTokensByMint(props.trade.pair);
 

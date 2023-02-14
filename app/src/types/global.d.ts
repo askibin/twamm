@@ -57,4 +57,4 @@ declare type TokenInfo = JupToken & { image: string };
 
 declare type AddressPair = [string, string];
 
-declare type TokenPair<T> = [T, T];
+declare type TokenTuple<T> = [T, T];

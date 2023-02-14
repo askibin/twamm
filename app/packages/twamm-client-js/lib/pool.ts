@@ -19,8 +19,8 @@ export class Pool {
     return p;
   };
 
-  getPools = async (addresses: PublicKey[]) => {
-    const all = await fetchMultipleAddresses(
+  getPools = async <T>(addresses: PublicKey[]) => {
+    const all = await fetchMultipleAddresses<T>(
       this.program.account.pool.fetchMultiple.bind(this.program.account.pool),
       addresses
     );

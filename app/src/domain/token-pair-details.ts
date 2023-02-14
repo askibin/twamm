@@ -1,8 +1,10 @@
-import type { PublicKey } from "@solana/web3.js";
+import type { TokenPair } from "@twamm/types";
 import { lensPath, view } from "ramda";
 
+import type { PairConfig, PairStats } from "../types/decl.d";
+
 export const populateStats = (
-  pair: Pick<TokenPairProgramData, "statsA" | "statsB" | "configA" | "configB">
+  pair: Pick<TokenPair, "statsA" | "statsB" | "configA" | "configB">
 ) => {
   const decimals = lensPath(["decimals"]);
   const feesCollected = lensPath(["feesCollected"]);
@@ -22,8 +24,8 @@ export const populateStats = (
     Number(view(pendingWithdrawals, pair.statsB)) /
       10 ** view(decimals, pair.configB);
 
-  const aMint = view<PairConfig, PublicKey>(mint, pair.configA);
-  const bMint = view<PairConfig, PublicKey>(mint, pair.configB);
+  const aMint = view<PairConfig, PairConfig["mint"]>(mint, pair.configA);
+  const bMint = view<PairConfig, PairConfig["mint"]>(mint, pair.configB);
   const orderVolumeValue =
     view<PairStats, number>(orderVolume, pair.statsA) +
     view<PairStats, number>(orderVolume, pair.statsB);

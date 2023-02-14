@@ -1,8 +1,11 @@
 import useSWR from "swr";
 import { useWallet } from "@solana/wallet-adapter-react";
+import { view, lensPath } from "ramda";
 
+import type { PairConfig } from "../types/decl.d";
 import useTokenPairs from "./use-token-pairs";
-import { address as addr } from "../utils/twamm-client";
+
+type Key = PairConfig["mint"];
 
 export default (_: void, options = {}) => {
   const { data } = useTokenPairs();
@@ -12,17 +15,25 @@ export default (_: void, options = {}) => {
     data && ["addressPairs", address],
     async () => {
       if (!data) return undefined;
+      type Record = typeof data[0];
 
-      const pairs = data.map((pair) => [pair.configA.mint, pair.configB.mint]);
+      function presentPair(r: Record): r is NonNullable<Record> {
+        return r !== null;
+      }
 
-      const addressPairs = pairs.map((pair) => {
-        const [a, b] = pair;
+      const mint = lensPath(["mint"]);
 
-        const a1 = addr(a).toString();
-        const b1 = addr(b).toString();
+      const pairs = data.filter(presentPair).map<[Key, Key]>((pair) => {
+        const a = view<PairConfig, Key>(mint, pair.configA);
+        const b = view<PairConfig, Key>(mint, pair.configB);
 
-        return [a1, b1] as AddressPair;
+        return [a, b];
       });
+
+      const addressPairs = pairs.map<AddressPair>((pair) => [
+        String(pair[0]),
+        String(pair[1]),
+      ]);
 
       return addressPairs;
     },

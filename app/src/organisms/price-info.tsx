@@ -1,3 +1,4 @@
+import type { TokenPair } from "@twamm/types";
 import Box from "@mui/material/Box";
 import ExpandLessIcon from "@mui/icons-material/ExpandLess";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
@@ -22,15 +23,10 @@ import { refreshEach } from "../swr-options";
 const REFRESH_INTERVAL = 0.5 * 60000;
 
 export default (props: {
-  a: Voidable<JupToken>;
-  b: Voidable<JupToken>;
-  tokenPair: Voidable<{
-    configA: PairConfigData;
-    configB: PairConfigData;
-    statsA: PairStatsData;
-    statsB: PairStatsData;
-  }>;
-  type: Voidable<OrderSide>;
+  a?: JupToken;
+  b?: JupToken;
+  tokenPair?: Pick<TokenPair, "configA" | "configB" | "statsA" | "statsB">;
+  type?: OrderSide;
 }) => {
   const [open, setOpen] = useState<boolean>(false);
 

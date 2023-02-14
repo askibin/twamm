@@ -1,7 +1,8 @@
+import Box from "@mui/material/Box";
 import M, { Extra } from "easy-maybe/lib";
 import { OrderSide } from "@twamm/types/lib";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import Box from "@mui/material/Box";
+import { translateAddress } from "@project-serum/anchor";
 import * as Styled from "./order-editor.styled";
 import CoinSelect from "./coin-select";
 import Loading from "../atoms/loading";
@@ -92,11 +93,11 @@ export default ({
       if (selectedPair.data) {
         const { exchangePair } = selectedPair.data;
 
-        const [p, t]: ExchangePair = exchangePair;
+        const [p, t] = exchangePair;
 
         onTradeChange({
           amount: 0,
-          pair: p.map((_a: JupToken) => _a.address),
+          pair: [p[0].address, p[1].address],
           type: t,
         });
       }
@@ -142,10 +143,17 @@ export default ({
     [a, b, curToken, onSelectA, onSelectB, setTif]
   );
 
-  const tokens = useMemo(
-    () => (curToken === 2 ? available : all),
-    [curToken, available, all]
-  );
+  const tokens = useMemo(() => {
+    const allKeys = M.withDefault(
+      undefined,
+      M.andMap((ak) => ak.map(translateAddress), M.of(all))
+    );
+    const availableKeys = M.withDefault(
+      undefined,
+      M.andMap((ak) => ak.map(translateAddress), M.of(available))
+    );
+    return curToken === 2 ? availableKeys : allKeys;
+  }, [curToken, available, all]);
 
   if (
     Extra.isNothing(pair) ||
