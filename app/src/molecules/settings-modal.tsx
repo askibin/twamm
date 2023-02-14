@@ -1,11 +1,11 @@
-import type { MouseEvent } from "react";
+// import type { MouseEvent } from "react";
 import Box from "@mui/material/Box";
-import IconButton from "@mui/material/IconButton";
-import InfoIcon from "@mui/icons-material/Info";
+// import IconButton from "@mui/material/IconButton";
+// import InfoIcon from "@mui/icons-material/Info";
 import Popover from "@mui/material/Popover";
-import Stack from "@mui/material/Stack";
+// import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
-import { useCallback, useState } from "react";
+import { useState } from "react";
 
 import * as Styled from "./settings-modal.styled";
 import ClusterSelector from "./cluster-selector";
@@ -14,7 +14,7 @@ import i18n from "../i18n";
 import PerformanceFeeSelector from "./performance-fee-selector";
 import SlippageSelector from "./slippage-selector";
 import useTxRunner from "../contexts/transaction-runner-context";
-import ToggleOption from "./toggle-option";
+// import ToggleOption from "./toggle-option";
 
 export default ({
   id,
@@ -29,16 +29,18 @@ export default ({
 
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
 
-  const handlePopoverOpen = useCallback(
-    (event: MouseEvent<HTMLElement>) => {
-      if (anchorEl) {
-        setAnchorEl(null);
-      } else {
-        setAnchorEl(event.currentTarget);
-      }
-    },
-    [anchorEl, setAnchorEl]
-  );
+  /*
+   *const handlePopoverOpen = useCallback(
+   *  (event: MouseEvent<HTMLElement>) => {
+   *    if (anchorEl) {
+   *      setAnchorEl(null);
+   *    } else {
+   *      setAnchorEl(event.currentTarget);
+   *    }
+   *  },
+   *  [anchorEl, setAnchorEl]
+   *);
+   */
 
   const handlePopoverClose = () => {
     setAnchorEl(null);
