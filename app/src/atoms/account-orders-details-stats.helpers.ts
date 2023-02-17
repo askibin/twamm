@@ -40,7 +40,7 @@ export const format = {
     return M.withDefault("-", M.of(value));
   },
 
-  // TODO: rework splitting
+  // FEAT: rework splitting
   prices(data: PoolDetails) {
     const value = data.prices
       .map((price) => (price < 0 ? "-" : price.toFixed(2)))

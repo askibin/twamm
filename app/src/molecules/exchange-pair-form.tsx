@@ -14,7 +14,7 @@ import useIndexedTIFs from "../contexts/tif-context";
 import usePrice from "../hooks/use-price";
 import { SpecialIntervals } from "../domain/interval.d";
 
-// TODO: molecule > organism
+// FEAT: molecule > organism
 
 export default ({
   amount,

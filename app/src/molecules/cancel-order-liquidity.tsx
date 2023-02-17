@@ -6,20 +6,25 @@ import M, { Extra } from "easy-maybe/lib";
 import { useMemo } from "react";
 
 import * as Styled from "./cancel-order-liquidity.styled";
+import useBreakpoints from "../hooks/use-breakpoints";
 import { isFloat } from "../utils/index";
 
-export interface Props {
+const formatRate = (a: number) => (!isFloat(a) ? a : Number(a).toFixed(2));
+
+export default ({
+  ab,
+  amount,
+  errorData,
+  priceData,
+}: {
   ab: JupToken[];
   amount: Array<number | string>;
   errorData: Voidable<Error>;
   priceData: Voidable<number>;
-}
-
-const formatRate = (a: number) => (!isFloat(a) ? a : Number(a).toFixed(2));
-
-export default ({ ab, amount, errorData, priceData }: Props) => {
+}) => {
   const data = M.of(priceData);
   const error = M.of(errorData);
+  const { isMobile } = useBreakpoints();
 
   const pair = useMemo(
     () =>
@@ -46,10 +51,18 @@ export default ({ ab, amount, errorData, priceData }: Props) => {
         <CardContent>
           {pair.map(({ amount: amnt, image, symbol }) => (
             <Styled.LiquidityItem key={symbol}>
-              <Styled.ItemAmount>{amnt}</Styled.ItemAmount>
+              <Styled.ItemAmount
+                sx={{ fontSize: isMobile ? "1rem" : "1.5rem" }}
+              >
+                {amnt}
+              </Styled.ItemAmount>
               <Styled.ItemToken>
                 <Styled.TokenImage src={image}>{symbol[0]}</Styled.TokenImage>
-                <Styled.TokenName>{symbol.toUpperCase()}</Styled.TokenName>
+                <Styled.TokenName
+                  sx={{ fontSize: isMobile ? "1rem" : "1.3rem" }}
+                >
+                  {symbol.toUpperCase()}
+                </Styled.TokenName>
               </Styled.ItemToken>
             </Styled.LiquidityItem>
           ))}
@@ -61,7 +74,7 @@ export default ({ ab, amount, errorData, priceData }: Props) => {
         </Box>
       )}
       {Extra.isJust(price) && (
-        <Box py={2} px={2}>
+        <Box py={isMobile ? 1 : 2} px={isMobile ? 1 : 2}>
           <Styled.RateItem variant="body2">
             1 {a.symbol} = {!p ? "-" : formatRate(p)} {b.symbol}
           </Styled.RateItem>

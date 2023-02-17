@@ -99,7 +99,7 @@ export const Provider: FC<{ children: ReactNode }> = ({ children }) => {
           : cluster.findByMoniker(value, clusters);
 
       const isError = clusterStorage.set(target.endpoint);
-      // TODO: fixup multiple responsibilities 4 .set
+      // FEAT: fixup multiple responsibilities 4 .set
       const hasError = isError instanceof Error;
 
       if (!hasError) {
@@ -119,8 +119,6 @@ export const Provider: FC<{ children: ReactNode }> = ({ children }) => {
       if (!prevEndpoint || prevEndpoint !== currentCluster.endpoint) {
         const conn = new Connection(currentCluster.endpoint, commit);
         connectionRef.current = conn;
-
-        // TODO: add notifications about RPC change
 
         return connectionRef.current;
       }

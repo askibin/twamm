@@ -15,30 +15,26 @@ export const ModeButtonGroup = styled(ToggleButtonGroup)`
   }
 `;
 
-// TODO: rewrite to fix types
-// @ts-ignore
-export const ModeButton = styledButton(({ selected }) => {
-  const style = {
-    color: selected ? "green" : "#fff",
-    borderRadius: "40px",
-    padding: "14px 34px",
-    textTransform: "none",
-    border: "1px solid transparent",
-    fontWeight: 600,
-    whiteSpace: "nowrap",
-  };
+export const ModeButton = styledButton`
+  color: #fff;
+  border-radius: 24px;
+  padding: 14px 34px;
+  text-transform: none;
+  border: 1px solid transparent;
+  font-weight: 600;
+  white-space: nowrap;
 
-  if (!selected) return style;
-
-  return {
-    ...style,
-    backgroundColor: "#121623 !important",
-    border: BORDER,
-    borderBottomLeftRadius: `${BORDER_RADIUS} !important`,
-    borderBottomRightRadius: `${BORDER_RADIUS} !important`,
-    borderLeft: `${BORDER} !important`,
-    borderTopLeftRadius: `${BORDER_RADIUS} !important`,
-    borderTopRightRadius: `${BORDER_RADIUS} !important`,
-    color: `#fff !important`,
-  };
-});
+  ${(p) =>
+    p?.selected
+      ? `
+    background-color: #121623 !important;
+    border: ${BORDER};
+    border-bottom-left-radius: ${BORDER_RADIUS} !important;
+    border-bottom-right-radius: ${BORDER_RADIUS} !important;
+    border-left: ${BORDER} !important;
+    border-top-left-radius: ${BORDER_RADIUS} !important;
+    border-top-right-radius: ${BORDER_RADIUS} !important;
+    color: #fff !important;
+    `
+      : undefined}
+`;

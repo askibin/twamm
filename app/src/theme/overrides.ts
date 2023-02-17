@@ -169,25 +169,7 @@ export const dark = {
             "& .MuiCard-root": {
               background: "transparent",
               border: 0,
-            },
-          },
-        },
-      ],
-    },
-    MuiDrawer: {
-      variants: [
-        {
-          props: { variant: "custom" },
-          style: {
-            "& > .MuiPaper-root": {
-              background: darkPalette.background.paper,
-              border: muiPaperCustomVariant.border,
-              boxShadow: muiPaperCustomVariant.boxShadow,
-              borderRadius: muiPaperCustomVariant.borderRadius,
-            },
-            "& .MuiCard-root": {
-              background: "transparent",
-              border: 0,
+              boxShadow: "none",
             },
           },
         },

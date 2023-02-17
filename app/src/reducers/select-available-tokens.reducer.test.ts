@@ -1,7 +1,7 @@
 import { OrderSide } from "@twamm/types/lib";
 import * as R from "./select-available-tokens.reducer";
 
-// TODO: resolve duplicated image & logoURI
+// FEAT: resolve duplicated image & logoURI
 const a = {
   address: "address_a",
   decimals: 6,

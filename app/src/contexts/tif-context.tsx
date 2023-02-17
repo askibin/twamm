@@ -68,7 +68,7 @@ export const Provider: FC<{ children: ReactNode }> = ({ children }) => {
 
   const changeIntervals = useCallback(
     (indexedTifs: IndexedTIF[] | undefined) => {
-      // TODO: consider using comparing method to reduce the number of updates;
+      // FEAT: consider using comparing method to reduce the number of updates;
       if (indexedTifs) {
         dispatch(
           A.setTifs({

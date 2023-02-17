@@ -12,6 +12,7 @@ import i18n from "../i18n";
 import Loading from "../atoms/loading";
 import useJupTokensByMint from "../hooks/use-jup-tokens-by-mint";
 import usePoolDetails from "../hooks/use-pool-details";
+import useBreakpoints from "../hooks/use-breakpoints";
 
 export default ({
   data,
@@ -22,6 +23,8 @@ export default ({
   detailsData: OrderDetails;
   onApprove: (arg0: CancelOrderData) => void;
 }) => {
+  const { isMobile } = useBreakpoints();
+
   const [percentage, setPercentage] = useState<number>(100);
   const [detailsOpen, setDetailsOpen] = useState<boolean>(false);
 
@@ -58,7 +61,12 @@ export default ({
 
   return (
     <Styled.Container>
-      <Typography pt={3} pb={2} align="center" variant="h4">
+      <Typography
+        pt={3}
+        pb={isMobile ? 1 : 2}
+        align="center"
+        variant={isMobile ? "h5" : "h4"}
+      >
         {i18n.OrderFlowCancelTitle}
       </Typography>
       {Extra.isNothing(order) && <Loading />}
@@ -66,6 +74,7 @@ export default ({
         <>
           <Box p={2}>
             <CancelOrderAmount
+              isMobile={isMobile}
               percentage={percentage}
               onChange={onAmountChange}
               onToggleDetails={onToggleDetails}

@@ -1,12 +1,7 @@
 import Box from "@mui/material/Box";
 import SwipeableDrawer from "@mui/material/SwipeableDrawer";
 import { styled } from "@mui/material/styles";
-
-declare module "@mui/material/SwipeableDrawer" {
-  interface SwipeableDrawerProps {
-    variant: string;
-  }
-}
+import { muiPaperCustomVariant } from "../theme/overrides";
 
 export const Drawer = styled(SwipeableDrawer)`
   & .MuiDrawer-paper {
@@ -16,6 +11,19 @@ export const Drawer = styled(SwipeableDrawer)`
     border-top-right-radius: 8px;
     padding: 0;
     visibility: visible;
+  }
+
+  & > .MuiPaper-root {
+    background: ${muiPaperCustomVariant.background};
+    border: ${muiPaperCustomVariant.border};
+    box-shadow: ${muiPaperCustomVariant.boxShadow};
+    border-radius: ${muiPaperCustomVariant.borderRadius};
+  }
+
+  .MuiCard-root {
+    background: transparent;
+    border; 0;
+    box-shadow: none;
   }
 `;
 
