@@ -3,7 +3,6 @@ import Box from "@mui/material/Box";
 import M, { Extra } from "easy-maybe/lib";
 import TuneIcon from "@mui/icons-material/Tune";
 import { useCallback, useEffect, useRef } from "react";
-import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
 
 import * as Styled from "./header.styled";
 import i18n from "../i18n";
@@ -66,7 +65,7 @@ export default () => {
               <TransactionProgress setOpen={() => onTxStatusToggle(true)} />
             </Box>
             <Box py={isDesktop ? 1 : 0}>
-              <WalletMultiButton />
+              <Styled.WalletButton />
             </Box>
           </Styled.Controls>
         </Styled.Header>
