@@ -75,7 +75,7 @@ export default ({
       )}
       {Extra.isJust(price) && (
         <Box py={isMobile ? 1 : 2} px={isMobile ? 1 : 2}>
-          <Styled.RateItem variant={"body2"}>
+          <Styled.RateItem variant="body2">
             1 {a.symbol} = {!p ? "-" : formatRate(p)} {b.symbol}
           </Styled.RateItem>
           <Styled.RateItem variant="body2">
