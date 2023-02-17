@@ -1,11 +1,8 @@
-# `twamm-types`
-
-> TODO: description
+# `@twamm/types`
 
 ## Usage
 
-```
-const twammTypes = require('twamm-types');
-
-// TODO: DEMONSTRATE API
+```ts
+import type { Order, Pool, TokenPair } from '@twamm/types';
+import { OrderSide } from "@twamm/types/lib";
 ```

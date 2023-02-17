@@ -120,7 +120,7 @@ async function runLegacyTransaction(
 
   const txid = await connection.sendRawTransaction(transaction.serialize());
 
-  // TODO: resolve deprecation
+  // FEAT: resolve deprecation
   await connection.confirmTransaction(txid);
 
   return txid;
@@ -141,7 +141,7 @@ export default () => {
 
     if (!route) throw new Error("Can not find the route");
 
-    // TODO: resolve issues with wallet provider to support VersionedTransactions
+    // FEAT: resolve issues with wallet provider to support VersionedTransactions
     const result = await runLegacyTransaction(
       connection,
       signTransaction,

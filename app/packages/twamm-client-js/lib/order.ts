@@ -1,7 +1,7 @@
 import type { Order as TOrder, OrderExt } from "@twamm/types";
 import type { Program, Provider } from "@project-serum/anchor";
 import type { PublicKey } from "@solana/web3.js";
-// TODO: rename file 👇 to prevent confusement
+// FEAT: rename file 👇 to prevent confusement
 import type { WalletProvider } from "@twamm/types/lib/twamm-types";
 import { encode } from "bs58";
 import { lensPath, set } from "ramda";

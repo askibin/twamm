@@ -13,7 +13,7 @@ export const retryFor = (interval = 10000, retryAttempts = 5) => ({
     const { refreshInterval } = configuration;
     const { retryCount } = revalidatorOpts;
 
-    // TODO: cover 404 codes from jsonrpc
+    // FEAT: cover 404 codes from jsonrpc
     if (retryCount > retryAttempts) return;
 
     const retryIn =

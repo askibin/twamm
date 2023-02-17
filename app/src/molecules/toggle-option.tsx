@@ -15,7 +15,9 @@ export default ({ onClose }: { onClose?: () => void }) => {
     if (onClose) onClose();
   }, [onClose, setVersionedAPI, versionedAPI]);
 
-  // TODO: recover the real value
+  /**
+   *  Temporary uncheck the Versioned API control
+   */
   return (
     <FormControlLabel
       control={
