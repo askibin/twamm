@@ -174,25 +174,6 @@ export const dark = {
         },
       ],
     },
-    MuiDrawer: {
-      variants: [
-        {
-          props: { variant: "custom" },
-          style: {
-            "& > .MuiPaper-root": {
-              background: darkPalette.background.paper,
-              border: muiPaperCustomVariant.border,
-              boxShadow: muiPaperCustomVariant.boxShadow,
-              borderRadius: muiPaperCustomVariant.borderRadius,
-            },
-            "& .MuiCard-root": {
-              background: "transparent",
-              border: 0,
-            },
-          },
-        },
-      ],
-    },
     MuiOutlinedInput: {
       styleOverrides: {
         notchedOutline: {
