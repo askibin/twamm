@@ -14,7 +14,6 @@ export const Drawer = styled(SwipeableDrawer)`
   }
 
   & > .MuiPaper-root {
-    color: green;
     background: ${muiPaperCustomVariant.background};
     border: ${muiPaperCustomVariant.border};
     box-shadow: ${muiPaperCustomVariant.boxShadow};
@@ -24,6 +23,7 @@ export const Drawer = styled(SwipeableDrawer)`
   .MuiCard-root {
     background: transparent;
     border; 0;
+    box-shadow: none;
   }
 `;
 

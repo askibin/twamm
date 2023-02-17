@@ -169,6 +169,7 @@ export const dark = {
             "& .MuiCard-root": {
               background: "transparent",
               border: 0,
+              boxShadow: "none",
             },
           },
         },

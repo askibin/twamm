@@ -9,6 +9,7 @@ import type {
   OrderRecord,
 } from "../types/decl.d";
 import CancelOrderModal from "../molecules/cancel-order-modal";
+import Loading from "../atoms/loading";
 import OrderDetailsModal from "./account-order-details-modal";
 import RowColumnList, {
   ColDef,
@@ -36,11 +37,13 @@ export default (props: {
 }) => {
   const data = M.withDefault([], M.of(props.data));
 
-  const cancelRef = useRef<Ref>();
   const detailsRef = useRef<Ref>();
   const [accounts, setAccounts] = useState<CancelOrderData | undefined>();
   const [details, setDetails] = useState<OrderDetails>();
   const [selectionModel, setSelectionModel] = useState<SelectionModel>([]);
+  const [orderState, setOrderState] = useState<
+    "details" | "cancel" | undefined
+  >();
 
   const { execute } = useCancelOrder();
   const { isMobile } = useBreakpoints();
@@ -57,11 +60,12 @@ export default (props: {
       if (inactive || expired) {
         const amount = supply.toNumber();
 
+        setOrderState(undefined);
         detailsRef.current?.close();
         await execute({ a, b, orderAddress, poolAddress, amount });
       } else {
         setAccounts(cd);
-        cancelRef.current?.open();
+        setOrderState("cancel");
       }
     },
     [execute, setAccounts]
@@ -70,9 +74,10 @@ export default (props: {
   const onRowClick = useCallback(
     (params: RowParams<OrderRecord>) => {
       setDetails(populateDetails(params));
+      setOrderState("details");
       detailsRef.current?.open();
     },
-    [setDetails]
+    [setDetails, setOrderState]
   );
 
   const onDetailsClose = useCallback(() => {
@@ -84,8 +89,8 @@ export default (props: {
       const { a, b, orderAddress, poolAddress, supply } = cd;
       const amount = supply.toNumber();
 
-      cancelRef.current?.close();
       detailsRef.current?.close();
+      setOrderState(undefined);
       await execute({ a, b, orderAddress, poolAddress, amount });
     },
     [execute]
@@ -100,17 +105,16 @@ export default (props: {
 
   return (
     <>
-      <UniversalPopover ref={cancelRef}>
-        {details && (
+      <UniversalPopover onClose={onDetailsClose} ref={detailsRef}>
+        {!orderState && <Loading />}
+        {orderState === "cancel" && details && (
           <CancelOrderModal
             data={accounts}
             detailsData={details}
             onApprove={onApproveCancel}
           />
         )}
-      </UniversalPopover>
-      <UniversalPopover onClose={onDetailsClose} ref={detailsRef}>
-        {details && (
+        {orderState === "details" && details && (
           <OrderDetailsModal
             filledQuantity={details.filledQuantity}
             onCancel={onCancelOrder}

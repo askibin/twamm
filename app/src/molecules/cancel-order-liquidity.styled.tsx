@@ -11,7 +11,7 @@ export const LiquidityItem = styled(Box)`
 `;
 
 export const ItemAmount = styled(Typography)`
-  font-size: 24px;
+  font-size: 1rem;
 `;
 
 export const ItemToken = styled(Box)`
@@ -30,7 +30,7 @@ export const TokenImage = styled(Avatar)`
 export const TokenName = styled(Box)`
   color: ${(p) => p.theme.palette.text.primary};
   font-weight: 600;
-  font-size: 20px;
+  font-size: 1rem;
   padding-left: ${(p) => p.theme.spacing(1)};
 `;
 

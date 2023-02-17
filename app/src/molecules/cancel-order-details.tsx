@@ -7,18 +7,23 @@ import type { PoolDetails } from "../types/decl.d";
 import * as Styled from "./cancel-order-details.styled";
 import CancelOrderLiquidity from "./cancel-order-liquidity";
 import Loading from "../atoms/loading";
+import useBreakpoints from "../hooks/use-breakpoints";
 import usePrice from "../hooks/use-price";
 import { refreshEach } from "../swr-options";
 
-export interface Props {
+export default ({
+  data,
+  details,
+  onToggle,
+  percentage,
+}: {
   data?: JupToken[];
   details?: PoolDetails;
   onToggle: () => void;
   percentage: number;
-}
-
-export default ({ data, details, onToggle, percentage }: Props) => {
+}) => {
   const d = M.of(data);
+  const { isMobile } = useBreakpoints();
 
   const tokens = M.withDefault(undefined, d);
   const priceParams = M.withDefault(
@@ -63,7 +68,7 @@ export default ({ data, details, onToggle, percentage }: Props) => {
           <ArrowDownwardIcon />
         </Styled.OperationButton>
       </Styled.OperationImage>
-      <Box p={2}>
+      <Box p={isMobile ? 1 : 2}>
         <CancelOrderLiquidity
           ab={tokens}
           amount={amount}
