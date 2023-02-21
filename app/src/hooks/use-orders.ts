@@ -17,7 +17,12 @@ const fetcher = (provider: Provider, program: Program) => {
   return async ({ params }: SWRParams<typeof swrKey>) => {
     const orders = await order.getOrdersByAccount(params.account);
 
-    return orders;
+    const walletOrders = orders.filter(
+      (o) => String(o.owner) === String(params.account)
+    );
+    // filter wallet's orders out as there might be some orders that are not wallet's orders
+
+    return walletOrders;
   };
 };
 
