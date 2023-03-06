@@ -14,3 +14,6 @@ start-app:
 
 start-app-production:
 	cd app && yarn run build && yarn start
+
+start-docs:
+	cd app && mdbook serve docs
