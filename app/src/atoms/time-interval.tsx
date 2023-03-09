@@ -2,12 +2,12 @@ import type { MouseEvent, ChangeEvent, SyntheticEvent } from "react";
 import Box from "@mui/material/Box";
 import ButtonGroup from "@mui/material/ButtonGroup";
 import InfoIcon from "@mui/icons-material/Info";
-import Popover from "@mui/material/Popover";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useMemo, useRef } from "react";
 
 import * as Styled from "./time-interval.styled";
 import i18n from "../i18n";
 import Intervals from "../molecules/interval-button-group";
+import Tooltip, { TooltipRef } from "./tooltip";
 import type { IndexedTIF } from "../domain/interval.d";
 
 export default ({
@@ -27,24 +27,13 @@ export default ({
   valueIndex?: number;
   values?: number[];
 }) => {
-  const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
+  const tooltipRef = useRef<TooltipRef>();
 
-  const handlePopoverOpen = useCallback(
-    (event: MouseEvent<HTMLElement>) => {
-      if (anchorEl) {
-        setAnchorEl(null);
-      } else {
-        setAnchorEl(event.currentTarget);
-      }
-    },
-    [anchorEl, setAnchorEl]
-  );
+  const handleTooltipOpen = useCallback((event: MouseEvent<HTMLElement>) => {
+    tooltipRef.current?.toggle(event.currentTarget);
+  }, []);
 
   const intervalValues = useMemo(() => values, [values]);
-
-  const handlePopoverClose = () => {
-    setAnchorEl(null);
-  };
 
   const onIntervalSelect = useCallback(
     (e: SyntheticEvent<HTMLElement>) => {
@@ -56,38 +45,16 @@ export default ({
     [onSelect]
   );
 
-  const open = Boolean(anchorEl);
-
   return (
     <Styled.Interval>
       <Box pb={1}>
         <Styled.Label>
           {label}
-          <Styled.InfoControl onClick={handlePopoverOpen}>
+          <Styled.InfoControl onClick={handleTooltipOpen}>
             <InfoIcon />
           </Styled.InfoControl>
         </Styled.Label>
-        {!info?.length ? null : (
-          <Popover
-            anchorEl={anchorEl}
-            open={open}
-            anchorOrigin={{
-              vertical: "top",
-              horizontal: "right",
-            }}
-            transformOrigin={{
-              vertical: "bottom",
-              horizontal: "center",
-            }}
-            sx={{
-              pointerEvents: "none",
-            }}
-            onClose={handlePopoverClose}
-            disableRestoreFocus
-          >
-            <Box p={1}>{info}</Box>
-          </Popover>
-        )}
+        {!info?.length ? null : <Tooltip ref={tooltipRef} text={info} />}
       </Box>
       <ButtonGroup variant="outlined" aria-label={i18n.AriaLabelIntervals}>
         <Intervals

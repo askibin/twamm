@@ -2,16 +2,16 @@
 import Box from "@mui/material/Box";
 // import IconButton from "@mui/material/IconButton";
 // import InfoIcon from "@mui/icons-material/Info";
-import Popover from "@mui/material/Popover";
 // import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
-import { useState } from "react";
+import { useRef } from "react";
 
 import * as Styled from "./settings-modal.styled";
 import ClusterSelector from "./cluster-selector";
 import ExplorerSelector from "./explorer-selector";
 import i18n from "../i18n";
 import PerformanceFeeSelector from "./performance-fee-selector";
+import Tooltip, { TooltipRef } from "../atoms/tooltip";
 import SlippageSelector from "./slippage-selector";
 import useTxRunner from "../contexts/transaction-runner-context";
 // import ToggleOption from "./toggle-option";
@@ -23,28 +23,16 @@ export default ({
   id: string;
   onToggle: (arg0: boolean) => void;
 }) => {
+  const tooltipRef = useRef<TooltipRef>();
   const { performanceFee } = useTxRunner();
 
   const onClose = () => onToggle(false);
 
-  const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
-
   /*
-   *const handlePopoverOpen = useCallback(
-   *  (event: MouseEvent<HTMLElement>) => {
-   *    if (anchorEl) {
-   *      setAnchorEl(null);
-   *    } else {
-   *      setAnchorEl(event.currentTarget);
-   *    }
-   *  },
-   *  [anchorEl, setAnchorEl]
-   *);
+   *const handleTooltipOpen = useCallback((event: MouseEvent<HTMLElement>) => {
+   *  tooltipRef.current?.toggle(event.currentTarget);
+   *}, []);
    */
-
-  const handlePopoverClose = () => {
-    setAnchorEl(null);
-  };
 
   return (
     <Box p={2}>
@@ -93,7 +81,7 @@ export default ({
        *    <IconButton
        *      sx={{ padding: 0 }}
        *      color="warning"
-       *      onClick={handlePopoverOpen}
+       *      onClick={handleTooltipOpen}
        *    >
        *      <InfoIcon fontSize="small" />
        *    </IconButton>
@@ -111,31 +99,7 @@ export default ({
         </Typography>
         <ClusterSelector onClose={onClose} />
       </Styled.ClusterSetting>
-      <Popover
-        anchorEl={anchorEl}
-        open={Boolean(anchorEl)}
-        anchorOrigin={{
-          vertical: "top",
-          horizontal: "right",
-        }}
-        transformOrigin={{
-          vertical: "bottom",
-          horizontal: "center",
-        }}
-        sx={{
-          pointerEvents: "none",
-        }}
-        onClose={handlePopoverClose}
-        disableRestoreFocus
-      >
-        <Typography
-          sx={{ padding: 2, maxWidth: 300 }}
-          variant="body2"
-          onClick={handlePopoverClose}
-        >
-          {i18n.SettingsSettingVersionedTxInfo}
-        </Typography>
-      </Popover>
+      <Tooltip ref={tooltipRef} text={i18n.SettingsSettingVersionedTxInfo} />
     </Box>
   );
 };

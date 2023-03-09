@@ -2,14 +2,14 @@ import type { MouseEvent } from "react";
 import Box from "@mui/material/Box";
 import InfoIcon from "@mui/icons-material/Info";
 import M from "easy-maybe/lib";
-import Popover from "@mui/material/Popover";
 import Stack from "@mui/material/Stack";
 import Switch from "@mui/material/Switch";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 
 import * as Styled from "./trade-intervals.styled";
 import i18n from "../i18n";
 import TimeInterval from "../atoms/time-interval";
+import Tooltip, { TooltipRef } from "../atoms/tooltip";
 import type { IntervalVariant, PoolTIF } from "../domain/interval.d";
 import useIndexedTIFs from "../contexts/tif-context";
 import { SpecialIntervals } from "../domain/interval.d";
@@ -28,28 +28,14 @@ export default ({
   const { periodTifs, scheduleTifs, scheduleSelected, periodSelected } =
     useIndexedTIFs();
 
+  const tooltipRef = useRef<TooltipRef>();
+
   const [scheduled, setScheduled] = useState(true);
   const [instant, setInstant] = useState<number>();
 
-  // FEAT: Consider moving popover to the separate component
-  const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
-
-  const handlePopoverOpen = useCallback(
-    (event: MouseEvent<HTMLElement>) => {
-      if (anchorEl) {
-        setAnchorEl(null);
-      } else {
-        setAnchorEl(event.currentTarget);
-      }
-    },
-    [anchorEl, setAnchorEl]
-  );
-
-  const handlePopoverClose = () => {
-    setAnchorEl(null);
-  };
-
-  const open = Boolean(anchorEl);
+  const handlePopoverOpen = useCallback((event: MouseEvent<HTMLElement>) => {
+    tooltipRef.current?.toggle(event.currentTarget);
+  }, []);
 
   const onScheduleSelect = useCallback(
     (value: number) => {
@@ -150,25 +136,10 @@ export default ({
                 <InfoIcon />
               </Styled.InfoControl>
             </Styled.ScheduleToggleLabel>
-            <Popover
-              anchorEl={anchorEl}
-              open={open}
-              anchorOrigin={{
-                vertical: "top",
-                horizontal: "right",
-              }}
-              transformOrigin={{
-                vertical: "bottom",
-                horizontal: "center",
-              }}
-              sx={{
-                pointerEvents: "none",
-              }}
-              onClose={handlePopoverClose}
-              disableRestoreFocus
-            >
-              <Box p={1}>{i18n.OrderControlsIntervalsScheduleOrderInfo}</Box>
-            </Popover>
+            <Tooltip
+              ref={tooltipRef}
+              text={i18n.OrderControlsIntervalsScheduleOrderInfo}
+            />
           </Stack>
         )}
       </Box>
