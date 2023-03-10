@@ -18,7 +18,7 @@
 .coinItem:hover,
 .coinItem:active,
 .coinItem:focus {
-  background: rgba(255, 255, 255, 0.12)
+  background: rgba(255, 255, 255, 0.12);
 }
 
 .coinItem:hover .coinItemTextPrimary,

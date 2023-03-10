@@ -115,7 +115,7 @@ export default ({
         {scheduled ? (
           <TimeInterval
             disabled={disabled}
-            info={i18n.OrderControlsIntervalsScheduleOrder}
+            info={i18n.OrderControlsIntervalsScheduleOrderInfo}
             label={i18n.OrderControlsIntervalsScheduleOrder}
             onSelect={onScheduleSelect}
             value={values.schedule}
