@@ -2,11 +2,12 @@ import type { MouseEvent } from "react";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import Box from "@mui/material/Box";
 import CancelIcon from "@mui/icons-material/Cancel";
-import Popover from "@mui/material/Popover";
 import QuestionMarkIcon from "@mui/icons-material/QuestionMark";
-import { useState } from "react";
+import { useRef } from "react";
 
 import * as Styled from "./token-select.styled";
+import i18n from "../i18n";
+import Tooltip, { TooltipRef } from "./tooltip";
 import useBreakpoints from "../hooks/use-breakpoints";
 
 export default ({
@@ -22,25 +23,24 @@ export default ({
   label?: string;
   onClick: (e: MouseEvent) => void;
 }) => {
-  const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
-  const [open, setOpen] = useState<boolean>(false);
+  const tooltipRef = useRef<TooltipRef>();
+
   const { isMobile } = useBreakpoints();
 
   const handlePopoverOpen = (event: MouseEvent<HTMLElement>) => {
-    setOpen(true);
-    setAnchorEl(event.currentTarget);
+    tooltipRef.current?.open(event.currentTarget);
   };
 
-  const handlePopoverClose = () => {
-    setOpen(false);
-    setAnchorEl(null);
+  const handleClick = (e: MouseEvent<HTMLElement>) => {
+    tooltipRef.current?.close();
+    onClick(e);
   };
 
   return (
     <Box>
       <Styled.TokenField
         direction="row"
-        onClick={disabled ? handlePopoverOpen : onClick}
+        onClick={disabled ? handlePopoverOpen : handleClick}
         disabled={disabled}
       >
         {isMobile ? (
@@ -57,27 +57,7 @@ export default ({
           <ArrowDropDownIcon />
         </Styled.TokenControl>
       </Styled.TokenField>
-      {disabled && (
-        <Popover
-          anchorEl={anchorEl}
-          open={open}
-          anchorOrigin={{
-            vertical: "center",
-            horizontal: "center",
-          }}
-          transformOrigin={{
-            vertical: "bottom",
-            horizontal: "center",
-          }}
-          sx={{
-            pointerEvents: "none",
-          }}
-          onClose={handlePopoverClose}
-          disableRestoreFocus
-        >
-          <Box p={1}>Choose another token first</Box>
-        </Popover>
-      )}
+      {disabled && <Tooltip ref={tooltipRef} text={i18n.TokenSelectTooltip} />}
     </Box>
   );
 };

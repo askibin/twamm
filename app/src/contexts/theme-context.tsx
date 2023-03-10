@@ -1,7 +1,12 @@
 import type { ReactElement } from "react";
 import CssBaseline from "@mui/material/CssBaseline";
 import useMediaQuery from "@mui/material/useMediaQuery";
-import { createTheme, ThemeProvider as Provider } from "@mui/material/styles";
+import {
+  createTheme,
+  experimental_extendTheme as extendTheme,
+  Experimental_CssVarsProvider as CssVarsProvider,
+  ThemeProvider as Provider,
+} from "@mui/material/styles";
 import { memo, useMemo } from "react";
 
 import { enhanceTheme, kitTheme } from "../theme";
@@ -15,24 +20,29 @@ export interface Props {
 export const ThemeProvider = ({ children }: Props) => {
   const preferredMode = useMediaQuery("(prefers-color-scheme: dark)");
 
-  const theme = useMemo(
-    () =>
-      createTheme(
-        enhanceTheme({
-          ...kitTheme,
-          palette: {
-            ...kitTheme.palette,
-            mode: preferredMode ? "dark" : "light",
-          },
-        })
-      ),
-    [preferredMode]
-  );
+  const theme = useMemo(() => {
+    const t = createTheme(
+      enhanceTheme({
+        ...kitTheme,
+        palette: {
+          ...kitTheme.palette,
+          mode: preferredMode ? "dark" : "light",
+        },
+      })
+    );
+
+    return t;
+  }, [preferredMode]);
+
+  const cssVarTheme = useMemo(() => extendTheme(theme), [theme]);
 
   return (
-    <Provider theme={theme}>
-      <BaselineMemo />
-      {children}
-    </Provider>
+    <>
+      <CssVarsProvider theme={cssVarTheme} />
+      <Provider theme={theme}>
+        <BaselineMemo />
+        {children}
+      </Provider>
+    </>
   );
 };

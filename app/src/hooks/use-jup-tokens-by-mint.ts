@@ -21,7 +21,12 @@ const fetcher =
       mints.includes(token.address)
     );
 
-    return selectedTokens;
+    const tokenMap = new Map();
+    selectedTokens.forEach((token) => {
+      tokenMap.set(token.address, token);
+    });
+
+    return mints.map((mint) => tokenMap.get(mint));
   };
 
 export default (mints?: SWRArgs<typeof swrKey>["mints"], options = {}) => {

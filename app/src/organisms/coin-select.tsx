@@ -1,5 +1,4 @@
 import Box from "@mui/material/Box";
-import CircularProgress from "@mui/material/CircularProgress";
 import Divider from "@mui/material/Divider";
 import SearchIcon from "@mui/icons-material/Search";
 import TextField from "@mui/material/TextField";
@@ -10,11 +9,12 @@ import { useCallback, useMemo, useState } from "react";
 
 import CoinSelect from "../molecules/coin-select";
 import i18n from "../i18n";
+import Loading from "../atoms/loading";
 import TokenTags from "../atoms/token-tags";
 import useJupTokensByMint from "../hooks/use-jup-tokens-by-mint";
 import * as Styled from "./coin-select.styled";
 
-const STARRED_COINS = ["usdt", "usdc", "sol", "ray"];
+const STARRED_COINS = ["usdt", "usdc", "sol"];
 
 const populateTokenRecords = (data?: JupToken[]) => {
   if (!data) return {};
@@ -30,8 +30,6 @@ const populateTokenRecords = (data?: JupToken[]) => {
 
   return records;
 };
-
-const Loading = () => <CircularProgress />;
 
 export default ({
   id,
@@ -100,6 +98,9 @@ export default ({
           }}
         />
       </Box>
+      <Typography id={id} px={2} py={1} variant="h6">
+        {i18n.CoinSelectorStarred}
+      </Typography>
       <Styled.Tags px={2} pb={1}>
         <TokenTags
           coins={Object.values(selectedRecords)}

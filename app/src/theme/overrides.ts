@@ -125,7 +125,7 @@ export const dark = {
     MuiBackdrop: {
       styleOverrides: {
         root: {
-          "& .MuiPaper-root": muiPaperCustomVariant,
+          "& > .MuiPaper-root": muiPaperCustomVariant,
         },
       },
     },

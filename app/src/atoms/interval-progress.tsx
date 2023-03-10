@@ -1,18 +1,21 @@
-import CircularProgress from "@mui/material/CircularProgress";
-import { useEffect, useState } from "react";
-
-export interface Props {
-  interval: number;
-  refresh?: boolean;
-}
+import { useEffect, useMemo, useState } from "react";
+import * as Styled from "./interval-progress.styled";
 
 const INTERVAL = 1500;
 
 const calcValue = (a: number, b: number) =>
   b ? Math.round((a / b) * 100) : -1;
 
-export default ({ interval, refresh = false }: Props) => {
+export default ({
+  interval,
+  refresh = false,
+}: {
+  interval: number;
+  refresh?: boolean;
+}) => {
   const [counter, setCounter] = useState(0);
+
+  const isActive = useMemo(() => interval > 0, [interval]);
 
   useEffect(() => {
     const updateInterval = () => {
@@ -32,10 +35,27 @@ export default ({ interval, refresh = false }: Props) => {
   }, [counter, interval, refresh]);
 
   return (
-    <CircularProgress
-      size={18}
-      value={calcValue(counter, interval)}
-      variant="determinate"
-    />
+    <Styled.Progress>
+      {isActive ? (
+        <Styled.ProgressBackground
+          size={18}
+          value={100}
+          variant="determinate"
+        />
+      ) : null}
+      {isActive ? (
+        <Styled.ProgressCustom
+          size={18}
+          value={calcValue(counter, interval)}
+          variant="determinate"
+        />
+      ) : (
+        <Styled.ProgressCounter
+          size={18}
+          value={calcValue(counter, interval)}
+          variant="determinate"
+        />
+      )}
+    </Styled.Progress>
   );
 };
