@@ -1,10 +1,11 @@
-import type { MouseEvent } from "react";
-import type { ListChildComponentProps } from "react-window";
+import Alert from "@mui/material/Alert";
+import Avatar from "@mui/material/Avatar";
 import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
 import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
-import Avatar from "@mui/material/Avatar";
+import type { ListChildComponentProps } from "react-window";
+import type { MouseEvent } from "react";
 import { FixedSizeList } from "react-window";
 import { useMemo } from "react";
 
@@ -42,6 +43,11 @@ export default ({
 
   return (
     <List className={styles.coins} dense={isMobile}>
+      {coinRecords.length === 0 && (
+        <ListItem className={styles.noCoinItem} component="div" disablePadding>
+          <Alert severity="info">No results</Alert>
+        </ListItem>
+      )}
       <FixedSizeList
         height={200}
         width="100%"
@@ -67,6 +73,10 @@ export default ({
               </Avatar>
             </ListItemIcon>
             <ListItemText
+              classes={{
+                primary: styles.coinItemTextPrimary,
+                secondary: styles.coinItemTextSecondary,
+              }}
               primary={coinRecords[index].symbol.toUpperCase()}
               secondary={coinRecords[index].name}
             />

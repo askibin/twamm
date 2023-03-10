@@ -9,6 +9,7 @@ export default {
   AriaLabelClose: "close",
   CoinSelector: "Coins",
   CoinSelectorSearch: "Search coin",
+  CoinSelectorStarred: "Popular",
   Error: "Error",
   ErrorCreateOrderAbsentTif: "Absent interval",
   ErrorCreateOrderStalePool: "Can not place order to the closed pool",
