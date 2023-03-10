@@ -30,7 +30,7 @@ export default ({
 
   const tooltipRef = useRef<TooltipRef>();
 
-  const [scheduled, setScheduled] = useState(true);
+  const [scheduled, setScheduled] = useState(false);
   const [instant, setInstant] = useState<number>();
 
   const handlePopoverOpen = useCallback((event: MouseEvent<HTMLElement>) => {
@@ -131,7 +131,7 @@ export default ({
               size="small"
             />
             <Styled.ScheduleToggleLabel>
-              Schedule Order
+              {i18n.OrderControlsIntervalsScheduleOrder}
               <Styled.InfoControl onClick={handlePopoverOpen}>
                 <InfoIcon />
               </Styled.InfoControl>
