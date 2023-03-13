@@ -61,6 +61,7 @@ export default {
   SettingsSettingPerformanceFeeValuePost: "SOL extra.",
   SettingsSettingPerformanceFeeValuePre: "You will pay up to",
   SettingsSettingSlippage: "Slippage",
+  SettingsSettingsSlippageInfo: "Instant exchange only.",
   SettingsSettingSlippageLabel: "Val, %",
   SettingsSettingVersionedTx: "Jupiter Versioned Tx.",
   SettingsSettingVersionedTxInfo:

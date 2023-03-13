@@ -49,15 +49,6 @@ export default ({
         />
       </Styled.Setting>
       <Styled.Setting direction="row" py={1}>
-        <Styled.SettingLabel variant="body2">
-          {i18n.SettingsSettingSlippage}
-        </Styled.SettingLabel>
-        <SlippageSelector
-          label={i18n.SettingsSettingSlippage}
-          onClose={onClose}
-        />
-      </Styled.Setting>
-      <Styled.Setting direction="row" py={1}>
         <Box>
           <Styled.SettingLabel variant="body2">
             {i18n.SettingsSettingPerformaceFee}
@@ -70,6 +61,20 @@ export default ({
           )}
         </Box>
         <PerformanceFeeSelector />
+      </Styled.Setting>
+      <Styled.Setting direction="row" py={1}>
+        <Box>
+          <Styled.SettingLabel variant="body2">
+            {i18n.SettingsSettingSlippage}
+          </Styled.SettingLabel>
+          <Typography color="text.secondary" variant="body2">
+            {i18n.SettingsSettingsSlippageInfo}
+          </Typography>
+        </Box>
+        <SlippageSelector
+          label={i18n.SettingsSettingSlippage}
+          onClose={onClose}
+        />
       </Styled.Setting>
 
       {/*
