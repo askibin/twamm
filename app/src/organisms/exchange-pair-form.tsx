@@ -6,14 +6,12 @@ import { useCallback, useMemo } from "react";
 import * as Styled from "./exchange-pair-form.styled";
 import AmountField from "../atoms/amount-field";
 import i18n from "../i18n";
-import InTokenField from "./in-token-field";
+import InTokenField from "../molecules/in-token-field";
 import TokenSelect from "../atoms/token-select";
-import TradeIntervals from "./trade-intervals";
+import TradeIntervals from "../molecules/trade-intervals";
 import type { IntervalVariant } from "../domain/interval.d";
 import useIndexedTIFs, { selectors } from "../contexts/tif-context";
 import usePrice from "../hooks/use-price";
-
-// FEAT: molecule > organism
 
 export default ({
   amount,
@@ -28,14 +26,14 @@ export default ({
   submitting,
 }: {
   amount?: number;
-  primary: Voidable<JupToken>;
+  primary?: JupToken;
   onABSwap: () => void;
   onASelect: () => void;
   onBSelect: () => void;
   onChangeAmount: (arg0: number) => void;
   onIntervalSelect: (a: IntervalVariant, b: boolean) => void;
   onSubmit: () => void;
-  secondary: Voidable<JupToken>;
+  secondary?: JupToken;
   submitting: boolean;
 }) => {
   const [a, b] = [primary, secondary];

@@ -6,7 +6,7 @@ import { OrderSide } from "@twamm/types/lib";
 import { useCallback, useMemo, useState } from "react";
 
 import * as formHelpers from "../domain/order";
-import ExchangePairForm from "../molecules/exchange-pair-form";
+import ExchangePairForm from "./exchange-pair-form";
 import ExecuteJupiterOrder from "./jupiter-order-progress";
 import ExecuteProgramOrder from "./program-order-progress";
 import type { IntervalVariant, PoolTIF } from "../domain/interval.d";
