@@ -106,7 +106,7 @@ export default (
       const {
         periodSelected,
         scheduleSelected,
-        selected = SpecialIntervals.NO_DELAY,
+        selected = SpecialIntervals.INSTANT,
         scheduled = false,
       } = state.data ?? {};
 
