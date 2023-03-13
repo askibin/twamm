@@ -88,6 +88,11 @@ export default (props: {
 
   const price = M.withDefault(undefined, M.of(tokenPairPrice.data));
 
+  const priceInfo = M.withDefault(
+    undefined,
+    M.andMap((p) => `${p[1].symbol} per ${p[0].symbol}`, pair)
+  );
+
   return (
     <>
       <Styled.Info pt={2} mb={!open && isMobile ? "56px" : undefined}>
@@ -111,11 +116,7 @@ export default (props: {
               <Styled.DetailsPair direction="row" spacing={2}>
                 <PairCardSymbols data={mints} />
                 <Typography variant="h6">
-                  {!price
-                    ? "-"
-                    : `${formatPrice(price, false)} ${
-                        pair.value[1].symbol
-                      } per ${pair.value[0].symbol}`}
+                  {!price ? "-" : `${formatPrice(price, false)} ${priceInfo}`}
                 </Typography>
               </Styled.DetailsPair>
             </Styled.DetailsGridItem>
