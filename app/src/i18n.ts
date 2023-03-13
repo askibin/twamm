@@ -2,7 +2,6 @@
 // FEAT: rework naming
 export default {
   AriaLabelHeader: "header",
-  AriaLabelScheduleOrder: "schedule order",
   AriaLabelSpaces: "mode",
   AriaLabelOffline: "offline",
   AriaLabelIntervals: "interval group",
