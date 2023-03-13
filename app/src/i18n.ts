@@ -82,6 +82,7 @@ export default {
   TradeTokenOrderVolume: "Order volume",
   TradeTokenRoutedVolume: "Routed volume",
   TradeTokenSettledVolume: "Settled volume",
+  TradeTokenProtocolFee: "Protocol Fee",
   TxRunnerIdle: "Idle",
   TxRunnerIdleDescription: "No active transaction.",
   TxRunnerProgress: "Working",

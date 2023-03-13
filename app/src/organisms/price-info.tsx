@@ -75,12 +75,13 @@ export default (props: {
   const stats = M.withDefault(
     undefined,
     M.andMap((d) => {
-      const { orderVolume: o, settledVolume: s, routedVolume: t } = d;
+      const { orderVolume: o, settledVolume: s, routedVolume: t, fee } = d;
 
       return {
         orderVolume: formatPrice(o),
-        settledVolume: formatPrice(s),
+        protocolFee: formatPrice(fee),
         routedVolume: formatPrice(t),
+        settledVolume: formatPrice(s),
       };
     }, M.andMap(populateStats, M.of(props.tokenPair)))
   );
@@ -110,7 +111,11 @@ export default (props: {
               <Styled.DetailsPair direction="row" spacing={2}>
                 <PairCardSymbols data={mints} />
                 <Typography variant="h6">
-                  {!price ? "-" : formatPrice(price)}
+                  {!price
+                    ? "-"
+                    : `${formatPrice(price, false)} ${
+                        pair.value[1].symbol
+                      } per ${pair.value[0].symbol}`}
                 </Typography>
               </Styled.DetailsPair>
             </Styled.DetailsGridItem>
@@ -138,6 +143,14 @@ export default (props: {
               </Typography>
               <Typography variant="body2">
                 {stats?.settledVolume ?? "-"}
+              </Typography>
+            </Styled.DetailsItem>
+            <Styled.DetailsItem>
+              <Typography variant="body2">
+                {i18n.TradeTokenProtocolFee}
+              </Typography>
+              <Typography variant="body2">
+                {stats?.protocolFee ?? "-"}
               </Typography>
             </Styled.DetailsItem>
           </List>
