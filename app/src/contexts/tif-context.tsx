@@ -110,10 +110,14 @@ export default () => {
 };
 
 export const selectors = (data?: { selected: IntervalVariant }) => ({
-  get jupiterOrder() {
-    return data?.selected === SpecialIntervals.INSTANT;
+  get isInstantOrder() {
+    return (
+      Boolean(data?.selected) && data?.selected === SpecialIntervals.INSTANT
+    );
   },
-  get programOrder() {
-    return Boolean(data?.selected);
+  get isProgramOrder() {
+    return (
+      Boolean(data?.selected) && data?.selected !== SpecialIntervals.NO_DELAY
+    );
   },
 });

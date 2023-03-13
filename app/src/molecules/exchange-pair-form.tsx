@@ -2,7 +2,7 @@ import Box from "@mui/material/Box";
 import Grid from "@mui/material/Grid";
 import M, { Extra } from "easy-maybe/lib";
 import SyncAltIcon from "@mui/icons-material/SyncAlt";
-import { useCallback } from "react";
+import { useCallback, useMemo } from "react";
 import * as Styled from "./exchange-pair-form.styled";
 import AmountField from "../atoms/amount-field";
 import i18n from "../i18n";
@@ -10,9 +10,8 @@ import InTokenField from "./in-token-field";
 import TokenSelect from "../atoms/token-select";
 import TradeIntervals from "./trade-intervals";
 import type { IntervalVariant } from "../domain/interval.d";
-import useIndexedTIFs from "../contexts/tif-context";
+import useIndexedTIFs, { selectors } from "../contexts/tif-context";
 import usePrice from "../hooks/use-price";
-import { SpecialIntervals } from "../domain/interval.d";
 
 // FEAT: molecule > organism
 
@@ -41,10 +40,14 @@ export default ({
 }) => {
   const [a, b] = [primary, secondary];
 
-  const { tifs: intervalTifs, selected: selectedTif } = useIndexedTIFs();
+  const { tifs: intervalTifs, selected } = useIndexedTIFs();
 
-  const isInstantEnabled =
-    selectedTif === SpecialIntervals.INSTANT ? true : undefined;
+  const { isInstantOrder } = useMemo(
+    () => selectors(selected ? { selected } : undefined),
+    [selected]
+  );
+
+  const isInstantEnabled = isInstantOrder ? true : undefined;
 
   const instantParams = M.andMap(
     ([c, d, e]) => ({
@@ -131,7 +134,7 @@ export default ({
           disabled={submitting}
           indexedTifs={intervalTifs}
           onSelect={handleIntervalSelect}
-          selected={selectedTif}
+          selected={selected}
         />
       </Box>
     </form>

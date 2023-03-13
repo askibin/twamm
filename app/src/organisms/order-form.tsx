@@ -166,7 +166,7 @@ export default ({
             submitting={submitting}
           />
           <Box py={3}>
-            {selected.jupiterOrder ? (
+            {selected.isInstantOrder ? (
               <ExecuteJupiterOrder
                 disabled={!jupiterParams || !valid || submitting}
                 form="exchange-form"
