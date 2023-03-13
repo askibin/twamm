@@ -22,14 +22,10 @@ export default ({
   const { periodTifs, scheduleTifs, scheduleSelected, periodSelected } =
     useIndexedTIFs();
 
-  const [scheduled, setScheduled] = useState(false);
   const [instant, setInstant] = useState<number>();
 
   const onScheduleSelect = useCallback(
     (value: number) => {
-      if (value === SpecialIntervals.NO_DELAY) setScheduled(false);
-      // hide the schedule buttons when `NO_DELAY` is selected
-
       if (instant) setInstant(undefined);
 
       M.tap((itifs) => {
@@ -59,11 +55,6 @@ export default ({
     },
     [indexedTifs, onSelect]
   );
-
-  const onToggleSchedule = useCallback(() => {
-    if (scheduled) setScheduled(false);
-    else setScheduled(true);
-  }, [scheduled, setScheduled]);
 
   const values = useMemo(() => {
     let period;
