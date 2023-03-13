@@ -67,11 +67,13 @@ function OrderProgress(props: {
   }, [execute, props, routes.data]);
 
   const loading = M.withDefault(
-    true,
-    M.andMap(
-      ([c, d]) => !(c && d),
-      Extra.combine2([M.of(routes.data), M.of(ready)])
-    )
+    false,
+    M.andMap(([rtdt, rdy, prms]) => {
+      const isLoaded = rtdt && rdy;
+      const isLoading = prms.amount > 0 && !isLoaded;
+
+      return isLoading;
+    }, Extra.combine3([M.of(routes.data), M.of(ready), M.of(swapParams)]))
   );
 
   const errors = useMemo(() => props.validate(), [props]);

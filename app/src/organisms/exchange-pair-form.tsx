@@ -120,7 +120,7 @@ export default ({
               onClick={handleOutputSelect}
             />
           </Grid>
-          {isInstantEnabled && (
+          {isInstantEnabled && Boolean(instantAmount) && (
             <Grid item xs={12} sm={8}>
               <AmountField disabled amount={Number(instantAmount.toFixed(9))} />
             </Grid>
