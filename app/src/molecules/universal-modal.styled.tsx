@@ -11,11 +11,11 @@ declare module "@mui/material/Modal" {
 
 export const Popover = styled(Modal)`
   @media (min-width: ${(p) => p.theme.breakpoints.values.tablet}px) {
-    .MuiPaper-root {
+    & > .MuiPaper-root {
       min-width: ${(p) => p.theme.breakpoints.values.tablet}px;
     }
 
-    &[aria-labelledby="tx-runner-modal-title"] .MuiPaper-root {
+    &[aria-labelledby="tx-runner-modal-title"] > .MuiPaper-root {
       min-width: var(--min-width);
     }
   }
