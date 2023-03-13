@@ -78,6 +78,8 @@ function OrderProgress(props: {
 
   const errors = useMemo(() => props.validate(), [props]);
 
+  const isErrorsVisible = errors && Boolean(swapParams);
+
   return (
     <>
       <Button
@@ -92,7 +94,7 @@ function OrderProgress(props: {
           <Alert severity="error">{routes.error.message}</Alert>
         </Box>
       )}
-      {!errors ? null : (
+      {isErrorsVisible ? (
         <Box pt={1}>
           <Alert severity="error">
             <>
@@ -102,7 +104,7 @@ function OrderProgress(props: {
             </>
           </Alert>
         </Box>
-      )}
+      ) : null}
     </>
   );
 }
