@@ -1,15 +1,9 @@
-import type { MouseEvent } from "react";
 import Box from "@mui/material/Box";
-import InfoIcon from "@mui/icons-material/Info";
 import M from "easy-maybe/lib";
-import Stack from "@mui/material/Stack";
-import Switch from "@mui/material/Switch";
-import { useCallback, useMemo, useRef, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 
-import * as Styled from "./trade-intervals.styled";
 import i18n from "../i18n";
 import TimeInterval from "../atoms/time-interval";
-import Tooltip, { TooltipRef } from "../atoms/tooltip";
 import type { IntervalVariant, PoolTIF } from "../domain/interval.d";
 import useIndexedTIFs from "../contexts/tif-context";
 import { SpecialIntervals } from "../domain/interval.d";
@@ -28,14 +22,8 @@ export default ({
   const { periodTifs, scheduleTifs, scheduleSelected, periodSelected } =
     useIndexedTIFs();
 
-  const tooltipRef = useRef<TooltipRef>();
-
   const [scheduled, setScheduled] = useState(false);
   const [instant, setInstant] = useState<number>();
-
-  const handlePopoverOpen = useCallback((event: MouseEvent<HTMLElement>) => {
-    tooltipRef.current?.toggle(event.currentTarget);
-  }, []);
 
   const onScheduleSelect = useCallback(
     (value: number) => {
@@ -112,36 +100,15 @@ export default ({
   return (
     <>
       <Box pb={2}>
-        {scheduled ? (
-          <TimeInterval
-            disabled={disabled}
-            info={i18n.OrderControlsIntervalsScheduleOrderInfo}
-            label={i18n.OrderControlsIntervalsScheduleOrder}
-            onSelect={onScheduleSelect}
-            value={values.schedule}
-            valueIndex={values.scheduleIndex}
-            values={scheduleTifs}
-          />
-        ) : (
-          <Stack direction="row" spacing={1} alignItems="center">
-            <Switch
-              checked={scheduled}
-              onClick={onToggleSchedule}
-              inputProps={{ "aria-label": i18n.AriaLabelScheduleOrder }}
-              size="small"
-            />
-            <Styled.ScheduleToggleLabel>
-              {i18n.OrderControlsIntervalsScheduleOrder}
-              <Styled.InfoControl onClick={handlePopoverOpen}>
-                <InfoIcon />
-              </Styled.InfoControl>
-            </Styled.ScheduleToggleLabel>
-            <Tooltip
-              ref={tooltipRef}
-              text={i18n.OrderControlsIntervalsScheduleOrderInfo}
-            />
-          </Stack>
-        )}
+        <TimeInterval
+          disabled={disabled}
+          info={i18n.OrderControlsIntervalsScheduleOrderInfo}
+          label={i18n.OrderControlsIntervalsScheduleOrder}
+          onSelect={onScheduleSelect}
+          value={values.schedule}
+          valueIndex={values.scheduleIndex}
+          values={scheduleTifs}
+        />
       </Box>
       <Box pb={2}>
         <TimeInterval
