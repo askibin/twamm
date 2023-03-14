@@ -22,10 +22,10 @@ export default {
     "You have the order with the opposite direction at this pool already. Cancel it first, then try create the order again.",
   OrderControlsIntervalsExecutionPeriod: "Execution Period",
   OrderControlsIntervalsExecutionPeriodInfo:
-    "Execute the order during specified period",
+    "Time interval during which your order is executed. Your order will be broken down into small pieces and executed gradually over the specified time using the best route available through Jupiter or settled internally with opposite side orders or market makers' liquidity at the oracle price.",
   OrderControlsIntervalsScheduleOrder: "Schedule Order",
   OrderControlsIntervalsScheduleOrderInfo:
-    "Chose the period to schedule the order for",
+    "Specify whether the order should be placed immediately or scheduled for a future time.",
   OrderControlsPlaceOrder: "Place Order",
   OrderControlCancelConcurrentOrder: "Cancel Order",
   OrderControlsCancelOrder: "Cancel Order",
