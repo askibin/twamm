@@ -42,6 +42,7 @@ export default ({
         direction="row"
         onClick={disabled ? handlePopoverOpen : handleClick}
         disabled={disabled}
+        sx={isMobile ? {} : { minHeight: 79 }}
       >
         {isMobile ? (
           <Styled.MobileTokenIcon alt={alt} src={image}>

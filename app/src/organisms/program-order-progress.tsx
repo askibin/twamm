@@ -66,6 +66,8 @@ export default (props: {
 
   const errors = useMemo(() => props.validate(), [props]);
 
+  const isErrorsVisible = errors && Boolean(props.params);
+
   return (
     <>
       <UniversalPopover ref={cancelRef}>
@@ -84,7 +86,7 @@ export default (props: {
             : i18n.OrderControlsPlaceOrder
         }
       />
-      {!errors ? null : (
+      {isErrorsVisible ? (
         <Box pt={1}>
           <Alert severity="error">
             <>
@@ -94,7 +96,7 @@ export default (props: {
             </>
           </Alert>
         </Box>
-      )}
+      ) : null}
     </>
   );
 };

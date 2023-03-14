@@ -67,14 +67,18 @@ function OrderProgress(props: {
   }, [execute, props, routes.data]);
 
   const loading = M.withDefault(
-    true,
-    M.andMap(
-      ([c, d]) => !(c && d),
-      Extra.combine2([M.of(routes.data), M.of(ready)])
-    )
+    false,
+    M.andMap(([rtdt, rdy, prms]) => {
+      const isLoaded = rtdt && rdy;
+      const isLoading = prms.amount > 0 && !isLoaded;
+
+      return isLoading;
+    }, Extra.combine3([M.of(routes.data), M.of(ready), M.of(swapParams)]))
   );
 
   const errors = useMemo(() => props.validate(), [props]);
+
+  const isErrorsVisible = errors && Boolean(swapParams);
 
   return (
     <>
@@ -90,7 +94,7 @@ function OrderProgress(props: {
           <Alert severity="error">{routes.error.message}</Alert>
         </Box>
       )}
-      {!errors ? null : (
+      {isErrorsVisible ? (
         <Box pt={1}>
           <Alert severity="error">
             <>
@@ -100,7 +104,7 @@ function OrderProgress(props: {
             </>
           </Alert>
         </Box>
-      )}
+      ) : null}
     </>
   );
 }
