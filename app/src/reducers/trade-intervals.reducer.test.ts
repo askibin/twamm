@@ -43,7 +43,7 @@ describe("trade-intervals reducer 2.0", () => {
         scheduled: false,
         scheduleSelected: undefined,
         scheduleTifs: [-1, 300, 900, 1500],
-        selected: -1,
+        selected: SpecialIntervals.INSTANT,
       },
     });
   });
@@ -120,7 +120,7 @@ describe("trade-intervals reducer 2.0", () => {
         scheduled: false,
         scheduleSelected: undefined,
         scheduleTifs: [SpecialIntervals.NO_DELAY, 300, 900, 1500, 2400],
-        selected: -1,
+        selected: SpecialIntervals.INSTANT,
       },
     });
   });
