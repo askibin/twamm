@@ -2,17 +2,17 @@
 
 Twamm program is for exchanging *n* amount of token `A` for *m* amount of token `B` in a specific time (`Time In Force`).
 
-The explanation of basic terms can be found [here][./terms.md].
+The explanation of basic terms can be found [here](./terms.md).
 
 
 ## Request the exchange
 
-Program's [`placeOrder`][https://github.com/askibin/twamm/blob/master/app/src/hooks/use-schedule-order.ts#L147-L148] is used to register the intent to exchange `A` for `B`.
+Program's [`placeOrder`](https://github.com/askibin/twamm/blob/master/app/src/hooks/use-schedule-order.ts#L147-L148) is used to register the intent to exchange `A` for `B`.
 
 Prerequisites (the user has to...):
 
-- specify the tokens (A & B) he interested in exchange with.
-- specify the amount of source token (A) to exchange for opposite one.
+- specify the tokens (A & B) he is interested in exchange with.
+- specify the amount of source token (A) to exchange for the opposite one.
 - choose the specific time (`Time In Force`) to execute the exchange.
 - provide the liquidity to make that exchange happen.
 
@@ -21,7 +21,7 @@ When all is settled, user should sign the intent to exchange.
 
 ### Supported intervals of time (`Time In Force`) and the scheduling
 
-Every `Token Pair` has the list of supported intervals of time ([`tif`][https://github.com/askibin/twamm/blob/master/app/packages/twamm-types/%40types/twamm-types.d.ts#L97]).
+Every `Token Pair` has the list of supported intervals of time ([`tif`](https://github.com/askibin/twamm/blob/master/app/packages/twamm-types/%40types/twamm-types.d.ts#L97)).
 
 These intervals are the number of seconds to execute the exchange.
 
@@ -42,6 +42,6 @@ That means:
 - Program will create the pool according the chosen interval (if not done yet); order execution won't be started
 - Program will execute the order at the next pool with the same time (`Time In Force`)
 
-Under the hood, to choose the interval, you have to specify the pool counter. In that perspective, scheduling means that we increase the counter by 1. [Here is the link][https://github.com/askibin/twamm/blob/master/app/packages/twamm-client-js/lib/time-in-force.ts#L19] for that.
+Under the hood, to choose the interval, you have to specify the pool counter. In that perspective, scheduling means that we increase the counter by 1. [Here is the link](https://github.com/askibin/twamm/blob/master/app/packages/twamm-client-js/lib/time-in-force.ts#L19) for that.
 
 
