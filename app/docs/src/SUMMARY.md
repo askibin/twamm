@@ -1,4 +1,4 @@
 # Summary
 
-- [Home](./chapter_1.md)
+- [Home](./main.md)
 - [Terms](./terms.md)
