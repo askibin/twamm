@@ -1,7 +1,6 @@
 [workspace]
 members = [
     "programs/*",
-    "admin"
 ]
 
 [profile.release]
