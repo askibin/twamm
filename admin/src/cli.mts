@@ -19,7 +19,7 @@ let cli = new Command()
   )
   .requiredOption("-k, --keypair <path>", "path to the payer's keypair")
   .option("-u, --url <string>", "cluster address; supports monikers", "devnet")
-  .requiredOption("-p, --program-id <string>", "program ID")
+  ./*requiredO*/ option("-p, --program-id <string>", "program ID")
   .version(VERSION);
 
 cli
@@ -78,7 +78,9 @@ cli
 
 cli
   .command("set-admin-signers")
-  .description("")
+  .description("Set admins")
+  .option("-m, --min-signatures <u8>", "Minimum number of signatures", "1")
+  .argument("<pubkeys...>", "List of signer keys")
   .action(handler(commands.set_admin_signers));
 
 cli

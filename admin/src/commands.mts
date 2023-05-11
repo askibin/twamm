@@ -5,6 +5,7 @@ import { either as Either } from "fp-ts";
 import * as actions from "./actions.mts";
 import Client, { ClusterMoniker } from "./client.mts";
 import resolveWalletPath from "./utils/resolve-wallet-path.mts";
+import readSignerKeypair from "./utils/read-signer-keypair.mts";
 
 export type Command<O, A> = {
   options: O;
@@ -20,12 +21,12 @@ const populateSigners = (signers: string[]) =>
  */
 const populateOptions = (
   cli: Program
-): { programId: string; url: ClusterMoniker } => {
+): { keypair: string; programId: string; url: ClusterMoniker } => {
   const { keypair, programId, url } = cli.optsWithGlobals();
 
   Object.assign(process.env, { ANCHOR_WALLET: resolveWalletPath(keypair) });
 
-  return { programId, url };
+  return { keypair, programId, url };
 };
 
 /**
@@ -72,7 +73,7 @@ export const init = async (
 
   await actions.init(client, {
     options: { minSignatures },
-    arguments: populateSigners(args),
+    arguments: { pubkeys: populateSigners(args) },
   });
 };
 
@@ -104,7 +105,36 @@ export const list_token_pairs = async () => {};
 /**
  * Set admins
  */
-export const set_admin_signers = () => {};
+export const set_admin_signers = async (
+  args: string[],
+  opts: { minSignatures: string },
+  cli: Program
+) => {
+  const InitOpts = t.type({ minSignatures: t.number });
+  const dOptions = InitOpts.decode({
+    minSignatures: Number(opts.minSignatures),
+  });
+
+  if (Either.isLeft(dOptions) || isNaN(dOptions.right.minSignatures)) {
+    throw new Error("Invalid minSignatures");
+  }
+  const { minSignatures } = dOptions.right;
+
+  const { keypair, programId, url } = populateOptions(cli);
+
+  const client = Client(url, programId);
+
+  const signer = await readSignerKeypair(keypair);
+
+  await actions.setAdminSigners(
+    client,
+    {
+      options: { minSignatures },
+      arguments: { pubkeys: populateSigners(args) },
+    },
+    signer
+  );
+};
 
 /**
  * Set `crank` authority
