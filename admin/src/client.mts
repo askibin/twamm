@@ -21,7 +21,7 @@ export default function client(urlOrMoniker: ClusterMoniker) {
   });
 
   console.info(
-    "\r\n❗️Do not forget to change the `provider.cluster` setting at Anchor.toml\r\n"
+    "\r\n❗️Be aware that `provider.cluster` setting at Anchor.toml and the `url` parameter should lead to the same cluster.\r\n"
   );
 
   a.setProvider(provider);
