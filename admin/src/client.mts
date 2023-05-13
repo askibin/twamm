@@ -1,39 +1,39 @@
 import * as a from "@project-serum/anchor";
 import * as web3 from "@solana/web3.js";
 import Idl from "@program_types/twamm.ts";
-import readSigner from "./utils/read-signer-keypair.mts";
-
-const COMMITMENT: web3.Commitment = "confirmed";
 
 type TwammProgram = a.Program<Idl.Twamm>;
+
+const COMMITMENT: web3.Commitment = "confirmed";
 
 const encode = (label: string) => a.utils.bytes.utf8.encode(label);
 
 export type ClusterMoniker = web3.Cluster & string;
 
-export default function client(
-  urlOrMoniker: ClusterMoniker,
-  programId: string
-) {
+export default function client(urlOrMoniker: ClusterMoniker) {
   const url = urlOrMoniker.startsWith("http")
     ? urlOrMoniker
     : web3.clusterApiUrl(urlOrMoniker);
-
-  // const pid = new web3.PublicKey(programId);
 
   const provider = a.AnchorProvider.local(url, {
     commitment: COMMITMENT,
     preflightCommitment: COMMITMENT,
   });
 
+  console.info(
+    "\r\n❗️Do not forget to change the `provider.cluster` setting at Anchor.toml\r\n"
+  );
+
+  a.setProvider(provider);
+
   const program = a.workspace.Twamm as TwammProgram;
 
-  console.log("666", program.programId)
-
-  return { /*pid,*/ provider, program };
+  return { provider, program };
 }
 
-export const upgradeAuthority = new web3.PublicKey("BPFLoaderUpgradeab1e11111111111111111111111");
+export const upgradeAuthority = new web3.PublicKey(
+  "BPFLoaderUpgradeab1e11111111111111111111111"
+);
 
 export const multisig = async (program: TwammProgram, name = "multisig") => {
   const [pda, bump] = await web3.PublicKey.findProgramAddress(
@@ -110,7 +110,7 @@ export const twamm = async (program: TwammProgram, name = "twamm") => {
 export const twammProgramData = async (program: TwammProgram) => {
   const [pda, bump] = web3.PublicKey.findProgramAddressSync(
     [program.programId.toBuffer()],
-    upgradeAuthority,// web3.PublicKey("BPFLoaderUpgradeab1e11111111111111111111111")
+    upgradeAuthority
   );
 
   return { pda, bump };

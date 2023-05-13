@@ -1,13 +1,20 @@
 import * as web3 from "@solana/web3.js";
+import Debug from "debug";
 import { Command } from "./commands.mts";
 import Client, * as cli from "./client.mts";
 import { fromPublicKey } from "./utils/prepare-admin-meta.mts";
-import readSignerKeypair from "./utils/read-signer-keypair.mts";
+
+const _log = Debug("instructions");
+const log = (msg: any, affix?: string) => {
+  const output = affix ? _log.extend(affix) : _log;
+
+  output(JSON.stringify(msg, null, 2));
+};
 
 export const init = async (
   client: ReturnType<typeof Client>,
   command: Command<{ minSignatures: number }, { pubkeys: web3.PublicKey[] }>
-) => {
+): Promise<string> => {
   const { minSignatures } = command.options;
   const { pubkeys } = command.arguments;
 
@@ -19,19 +26,16 @@ export const init = async (
     transferAuthority: (await cli.transferAuthority(client.program)).pda,
     twammProgram: client.program.programId,
     twammProgramData: (await cli.twammProgramData(client.program)).pda,
-    _twammProgramData: (await cli.twammProgramData(client.program)).pda,
     upgradeAuthority: client.provider.wallet.publicKey,
   };
 
-  console.log(accounts);
+  log(accounts, "init");
 
-  const result = await client.program.methods
+  return await client.program.methods
     .init({ minSignatures })
     .accounts(accounts)
     .remainingAccounts(adminMetas)
     .rpc();
-
-  console.log("|>", result);
 };
 
 export const setAdminSigners = async (
@@ -50,18 +54,18 @@ export const setAdminSigners = async (
     //systemProgram: web3.SystemProgram.programId,
   };
 
-  console.log(accounts);
+  log(accounts, "set_admin_signers");
 
-  const multisig = await client.program.account.multisig.fetch(accounts.multisig);
+  const multisig = await client.program.account.multisig.fetch(
+    accounts.multisig
+  );
 
-  console.log({ multisig })
+  log({ multisig });
 
-  const result = await client.program.methods
+  return await client.program.methods
     .setAdminSigners({ minSignatures })
     .accounts(accounts)
     .remainingAccounts(adminMetas)
     .signers([signer])
     .rpc();
-
-  console.log("|>", result);
 };

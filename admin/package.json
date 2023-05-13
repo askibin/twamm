@@ -15,8 +15,10 @@
   },
   "dependencies": {
     "@solana/web3.js": "^1.75.0",
+    "@types/debug": "^4.1.7",
     "ava": "^5.2.0",
     "commander": "^10.0.1",
+    "debug": "^4.3.4",
     "fp-ts": "^2.15.0",
     "io-ts": "^2.2.20",
     "typescript": "^5.0.4"

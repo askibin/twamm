@@ -1,7 +1,8 @@
 import { Command } from "commander";
 import * as commands from "./commands.mts";
+import resolveWalletPath from "./utils/resolve-wallet-path.mjs";
 
-const VERSION = "1.0.0";
+const VERSION = "0.1.0";
 
 function handler(command: any, parser?: any) {
   return (args: string[], options: {}, cli: Command) => {
@@ -19,8 +20,18 @@ let cli = new Command()
   )
   .requiredOption("-k, --keypair <path>", "path to the payer's keypair")
   .option("-u, --url <string>", "cluster address; supports monikers", "devnet")
-  ./*requiredO*/ option("-p, --program-id <string>", "program ID")
   .version(VERSION);
+
+/**
+ * Read the global options and fill the `ANCHOR_WALLET`
+ * env variable with the path to the anchor wallet.
+ */
+cli.hook("preSubcommand", (cmd, subCmd) => {
+  const { keypair } = cmd.optsWithGlobals();
+  const ANCHOR_WALLET = resolveWalletPath(keypair);
+
+  Object.assign(process.env, { ANCHOR_WALLET });
+});
 
 cli
   .command("cancel-withdrawals")

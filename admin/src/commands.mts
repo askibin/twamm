@@ -2,31 +2,16 @@ import * as t from "io-ts";
 import * as web3 from "@solana/web3.js";
 import { Command as Program } from "commander";
 import { either as Either } from "fp-ts";
-import * as actions from "./actions.mts";
 import Client, { ClusterMoniker } from "./client.mts";
-import resolveWalletPath from "./utils/resolve-wallet-path.mts";
 import readSignerKeypair from "./utils/read-signer-keypair.mts";
-
-export type Command<O, A> = {
-  options: O;
-  arguments: A;
-};
+import { init as initProgram, setAdminSigners } from "./methods.mts";
 
 const populateSigners = (signers: string[]) =>
   signers.map((signer) => new web3.PublicKey(signer));
 
-/**
- * Read the global options and fill the `ANCHOR_WALLET`
- * env variable with the path to the anchor wallet.
- */
-const populateOptions = (
-  cli: Program
-): { keypair: string; programId: string; url: ClusterMoniker } => {
-  const { keypair, programId, url } = cli.optsWithGlobals();
-
-  Object.assign(process.env, { ANCHOR_WALLET: resolveWalletPath(keypair) });
-
-  return { keypair, programId, url };
+export type Command<O, A> = {
+  options: O;
+  arguments: A;
 };
 
 /**
@@ -57,6 +42,8 @@ export const init = async (
   opts: { minSignatures: string },
   cli: Program
 ) => {
+  const { url } = cli.optsWithGlobals();
+
   const InitOpts = t.type({ minSignatures: t.number });
   const dOptions = InitOpts.decode({
     minSignatures: Number(opts.minSignatures),
@@ -67,11 +54,9 @@ export const init = async (
   }
   const { minSignatures } = dOptions.right;
 
-  const { programId, url } = populateOptions(cli);
+  const client = Client(url);
 
-  const client = Client(url, programId);
-
-  await actions.init(client, {
+  return await initProgram(client, {
     options: { minSignatures },
     arguments: { pubkeys: populateSigners(args) },
   });
@@ -110,6 +95,8 @@ export const set_admin_signers = async (
   opts: { minSignatures: string },
   cli: Program
 ) => {
+  const { keypair, url } = cli.optsWithGlobals();
+
   const InitOpts = t.type({ minSignatures: t.number });
   const dOptions = InitOpts.decode({
     minSignatures: Number(opts.minSignatures),
@@ -120,13 +107,11 @@ export const set_admin_signers = async (
   }
   const { minSignatures } = dOptions.right;
 
-  const { keypair, programId, url } = populateOptions(cli);
-
-  const client = Client(url, programId);
+  const client = Client(url);
 
   const signer = await readSignerKeypair(keypair);
 
-  await actions.setAdminSigners(
+  return await setAdminSigners(
     client,
     {
       options: { minSignatures },
