@@ -9,7 +9,11 @@ anchor build
 ### Usage
 
 ```sh
-./cli -k signer-keypair.json init
+[DEBUG=twamm-admin:*] ./cli -k <path_to_signer_keypair> init [-m <number>] <admin pubkeys...>
+
+// or
 
 ./cli help
 ```
+
+- `debug` utility is used for logging;

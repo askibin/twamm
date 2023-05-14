@@ -8,7 +8,7 @@ export type CommandInput<O, A> = {
   arguments: A;
 };
 
-const _log = Debug("instructions");
+const _log = Debug("twamm-admin:methods");
 const log = (msg: any, affix?: string) => {
   const output = affix ? _log.extend(affix) : _log;
 
