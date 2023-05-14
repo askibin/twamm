@@ -38,7 +38,7 @@ export const init = async (
 
   log(accounts, "init");
 
-  return await client.program.methods
+  return client.program.methods
     .init({ minSignatures })
     .accounts(accounts)
     .remainingAccounts(adminMetas)
@@ -66,13 +66,7 @@ export const setAdminSigners = async (
 
   log(accounts, "set_admin_signers");
 
-  const multisig = await client.program.account.multisig.fetch(
-    accounts.multisig
-  );
-
-  log({ multisig });
-
-  return await client.program.methods
+  return client.program.methods
     .setAdminSigners({ minSignatures })
     .accounts(accounts)
     .remainingAccounts(adminMetas)

@@ -1,10 +1,4 @@
-import * as t from "io-ts";
 import * as web3 from "@solana/web3.js";
-import { Command } from "commander";
-import { either as Either } from "fp-ts";
-import Client, { ClusterMoniker } from "./client.mts";
-import readSignerKeypair from "./utils/read-signer-keypair.mts";
-import { init as initProgram, setAdminSigners } from "./methods.mts";
 
 export const populateSigners = (signers: string[]) =>
   signers.map((signer) => new web3.PublicKey(signer));
@@ -53,40 +47,6 @@ export const list_pools = async () => {};
  *
  */
 export const list_token_pairs = async () => {};
-
-/**
- * Set admins
- */
-export const set_admin_signers = async (
-  args: string[],
-  opts: { minSignatures: string },
-  cli: Command
-) => {
-  const { keypair, url } = cli.optsWithGlobals();
-
-  const InitOpts = t.type({ minSignatures: t.number });
-  const dOptions = InitOpts.decode({
-    minSignatures: Number(opts.minSignatures),
-  });
-
-  if (Either.isLeft(dOptions) || isNaN(dOptions.right.minSignatures)) {
-    throw new Error("Invalid minSignatures");
-  }
-  const { minSignatures } = dOptions.right;
-
-  const client = Client(url);
-
-  const signer = await readSignerKeypair(keypair);
-
-  return await setAdminSigners(
-    client,
-    {
-      options: { minSignatures },
-      arguments: { pubkeys: populateSigners(args) },
-    },
-    signer
-  );
-};
 
 /**
  * Set `crank` authority

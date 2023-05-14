@@ -3,16 +3,17 @@ import Client from "./client.mts";
 import * as commands from "./commands.mts";
 import * as methods from "./methods.mts";
 import * as validators from "./validators.mts";
+import readSignerKeypair from "./utils/read-signer-keypair.mts";
 import resolveWalletPath from "./utils/resolve-wallet-path.mjs";
 
 const VERSION = "0.1.0";
 
 function handler(command: any, parser?: any) {
-  return (args: string[], options: {}, cli: Command) => {
-    const res = command(args, options, cli);
+  return async (args: string[], options: {}, cli: Command) => {
+    const res = await command(args, options, cli);
+    const out = parser ? await parser(res) : res;
 
-    return parser ? parser(res) : res;
-    // allow to pass the result as is
+    console.log(out)
   };
 }
 
@@ -76,7 +77,7 @@ cli
         opts: Parameters<typeof validators.init>[0],
         cli: Command
       ) => {
-        const options: { minSignatures: number } = validators.init(opts, cli);
+        const options: { minSignatures: number } = validators.init(opts);
         const pubkeys = commands.populateSigners(args);
         const client = Client(cli.optsWithGlobals().url);
 
@@ -112,7 +113,32 @@ cli
   .description("Set admins")
   .option("-m, --min-signatures <u8>", "Minimum number of signatures", "1")
   .argument("<pubkeys...>", "List of signer keys")
-  .action(handler(commands.set_admin_signers));
+  .action(
+    handler(
+      async (
+        args: string[],
+        opts: Parameters<typeof validators.set_admin_signers>[0],
+        cli: Command
+      ) => {
+        const { keypair, url } = cli.optsWithGlobals();
+
+        const options: { minSignatures: number } =
+          validators.set_admin_signers(opts);
+        const pubkeys = commands.populateSigners(args);
+        const client = Client(url);
+        const signer = await readSignerKeypair(keypair);
+
+        return methods.setAdminSigners(
+          client,
+          {
+            options,
+            arguments: { pubkeys },
+          },
+          signer
+        );
+      }
+    )
+  );
 
 cli
   .command("set_crank_authority")
