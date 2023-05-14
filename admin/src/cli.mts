@@ -28,6 +28,9 @@ let cli = new Command()
  */
 cli.hook("preSubcommand", (cmd, subCmd) => {
   const { keypair } = cmd.optsWithGlobals();
+
+  if (!keypair) return
+
   const ANCHOR_WALLET = resolveWalletPath(keypair);
 
   Object.assign(process.env, { ANCHOR_WALLET });
