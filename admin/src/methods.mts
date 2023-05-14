@@ -1,8 +1,12 @@
 import * as web3 from "@solana/web3.js";
 import Debug from "debug";
-import { Command } from "./commands.mts";
 import Client, * as cli from "./client.mts";
-import { fromPublicKey } from "./utils/prepare-admin-meta.mts";
+import * as meta from "./utils/prepare-admin-meta.mts";
+
+export type CommandInput<O, A> = {
+  options: O;
+  arguments: A;
+};
 
 const _log = Debug("instructions");
 const log = (msg: any, affix?: string) => {
@@ -13,12 +17,15 @@ const log = (msg: any, affix?: string) => {
 
 export const init = async (
   client: ReturnType<typeof Client>,
-  command: Command<{ minSignatures: number }, { pubkeys: web3.PublicKey[] }>
+  command: CommandInput<
+    { minSignatures: number },
+    { pubkeys: web3.PublicKey[] }
+  >
 ): Promise<string> => {
   const { minSignatures } = command.options;
   const { pubkeys } = command.arguments;
 
-  const adminMetas = pubkeys.map(fromPublicKey);
+  const adminMetas = pubkeys.map<meta.AdminMeta>(meta.fromPublicKey);
 
   const accounts = {
     multisig: (await cli.multisig(client.program)).pda,
@@ -40,13 +47,16 @@ export const init = async (
 
 export const setAdminSigners = async (
   client: ReturnType<typeof Client>,
-  command: Command<{ minSignatures: number }, { pubkeys: web3.PublicKey[] }>,
+  command: CommandInput<
+    { minSignatures: number },
+    { pubkeys: web3.PublicKey[] }
+  >,
   signer: web3.Keypair
 ) => {
   const { minSignatures } = command.options;
   const { pubkeys } = command.arguments;
 
-  const adminMetas = pubkeys.map(fromPublicKey);
+  const adminMetas = pubkeys.map<meta.AdminMeta>(meta.fromPublicKey);
 
   const accounts = {
     admin: signer.publicKey,

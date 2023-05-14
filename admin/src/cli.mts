@@ -1,5 +1,8 @@
 import { Command } from "commander";
+import Client from "./client.mts";
 import * as commands from "./commands.mts";
+import * as methods from "./methods.mts";
+import * as validators from "./validators.mts";
 import resolveWalletPath from "./utils/resolve-wallet-path.mjs";
 
 const VERSION = "0.1.0";
@@ -29,7 +32,7 @@ let cli = new Command()
 cli.hook("preSubcommand", (cmd, subCmd) => {
   const { keypair } = cmd.optsWithGlobals();
 
-  if (!keypair) return
+  if (!keypair) return;
 
   const ANCHOR_WALLET = resolveWalletPath(keypair);
 
@@ -66,7 +69,21 @@ cli
   .description("Initialize the on-chain program")
   .option("-m, --min-signatures <u8>", "Minimum number of signatures", "1")
   .argument("<pubkeys...>", "List of signer keys")
-  .action(handler(commands.init));
+  .action(
+    handler(
+      (
+        args: string[],
+        opts: Parameters<typeof validators.init>[0],
+        cli: Command
+      ) => {
+        const options: { minSignatures: number } = validators.init(opts, cli);
+        const pubkeys = commands.populateSigners(args);
+        const client = Client(cli.optsWithGlobals().url);
+
+        return methods.init(client, { options, arguments: { pubkeys } });
+      }
+    )
+  );
 
 cli
   .command("init-token-pair")

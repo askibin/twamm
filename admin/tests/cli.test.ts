@@ -10,5 +10,8 @@ test("should parse argv", (t) => {
 test("should require -k option", (t) => {
   const cmd = spawnSync("./cli", ["init"]);
 
-  t.is(cmd.stderr.toString().trim(), "error: required option '-k, --keypair <path>' not specified")
+  t.is(
+    cmd.stderr.toString().trim(),
+    "error: required option '-k, --keypair <path>' not specified"
+  );
 });
