@@ -1,4 +1,6 @@
+import BN from "bn.js";
 import * as web3 from "@solana/web3.js";
+import * as spl from "@solana/spl-token";
 import Debug from "debug";
 import Client, * as cli from "./client.mts";
 import * as meta from "./utils/prepare-admin-meta.mts";
@@ -45,6 +47,69 @@ export const init = async (
     .rpc();
 };
 
+export const initTokenPair = async (
+  client: ReturnType<typeof Client>,
+  command: CommandInput<
+    {
+      allowDeposits: boolean;
+      allowWithdrawals: boolean;
+      allowCranks: boolean;
+      allowSettlements: boolean;
+      feeNumerator: BN;
+      feeDenominator: BN;
+      settleFeeNumerator: BN;
+      settleFeeDenominator: BN;
+      crankRewardTokenA: BN;
+      crankRewardTokenB: BN;
+      minSwapAmountTokenA: BN;
+      minSwapAmountTokenB: BN;
+      maxSwapPriceDiff: number;
+      maxUnsettledAmount: number;
+      minTimeTillExpiration: number;
+      maxOraclePriceErrorTokenA: number;
+      maxOraclePriceErrorTokenB: number;
+      maxOraclePriceAgeSecTokenA: number;
+      maxOraclePriceAgeSecTokenB: number;
+      oracleTypeTokenA: never;
+      oracleTypeTokenB: never;
+      oracleAccountTokenA: web3.PublicKey;
+      oracleAccountTokenB: web3.PublicKey;
+      crankAuthority: web3.PublicKey;
+      timeInForceIntervals: number[];
+    },
+    { a: web3.PublicKey; b: web3.PublicKey }
+  >,
+  signer: web3.Keypair
+): Promise<string> => {
+  log(command);
+
+  const authority = (await cli.transferAuthority(client.program)).pda;
+  const { a, b } = command.arguments;
+
+  const accounts = {
+    admin: signer.publicKey,
+    multisig: (await cli.multisig(client.program)).pda,
+    tokenPair: (await cli.tokenPair(client.program, a, b)).pda,
+    transferAuthority: authority,
+    mintTokenA: a,
+    mintTokenB: b,
+    custodyTokenA: await cli.tokenCustody(authority, a),
+    custodyTokenB: await cli.tokenCustody(authority, b),
+    systemProgram: web3.SystemProgram.programId,
+    rent: web3.SYSVAR_RENT_PUBKEY,
+    tokenProgram: spl.TOKEN_PROGRAM_ID,
+    associatedTokenProgram: spl.ASSOCIATED_TOKEN_PROGRAM_ID,
+  };
+
+  log(accounts, "init_token_pair");
+
+  return client.program.methods
+    .initTokenPair(command.options)
+    .accounts(accounts)
+    .signers([signer]) // FIXME: perhaps should use admin was bypassed to set_admin_signers method
+    .rpc();
+};
+
 export const setAdminSigners = async (
   client: ReturnType<typeof Client>,
   command: CommandInput<
@@ -61,7 +126,6 @@ export const setAdminSigners = async (
   const accounts = {
     admin: signer.publicKey,
     multisig: (await cli.multisig(client.program)).pda,
-    //systemProgram: web3.SystemProgram.programId,
   };
 
   log(accounts, "set_admin_signers");

@@ -1,4 +1,5 @@
 import * as a from "@project-serum/anchor";
+import * as spl from "@solana/spl-token";
 import * as web3 from "@solana/web3.js";
 import Idl from "@program_types/twamm.ts";
 
@@ -96,6 +97,14 @@ export const transferAuthority = async (
   );
 
   return { pda, bump };
+};
+
+export const tokenCustody = async (
+  authorityKey: web3.PublicKey,
+  tokenMint: web3.PublicKey,
+  ownerOffCurve: boolean | undefined = true
+) => {
+  return spl.getAssociatedTokenAddress(tokenMint, authorityKey, ownerOffCurve);
 };
 
 export const twamm = async (program: TwammProgram, name = "twamm") => {

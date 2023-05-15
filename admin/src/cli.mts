@@ -5,15 +5,16 @@ import * as methods from "./methods.mts";
 import * as validators from "./validators.mts";
 import readSignerKeypair from "./utils/read-signer-keypair.mts";
 import resolveWalletPath from "./utils/resolve-wallet-path.mjs";
+import { readJSON } from "./utils/read-file-content.mts";
 
 const VERSION = "0.1.0";
 
 function handler(command: any, parser?: any) {
-  return async (args: string[], options: {}, cli: Command) => {
-    const res = await command(args, options, cli);
+  return async (...args: any[]) => {
+    const res = await command(...args);
     const out = parser ? await parser(res) : res;
 
-    console.log(out)
+    console.log(out); // show the result via `console`
   };
 }
 
@@ -88,8 +89,41 @@ cli
 
 cli
   .command("init-token-pair")
-  .description("Init token pair")
-  .action(handler(commands.init_token_pair));
+  .description("Initialize token-pair")
+  .argument("<a-mint-pubkey>", "Token A mint")
+  .argument("<b-mint-pubkey>", "Token B mint")
+  .argument("<path-to-token-pair-config>", "Path to token-pair config")
+  .action(
+    handler(
+      async (
+        a: string,
+        b: string,
+        configFile: string,
+        _: never,
+        cli: Command
+      ) => {
+        const { keypair } = cli.optsWithGlobals();
+
+        const client = Client(cli.optsWithGlobals().url);
+        const mints = commands.populateSigners([a, b]);
+        const signer = await readSignerKeypair(keypair);
+
+        let tokenPairConfig = await readJSON(configFile);
+        tokenPairConfig = await validators.struct.tokenPair(tokenPairConfig);
+        return methods.initTokenPair(
+          client,
+          {
+            options: tokenPairConfig,
+            arguments: {
+              a: mints[0],
+              b: mints[1],
+            },
+          },
+          signer
+        );
+      }
+    )
+  );
 
 cli
   .command("list-multisig")

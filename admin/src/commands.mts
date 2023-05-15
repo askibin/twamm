@@ -24,11 +24,6 @@ export const delete_test_pool = () => {};
 export const get_outstanding_amount = () => {};
 
 /**
- * Initialize token pair
- */
-export const init_token_pair = async () => {};
-
-/**
  *
  */
 export const list_multisig = async () => {};
