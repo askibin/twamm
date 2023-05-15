@@ -39,11 +39,6 @@ export const list_orders = async () => {};
 export const list_pools = async () => {};
 
 /**
- *
- */
-export const list_token_pairs = async () => {};
-
-/**
  * Set `crank` authority
  */
 export const set_crank_authority = () => {};

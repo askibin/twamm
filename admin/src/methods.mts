@@ -110,6 +110,15 @@ export const initTokenPair = async (
     .rpc();
 };
 
+export const listTokenPairs = async (
+  client: ReturnType<typeof Client>,
+  command: CommandInput<{}, {}>
+) => {
+  log(command);
+
+  return client.program.account.tokenPair.all();
+};
+
 export const setAdminSigners = async (
   client: ReturnType<typeof Client>,
   command: CommandInput<

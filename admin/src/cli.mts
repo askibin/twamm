@@ -9,6 +9,8 @@ import { readJSON } from "./utils/read-file-content.mts";
 
 const VERSION = "0.1.0";
 
+const prettifyJSON = (a: {}) => JSON.stringify(a, null, 2);
+
 function handler(command: any, parser?: any) {
   return async (...args: any[]) => {
     const res = await command(...args);
@@ -139,8 +141,15 @@ cli.command("list-pools").description("").action(handler(commands.list_pools));
 
 cli
   .command("list-token-pairs")
-  .description("")
-  .action(handler(commands.list_token_pairs));
+  .description("List available token-pairs")
+  .action(
+    handler(async (opts: {}, cli: Command) => {
+      const options = opts;
+      const client = Client(cli.optsWithGlobals().url);
+
+      return methods.listTokenPairs(client, { options, arguments: {} });
+    }, prettifyJSON)
+  );
 
 cli
   .command("set-admin-signers")
