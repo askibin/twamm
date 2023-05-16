@@ -44,11 +44,6 @@ export const set_limits = () => {};
 export const set_oracle_config = () => {};
 
 /**
- * Set permissions
- */
-export const set_permissions = () => {};
-
-/**
  * Set test `oracle` price
  */
 export const set_test_oracle_price = () => {};

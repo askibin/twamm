@@ -87,6 +87,35 @@ export const set_fees = (params: t.TypeOf<typeof types.FeeParamsRaw>) => {
   return dParams.right;
 };
 
+export const set_permissions_opts = (params: { tokenPair: string }) => {
+  const dOptions = types.SetPermissionsOpts.decode({
+    tokenPair: new PublicKey(params.tokenPair),
+  });
+
+  if (either.isLeft(dOptions)) {
+    throw new Error("Invalid options");
+  }
+
+  return dOptions.right;
+};
+
+export const set_permissions = (
+  params: t.TypeOf<typeof types.PermissionsParams>
+) => {
+  const dParams = types.SetPermissionsParams.decode({
+    allowDeposits: params.allowDeposits === "true",
+    allowWithdrawals: params.allowWithdrawals === "true",
+    allowCranks: params.allowCranks === "true",
+    allowSettlements: params.allowSettlements === "true",
+  });
+
+  if (either.isLeft(dParams)) {
+    throw new Error("Invalid SetPermissions params");
+  }
+
+  return dParams.right;
+};
+
 export const set_time_in_force = (params: {
   tifIndex: string;
   tif: string;

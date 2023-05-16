@@ -50,6 +50,24 @@ export const SetFeesOpts = t.type({
   tokenPair: PublicKeyType,
 });
 
+export const PermissionsParams = t.type({
+  allowDeposits: t.string,
+  allowWithdrawals: t.string,
+  allowCranks: t.string,
+  allowSettlements: t.string,
+});
+
+export const SetPermissionsParams = t.type({
+  allowDeposits: t.boolean,
+  allowWithdrawals: t.boolean,
+  allowCranks: t.boolean,
+  allowSettlements: t.boolean,
+});
+
+export const SetPermissionsOpts = t.type({
+  tokenPair: PublicKeyType,
+});
+
 export const SetTimeInForceParams = t.type({
   timeInForceIndex: t.number,
   newTimeInForce: t.number,

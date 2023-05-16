@@ -276,8 +276,46 @@ cli
 
 cli
   .command("set-permissions")
-  .description("")
-  .action(handler(commands.set_permissions));
+  .description("Set permissions")
+  .requiredOption("-tp, --token-pair <pubkey>", "Token pair address; required")
+  .argument("<allow-deposits-bool>", "Allow deposits")
+  .argument("<allow-withdrawals-bool>", "Allow withdrawals")
+  .argument("<allow-cranks-bool>", "Allow cranks")
+  .argument("<allow-settlements-bool>", "Allow settlements")
+  .action(
+    handler(
+      async (
+        allowDeposits: string,
+        allowWithdrawals: string,
+        allowCranks: string,
+        allowSettlements: string,
+        opts: Parameters<typeof validators.set_permissions_opts>[0],
+        cli: Command
+      ) => {
+        const { keypair, url } = cli.optsWithGlobals();
+
+        const options = validators.set_permissions_opts(opts);
+        const client = Client(url);
+        const signer = await readSignerKeypair(keypair);
+
+        const params = validators.set_permissions({
+          allowDeposits,
+          allowWithdrawals,
+          allowCranks,
+          allowSettlements,
+        });
+
+        return methods.setPermissions(
+          client,
+          {
+            options,
+            arguments: params,
+          },
+          signer
+        );
+      }
+    )
+  );
 
 cli
   .command("set-test-oracle-price")
