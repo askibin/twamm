@@ -27,6 +27,30 @@ export const set_admin_signers = (params: { minSignatures: string }) => {
   return dOptions.right;
 };
 
+export const set_crank_authority_opts = (params: { tokenPair: string }) => {
+  const dOptions = types.SetCrankAuthorityOpts.decode({
+    tokenPair: new PublicKey(params.tokenPair),
+  });
+
+  if (either.isLeft(dOptions)) {
+    throw new Error("Invalid options");
+  }
+
+  return dOptions.right;
+};
+
+export const set_crank_authority = (params: { pubkey: string }) => {
+  const dParams = types.SetCrankAuthorityParams.decode({
+    crankAuthority: new PublicKey(params.pubkey),
+  });
+
+  if (either.isLeft(dParams)) {
+    throw new Error("Invalid SetCrankAuthority params");
+  }
+
+  return dParams.right;
+};
+
 export const set_time_in_force = (params: {
   tifIndex: string;
   tif: string;

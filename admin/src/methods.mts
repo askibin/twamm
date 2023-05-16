@@ -125,6 +125,35 @@ export const setAdminSigners = async (
     .rpc();
 };
 
+export const setCrankAuthority = async (
+  client: ReturnType<typeof Client>,
+  command: CommandInput<
+    { tokenPair: web3.PublicKey },
+    t.TypeOf<typeof types.SetCrankAuthorityParams>
+  >,
+  signer: web3.Keypair
+): Promise<string> => {
+  log(command);
+
+  const accounts = {
+    admin: signer.publicKey,
+    multisig: (await cli.multisig(client.program)).pda,
+    tokenPair: command.options.tokenPair,
+  };
+
+  log(accounts, "set_crank_authority");
+
+  const { crankAuthority } = command.arguments;
+
+  return client.program.methods
+    .setCrankAuthority({
+      crankAuthority,
+    })
+    .accounts(accounts)
+    .signers([signer])
+    .rpc();
+};
+
 export const setTimeInForce = async (
   client: ReturnType<typeof Client>,
   command: CommandInput<

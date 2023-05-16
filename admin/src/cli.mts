@@ -185,9 +185,38 @@ cli
   );
 
 cli
-  .command("set_crank_authority")
-  .description("")
-  .action(handler(commands.set_crank_authority));
+  .command("set-crank-authority")
+  .description("Set `crank` authority")
+  .requiredOption("-tp, --token-pair <pubkey>", "Token pair address; required")
+  .argument("<pubkey>", "Crank authority pubkey")
+  .action(
+    handler(
+      async (
+        pubkey: string,
+        opts: Parameters<typeof validators.set_crank_authority_opts>[0],
+        cli: Command
+      ) => {
+        const { keypair, url } = cli.optsWithGlobals();
+
+        const options = validators.set_crank_authority_opts(opts);
+        const client = Client(url);
+        const signer = await readSignerKeypair(keypair);
+
+        const { crankAuthority } = validators.set_crank_authority({
+          pubkey,
+        });
+
+        return methods.setCrankAuthority(
+          client,
+          {
+            options,
+            arguments: { crankAuthority },
+          },
+          signer
+        );
+      }
+    )
+  );
 
 cli.command("set-fees").description("").action(handler(commands.set_fees));
 

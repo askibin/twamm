@@ -18,14 +18,22 @@ export const PublicKeyType = new t.Type<PublicKey, string, unknown>(
 
 export const InitOpts = t.type({ minSignatures: t.number });
 
+export const SetAdminSignersOpts = t.type({ minSignatures: t.number });
+
+export const SetCrankAuthorityParams = t.type({
+  crankAuthority: PublicKeyType,
+});
+
+export const SetCrankAuthorityOpts = t.type({
+  tokenPair: PublicKeyType,
+});
+
 export const SetTimeInForceParams = t.type({
   timeInForceIndex: t.number,
   newTimeInForce: t.number,
 });
 
 export const SetTimeInForceOpts = t.type({ tokenPair: PublicKeyType });
-
-export const SetAdminSignersOpts = t.type({ minSignatures: t.number });
 
 export const TokenPairRaw = t.type({
   allowDeposits: t.boolean,

@@ -34,11 +34,6 @@ export const list_orders = async () => {};
 export const list_pools = async () => {};
 
 /**
- * Set `crank` authority
- */
-export const set_crank_authority = () => {};
-
-/**
  * Set fees
  */
 export const set_fees = () => {};
