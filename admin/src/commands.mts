@@ -69,11 +69,6 @@ export const set_test_oracle_price = () => {};
 export const set_test_time = () => {};
 
 /**
- * Set `Time-in-force`
- */
-export const set_time_in_force = () => {};
-
-/**
  * Settle
  */
 export const settle = () => {};

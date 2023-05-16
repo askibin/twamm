@@ -24,7 +24,10 @@ let cli = new Command()
   .description(
     `Welcome to twamm admin. Use the "help" command to get more information.`
   )
-  .requiredOption("-k, --keypair <path>", "path to the payer's keypair")
+  .requiredOption(
+    "-k, --keypair <path>",
+    "path to the payer's keypair; required"
+  )
   .option("-u, --url <string>", "cluster address; supports monikers", "devnet")
   .version(VERSION);
 
@@ -79,7 +82,7 @@ cli
         opts: Parameters<typeof validators.init>[0],
         cli: Command
       ) => {
-        const options: { minSignatures: number } = validators.init(opts);
+        const options = validators.init(opts);
         const pubkeys = populateSigners(args);
         const client = Client(cli.optsWithGlobals().url);
 
@@ -164,8 +167,7 @@ cli
       ) => {
         const { keypair, url } = cli.optsWithGlobals();
 
-        const options: { minSignatures: number } =
-          validators.set_admin_signers(opts);
+        const options = validators.set_admin_signers(opts);
         const pubkeys = populateSigners(args);
         const client = Client(url);
         const signer = await readSignerKeypair(keypair);
@@ -213,8 +215,43 @@ cli
 
 cli
   .command("set-time-in-force")
-  .description("")
-  .action(handler(commands.set_time_in_force));
+  .description("Set time in force")
+  .requiredOption("-tp, --token-pair <pubkey>", "Token pair address; required")
+  .argument("<u8>", "Time in force index")
+  .argument("<u32>", "New time in force")
+  .action(
+    handler(
+      async (
+        tifIndex: string,
+        tif: string,
+        opts: Parameters<typeof validators.set_time_in_force_opts>[0],
+        cli: Command
+      ) => {
+        const { keypair, url } = cli.optsWithGlobals();
+        const options = validators.set_time_in_force_opts(opts);
+        const client = Client(url);
+        const signer = await readSignerKeypair(keypair);
+
+        const { timeInForceIndex, newTimeInForce } =
+          validators.set_time_in_force({
+            tifIndex,
+            tif,
+          });
+
+        return methods.setTimeInForce(
+          client,
+          {
+            options,
+            arguments: {
+              timeInForceIndex,
+              newTimeInForce,
+            },
+          },
+          signer
+        );
+      }
+    )
+  );
 
 cli.command("settle").description("").action(handler(commands.settle));
 

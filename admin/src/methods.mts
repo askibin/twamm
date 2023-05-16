@@ -124,3 +124,33 @@ export const setAdminSigners = async (
     .signers([signer])
     .rpc();
 };
+
+export const setTimeInForce = async (
+  client: ReturnType<typeof Client>,
+  command: CommandInput<
+    { tokenPair: web3.PublicKey },
+    t.TypeOf<typeof types.SetTimeInForceParams>
+  >,
+  signer: web3.Keypair
+): Promise<string> => {
+  log(command);
+
+  const accounts = {
+    admin: signer.publicKey,
+    multisig: (await cli.multisig(client.program)).pda,
+    tokenPair: command.options.tokenPair,
+  };
+
+  log(accounts, "set_time_in_force");
+
+  const { timeInForceIndex, newTimeInForce } = command.arguments;
+
+  return client.program.methods
+    .setTimeInForce({
+      timeInForceIndex,
+      newTimeInForce,
+    })
+    .accounts(accounts)
+    .signers([signer])
+    .rpc();
+};

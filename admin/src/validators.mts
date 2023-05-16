@@ -27,6 +27,38 @@ export const set_admin_signers = (params: { minSignatures: string }) => {
   return dOptions.right;
 };
 
+export const set_time_in_force = (params: {
+  tifIndex: string;
+  tif: string;
+}) => {
+  const dParams = types.SetTimeInForceParams.decode({
+    timeInForceIndex: Number(params.tifIndex),
+    newTimeInForce: Number(params.tif),
+  });
+
+  if (
+    either.isLeft(dParams) ||
+    isNaN(dParams.right.timeInForceIndex) ||
+    isNaN(dParams.right.newTimeInForce)
+  ) {
+    throw new Error("Invalid SetTimeInForce params");
+  }
+
+  return dParams.right;
+};
+
+export const set_time_in_force_opts = (params: { tokenPair: string }) => {
+  const dOptions = types.SetTimeInForceOpts.decode({
+    tokenPair: new PublicKey(params.tokenPair),
+  });
+
+  if (either.isLeft(dOptions)) {
+    throw new Error("Invalid options");
+  }
+
+  return dOptions.right;
+};
+
 export const struct = {
   tokenPair: (config: {}) => {
     const dConfig = types.TokenPairRaw.decode(config);

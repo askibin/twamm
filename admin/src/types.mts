@@ -18,6 +18,15 @@ export const PublicKeyType = new t.Type<PublicKey, string, unknown>(
 
 export const InitOpts = t.type({ minSignatures: t.number });
 
+export const SetTimeInForceParams = t.type({
+  timeInForceIndex: t.number,
+  newTimeInForce: t.number,
+});
+
+export const SetTimeInForceOpts = t.type({ tokenPair: PublicKeyType });
+
+export const SetAdminSignersOpts = t.type({ minSignatures: t.number });
+
 export const TokenPairRaw = t.type({
   allowDeposits: t.boolean,
   allowWithdrawals: t.boolean,
@@ -76,8 +85,6 @@ export const TokenPair = t.type({
 
 // casting object structs to satisfy anchor's `never` from Idl
 export type TokenPairType = t.TypeOf<typeof TokenPair> & {
-  oracleTypeTokenA: never,
-  oracleTypeTokenB: never,
+  oracleTypeTokenA: never;
+  oracleTypeTokenB: never;
 };
-
-export const SetAdminSignersOpts = t.type({ minSignatures: t.number });
