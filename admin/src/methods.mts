@@ -179,6 +179,31 @@ export const setFees = async (
     .rpc();
 };
 
+export const setLimits = async (
+  client: ReturnType<typeof Client>,
+  command: CommandInput<
+    { tokenPair: web3.PublicKey },
+    t.TypeOf<typeof types.SetLimitsParams>
+  >,
+  signer: web3.Keypair
+): Promise<string> => {
+  log(command);
+
+  const accounts = {
+    admin: signer.publicKey,
+    multisig: (await cli.multisig(client.program)).pda,
+    tokenPair: command.options.tokenPair,
+  };
+
+  log(accounts, "set_limits");
+
+  return client.program.methods
+    .setLimits(command.arguments)
+    .accounts(accounts)
+    .signers([signer])
+    .rpc();
+};
+
 export const setPermissions = async (
   client: ReturnType<typeof Client>,
   command: CommandInput<

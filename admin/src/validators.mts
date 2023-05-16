@@ -4,6 +4,21 @@ import { either } from "fp-ts";
 import { PublicKey } from "@solana/web3.js";
 import * as types from "./types.mts";
 
+const token_pair_opts = (
+  params: { tokenPair: string },
+  scheme = types.TokenPairOpts
+) => {
+  const dOptions = scheme.decode({
+    tokenPair: new PublicKey(params.tokenPair),
+  });
+
+  if (either.isLeft(dOptions)) {
+    throw new Error("Invalid options");
+  }
+
+  return dOptions.right;
+};
+
 export const init = (params: { minSignatures: string }) => {
   const dOptions = types.InitOpts.decode({
     minSignatures: Number(params.minSignatures),
@@ -28,17 +43,8 @@ export const set_admin_signers = (params: { minSignatures: string }) => {
   return dOptions.right;
 };
 
-export const set_crank_authority_opts = (params: { tokenPair: string }) => {
-  const dOptions = types.SetCrankAuthorityOpts.decode({
-    tokenPair: new PublicKey(params.tokenPair),
-  });
-
-  if (either.isLeft(dOptions)) {
-    throw new Error("Invalid options");
-  }
-
-  return dOptions.right;
-};
+export const set_crank_authority_opts = (p: { tokenPair: string }) =>
+  token_pair_opts(p, types.SetCrankAuthorityOpts);
 
 export const set_crank_authority = (params: { pubkey: string }) => {
   const dParams = types.SetCrankAuthorityParams.decode({
@@ -52,17 +58,8 @@ export const set_crank_authority = (params: { pubkey: string }) => {
   return dParams.right;
 };
 
-export const set_fees_opts = (params: { tokenPair: string }) => {
-  const dOptions = types.SetFeesOpts.decode({
-    tokenPair: new PublicKey(params.tokenPair),
-  });
-
-  if (either.isLeft(dOptions)) {
-    throw new Error("Invalid options");
-  }
-
-  return dOptions.right;
-};
+export const set_fees_opts = (p: { tokenPair: string }) =>
+  token_pair_opts(p, types.SetFeesOpts);
 
 export const set_fees = (params: t.TypeOf<typeof types.FeeParamsRaw>) => {
   const dParamsRaw = types.FeeParamsRaw.decode(params);
@@ -87,17 +84,32 @@ export const set_fees = (params: t.TypeOf<typeof types.FeeParamsRaw>) => {
   return dParams.right;
 };
 
-export const set_permissions_opts = (params: { tokenPair: string }) => {
-  const dOptions = types.SetPermissionsOpts.decode({
-    tokenPair: new PublicKey(params.tokenPair),
+export const set_limits_opts = (p: { tokenPair: string }) =>
+  token_pair_opts(p, types.SetLimitsOpts);
+
+export const set_limits = (params: t.TypeOf<typeof types.LimitsParams>) => {
+  const dParams = types.SetLimitsParams.decode({
+    minSwapAmountTokenA: new BN(params.minSwapAmountTokenA),
+    minSwapAmountTokenB: new BN(params.minSwapAmountTokenB),
+    maxSwapPriceDiff: Number(params.maxSwapPriceDiff),
+    maxUnsettledAmount: Number(params.maxUnsettledAmount),
+    minTimeTillExpiration: Number(params.minTimeTillExpiration),
   });
 
-  if (either.isLeft(dOptions)) {
-    throw new Error("Invalid options");
+  if (
+    either.isLeft(dParams) ||
+    isNaN(dParams.right.maxSwapPriceDiff) ||
+    isNaN(dParams.right.maxUnsettledAmount) ||
+    isNaN(dParams.right.minTimeTillExpiration)
+  ) {
+    throw new Error("Invalid SetLimits params");
   }
 
-  return dOptions.right;
+  return dParams.right;
 };
+
+export const set_permissions_opts = (p: { tokenPair: string }) =>
+  token_pair_opts(p, types.SetPermissionsOpts);
 
 export const set_permissions = (
   params: t.TypeOf<typeof types.PermissionsParams>
@@ -136,17 +148,8 @@ export const set_time_in_force = (params: {
   return dParams.right;
 };
 
-export const set_time_in_force_opts = (params: { tokenPair: string }) => {
-  const dOptions = types.SetTimeInForceOpts.decode({
-    tokenPair: new PublicKey(params.tokenPair),
-  });
-
-  if (either.isLeft(dOptions)) {
-    throw new Error("Invalid options");
-  }
-
-  return dOptions.right;
-};
+export const set_time_in_force_opts = (p: { tokenPair: string }) =>
+  token_pair_opts(p, types.SetTimeInForceOpts);
 
 export const struct = {
   tokenPair: (config: {}) => {

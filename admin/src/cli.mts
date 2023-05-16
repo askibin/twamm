@@ -267,8 +267,51 @@ cli
     )
   );
 
-cli.command("set-limits").description("").action(handler(commands.set_limits));
+cli
+  .command("set-limits")
+  .description("Set limits")
+  .requiredOption("-tp, --token-pair <pubkey>", "Token pair address; required")
+  .argument("<min-swap-amount-token-a-u64>", "Minimal swap amount for token A")
+  .argument("<min-swap-amount-token-b-u64>", "Minimal swap amount for token B")
+  .argument("<max-swap-price-diff-u64>", "Maximal swap price difference")
+  .argument("<max-unsettled-amount-u64>", "Maximal amount of unsettled tokens")
+  .argument("<min-time-till-expiration-u64>", "Minimal time until expiration")
+  .action(
+    handler(
+      async (
+        minSwapAmountTokenA: string,
+        minSwapAmountTokenB: string,
+        maxSwapPriceDiff: string,
+        maxUnsettledAmount: string,
+        minTimeTillExpiration: string,
+        opts: Parameters<typeof validators.set_limits_opts>[0],
+        cli: Command
+      ) => {
+        const { keypair, url } = cli.optsWithGlobals();
 
+        const options = validators.set_limits_opts(opts);
+        const client = Client(url);
+        const signer = await readSignerKeypair(keypair);
+
+        const params = validators.set_limits({
+          minSwapAmountTokenA,
+          minSwapAmountTokenB,
+          maxSwapPriceDiff,
+          maxUnsettledAmount,
+          minTimeTillExpiration,
+        });
+
+        return methods.setLimits(
+          client,
+          {
+            options,
+            arguments: params,
+          },
+          signer
+        );
+      }
+    )
+  );
 cli
   .command("set_oracle_config")
   .description("")

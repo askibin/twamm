@@ -16,17 +16,27 @@ export const PublicKeyType = new t.Type<PublicKey, string, unknown>(
   (i) => i.toBase58()
 );
 
+export const TokenPairOpts = t.type({
+  tokenPair: PublicKeyType,
+});
+
 export const InitOpts = t.type({ minSignatures: t.number });
 
 export const SetAdminSignersOpts = t.type({ minSignatures: t.number });
+
+/**
+ * Set crank authority
+ */
 
 export const SetCrankAuthorityParams = t.type({
   crankAuthority: PublicKeyType,
 });
 
-export const SetCrankAuthorityOpts = t.type({
-  tokenPair: PublicKeyType,
-});
+export const SetCrankAuthorityOpts = TokenPairOpts;
+
+/**
+ * Set fees
+ */
 
 export const FeeParamsRaw = t.type({
   feeNumerator: t.string,
@@ -46,9 +56,33 @@ export const SetFeesParams = t.type({
   crankRewardTokenB: BNType,
 });
 
-export const SetFeesOpts = t.type({
-  tokenPair: PublicKeyType,
+export const SetFeesOpts = TokenPairOpts;
+
+/**
+ * Set limits
+ */
+
+export const LimitsParams = t.type({
+  minSwapAmountTokenA: t.string,
+  minSwapAmountTokenB: t.string,
+  maxSwapPriceDiff: t.string,
+  maxUnsettledAmount: t.string,
+  minTimeTillExpiration: t.string,
 });
+
+export const SetLimitsParams = t.type({
+  minSwapAmountTokenA: BNType,
+  minSwapAmountTokenB: BNType,
+  maxSwapPriceDiff: t.number,
+  maxUnsettledAmount: t.number,
+  minTimeTillExpiration: t.number,
+});
+
+export const SetLimitsOpts = TokenPairOpts;
+
+/**
+ *  Set permissions
+ */
 
 export const PermissionsParams = t.type({
   allowDeposits: t.string,
@@ -68,12 +102,16 @@ export const SetPermissionsOpts = t.type({
   tokenPair: PublicKeyType,
 });
 
+/**
+ *  Set time in force
+ */
+
 export const SetTimeInForceParams = t.type({
   timeInForceIndex: t.number,
   newTimeInForce: t.number,
 });
 
-export const SetTimeInForceOpts = t.type({ tokenPair: PublicKeyType });
+export const SetTimeInForceOpts = TokenPairOpts;
 
 export const TokenPairRaw = t.type({
   allowDeposits: t.boolean,
@@ -102,6 +140,10 @@ export const TokenPairRaw = t.type({
   crankAuthority: t.string,
   timeInForceIntervals: t.array(t.number),
 });
+
+/**
+ * Init token pair
+ */
 
 export const TokenPair = t.type({
   allowDeposits: t.boolean,

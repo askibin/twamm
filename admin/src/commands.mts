@@ -34,11 +34,6 @@ export const list_orders = async () => {};
 export const list_pools = async () => {};
 
 /**
- * Set limits
- */
-export const set_limits = () => {};
-
-/**
  * Set `oracle` config
  */
 export const set_oracle_config = () => {};
