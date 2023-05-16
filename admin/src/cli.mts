@@ -147,7 +147,7 @@ cli
 
 cli
   .command("list-orders")
-  .description("")
+  .description("List orders")
   .action(
     handler(async (options: unknown, ctx: Command) => {
       const client = Client(ctx.optsWithGlobals().url);
