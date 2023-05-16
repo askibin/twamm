@@ -144,7 +144,16 @@ cli
   .description("")
   .action(handler(commands.list_orders));
 
-cli.command("list-pools").description("").action(handler(commands.list_pools));
+cli
+  .command("list-pools")
+  .description("List available pools")
+  .action(
+    handler(async (options: unknown, ctx: Command) => {
+      const client = Client(ctx.optsWithGlobals().url);
+
+      return methods.listPools(client, { options, arguments: {} });
+    })
+  );
 
 cli
   .command("list-token-pairs")

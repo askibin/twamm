@@ -86,9 +86,18 @@ export const initTokenPair = async (
     .rpc();
 };
 
+export const listPools = async (
+  client: ReturnType<typeof Client>,
+  command: CommandInput<unknown, unknown>
+) => {
+  log(command);
+
+  return client.program.account.pool.all();
+};
+
 export const listTokenPairs = async (
   client: ReturnType<typeof Client>,
-  command: CommandInput<{}, {}>
+  command: CommandInput<unknown, unknown>
 ) => {
   log(command);
 
