@@ -6,12 +6,11 @@ import * as validators from "./validators.mts";
 import readSignerKeypair from "./utils/read-signer-keypair.mts";
 import resolveWalletPath from "./utils/resolve-wallet-path.mjs";
 import { readJSON } from "./utils/read-file-content.mts";
+import { populateSigners, prettifyJSON } from "./utils/index.mts";
 
 const VERSION = "0.1.0";
 
-const prettifyJSON = (a: {}) => JSON.stringify(a, null, 2);
-
-function handler(command: any, parser?: any) {
+function handler(command: any, parser: any = prettifyJSON) {
   return async (...args: any[]) => {
     const res = await command(...args);
     const out = parser ? await parser(res) : res;
@@ -81,7 +80,7 @@ cli
         cli: Command
       ) => {
         const options: { minSignatures: number } = validators.init(opts);
-        const pubkeys = commands.populateSigners(args);
+        const pubkeys = populateSigners(args);
         const client = Client(cli.optsWithGlobals().url);
 
         return methods.init(client, { options, arguments: { pubkeys } });
@@ -107,7 +106,7 @@ cli
         const { keypair } = cli.optsWithGlobals();
 
         const client = Client(cli.optsWithGlobals().url);
-        const mints = commands.populateSigners([a, b]);
+        const mints = populateSigners([a, b]);
         const signer = await readSignerKeypair(keypair);
 
         let tokenPairConfig = await readJSON(configFile);
@@ -148,7 +147,7 @@ cli
       const client = Client(cli.optsWithGlobals().url);
 
       return methods.listTokenPairs(client, { options, arguments: {} });
-    }, prettifyJSON)
+    })
   );
 
 cli
@@ -167,7 +166,7 @@ cli
 
         const options: { minSignatures: number } =
           validators.set_admin_signers(opts);
-        const pubkeys = commands.populateSigners(args);
+        const pubkeys = populateSigners(args);
         const client = Client(url);
         const signer = await readSignerKeypair(keypair);
 
