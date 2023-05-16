@@ -45,12 +45,14 @@ export const multisig = async (program: TwammProgram, name = "multisig") => {
   return { pda, bump };
 };
 
-export const oracleTokenA = async (
+const oracleToken = async (
   program: TwammProgram,
   tokenA: web3.PublicKey,
   tokenB: web3.PublicKey,
-  name = "token_a_oracle"
+  name?: string
 ) => {
+  if (!name) throw new Error("Provide the seeds");
+
   const [pda, bump] = await web3.PublicKey.findProgramAddress(
     [Buffer.from(encode(name)), tokenA.toBuffer(), tokenB.toBuffer()],
     program.programId
@@ -59,18 +61,20 @@ export const oracleTokenA = async (
   return { pda, bump };
 };
 
+export const oracleTokenA = async (
+  program: TwammProgram,
+  tokenA: web3.PublicKey,
+  tokenB: web3.PublicKey
+) => {
+  return oracleToken(program, tokenA, tokenB, "token_a_oracle");
+};
+
 export const oracleTokenB = async (
   program: TwammProgram,
   tokenA: web3.PublicKey,
-  tokenB: web3.PublicKey,
-  name = "token_b_oracle"
+  tokenB: web3.PublicKey
 ) => {
-  const [pda, bump] = await web3.PublicKey.findProgramAddress(
-    [Buffer.from(encode(name)), tokenA.toBuffer(), tokenB.toBuffer()],
-    program.programId
-  );
-
-  return { pda, bump };
+  return oracleToken(program, tokenA, tokenB, "token_b_oracle");
 };
 
 export const tokenPair = async (

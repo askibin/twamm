@@ -81,6 +81,34 @@ export const SetLimitsParams = t.type({
 export const SetLimitsOpts = TokenPairOpts;
 
 /**
+ * Set oracle config
+ */
+
+export const OracleConfigParams = t.type({
+  maxOraclePriceErrorTokenA: t.string,
+  maxOraclePriceErrorTokenB: t.string,
+  maxOraclePriceAgeSecTokenA: t.string,
+  maxOraclePriceAgeSecTokenB: t.string,
+  oracleTypeTokenA: t.string,
+  oracleTypeTokenB: t.string,
+  oracleAccountTokenA: t.string,
+  oracleAccountTokenB: t.string,
+});
+
+export const SetOracleConfigParams = t.type({
+  maxOraclePriceErrorTokenA: t.number,
+  maxOraclePriceErrorTokenB: t.number,
+  maxOraclePriceAgeSecTokenA: t.number,
+  maxOraclePriceAgeSecTokenB: t.number,
+  oracleTypeTokenA: t.object,
+  oracleTypeTokenB: t.object,
+  oracleAccountTokenA: PublicKeyType,
+  oracleAccountTokenB: PublicKeyType,
+});
+
+export const SetOracleConfigOpts = TokenPairOpts;
+
+/**
  *  Set permissions
  */
 

@@ -1,5 +1,6 @@
 import { Command } from "commander";
-import Client from "./client.mts";
+import Debug from "debug";
+import Client, * as clientHelpers from "./client.mts";
 import * as commands from "./commands.mts";
 import * as methods from "./methods.mts";
 import * as validators from "./validators.mts";
@@ -9,6 +10,8 @@ import { readJSON } from "./utils/read-file-content.mts";
 import { populateSigners, prettifyJSON } from "./utils/index.mts";
 
 const VERSION = "0.1.0";
+
+const log = Debug("twamm-admin:cli");
 
 function handler(command: any, parser: any = prettifyJSON) {
   return async (...args: any[]) => {
@@ -43,6 +46,8 @@ cli.hook("preSubcommand", (cmd, subCmd) => {
   const ANCHOR_WALLET = resolveWalletPath(keypair);
 
   Object.assign(process.env, { ANCHOR_WALLET });
+
+  log("`ANCHOR_WALLET` env was set to:", ANCHOR_WALLET);
 });
 
 cli
@@ -80,11 +85,11 @@ cli
       (
         args: string[],
         opts: Parameters<typeof validators.init>[0],
-        cli: Command
+        ctx: Command
       ) => {
         const options = validators.init(opts);
         const pubkeys = populateSigners(args);
-        const client = Client(cli.optsWithGlobals().url);
+        const client = Client(ctx.optsWithGlobals().url);
 
         return methods.init(client, { options, arguments: { pubkeys } });
       }
@@ -104,11 +109,11 @@ cli
         b: string,
         configFile: string,
         _: never,
-        cli: Command
+        ctx: Command
       ) => {
-        const { keypair } = cli.optsWithGlobals();
+        const { keypair } = ctx.optsWithGlobals();
 
-        const client = Client(cli.optsWithGlobals().url);
+        const client = Client(ctx.optsWithGlobals().url);
         const mints = populateSigners([a, b]);
         const signer = await readSignerKeypair(keypair);
 
@@ -145,9 +150,9 @@ cli
   .command("list-token-pairs")
   .description("List available token-pairs")
   .action(
-    handler(async (opts: {}, cli: Command) => {
+    handler(async (opts: {}, ctx: Command) => {
       const options = opts;
-      const client = Client(cli.optsWithGlobals().url);
+      const client = Client(ctx.optsWithGlobals().url);
 
       return methods.listTokenPairs(client, { options, arguments: {} });
     })
@@ -163,9 +168,9 @@ cli
       async (
         args: string[],
         opts: Parameters<typeof validators.set_admin_signers>[0],
-        cli: Command
+        ctx: Command
       ) => {
-        const { keypair, url } = cli.optsWithGlobals();
+        const { keypair, url } = ctx.optsWithGlobals();
 
         const options = validators.set_admin_signers(opts);
         const pubkeys = populateSigners(args);
@@ -194,9 +199,9 @@ cli
       async (
         pubkey: string,
         opts: Parameters<typeof validators.set_crank_authority_opts>[0],
-        cli: Command
+        ctx: Command
       ) => {
-        const { keypair, url } = cli.optsWithGlobals();
+        const { keypair, url } = ctx.optsWithGlobals();
 
         const options = validators.set_crank_authority_opts(opts);
         const client = Client(url);
@@ -238,9 +243,9 @@ cli
         crankRewardTokenA: string,
         crankRewardTokenB: string,
         opts: Parameters<typeof validators.set_fees_opts>[0],
-        cli: Command
+        ctx: Command
       ) => {
-        const { keypair, url } = cli.optsWithGlobals();
+        const { keypair, url } = ctx.optsWithGlobals();
 
         const options = validators.set_fees_opts(opts);
         const client = Client(url);
@@ -285,9 +290,9 @@ cli
         maxUnsettledAmount: string,
         minTimeTillExpiration: string,
         opts: Parameters<typeof validators.set_limits_opts>[0],
-        cli: Command
+        ctx: Command
       ) => {
-        const { keypair, url } = cli.optsWithGlobals();
+        const { keypair, url } = ctx.optsWithGlobals();
 
         const options = validators.set_limits_opts(opts);
         const client = Client(url);
@@ -313,9 +318,77 @@ cli
     )
   );
 cli
-  .command("set_oracle_config")
-  .description("")
-  .action(handler(commands.set_oracle_config));
+  .command("set-oracle-config")
+  .description("Set oracle config")
+  .requiredOption("-tp, --token-pair <pubkey>", "Token pair address; required")
+  .argument("<max-price-error-token-a-f64>", "Max price error for A")
+  .argument("<max-price-error-token-b-f64>", "Max price error for B")
+  .argument(
+    "<max-oracle-price-age-sec-token-a-u32>",
+    "Max price agein seconds for A"
+  )
+  .argument(
+    "<max-oracle-price-age-sec-token-b-u32>",
+    "Max price age in seconds for B"
+  )
+  .argument("<oracle-type-token-a>", "Oracle type for A")
+  .argument("<oracle-type-token-b>", "Oracle type for B")
+  .action(
+    handler(
+      async (
+        maxOraclePriceErrorTokenA: string,
+        maxOraclePriceErrorTokenB: string,
+        maxOraclePriceAgeSecTokenA: string,
+        maxOraclePriceAgeSecTokenB: string,
+        oracleTypeTokenA: string,
+        oracleTypeTokenB: string,
+        opts: Parameters<typeof validators.set_oracle_config_opts>[0],
+        ctx: Command
+      ) => {
+        const { keypair, url } = ctx.optsWithGlobals();
+
+        const options = validators.set_oracle_config_opts(opts);
+        const client = Client(url);
+        const signer = await readSignerKeypair(keypair);
+
+        log("Fetching token pair...");
+
+        const pair = await client.program.account.tokenPair.fetch(
+          options.tokenPair
+        );
+
+        const tokenA = pair.configA.mint;
+        const tokenB = pair.configB.mint;
+
+        const oracleAccountTokenA = (
+          await clientHelpers.oracleTokenA(client.program, tokenA, tokenB)
+        ).pda.toBase58();
+        const oracleAccountTokenB = (
+          await clientHelpers.oracleTokenB(client.program, tokenA, tokenB)
+        ).pda.toBase58();
+
+        const params = validators.set_oracle_config({
+          maxOraclePriceErrorTokenA,
+          maxOraclePriceErrorTokenB,
+          maxOraclePriceAgeSecTokenA,
+          maxOraclePriceAgeSecTokenB,
+          oracleTypeTokenA,
+          oracleTypeTokenB,
+          oracleAccountTokenA,
+          oracleAccountTokenB,
+        });
+
+        return methods.setOracleConfig(
+          client,
+          {
+            options,
+            arguments: params,
+          },
+          signer
+        );
+      }
+    )
+  );
 
 cli
   .command("set-permissions")
@@ -333,9 +406,9 @@ cli
         allowCranks: string,
         allowSettlements: string,
         opts: Parameters<typeof validators.set_permissions_opts>[0],
-        cli: Command
+        ctx: Command
       ) => {
-        const { keypair, url } = cli.optsWithGlobals();
+        const { keypair, url } = ctx.optsWithGlobals();
 
         const options = validators.set_permissions_opts(opts);
         const client = Client(url);
@@ -382,9 +455,9 @@ cli
         tifIndex: string,
         tif: string,
         opts: Parameters<typeof validators.set_time_in_force_opts>[0],
-        cli: Command
+        ctx: Command
       ) => {
-        const { keypair, url } = cli.optsWithGlobals();
+        const { keypair, url } = ctx.optsWithGlobals();
         const options = validators.set_time_in_force_opts(opts);
         const client = Client(url);
         const signer = await readSignerKeypair(keypair);

@@ -204,6 +204,37 @@ export const setLimits = async (
     .rpc();
 };
 
+export const setOracleConfig = async (
+  client: ReturnType<typeof Client>,
+  command: CommandInput<
+    { tokenPair: web3.PublicKey },
+    t.TypeOf<typeof types.SetOracleConfigParams>
+  >,
+  signer: web3.Keypair
+): Promise<string> => {
+  log(command);
+
+  const accounts = {
+    admin: signer.publicKey,
+    multisig: (await cli.multisig(client.program)).pda,
+    tokenPair: command.options.tokenPair,
+  };
+
+  log(accounts, "set_oracle_config");
+
+  // casting object structs to satisfy anchor's `never` from Idl
+  const args = command.arguments as typeof command.arguments & {
+    oracleTypeTokenA: never;
+    oracleTypeTokenB: never;
+  };
+
+  return client.program.methods
+    .setOracleConfig(args)
+    .accounts(accounts)
+    .signers([signer])
+    .rpc();
+};
+
 export const setPermissions = async (
   client: ReturnType<typeof Client>,
   command: CommandInput<

@@ -108,6 +108,38 @@ export const set_limits = (params: t.TypeOf<typeof types.LimitsParams>) => {
   return dParams.right;
 };
 
+export const set_oracle_config_opts = (p: { tokenPair: string }) =>
+  token_pair_opts(p, types.SetOracleConfigOpts);
+
+export const set_oracle_config = (
+  params: t.TypeOf<typeof types.OracleConfigParams>
+) => {
+  const dParams = types.SetOracleConfigParams.decode({
+    maxOraclePriceErrorTokenA: Number(params.maxOraclePriceErrorTokenA),
+    maxOraclePriceErrorTokenB: Number(params.maxOraclePriceErrorTokenB),
+    maxOraclePriceAgeSecTokenA: Number(params.maxOraclePriceAgeSecTokenA),
+    maxOraclePriceAgeSecTokenB: Number(params.maxOraclePriceAgeSecTokenB),
+    oracleTypeTokenA: JSON.parse(params.oracleTypeTokenA),
+    oracleTypeTokenB: JSON.parse(params.oracleTypeTokenB),
+    oracleAccountTokenA: new PublicKey(params.oracleAccountTokenA),
+    oracleAccountTokenB: new PublicKey(params.oracleAccountTokenB),
+  });
+
+  if (
+    either.isLeft(dParams) ||
+    isNaN(dParams.right.maxOraclePriceErrorTokenA) ||
+    isNaN(dParams.right.maxOraclePriceErrorTokenB) ||
+    isNaN(dParams.right.maxOraclePriceAgeSecTokenA) ||
+    isNaN(dParams.right.maxOraclePriceAgeSecTokenB)
+  ) {
+    throw new Error("Invalid SetOracleConfig params");
+  }
+
+  console.log(dParams.right);
+
+  return dParams.right;
+};
+
 export const set_permissions_opts = (p: { tokenPair: string }) =>
   token_pair_opts(p, types.SetPermissionsOpts);
 
