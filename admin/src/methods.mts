@@ -86,6 +86,15 @@ export const initTokenPair = async (
     .rpc();
 };
 
+export const listMultisig = async (
+  client: ReturnType<typeof Client>,
+  command: CommandInput<unknown, unknown>
+) => {
+  log(command);
+
+  return client.program.account.multisig.all();
+};
+
 export const listOrders = async (
   client: ReturnType<typeof Client>,
   command: CommandInput<unknown, unknown>

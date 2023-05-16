@@ -19,11 +19,6 @@ export const delete_test_pool = () => {};
 export const get_outstanding_amount = () => {};
 
 /**
- *
- */
-export const list_multisig = async () => {};
-
-/**
  * Set test `oracle` price
  */
 export const set_test_oracle_price = () => {};

@@ -136,8 +136,14 @@ cli
 
 cli
   .command("list-multisig")
-  .description("")
-  .action(handler(commands.list_multisig));
+  .description("List multisig")
+  .action(
+    handler(async (options: unknown, ctx: Command) => {
+      const client = Client(ctx.optsWithGlobals().url);
+
+      return methods.listMultisig(client, { options, arguments: {} });
+    })
+  );
 
 cli
   .command("list-orders")
