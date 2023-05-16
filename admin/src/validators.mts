@@ -135,8 +135,6 @@ export const set_oracle_config = (
     throw new Error("Invalid SetOracleConfig params");
   }
 
-  console.log(dParams.right);
-
   return dParams.right;
 };
 
