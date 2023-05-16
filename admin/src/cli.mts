@@ -142,7 +142,13 @@ cli
 cli
   .command("list-orders")
   .description("")
-  .action(handler(commands.list_orders));
+  .action(
+    handler(async (options: unknown, ctx: Command) => {
+      const client = Client(ctx.optsWithGlobals().url);
+
+      return methods.listOrders(client, { options, arguments: {} });
+    })
+  );
 
 cli
   .command("list-pools")
