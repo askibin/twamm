@@ -34,11 +34,6 @@ export const list_orders = async () => {};
 export const list_pools = async () => {};
 
 /**
- * Set fees
- */
-export const set_fees = () => {};
-
-/**
  * Set limits
  */
 export const set_limits = () => {};

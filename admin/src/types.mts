@@ -28,6 +28,28 @@ export const SetCrankAuthorityOpts = t.type({
   tokenPair: PublicKeyType,
 });
 
+export const FeeParamsRaw = t.type({
+  feeNumerator: t.string,
+  feeDenominator: t.string,
+  settleFeeNumerator: t.string,
+  settleFeeDenominator: t.string,
+  crankRewardTokenA: t.string,
+  crankRewardTokenB: t.string,
+});
+
+export const SetFeesParams = t.type({
+  feeNumerator: BNType,
+  feeDenominator: BNType,
+  settleFeeNumerator: BNType,
+  settleFeeDenominator: BNType,
+  crankRewardTokenA: BNType,
+  crankRewardTokenB: BNType,
+});
+
+export const SetFeesOpts = t.type({
+  tokenPair: PublicKeyType,
+});
+
 export const SetTimeInForceParams = t.type({
   timeInForceIndex: t.number,
   newTimeInForce: t.number,

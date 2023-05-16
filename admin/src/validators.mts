@@ -1,3 +1,4 @@
+import * as t from "io-ts";
 import BN from "bn.js";
 import { either } from "fp-ts";
 import { PublicKey } from "@solana/web3.js";
@@ -46,6 +47,41 @@ export const set_crank_authority = (params: { pubkey: string }) => {
 
   if (either.isLeft(dParams)) {
     throw new Error("Invalid SetCrankAuthority params");
+  }
+
+  return dParams.right;
+};
+
+export const set_fees_opts = (params: { tokenPair: string }) => {
+  const dOptions = types.SetFeesOpts.decode({
+    tokenPair: new PublicKey(params.tokenPair),
+  });
+
+  if (either.isLeft(dOptions)) {
+    throw new Error("Invalid options");
+  }
+
+  return dOptions.right;
+};
+
+export const set_fees = (params: t.TypeOf<typeof types.FeeParamsRaw>) => {
+  const dParamsRaw = types.FeeParamsRaw.decode(params);
+
+  if (either.isLeft(dParamsRaw)) {
+    throw new Error("Invalid params");
+  }
+
+  const dParams = types.SetFeesParams.decode({
+    feeNumerator: new BN(params.feeNumerator),
+    feeDenominator: new BN(params.feeDenominator),
+    settleFeeNumerator: new BN(params.settleFeeNumerator),
+    settleFeeDenominator: new BN(params.settleFeeDenominator),
+    crankRewardTokenA: new BN(params.crankRewardTokenA),
+    crankRewardTokenB: new BN(params.crankRewardTokenB),
+  });
+
+  if (either.isLeft(dParams)) {
+    throw new Error("Invalid SetFees params");
   }
 
   return dParams.right;
