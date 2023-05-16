@@ -316,3 +316,65 @@ export const setTimeInForce = async (
     .signers([signer])
     .rpc();
 };
+
+export const withdrawFees = async (
+  client: ReturnType<typeof Client>,
+  command: CommandInput<
+    t.TypeOf<typeof types.WithdrawFeesOpts>,
+    t.TypeOf<typeof types.WithdrawFeesParams>
+  >,
+  signer: web3.Keypair
+): Promise<any> => {
+  log(command);
+
+  const authority = (await cli.transferAuthority(client.program)).pda;
+
+  const [receiverTokenA, receiverTokenB, receiverSol] =
+    command.options.receiverKeys;
+
+  log("Fetching token pair...");
+
+  const pair = await client.program.account.tokenPair.fetch(
+    command.options.tokenPair
+  );
+
+  const tokenA = pair.configA.mint;
+  const tokenB = pair.configB.mint;
+
+  const accounts = {
+    admin: signer.publicKey,
+    multisig: (await cli.multisig(client.program)).pda,
+    tokenPair: command.options.tokenPair,
+    transferAuthority: (await cli.transferAuthority(client.program)).pda,
+    custodyTokenA: await cli.tokenCustody(authority, tokenA),
+    custodyTokenB: await cli.tokenCustody(authority, tokenB),
+    receiverTokenA: (
+      await cli.getOrCreateTokenCustody(
+        client.provider.connection,
+        signer,
+        receiverTokenA,
+        tokenA,
+        false
+      )
+    ).address,
+    receiverTokenB: (
+      await cli.getOrCreateTokenCustody(
+        client.provider.connection,
+        signer,
+        receiverTokenB,
+        tokenB,
+        false
+      )
+    ).address,
+    receiverSol,
+    tokenProgram: spl.TOKEN_PROGRAM_ID,
+  };
+
+  log(accounts, "withdraw_fees");
+
+  return client.program.methods
+    .withdrawFees(command.arguments)
+    .accounts(accounts)
+    .signers([signer])
+    .rpc();
+};

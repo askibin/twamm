@@ -3,6 +3,7 @@ import BN from "bn.js";
 import { either } from "fp-ts";
 import { PublicKey } from "@solana/web3.js";
 import * as types from "./types.mts";
+import { populateSigners } from "./utils/index.mts";
 
 const token_pair_opts = (
   params: { tokenPair: string },
@@ -180,6 +181,52 @@ export const set_time_in_force = (params: {
 
 export const set_time_in_force_opts = (p: { tokenPair: string }) =>
   token_pair_opts(p, types.SetTimeInForceOpts);
+
+/// Withdraw fees
+
+export const withdraw_fees_opts = (params: {
+  tokenPair: string;
+  receiverKeys: string;
+}) => {
+  const addrs = params.receiverKeys.split(",");
+  let receiverKeys;
+  if (addrs.length === 1) {
+    receiverKeys = new Array(3).fill(addrs[0]);
+  } else if (addrs.length !== 3) {
+    throw new Error(
+      "Wrong number of receiver keys; it should be equal to 1 or 3"
+    );
+  } else {
+    receiverKeys = addrs;
+  }
+
+  const dOptions = types.WithdrawFeesOpts.decode({
+    tokenPair: new PublicKey(params.tokenPair),
+    receiverKeys: populateSigners(receiverKeys),
+  });
+
+  if (either.isLeft(dOptions)) {
+    throw new Error("Invalid options");
+  }
+
+  return dOptions.right;
+};
+
+export const withdraw_fees = (params: t.TypeOf<typeof types.FeesParams>) => {
+  const dParams = types.WithdrawFeesParams.decode({
+    amountTokenA: new BN(params.amountTokenA),
+    amountTokenB: new BN(params.amountTokenB),
+    amountSol: new BN(params.amountSol),
+  });
+
+  if (either.isLeft(dParams)) {
+    throw new Error("Invalid WithdrawFees params");
+  }
+
+  return dParams.right;
+};
+
+// end of method validators
 
 export const struct = {
   tokenPair: (config: {}) => {

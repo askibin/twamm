@@ -32,8 +32,3 @@ export const set_test_time = () => {};
  * Settle
  */
 export const settle = () => {};
-
-/**
- * Withdraw fees
- */
-export const withdraw_fees = () => {};

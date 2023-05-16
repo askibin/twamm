@@ -111,6 +111,22 @@ export const tokenCustody = async (
   return spl.getAssociatedTokenAddress(tokenMint, authorityKey, ownerOffCurve);
 };
 
+export const getOrCreateTokenCustody = async (
+  connection: web3.Connection,
+  payer: web3.Keypair,
+  authorityKey: web3.PublicKey,
+  tokenMint: web3.PublicKey,
+  ownerOffCurve: boolean | undefined = true
+) => {
+  return spl.getOrCreateAssociatedTokenAccount(
+    connection,
+    payer,
+    tokenMint,
+    authorityKey,
+    ownerOffCurve
+  );
+};
+
 export const twamm = async (program: TwammProgram, name = "twamm") => {
   const [pda, bump] = await web3.PublicKey.findProgramAddress(
     [Buffer.from(encode(name))],

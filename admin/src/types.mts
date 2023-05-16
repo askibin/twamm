@@ -141,6 +141,29 @@ export const SetTimeInForceParams = t.type({
 
 export const SetTimeInForceOpts = TokenPairOpts;
 
+/**
+ * Withdraw fees
+ */
+
+export const FeesParams = t.type({
+  amountTokenA: t.string,
+  amountTokenB: t.string,
+  amountSol: t.string,
+});
+
+export const WithdrawFeesParams = t.type({
+  amountTokenA: BNType,
+  amountTokenB: BNType,
+  amountSol: BNType,
+});
+
+export const WithdrawFeesOpts = t.type({
+  tokenPair: PublicKeyType,
+  receiverKeys: t.readonlyArray(PublicKeyType),
+});
+
+// end
+
 export const TokenPairRaw = t.type({
   allowDeposits: t.boolean,
   allowWithdrawals: t.boolean,

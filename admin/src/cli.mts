@@ -508,7 +508,46 @@ cli.command("settle").description("").action(handler(commands.settle));
 
 cli
   .command("withdraw-fees")
-  .description("")
-  .action(handler(commands.withdraw_fees));
+  .description("Withdraw fees")
+  .requiredOption("-tp, --token-pair <pubkey>", "Token pair address; required")
+  .requiredOption(
+    "-rk, --receiver-keys <pubkey,..>",
+    "Comma-separated list of receiver' public keys for A, B and SOL respectively"
+  )
+  .argument("<token-a-amount-u64>", "Amount of token A")
+  .argument("<token-b-amount-u64>", "Amount of token B")
+  .argument("<sol-amount-u64>", "Amount of SOL")
+  .action(
+    handler(
+      async (
+        amountTokenA: string,
+        amountTokenB: string,
+        amountSol: string,
+        opts: Parameters<typeof validators.withdraw_fees_opts>[0],
+        ctx: Command
+      ) => {
+        const { keypair, url } = ctx.optsWithGlobals();
+
+        const options = validators.withdraw_fees_opts(opts);
+        const client = Client(url);
+        const signer = await readSignerKeypair(keypair);
+
+        const params = validators.withdraw_fees({
+          amountTokenA,
+          amountTokenB,
+          amountSol,
+        });
+
+        return methods.withdrawFees(
+          client,
+          {
+            options,
+            arguments: params,
+          },
+          signer
+        );
+      }
+    )
+  );
 
 cli.parse();
