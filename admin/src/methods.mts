@@ -1,9 +1,11 @@
 import BN from "bn.js";
 import * as web3 from "@solana/web3.js";
 import * as spl from "@solana/spl-token";
+import * as t from "io-ts";
 import Debug from "debug";
 import Client, * as cli from "./client.mts";
 import * as meta from "./utils/prepare-admin-meta.mts";
+import * as types from "./types.mts";
 
 export type CommandInput<O, A> = {
   options: O;
@@ -50,33 +52,7 @@ export const init = async (
 export const initTokenPair = async (
   client: ReturnType<typeof Client>,
   command: CommandInput<
-    {
-      allowDeposits: boolean;
-      allowWithdrawals: boolean;
-      allowCranks: boolean;
-      allowSettlements: boolean;
-      feeNumerator: BN;
-      feeDenominator: BN;
-      settleFeeNumerator: BN;
-      settleFeeDenominator: BN;
-      crankRewardTokenA: BN;
-      crankRewardTokenB: BN;
-      minSwapAmountTokenA: BN;
-      minSwapAmountTokenB: BN;
-      maxSwapPriceDiff: number;
-      maxUnsettledAmount: number;
-      minTimeTillExpiration: number;
-      maxOraclePriceErrorTokenA: number;
-      maxOraclePriceErrorTokenB: number;
-      maxOraclePriceAgeSecTokenA: number;
-      maxOraclePriceAgeSecTokenB: number;
-      oracleTypeTokenA: never;
-      oracleTypeTokenB: never;
-      oracleAccountTokenA: web3.PublicKey;
-      oracleAccountTokenB: web3.PublicKey;
-      crankAuthority: web3.PublicKey;
-      timeInForceIntervals: number[];
-    },
+    types.TokenPairType,
     { a: web3.PublicKey; b: web3.PublicKey }
   >,
   signer: web3.Keypair
@@ -127,6 +103,8 @@ export const setAdminSigners = async (
   >,
   signer: web3.Keypair
 ) => {
+  log(command);
+
   const { minSignatures } = command.options;
   const { pubkeys } = command.arguments;
 
