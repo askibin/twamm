@@ -1,6 +1,7 @@
 import BN from "bn.js";
 import * as t from "io-ts";
 import { PublicKey } from "@solana/web3.js";
+import { warn } from "fp-ts/lib/Console.js";
 
 export const BNType = new t.Type<BN, number, unknown>(
   "BN",
@@ -211,6 +212,29 @@ export const SetTimeInForceParams = t.type({
 });
 
 export const SetTimeInForceOpts = TokenPairOpts;
+
+/**
+ * Settle
+ */
+
+export const Settle = t.type({
+  supplySide: t.string,
+  maxTokenAmountIn: t.string,
+  minTokenAmountIn: t.string,
+  worstExchangeRate: t.string,
+});
+
+export const SettleParams = t.type({
+  supplySide: t.object,
+  maxTokenAmountIn: BNType,
+  minTokenAmountIn: BNType,
+  worstExchangeRate: BNType,
+});
+
+export const SettleOpts = t.type({
+  timeInForceIntervals: t.array(t.number),
+  tokenPair: PublicKeyType,
+});
 
 /**
  * Withdraw fees

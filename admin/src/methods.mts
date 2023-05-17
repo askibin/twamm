@@ -4,6 +4,7 @@ import * as t from "io-ts";
 import Debug from "debug";
 import Client, * as cli from "./client.mts";
 import * as meta from "./utils/prepare-admin-meta.mts";
+import * as poolMeta from "./utils/prepare-pool-meta.mts";
 import * as types from "./types.mts";
 import { prettifyJSON } from "./utils/index.mts";
 
@@ -13,6 +14,8 @@ const log = (msg: any, affix?: string) => {
 
   output(prettifyJSON(msg));
 };
+
+type RunOptions = { dryRun?: boolean };
 
 export type CommandInput<O, A> = {
   options: O;
@@ -167,7 +170,7 @@ export const init = async (
   const { minSignatures } = command.options;
   const { pubkeys } = command.arguments;
 
-  const adminMetas = pubkeys.map<meta.AdminMeta>(meta.fromPublicKey);
+  const adminMetas = pubkeys.map<web3.AccountMeta>(meta.fromPublicKey);
 
   const accounts = {
     multisig: (await cli.multisig(client.program)).pda,
@@ -273,7 +276,7 @@ export const setAdminSigners = async (
   const { minSignatures } = command.options;
   const { pubkeys } = command.arguments;
 
-  const adminMetas = pubkeys.map<meta.AdminMeta>(meta.fromPublicKey);
+  const adminMetas = pubkeys.map<web3.AccountMeta>(meta.fromPublicKey);
 
   const accounts = {
     admin: signer.publicKey,
@@ -515,6 +518,95 @@ export const setTimeInForce = async (
     .accounts(accounts)
     .signers([signer])
     .rpc();
+};
+
+export const settle = async (
+  client: ReturnType<typeof Client>,
+  command: CommandInput<
+    t.TypeOf<typeof types.SettleOpts>,
+    t.TypeOf<typeof types.SettleParams>
+  >,
+  signer: web3.Keypair,
+  opts: RunOptions
+): Promise</*string*/ any> => {
+  log(command);
+
+  log("Fetching token pair...");
+
+  const pair = await client.program.account.tokenPair.fetch(
+    command.options.tokenPair
+  );
+
+  const tokenA = pair.configA.mint;
+  const tokenB = pair.configB.mint;
+
+  const authority = (await cli.transferAuthority(client.program)).pda;
+
+  const custodyTokenA = await cli.tokenCustody(authority, tokenA);
+  const custodyTokenB = await cli.tokenCustody(authority, tokenB);
+
+  const { timeInForceIntervals } = command.options;
+
+  const poolMetas: web3.AccountMeta[] = [];
+  for (let i = 0; i <= timeInForceIntervals.length - 1; i++) {
+    let tif = timeInForceIntervals[i];
+    let poolKey = await cli.getPoolKey(
+      client.program,
+      custodyTokenA,
+      custodyTokenB,
+      tif,
+      false
+    );
+    poolMetas.push(poolMeta.fromPublicKey(poolKey.pda));
+  }
+
+  const receiver = signer.publicKey;
+  const userAccountTokenA = (
+    await cli.getOrCreateTokenCustody(
+      client.provider.connection,
+      signer,
+      receiver,
+      tokenA,
+      false
+    )
+  ).address;
+  const userAccountTokenB = (
+    await cli.getOrCreateTokenCustody(
+      client.provider.connection,
+      signer,
+      receiver,
+      tokenB,
+      false
+    )
+  ).address;
+
+  const accounts = {
+    owner: signer.publicKey,
+    custodyTokenA,
+    custodyTokenB,
+    multisig: (await cli.multisig(client.program)).pda,
+    oracleTokenA: pair.configA.oracleAccount,
+    oracleTokenB: pair.configB.oracleAccount,
+    tokenPair: command.options.tokenPair,
+    transferAuthority: (await cli.transferAuthority(client.program)).pda,
+    userAccountTokenA,
+    userAccountTokenB,
+    tokenProgram: spl.TOKEN_PROGRAM_ID,
+  };
+
+  log(accounts, "settle");
+
+  const params = command.arguments as typeof command.arguments & {
+    supplySide: never;
+  };
+
+  const m = client.program.methods
+    .settle(params)
+    .accounts(accounts)
+    .signers([signer])
+    .remainingAccounts(poolMetas);
+
+  return opts.dryRun ? m.simulate() : m.rpc();
 };
 
 export const withdrawFees = async (

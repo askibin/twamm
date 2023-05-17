@@ -1,3 +1,4 @@
+import BN from "bn.js";
 import { Command } from "commander";
 import Debug from "debug";
 import Client, * as clientHelpers from "./client.mts";
@@ -31,6 +32,11 @@ let cli = new Command()
     "path to the payer's keypair; required"
   )
   .option("-u, --url <string>", "cluster address; supports monikers", "devnet")
+  .option(
+    "-d, --dry-run <bool>",
+    "allow to simulate the commands only",
+    (v) => v === "true"
+  )
   .version(VERSION);
 
 /**
@@ -38,7 +44,7 @@ let cli = new Command()
  * env variable with the path to the anchor wallet.
  */
 cli.hook("preSubcommand", (cmd, subCmd) => {
-  const { keypair } = cmd.optsWithGlobals();
+  const { dryRun, keypair } = cmd.optsWithGlobals();
 
   if (!keypair) return;
 
@@ -47,6 +53,16 @@ cli.hook("preSubcommand", (cmd, subCmd) => {
   Object.assign(process.env, { ANCHOR_WALLET });
 
   log("`ANCHOR_WALLET` env was set to:", ANCHOR_WALLET);
+
+  if (dryRun) {
+    log(
+      "DryRun mode is enabled. Methods woud be simulated instead of executing"
+    );
+  }
+
+  BN.prototype.toJSON = function () {
+    return this.toString(10);
+  };
 });
 
 cli
@@ -63,7 +79,7 @@ cli
         opts: Parameters<typeof validators.delete_test_pair_opts>[0],
         ctx: Command
       ) => {
-        const { keypair, url } = ctx.optsWithGlobals();
+        const { dryRun, keypair, url } = ctx.optsWithGlobals();
 
         const client = Client(url);
         const options = validators.delete_test_pair_opts(opts);
@@ -325,7 +341,7 @@ cli
         opts: Parameters<typeof validators.set_fees_opts>[0],
         ctx: Command
       ) => {
-        const { keypair, url } = ctx.optsWithGlobals();
+        const { dryRun, keypair, url } = ctx.optsWithGlobals();
 
         const options = validators.set_fees_opts(opts);
         const client = Client(url);
@@ -639,11 +655,50 @@ cli
 
 cli
   .command("settle")
-  .description("")
+  .description("settle")
+  .requiredOption("-tp, --token-pair <pubkey>", "Token pair address; required")
+  .requiredOption(
+    "-tifs, --time-in-force-intervals <u8,..>",
+    "Time in force list; required"
+  )
+  .argument("<sell|buy>", "Supply side")
+  .argument("<u64>", "Minimal token amount in")
+  .argument("<u64>", "Maximal token amount in")
+  .argument("<u64>", "Worst exchange rate")
   .action(
-    handler(() => {
-      console.error("Not implemented yet");
-    })
+    handler(
+      async (
+        supplySide: string,
+        minTokenAmountIn: string,
+        maxTokenAmountIn: string,
+        worstExchangeRate: string,
+        opts: Parameters<typeof validators.settle_opts>[0],
+        ctx: Command
+      ) => {
+        const { dryRun, keypair, url } = ctx.optsWithGlobals();
+
+        const client = Client(url);
+        const options = validators.settle_opts(opts);
+        const signer = await readSignerKeypair(keypair);
+
+        const params = await validators.settle({
+          supplySide,
+          maxTokenAmountIn,
+          minTokenAmountIn,
+          worstExchangeRate,
+        });
+
+        return methods.settle(
+          client,
+          {
+            options,
+            arguments: params,
+          },
+          signer,
+          { dryRun }
+        );
+      }
+    )
   );
 
 cli

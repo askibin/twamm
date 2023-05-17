@@ -285,6 +285,49 @@ export const set_time_in_force = (params: {
 export const set_time_in_force_opts = (p: { tokenPair: string }) =>
   token_pair_opts(p, types.SetTimeInForceOpts);
 
+/// Settle
+
+export const settle_opts = (params: {
+  timeInForceIntervals: string;
+  tokenPair: string;
+}) => {
+  const tifs = params.timeInForceIntervals.split(",").map(Number);
+
+  if (tifs.find((a) => isNaN(a)) !== undefined) {
+    throw new Error("Invalid timeInForceIntervals");
+  }
+
+  const dOptions = types.SettleOpts.decode({
+    tokenPair: new PublicKey(params.tokenPair),
+    timeInForceIntervals: tifs,
+  });
+
+  if (either.isLeft(dOptions)) {
+    throw new Error("Invalid options");
+  }
+
+  return dOptions.right;
+};
+
+export const settle = (params: t.TypeOf<typeof types.Settle>) => {
+  if (!["sell", "buy"].includes(params.supplySide)) {
+    throw new Error("Invalid supply side");
+  }
+
+  const dParams = types.SettleParams.decode({
+    supplySide: params.supplySide === "sell" ? { sell: {} } : { buy: {} },
+    maxTokenAmountIn: new BN(params.maxTokenAmountIn),
+    minTokenAmountIn: new BN(params.minTokenAmountIn),
+    worstExchangeRate: new BN(params.worstExchangeRate),
+  });
+
+  if (either.isLeft(dParams)) {
+    throw new Error("Invalid WithdrawFees params");
+  }
+
+  return dParams.right;
+};
+
 /// Withdraw fees
 
 export const withdraw_fees_opts = (params: {
