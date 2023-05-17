@@ -158,6 +158,8 @@ cli
     handler(async (options: unknown, ctx: Command) => {
       const client = Client(ctx.optsWithGlobals().url);
 
+      // TODO: add filter by tokenpair or the wallet
+
       return methods.listOrders(client, { options, arguments: {} });
     })
   );

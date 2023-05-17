@@ -111,7 +111,7 @@ export const initTokenPair = async (
   return client.program.methods
     .initTokenPair(command.options)
     .accounts(accounts)
-    .signers([signer]) // FIXME: perhaps should use admin was bypassed to set_admin_signers method
+    .signers([signer])
     .rpc();
 };
 
