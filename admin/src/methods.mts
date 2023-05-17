@@ -19,6 +19,65 @@ export type CommandInput<O, A> = {
   arguments: A;
 };
 
+export const deleteTestPair = async (
+  client: ReturnType<typeof Client>,
+  command: CommandInput<t.TypeOf<typeof types.DeleteTestPairOpts>, unknown>,
+  signer: web3.Keypair
+): Promise<string> => {
+  log(command);
+
+  log("Fetching token pair...");
+
+  const pair = await client.program.account.tokenPair.fetch(
+    command.options.tokenPair
+  );
+
+  const tokenA = pair.configA.mint;
+  const tokenB = pair.configB.mint;
+
+  const authority = (await cli.transferAuthority(client.program)).pda;
+
+  const receiver = command.options.receiver;
+  const userAccountTokenA = (
+    await cli.getOrCreateTokenCustody(
+      client.provider.connection,
+      signer,
+      receiver,
+      tokenA,
+      false
+    )
+  ).address;
+  const userAccountTokenB = (
+    await cli.getOrCreateTokenCustody(
+      client.provider.connection,
+      signer,
+      receiver,
+      tokenB,
+      false
+    )
+  ).address;
+
+  const accounts = {
+    admin: signer.publicKey,
+    custodyTokenA: await cli.tokenCustody(authority, tokenA),
+    custodyTokenB: await cli.tokenCustody(authority, tokenB),
+    multisig: (await cli.multisig(client.program)).pda,
+    tokenPair: command.options.tokenPair,
+    transferAuthority: (await cli.transferAuthority(client.program)).pda,
+    userAccountTokenA,
+    userAccountTokenB,
+    tokenProgram: spl.TOKEN_PROGRAM_ID,
+  };
+
+  log(accounts, "delete_test_pair");
+
+  return client.program.methods
+    .deleteTestPair({})
+    .accounts(accounts)
+    .signers([signer])
+    .rpc();
+};
+
 export const getOutstandingAmount = async (
   client: ReturnType<typeof Client>,
   command: CommandInput<

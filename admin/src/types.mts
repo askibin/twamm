@@ -21,6 +21,15 @@ export const TokenPairOpts = t.type({
 });
 
 /**
+ * Delete test pair
+ */
+
+export const DeleteTestPairOpts = t.type({
+  tokenPair: PublicKeyType,
+  receiver: PublicKeyType,
+});
+
+/**
  * Get outstanding amount
  */
 

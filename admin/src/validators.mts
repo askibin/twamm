@@ -20,6 +20,22 @@ const token_pair_opts = (
   return dOptions.right;
 };
 
+export const delete_test_pair_opts = (params: {
+  tokenPair: string;
+  receiver: string;
+}) => {
+  const dOptions = types.DeleteTestPairOpts.decode({
+    tokenPair: new PublicKey(params.tokenPair),
+    receiver: new PublicKey(params.receiver),
+  });
+
+  if (either.isLeft(dOptions)) {
+    throw new Error("Invalid options");
+  }
+
+  return dOptions.right;
+};
+
 export const get_outstanding_amount_opts = (p: { tokenPair: string }) =>
   token_pair_opts(p, types.GetOutstandingAmountOpts);
 

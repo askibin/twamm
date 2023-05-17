@@ -49,7 +49,37 @@ cli.hook("preSubcommand", (cmd, subCmd) => {
   log("`ANCHOR_WALLET` env was set to:", ANCHOR_WALLET);
 });
 
-cli.command("delete-test-pair").description("");
+cli
+  .command("delete-test-pair")
+  .description("delete test pair")
+  .requiredOption("-tp, --token-pair <pubkey>", "Token pair address; required")
+  .requiredOption(
+    "-r, --receiver <pubkey>",
+    "User address to delete the pair for; required"
+  )
+  .action(
+    handler(
+      async (
+        opts: Parameters<typeof validators.delete_test_pair_opts>[0],
+        ctx: Command
+      ) => {
+        const { keypair, url } = ctx.optsWithGlobals();
+
+        const client = Client(url);
+        const options = validators.delete_test_pair_opts(opts);
+        const signer = await readSignerKeypair(keypair);
+
+        return methods.deleteTestPair(
+          client,
+          {
+            options,
+            arguments: {},
+          },
+          signer
+        );
+      }
+    )
+  );
 
 cli
   .command("delete_test_pool")
