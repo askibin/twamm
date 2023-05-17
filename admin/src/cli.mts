@@ -1,7 +1,6 @@
 import { Command } from "commander";
 import Debug from "debug";
 import Client, * as clientHelpers from "./client.mts";
-import * as commands from "./commands.mts";
 import * as methods from "./methods.mts";
 import * as validators from "./validators.mts";
 import readSignerKeypair from "./utils/read-signer-keypair.mts";
@@ -50,15 +49,16 @@ cli.hook("preSubcommand", (cmd, subCmd) => {
   log("`ANCHOR_WALLET` env was set to:", ANCHOR_WALLET);
 });
 
-cli
-  .command("delete-test-pair")
-  .description("")
-  .action(handler(commands.delete_test_pair));
+cli.command("delete-test-pair").description("");
 
 cli
   .command("delete_test_pool")
   .description("")
-  .action(handler(commands.delete_test_pool));
+  .action(
+    handler(() => {
+      console.error("Not implemented yet");
+    })
+  );
 
 cli
   .command("get-outstanding-amount")
@@ -514,7 +514,10 @@ cli
   .command("set-test-time")
   .description("set the test time")
   .requiredOption("-tp, --token-pair <pubkey>", "Token pair address; required")
-  .argument("<i64>", 'Time; To use negative value consider using pattern: \\"-d\\"')
+  .argument(
+    "<i64>",
+    'Time; To use negative value consider using pattern: \\"-d\\"'
+  )
   .action(
     handler(
       async (
@@ -583,7 +586,14 @@ cli
     )
   );
 
-cli.command("settle").description("").action(handler(commands.settle));
+cli
+  .command("settle")
+  .description("")
+  .action(
+    handler(() => {
+      console.error("Not implemented yet");
+    })
+  );
 
 cli
   .command("withdraw-fees")
