@@ -316,6 +316,42 @@ export const setPermissions = async (
     .rpc();
 };
 
+export const setTestOraclePrice = async (
+  client: ReturnType<typeof Client>,
+  command: CommandInput<
+    t.TypeOf<typeof types.SetTestOraclePriceOpts>,
+    t.TypeOf<typeof types.SetTestOraclePriceParams>
+  >,
+  signer: web3.Keypair
+): Promise<string> => {
+  log(command);
+
+  log("Fetching token pair...");
+
+  const pair = await client.program.account.tokenPair.fetch(
+    command.options.tokenPair
+  );
+
+  const oracleAccountTokenA = pair.configA.oracleAccount;
+  const oracleAccountTokenB = pair.configB.oracleAccount;
+
+  const accounts = {
+    admin: signer.publicKey,
+    multisig: (await cli.multisig(client.program)).pda,
+    tokenPair: command.options.tokenPair,
+    oracleTokenA: oracleAccountTokenA,
+    oracleTokenB: oracleAccountTokenB,
+    systemProgram: web3.SystemProgram.programId,
+  };
+
+  log(accounts, "set_test_oracle_price");
+
+  return client.program.methods
+    .setTestOraclePrice(command.arguments)
+    .accounts(accounts)
+    .signers([signer])
+    .rpc();
+};
 
 export const setTestTime = async (
   client: ReturnType<typeof Client>,

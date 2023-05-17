@@ -456,8 +456,57 @@ cli
 
 cli
   .command("set-test-oracle-price")
-  .description("")
-  .action(handler(commands.set_test_oracle_price));
+  .description("set the test oracle price")
+  .requiredOption("-tp, --token-pair <pubkey>", "Token pair address; required")
+  .argument("<u64>", "Token A price")
+  .argument("<u64>", "Token B price")
+  .argument(
+    "<i32>",
+    'Expo token A; To use negative value consider using pattern: \\"-d\\"'
+  )
+  .argument(
+    "<i32>",
+    'Expo token B; To use negative value consider using pattern: \\"-d\\"'
+  )
+  .argument("<u64>", "Token A conf")
+  .argument("<u64>", "Token B conf")
+  .action(
+    handler(
+      async (
+        priceTokenA: string,
+        priceTokenB: string,
+        expoTokenA: string,
+        expoTokenB: string,
+        confTokenA: string,
+        confTokenB: string,
+        opts: Parameters<typeof validators.set_test_oracle_price_opts>[0],
+        ctx: Command
+      ) => {
+        const { keypair, url } = ctx.optsWithGlobals();
+        const options = validators.set_test_oracle_price_opts(opts);
+        const client = Client(url);
+        const signer = await readSignerKeypair(keypair);
+
+        const params = validators.set_test_oracle_price({
+          priceTokenA,
+          priceTokenB,
+          expoTokenA,
+          expoTokenB,
+          confTokenA,
+          confTokenB,
+        });
+
+        return methods.setTestOraclePrice(
+          client,
+          {
+            options,
+            arguments: params,
+          },
+          signer
+        );
+      }
+    )
+  );
 
 cli
   .command("set-test-time")
@@ -476,10 +525,9 @@ cli
         const client = Client(url);
         const signer = await readSignerKeypair(keypair);
 
-        const params =
-          validators.set_test_time({
-            time,
-          });
+        const params = validators.set_test_time({
+          time,
+        });
 
         return methods.setTestTime(
           client,

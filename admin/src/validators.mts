@@ -3,7 +3,7 @@ import BN from "bn.js";
 import { either } from "fp-ts";
 import { PublicKey } from "@solana/web3.js";
 import * as types from "./types.mts";
-import { populateSigners } from "./utils/index.mts";
+import { getTime, populateSigners, resolveNegative } from "./utils/index.mts";
 
 const token_pair_opts = (
   params: { tokenPair: string },
@@ -142,9 +142,6 @@ export const set_oracle_config = (
   return dParams.right;
 };
 
-export const set_permissions_opts = (p: { tokenPair: string }) =>
-  token_pair_opts(p, types.SetPermissionsOpts);
-
 export const set_permissions = (
   params: t.TypeOf<typeof types.PermissionsParams>
 ) => {
@@ -162,11 +159,42 @@ export const set_permissions = (
   return dParams.right;
 };
 
+export const set_permissions_opts = (p: { tokenPair: string }) =>
+  token_pair_opts(p, types.SetPermissionsOpts);
+
+/// Set test oracle price
+
+export const set_test_oracle_price = (
+  params: t.TypeOf<typeof types.TestOraclePriceParams>
+) => {
+  const dParams = types.SetTestOraclePriceParams.decode({
+    priceTokenA: new BN(params.priceTokenA),
+    priceTokenB: new BN(params.priceTokenB),
+    expoTokenA: Number(resolveNegative(params.expoTokenA)),
+    expoTokenB: Number(resolveNegative(params.expoTokenB)),
+    confTokenA: new BN(params.confTokenA),
+    confTokenB: new BN(params.confTokenB),
+    publishTimeTokenA: new BN(getTime()),
+    publishTimeTokenB: new BN(getTime()),
+  });
+
+  if (
+    either.isLeft(dParams) ||
+    isNaN(dParams.right.expoTokenA) ||
+    isNaN(dParams.right.expoTokenB)
+  ) {
+    throw new Error("Invalid SetTestOraclePrice params");
+  }
+
+  return dParams.right;
+};
+
+export const set_test_oracle_price_opts = (p: { tokenPair: string }) =>
+  token_pair_opts(p, types.SetTestOraclePriceOpts);
+
 /// Set test time
 
-export const set_test_time_opts = (params: {
-  tokenPair: string;
-}) => {
+export const set_test_time_opts = (params: { tokenPair: string }) => {
   const dOptions = types.SetTestTimeOpts.decode({
     tokenPair: new PublicKey(params.tokenPair),
   });
@@ -178,7 +206,9 @@ export const set_test_time_opts = (params: {
   return dOptions.right;
 };
 
-export const set_test_time = (params: t.TypeOf<typeof types.TestTimeParams>) => {
+export const set_test_time = (
+  params: t.TypeOf<typeof types.TestTimeParams>
+) => {
   const dParams = types.SetTestTimeParams.decode({
     time: new BN(params.time),
   });

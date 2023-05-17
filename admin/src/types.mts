@@ -143,6 +143,32 @@ export const SetPermissionsParams = t.type({
 export const SetPermissionsOpts = TokenPairOpts;
 
 /**
+ * Set test oracle price
+ */
+
+export const TestOraclePriceParams = t.type({
+  priceTokenA: t.string,
+  priceTokenB: t.string,
+  expoTokenA: t.string,
+  expoTokenB: t.string,
+  confTokenA: t.string,
+  confTokenB: t.string,
+});
+
+export const SetTestOraclePriceParams = t.type({
+  priceTokenA: BNType,
+  priceTokenB: BNType,
+  expoTokenA: t.number,
+  expoTokenB: t.number,
+  confTokenA: BNType,
+  confTokenB: BNType,
+  publishTimeTokenA: BNType,
+  publishTimeTokenB: BNType,
+});
+
+export const SetTestOraclePriceOpts = TokenPairOpts;
+
+/**
  * Set test time
  */
 
@@ -154,7 +180,7 @@ export const SetTestTimeParams = t.type({
   time: BNType,
 });
 
-export const SetTestTimeOpts = TokenPairOpts
+export const SetTestTimeOpts = TokenPairOpts;
 
 /**
  *  Set time in force
