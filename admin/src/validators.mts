@@ -210,7 +210,7 @@ export const set_test_time = (
   params: t.TypeOf<typeof types.TestTimeParams>
 ) => {
   const dParams = types.SetTestTimeParams.decode({
-    time: new BN(params.time),
+    time: new BN(Number(resolveNegative(params.time))),
   });
 
   if (either.isLeft(dParams)) {

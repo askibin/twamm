@@ -512,7 +512,7 @@ cli
   .command("set-test-time")
   .description("set the test time")
   .requiredOption("-tp, --token-pair <pubkey>", "Token pair address; required")
-  .argument("<i64>", "Time")
+  .argument("<i64>", 'Time; To use negative value consider using pattern: \\"-d\\"')
   .action(
     handler(
       async (
