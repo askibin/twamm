@@ -51,11 +51,6 @@ cli.hook("preSubcommand", (cmd, subCmd) => {
 });
 
 cli
-  .command("cancel-withdrawals")
-  .description("")
-  .action(handler(commands.cancel_withdrawals));
-
-cli
   .command("delete-test-pair")
   .description("")
   .action(handler(commands.delete_test_pair));
@@ -69,11 +64,6 @@ cli
   .command("get-outstanding-amount")
   .description("")
   .action(handler(commands.get_outstanding_amount));
-
-cli
-  .command("cancel-withdrawals")
-  .description("")
-  .action(handler(commands.cancel_withdrawals));
 
 cli
   .command("init")

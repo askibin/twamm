@@ -1,9 +1,4 @@
 /**
- * Cancel withdrawal orders
- */
-export const cancel_withdrawals = () => {};
-
-/**
  * Delete test pair
  */
 export const delete_test_pair = () => {};
