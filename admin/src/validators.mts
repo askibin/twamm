@@ -162,6 +162,36 @@ export const set_permissions = (
   return dParams.right;
 };
 
+/// Set test time
+
+export const set_test_time_opts = (params: {
+  tokenPair: string;
+}) => {
+  const dOptions = types.SetTestTimeOpts.decode({
+    tokenPair: new PublicKey(params.tokenPair),
+  });
+
+  if (either.isLeft(dOptions)) {
+    throw new Error("Invalid options");
+  }
+
+  return dOptions.right;
+};
+
+export const set_test_time = (params: t.TypeOf<typeof types.TestTimeParams>) => {
+  const dParams = types.SetTestTimeParams.decode({
+    time: new BN(params.time),
+  });
+
+  if (either.isLeft(dParams)) {
+    throw new Error("Invalid SetTestTime params");
+  }
+
+  return dParams.right;
+};
+
+/// Set time in force
+
 export const set_time_in_force = (params: {
   tifIndex: string;
   tif: string;

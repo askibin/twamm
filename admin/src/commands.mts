@@ -14,11 +14,6 @@ export const delete_test_pool = () => {};
 export const set_test_oracle_price = () => {};
 
 /**
- * Set test time
- */
-export const set_test_time = () => {};
-
-/**
  * Settle
  */
 export const settle = () => {};

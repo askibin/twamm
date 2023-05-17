@@ -461,8 +461,37 @@ cli
 
 cli
   .command("set-test-time")
-  .description("")
-  .action(handler(commands.set_test_time));
+  .description("set the test time")
+  .requiredOption("-tp, --token-pair <pubkey>", "Token pair address; required")
+  .argument("<i64>", "Time")
+  .action(
+    handler(
+      async (
+        time: string,
+        opts: Parameters<typeof validators.set_test_time_opts>[0],
+        ctx: Command
+      ) => {
+        const { keypair, url } = ctx.optsWithGlobals();
+        const options = validators.set_test_time_opts(opts);
+        const client = Client(url);
+        const signer = await readSignerKeypair(keypair);
+
+        const params =
+          validators.set_test_time({
+            time,
+          });
+
+        return methods.setTestTime(
+          client,
+          {
+            options,
+            arguments: params,
+          },
+          signer
+        );
+      }
+    )
+  );
 
 cli
   .command("set-time-in-force")

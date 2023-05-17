@@ -316,6 +316,32 @@ export const setPermissions = async (
     .rpc();
 };
 
+
+export const setTestTime = async (
+  client: ReturnType<typeof Client>,
+  command: CommandInput<
+    t.TypeOf<typeof types.SetTestTimeOpts>,
+    t.TypeOf<typeof types.SetTestTimeParams>
+  >,
+  signer: web3.Keypair
+): Promise<string> => {
+  log(command);
+
+  const accounts = {
+    admin: signer.publicKey,
+    multisig: (await cli.multisig(client.program)).pda,
+    tokenPair: command.options.tokenPair,
+  };
+
+  log(accounts, "set_test_time");
+
+  return client.program.methods
+    .setTestTime(command.arguments)
+    .accounts(accounts)
+    .signers([signer])
+    .rpc();
+};
+
 export const setTimeInForce = async (
   client: ReturnType<typeof Client>,
   command: CommandInput<

@@ -140,9 +140,21 @@ export const SetPermissionsParams = t.type({
   allowSettlements: t.boolean,
 });
 
-export const SetPermissionsOpts = t.type({
-  tokenPair: PublicKeyType,
+export const SetPermissionsOpts = TokenPairOpts;
+
+/**
+ * Set test time
+ */
+
+export const TestTimeParams = t.type({
+  time: t.string,
 });
+
+export const SetTestTimeParams = t.type({
+  time: BNType,
+});
+
+export const SetTestTimeOpts = TokenPairOpts
 
 /**
  *  Set time in force
