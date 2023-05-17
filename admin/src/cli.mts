@@ -631,7 +631,7 @@ cli
   .requiredOption("-tp, --token-pair <pubkey>", "Token pair address; required")
   .requiredOption(
     "-rk, --receiver-keys <pubkey,..>",
-    "Comma-separated list of receiver' public keys for A, B and SOL respectively"
+    "Comma-separated list of receiver' public keys for A, B and SOL respectively; required"
   )
   .argument("<u64>", "Amount of token A")
   .argument("<u64>", "Amount of token B")
