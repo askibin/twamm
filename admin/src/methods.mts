@@ -7,6 +7,7 @@ import * as meta from "./utils/prepare-admin-meta.mts";
 import * as poolMeta from "./utils/prepare-pool-meta.mts";
 import * as types from "./types.mts";
 import { prettifyJSON } from "./utils/index.mts";
+import { SimulateResponse } from "@project-serum/anchor/dist/cjs/program/namespace/simulate.js";
 
 const _log = Debug("twamm-admin:methods");
 const log = (msg: any, affix?: string) => {
@@ -25,8 +26,9 @@ export type CommandInput<O, A> = {
 export const deleteTestPair = async (
   client: ReturnType<typeof Client>,
   command: CommandInput<t.TypeOf<typeof types.DeleteTestPairOpts>, unknown>,
-  signer: web3.Keypair
-): Promise<string> => {
+  signer: web3.Keypair,
+  opts: RunOptions
+): Promise<string | SimulateResponse<any, any>> => {
   log(command);
 
   log("Fetching token pair...");
@@ -74,18 +76,20 @@ export const deleteTestPair = async (
 
   log(accounts, "delete_test_pair");
 
-  return client.program.methods
+  const m = client.program.methods
     .deleteTestPair({})
     .accounts(accounts)
-    .signers([signer])
-    .rpc();
+    .signers([signer]);
+
+  return opts.dryRun ? m.simulate() : m.rpc();
 };
 
 export const deleteTestPool = async (
   client: ReturnType<typeof Client>,
   command: CommandInput<t.TypeOf<typeof types.DeleteTestPoolOpts>, unknown>,
-  signer: web3.Keypair
-): Promise<string> => {
+  signer: web3.Keypair,
+  opts: RunOptions
+): Promise<string | SimulateResponse<any, any>> => {
   log(command);
 
   log("Fetching token pair...");
@@ -124,11 +128,12 @@ export const deleteTestPool = async (
 
   log(accounts, "delete_test_pool");
 
-  return client.program.methods
+  const m = client.program.methods
     .deleteTestPool({})
     .accounts(accounts)
-    .signers([signer])
-    .rpc();
+    .signers([signer]);
+
+  return opts.dryRun ? m.simulate() : m.rpc();
 };
 
 export const getOutstandingAmount = async (
@@ -136,8 +141,9 @@ export const getOutstandingAmount = async (
   command: CommandInput<
     t.TypeOf<typeof types.GetOutstandingAmountOpts>,
     unknown
-  >
-): Promise<string> => {
+  >,
+  opts: RunOptions
+): Promise<string | SimulateResponse<any, any>> => {
   log(command);
 
   log("Fetching token pair...");
@@ -154,10 +160,9 @@ export const getOutstandingAmount = async (
 
   log(accounts, "get_outstandind_amount");
 
-  return client.program.methods
-    .getOutstandingAmount({})
-    .accounts(accounts)
-    .rpc();
+  const m = client.program.methods.getOutstandingAmount({}).accounts(accounts);
+
+  return opts.dryRun ? m.simulate() : m.rpc();
 };
 
 export const init = async (
@@ -165,8 +170,9 @@ export const init = async (
   command: CommandInput<
     { minSignatures: number },
     { pubkeys: web3.PublicKey[] }
-  >
-): Promise<string> => {
+  >,
+  opts: RunOptions
+): Promise<string | SimulateResponse<any, any>> => {
   const { minSignatures } = command.options;
   const { pubkeys } = command.arguments;
 
@@ -183,11 +189,12 @@ export const init = async (
 
   log(accounts, "init");
 
-  return client.program.methods
+  const m = client.program.methods
     .init({ minSignatures })
     .accounts(accounts)
-    .remainingAccounts(adminMetas)
-    .rpc();
+    .remainingAccounts(adminMetas);
+
+  return opts.dryRun ? m.simulate() : m.rpc();
 };
 
 export const initTokenPair = async (
@@ -196,8 +203,9 @@ export const initTokenPair = async (
     types.TokenPairType,
     { a: web3.PublicKey; b: web3.PublicKey }
   >,
-  signer: web3.Keypair
-): Promise<string> => {
+  signer: web3.Keypair,
+  opts: RunOptions
+): Promise<string | SimulateResponse<any, any>> => {
   log(command);
 
   const authority = (await cli.transferAuthority(client.program)).pda;
@@ -220,11 +228,12 @@ export const initTokenPair = async (
 
   log(accounts, "init_token_pair");
 
-  return client.program.methods
+  const m = client.program.methods
     .initTokenPair(command.options)
     .accounts(accounts)
-    .signers([signer])
-    .rpc();
+    .signers([signer]);
+
+  return opts.dryRun ? m.simulate() : m.rpc();
 };
 
 export const listMultisig = async (
@@ -269,7 +278,8 @@ export const setAdminSigners = async (
     { minSignatures: number },
     { pubkeys: web3.PublicKey[] }
   >,
-  signer: web3.Keypair
+  signer: web3.Keypair,
+  opts: RunOptions
 ) => {
   log(command);
 
@@ -285,12 +295,13 @@ export const setAdminSigners = async (
 
   log(accounts, "set_admin_signers");
 
-  return client.program.methods
+  const m = client.program.methods
     .setAdminSigners({ minSignatures })
     .accounts(accounts)
     .remainingAccounts(adminMetas)
-    .signers([signer])
-    .rpc();
+    .signers([signer]);
+
+  return opts.dryRun ? m.simulate() : m.rpc();
 };
 
 export const setCrankAuthority = async (
@@ -299,8 +310,9 @@ export const setCrankAuthority = async (
     { tokenPair: web3.PublicKey },
     t.TypeOf<typeof types.SetCrankAuthorityParams>
   >,
-  signer: web3.Keypair
-): Promise<string> => {
+  signer: web3.Keypair,
+  opts: RunOptions
+): Promise<string | SimulateResponse<any, any>> => {
   log(command);
 
   const accounts = {
@@ -313,13 +325,14 @@ export const setCrankAuthority = async (
 
   const { crankAuthority } = command.arguments;
 
-  return client.program.methods
+  const m = client.program.methods
     .setCrankAuthority({
       crankAuthority,
     })
     .accounts(accounts)
-    .signers([signer])
-    .rpc();
+    .signers([signer]);
+
+  return opts.dryRun ? m.simulate() : m.rpc();
 };
 
 export const setFees = async (
@@ -328,8 +341,9 @@ export const setFees = async (
     { tokenPair: web3.PublicKey },
     t.TypeOf<typeof types.SetFeesParams>
   >,
-  signer: web3.Keypair
-): Promise<string> => {
+  signer: web3.Keypair,
+  opts: RunOptions
+): Promise<string | SimulateResponse<any, any>> => {
   log(command);
 
   const accounts = {
@@ -340,11 +354,12 @@ export const setFees = async (
 
   log(accounts, "set_fees");
 
-  return client.program.methods
+  const m = client.program.methods
     .setFees(command.arguments)
     .accounts(accounts)
-    .signers([signer])
-    .rpc();
+    .signers([signer]);
+
+  return opts.dryRun ? m.simulate() : m.rpc();
 };
 
 export const setLimits = async (
@@ -353,8 +368,9 @@ export const setLimits = async (
     { tokenPair: web3.PublicKey },
     t.TypeOf<typeof types.SetLimitsParams>
   >,
-  signer: web3.Keypair
-): Promise<string> => {
+  signer: web3.Keypair,
+  opts: RunOptions
+): Promise<string | SimulateResponse<any, any>> => {
   log(command);
 
   const accounts = {
@@ -365,11 +381,12 @@ export const setLimits = async (
 
   log(accounts, "set_limits");
 
-  return client.program.methods
+  const m = client.program.methods
     .setLimits(command.arguments)
     .accounts(accounts)
-    .signers([signer])
-    .rpc();
+    .signers([signer]);
+
+  return opts.dryRun ? m.simulate() : m.rpc();
 };
 
 export const setOracleConfig = async (
@@ -378,8 +395,9 @@ export const setOracleConfig = async (
     { tokenPair: web3.PublicKey },
     t.TypeOf<typeof types.SetOracleConfigParams>
   >,
-  signer: web3.Keypair
-): Promise<string> => {
+  signer: web3.Keypair,
+  opts: RunOptions
+): Promise<string | SimulateResponse<any, any>> => {
   log(command);
 
   const accounts = {
@@ -396,11 +414,12 @@ export const setOracleConfig = async (
     oracleTypeTokenB: never;
   };
 
-  return client.program.methods
+  const m = client.program.methods
     .setOracleConfig(args)
     .accounts(accounts)
-    .signers([signer])
-    .rpc();
+    .signers([signer]);
+
+  return opts.dryRun ? m.simulate() : m.rpc();
 };
 
 export const setPermissions = async (
@@ -409,8 +428,9 @@ export const setPermissions = async (
     { tokenPair: web3.PublicKey },
     t.TypeOf<typeof types.SetPermissionsParams>
   >,
-  signer: web3.Keypair
-): Promise<string> => {
+  signer: web3.Keypair,
+  opts: RunOptions
+): Promise<string | SimulateResponse<any, any>> => {
   log(command);
 
   const accounts = {
@@ -421,11 +441,12 @@ export const setPermissions = async (
 
   log(accounts, "set_permissions");
 
-  return client.program.methods
+  const m = client.program.methods
     .setPermissions(command.arguments)
     .accounts(accounts)
-    .signers([signer])
-    .rpc();
+    .signers([signer]);
+
+  return opts.dryRun ? m.simulate() : m.rpc();
 };
 
 export const setTestOraclePrice = async (
@@ -434,8 +455,9 @@ export const setTestOraclePrice = async (
     t.TypeOf<typeof types.SetTestOraclePriceOpts>,
     t.TypeOf<typeof types.SetTestOraclePriceParams>
   >,
-  signer: web3.Keypair
-): Promise<string> => {
+  signer: web3.Keypair,
+  opts: RunOptions
+): Promise<string | SimulateResponse<any, any>> => {
   log(command);
 
   log("Fetching token pair...");
@@ -458,11 +480,12 @@ export const setTestOraclePrice = async (
 
   log(accounts, "set_test_oracle_price");
 
-  return client.program.methods
+  const m = client.program.methods
     .setTestOraclePrice(command.arguments)
     .accounts(accounts)
     .signers([signer])
-    .rpc();
+
+  return opts.dryRun ? m.simulate() : m.rpc();
 };
 
 export const setTestTime = async (
@@ -471,8 +494,9 @@ export const setTestTime = async (
     t.TypeOf<typeof types.SetTestTimeOpts>,
     t.TypeOf<typeof types.SetTestTimeParams>
   >,
-  signer: web3.Keypair
-): Promise<string> => {
+  signer: web3.Keypair,
+  opts: RunOptions
+): Promise<string | SimulateResponse<any, any>> => {
   log(command);
 
   const accounts = {
@@ -483,11 +507,12 @@ export const setTestTime = async (
 
   log(accounts, "set_test_time");
 
-  return client.program.methods
+  const m = client.program.methods
     .setTestTime(command.arguments)
     .accounts(accounts)
     .signers([signer])
-    .rpc();
+
+  return opts.dryRun ? m.simulate() : m.rpc();
 };
 
 export const setTimeInForce = async (
@@ -496,8 +521,9 @@ export const setTimeInForce = async (
     { tokenPair: web3.PublicKey },
     t.TypeOf<typeof types.SetTimeInForceParams>
   >,
-  signer: web3.Keypair
-): Promise<string> => {
+  signer: web3.Keypair,
+  opts: RunOptions
+): Promise<string | SimulateResponse<any, any>> => {
   log(command);
 
   const accounts = {
@@ -510,14 +536,15 @@ export const setTimeInForce = async (
 
   const { timeInForceIndex, newTimeInForce } = command.arguments;
 
-  return client.program.methods
+  const m = client.program.methods
     .setTimeInForce({
       timeInForceIndex,
       newTimeInForce,
     })
     .accounts(accounts)
     .signers([signer])
-    .rpc();
+
+  return opts.dryRun ? m.simulate() : m.rpc();
 };
 
 export const settle = async (
@@ -528,7 +555,7 @@ export const settle = async (
   >,
   signer: web3.Keypair,
   opts: RunOptions
-): Promise</*string*/ any> => {
+): Promise<string | SimulateResponse<any, any>> => {
   log(command);
 
   log("Fetching token pair...");
@@ -615,8 +642,9 @@ export const withdrawFees = async (
     t.TypeOf<typeof types.WithdrawFeesOpts>,
     t.TypeOf<typeof types.WithdrawFeesParams>
   >,
-  signer: web3.Keypair
-): Promise<string> => {
+  signer: web3.Keypair,
+  opts: RunOptions
+): Promise<string | SimulateResponse<any, any>> => {
   log(command);
 
   const authority = (await cli.transferAuthority(client.program)).pda;
@@ -664,9 +692,10 @@ export const withdrawFees = async (
 
   log(accounts, "withdraw_fees");
 
-  return client.program.methods
+  const m = client.program.methods
     .withdrawFees(command.arguments)
     .accounts(accounts)
-    .signers([signer])
-    .rpc();
+    .signers([signer]);
+
+  return opts.dryRun ? m.simulate() : m.rpc();
 };

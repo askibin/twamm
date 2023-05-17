@@ -43,8 +43,8 @@ let cli = new Command()
  * Read the global options and fill the `ANCHOR_WALLET`
  * env variable with the path to the anchor wallet.
  */
-cli.hook("preSubcommand", (cmd, subCmd) => {
-  const { dryRun, keypair } = cmd.optsWithGlobals();
+cli.hook("preSubcommand", (ctx, subCmd) => {
+  const { dryRun, keypair } = ctx.optsWithGlobals();
 
   if (!keypair) return;
 
@@ -91,7 +91,8 @@ cli
             options,
             arguments: {},
           },
-          signer
+          signer,
+          { dryRun }
         );
       }
     )
@@ -109,7 +110,7 @@ cli
         opts: Parameters<typeof validators.delete_test_pool_opts>[0],
         ctx: Command
       ) => {
-        const { keypair, url } = ctx.optsWithGlobals();
+        const { dryRun, keypair, url } = ctx.optsWithGlobals();
 
         const client = Client(url);
         const options = validators.delete_test_pool_opts(opts);
@@ -121,7 +122,8 @@ cli
             options,
             arguments: {},
           },
-          signer
+          signer,
+          { dryRun }
         );
       }
     )
@@ -137,13 +139,19 @@ cli
         opts: Parameters<typeof validators.get_outstanding_amount_opts>[0],
         ctx: Command
       ) => {
-        const client = Client(ctx.optsWithGlobals().url);
+        const { dryRun, url } = ctx.optsWithGlobals();
+
+        const client = Client(url);
         const options = validators.get_outstanding_amount_opts(opts);
 
-        return methods.getOutstandingAmount(client, {
-          options,
-          arguments: {},
-        });
+        return methods.getOutstandingAmount(
+          client,
+          {
+            options,
+            arguments: {},
+          },
+          { dryRun }
+        );
       }
     )
   );
@@ -160,11 +168,17 @@ cli
         opts: Parameters<typeof validators.init>[0],
         ctx: Command
       ) => {
+        const { dryRun, url } = ctx.optsWithGlobals();
+
         const options = validators.init(opts);
         const pubkeys = populateSigners(args);
-        const client = Client(ctx.optsWithGlobals().url);
+        const client = Client(url);
 
-        return methods.init(client, { options, arguments: { pubkeys } });
+        return methods.init(
+          client,
+          { options, arguments: { pubkeys } },
+          { dryRun }
+        );
       }
     )
   );
@@ -184,9 +198,9 @@ cli
         _: never,
         ctx: Command
       ) => {
-        const { keypair } = ctx.optsWithGlobals();
+        const { dryRun, keypair, url } = ctx.optsWithGlobals();
 
-        const client = Client(ctx.optsWithGlobals().url);
+        const client = Client(url);
         const mints = populateSigners([a, b]);
         const signer = await readSignerKeypair(keypair);
 
@@ -201,7 +215,8 @@ cli
               b: mints[1],
             },
           },
-          signer
+          signer,
+          { dryRun }
         );
       }
     )
@@ -266,7 +281,7 @@ cli
         opts: Parameters<typeof validators.set_admin_signers>[0],
         ctx: Command
       ) => {
-        const { keypair, url } = ctx.optsWithGlobals();
+        const { dryRun, keypair, url } = ctx.optsWithGlobals();
 
         const options = validators.set_admin_signers(opts);
         const pubkeys = populateSigners(args);
@@ -279,7 +294,8 @@ cli
             options,
             arguments: { pubkeys },
           },
-          signer
+          signer,
+          { dryRun }
         );
       }
     )
@@ -297,7 +313,7 @@ cli
         opts: Parameters<typeof validators.set_crank_authority_opts>[0],
         ctx: Command
       ) => {
-        const { keypair, url } = ctx.optsWithGlobals();
+        const { dryRun, keypair, url } = ctx.optsWithGlobals();
 
         const options = validators.set_crank_authority_opts(opts);
         const client = Client(url);
@@ -313,7 +329,8 @@ cli
             options,
             arguments: { crankAuthority },
           },
-          signer
+          signer,
+          { dryRun }
         );
       }
     )
@@ -362,7 +379,8 @@ cli
             options,
             arguments: params,
           },
-          signer
+          signer,
+          { dryRun }
         );
       }
     )
@@ -388,7 +406,7 @@ cli
         opts: Parameters<typeof validators.set_limits_opts>[0],
         ctx: Command
       ) => {
-        const { keypair, url } = ctx.optsWithGlobals();
+        const { dryRun, keypair, url } = ctx.optsWithGlobals();
 
         const options = validators.set_limits_opts(opts);
         const client = Client(url);
@@ -408,7 +426,8 @@ cli
             options,
             arguments: params,
           },
-          signer
+          signer,
+          { dryRun }
         );
       }
     )
@@ -435,7 +454,7 @@ cli
         opts: Parameters<typeof validators.set_oracle_config_opts>[0],
         ctx: Command
       ) => {
-        const { keypair, url } = ctx.optsWithGlobals();
+        const { dryRun, keypair, url } = ctx.optsWithGlobals();
 
         const options = validators.set_oracle_config_opts(opts);
         const client = Client(url);
@@ -474,7 +493,8 @@ cli
             options,
             arguments: params,
           },
-          signer
+          signer,
+          { dryRun }
         );
       }
     )
@@ -498,7 +518,7 @@ cli
         opts: Parameters<typeof validators.set_permissions_opts>[0],
         ctx: Command
       ) => {
-        const { keypair, url } = ctx.optsWithGlobals();
+        const { dryRun, keypair, url } = ctx.optsWithGlobals();
 
         const options = validators.set_permissions_opts(opts);
         const client = Client(url);
@@ -517,7 +537,8 @@ cli
             options,
             arguments: params,
           },
-          signer
+          signer,
+          { dryRun }
         );
       }
     )
@@ -551,7 +572,7 @@ cli
         opts: Parameters<typeof validators.set_test_oracle_price_opts>[0],
         ctx: Command
       ) => {
-        const { keypair, url } = ctx.optsWithGlobals();
+        const { dryRun, keypair, url } = ctx.optsWithGlobals();
         const options = validators.set_test_oracle_price_opts(opts);
         const client = Client(url);
         const signer = await readSignerKeypair(keypair);
@@ -571,7 +592,8 @@ cli
             options,
             arguments: params,
           },
-          signer
+          signer,
+          { dryRun }
         );
       }
     )
@@ -592,7 +614,7 @@ cli
         opts: Parameters<typeof validators.set_test_time_opts>[0],
         ctx: Command
       ) => {
-        const { keypair, url } = ctx.optsWithGlobals();
+        const { dryRun, keypair, url } = ctx.optsWithGlobals();
         const options = validators.set_test_time_opts(opts);
         const client = Client(url);
         const signer = await readSignerKeypair(keypair);
@@ -607,7 +629,8 @@ cli
             options,
             arguments: params,
           },
-          signer
+          signer,
+          { dryRun }
         );
       }
     )
@@ -627,7 +650,7 @@ cli
         opts: Parameters<typeof validators.set_time_in_force_opts>[0],
         ctx: Command
       ) => {
-        const { keypair, url } = ctx.optsWithGlobals();
+        const { dryRun, keypair, url } = ctx.optsWithGlobals();
         const options = validators.set_time_in_force_opts(opts);
         const client = Client(url);
         const signer = await readSignerKeypair(keypair);
@@ -647,7 +670,8 @@ cli
               newTimeInForce,
             },
           },
-          signer
+          signer,
+          { dryRun }
         );
       }
     )
@@ -721,7 +745,7 @@ cli
         opts: Parameters<typeof validators.withdraw_fees_opts>[0],
         ctx: Command
       ) => {
-        const { keypair, url } = ctx.optsWithGlobals();
+        const { dryRun, keypair, url } = ctx.optsWithGlobals();
 
         const options = validators.withdraw_fees_opts(opts);
         const client = Client(url);
@@ -739,7 +763,8 @@ cli
             options,
             arguments: params,
           },
-          signer
+          signer,
+          { dryRun }
         );
       }
     )
