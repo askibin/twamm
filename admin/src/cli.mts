@@ -82,12 +82,33 @@ cli
   );
 
 cli
-  .command("delete_test_pool")
-  .description("")
+  .command("delete-test-pool")
+  .description("delete test pool")
+  .requiredOption("-tp, --token-pair <pubkey>", "Token pair address; required")
+  .requiredOption("-tif, --time-in-force <u8>", "Time in force; required")
+  .requiredOption("-np, --next-pool <bool>", "Next pool; required")
   .action(
-    handler(() => {
-      console.error("Not implemented yet");
-    })
+    handler(
+      async (
+        opts: Parameters<typeof validators.delete_test_pool_opts>[0],
+        ctx: Command
+      ) => {
+        const { keypair, url } = ctx.optsWithGlobals();
+
+        const client = Client(url);
+        const options = validators.delete_test_pool_opts(opts);
+        const signer = await readSignerKeypair(keypair);
+
+        return methods.deleteTestPool(
+          client,
+          {
+            options,
+            arguments: {},
+          },
+          signer
+        );
+      }
+    )
   );
 
 cli

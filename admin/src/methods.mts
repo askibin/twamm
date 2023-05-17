@@ -78,6 +78,56 @@ export const deleteTestPair = async (
     .rpc();
 };
 
+export const deleteTestPool = async (
+  client: ReturnType<typeof Client>,
+  command: CommandInput<t.TypeOf<typeof types.DeleteTestPoolOpts>, unknown>,
+  signer: web3.Keypair
+): Promise<string> => {
+  log(command);
+
+  log("Fetching token pair...");
+
+  const pair = await client.program.account.tokenPair.fetch(
+    command.options.tokenPair
+  );
+
+  const tokenA = pair.configA.mint;
+  const tokenB = pair.configB.mint;
+
+  const authority = (await cli.transferAuthority(client.program)).pda;
+
+  const custodyTokenA = await cli.tokenCustody(authority, tokenA);
+  const custodyTokenB = await cli.tokenCustody(authority, tokenB);
+
+  const { nextPool, timeInForce } = command.options;
+
+  const accounts = {
+    admin: signer.publicKey,
+    custodyTokenA,
+    custodyTokenB,
+    multisig: (await cli.multisig(client.program)).pda,
+    tokenPair: command.options.tokenPair,
+    transferAuthority: (await cli.transferAuthority(client.program)).pda,
+    pool: (
+      await cli.getPoolKey(
+        client.program,
+        custodyTokenA,
+        custodyTokenB,
+        timeInForce,
+        nextPool
+      )
+    ).pda,
+  };
+
+  log(accounts, "delete_test_pool");
+
+  return client.program.methods
+    .deleteTestPool({})
+    .accounts(accounts)
+    .signers([signer])
+    .rpc();
+};
+
 export const getOutstandingAmount = async (
   client: ReturnType<typeof Client>,
   command: CommandInput<

@@ -30,6 +30,16 @@ export const DeleteTestPairOpts = t.type({
 });
 
 /**
+ * Delete test pool
+ */
+
+export const DeleteTestPoolOpts = t.type({
+  nextPool: t.boolean,
+  timeInForce: t.number,
+  tokenPair: PublicKeyType,
+});
+
+/**
  * Get outstanding amount
  */
 

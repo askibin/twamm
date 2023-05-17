@@ -1,4 +1,7 @@
+import * as a from "@project-serum/anchor";
 import * as web3 from "@solana/web3.js";
+
+export const encode = (label: string) => a.utils.bytes.utf8.encode(label);
 
 export const getTime = () => {
   const now = new Date();

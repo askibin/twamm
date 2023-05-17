@@ -5,8 +5,10 @@ import { PublicKey } from "@solana/web3.js";
 import * as types from "./types.mts";
 import { getTime, populateSigners, resolveNegative } from "./utils/index.mts";
 
+type TokenPairParams = { tokenPair: string };
+
 const token_pair_opts = (
-  params: { tokenPair: string },
+  params: TokenPairParams,
   scheme = types.TokenPairOpts
 ) => {
   const dOptions = scheme.decode({
@@ -30,6 +32,28 @@ export const delete_test_pair_opts = (params: {
   });
 
   if (either.isLeft(dOptions)) {
+    throw new Error("Invalid options");
+  }
+
+  return dOptions.right;
+};
+
+export const delete_test_pool_opts = (params: {
+  nextPool: string;
+  timeInForce: string;
+  tokenPair: string;
+}) => {
+  if (!["true", "false"].includes(params.nextPool)) {
+    throw new Error("Invalid nextPool");
+  }
+
+  const dOptions = types.DeleteTestPoolOpts.decode({
+    nextPool: params.nextPool === "true",
+    timeInForce: Number(params.timeInForce),
+    tokenPair: new PublicKey(params.tokenPair),
+  });
+
+  if (either.isLeft(dOptions) || isNaN(dOptions.right.timeInForce)) {
     throw new Error("Invalid options");
   }
 
