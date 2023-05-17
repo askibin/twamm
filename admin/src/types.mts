@@ -1,7 +1,6 @@
 import BN from "bn.js";
 import * as t from "io-ts";
 import { PublicKey } from "@solana/web3.js";
-import { warn } from "fp-ts/lib/Console.js";
 
 export const BNType = new t.Type<BN, number, unknown>(
   "BN",

@@ -483,7 +483,7 @@ export const setTestOraclePrice = async (
   const m = client.program.methods
     .setTestOraclePrice(command.arguments)
     .accounts(accounts)
-    .signers([signer])
+    .signers([signer]);
 
   return opts.dryRun ? m.simulate() : m.rpc();
 };
@@ -510,7 +510,7 @@ export const setTestTime = async (
   const m = client.program.methods
     .setTestTime(command.arguments)
     .accounts(accounts)
-    .signers([signer])
+    .signers([signer]);
 
   return opts.dryRun ? m.simulate() : m.rpc();
 };
@@ -542,7 +542,7 @@ export const setTimeInForce = async (
       newTimeInForce,
     })
     .accounts(accounts)
-    .signers([signer])
+    .signers([signer]);
 
   return opts.dryRun ? m.simulate() : m.rpc();
 };
