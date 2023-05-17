@@ -9,11 +9,6 @@ export const delete_test_pair = () => {};
 export const delete_test_pool = () => {};
 
 /**
- * Get outstanding amount
- */
-export const get_outstanding_amount = () => {};
-
-/**
  * Set test `oracle` price
  */
 export const set_test_oracle_price = () => {};

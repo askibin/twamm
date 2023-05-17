@@ -20,7 +20,21 @@ export const TokenPairOpts = t.type({
   tokenPair: PublicKeyType,
 });
 
+/**
+ * Get outstanding amount
+ */
+
+export const GetOutstandingAmountOpts = TokenPairOpts;
+
+/**
+ * Initialize
+ */
+
 export const InitOpts = t.type({ minSignatures: t.number });
+
+/**
+ * Set admin signers
+ */
 
 export const SetAdminSignersOpts = t.type({ minSignatures: t.number });
 

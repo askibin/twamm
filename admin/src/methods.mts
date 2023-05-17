@@ -5,17 +5,47 @@ import Debug from "debug";
 import Client, * as cli from "./client.mts";
 import * as meta from "./utils/prepare-admin-meta.mts";
 import * as types from "./types.mts";
+import { prettifyJSON } from "./utils/index.mts";
 
 const _log = Debug("twamm-admin:methods");
 const log = (msg: any, affix?: string) => {
   const output = affix ? _log.extend(affix) : _log;
 
-  output(JSON.stringify(msg, null, 2));
+  output(prettifyJSON(msg));
 };
 
 export type CommandInput<O, A> = {
   options: O;
   arguments: A;
+};
+
+export const getOutstandingAmount = async (
+  client: ReturnType<typeof Client>,
+  command: CommandInput<
+    t.TypeOf<typeof types.GetOutstandingAmountOpts>,
+    unknown
+  >
+): Promise<string> => {
+  log(command);
+
+  log("Fetching token pair...");
+
+  const pair = await client.program.account.tokenPair.fetch(
+    command.options.tokenPair
+  );
+
+  const accounts = {
+    tokenPair: command.options.tokenPair,
+    oracleTokenA: pair.configA.oracleAccount,
+    oracleTokenB: pair.configB.oracleAccount,
+  };
+
+  log(accounts, "get_outstandind_amount");
+
+  return client.program.methods
+    .getOutstandingAmount({})
+    .accounts(accounts)
+    .rpc();
 };
 
 export const init = async (
@@ -268,7 +298,7 @@ export const setPermissions = async (
     t.TypeOf<typeof types.SetPermissionsParams>
   >,
   signer: web3.Keypair
-): Promise<any> => {
+): Promise<string> => {
   log(command);
 
   const accounts = {
@@ -323,7 +353,7 @@ export const withdrawFees = async (
     t.TypeOf<typeof types.WithdrawFeesParams>
   >,
   signer: web3.Keypair
-): Promise<any> => {
+): Promise<string> => {
   log(command);
 
   const authority = (await cli.transferAuthority(client.program)).pda;

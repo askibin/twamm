@@ -20,6 +20,9 @@ const token_pair_opts = (
   return dOptions.right;
 };
 
+export const get_outstanding_amount_opts = (p: { tokenPair: string }) =>
+  token_pair_opts(p, types.GetOutstandingAmountOpts);
+
 export const init = (params: { minSignatures: string }) => {
   const dOptions = types.InitOpts.decode({
     minSignatures: Number(params.minSignatures),

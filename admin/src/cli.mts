@@ -62,8 +62,24 @@ cli
 
 cli
   .command("get-outstanding-amount")
-  .description("")
-  .action(handler(commands.get_outstanding_amount));
+  .description("get outstanding amount")
+  .requiredOption("-tp, --token-pair <pubkey>", "Token pair address; required")
+  .action(
+    handler(
+      async (
+        opts: Parameters<typeof validators.get_outstanding_amount_opts>[0],
+        ctx: Command
+      ) => {
+        const client = Client(ctx.optsWithGlobals().url);
+        const options = validators.get_outstanding_amount_opts(opts);
+
+        return methods.getOutstandingAmount(client, {
+          options,
+          arguments: {},
+        });
+      }
+    )
+  );
 
 cli
   .command("init")
