@@ -1,4 +1,3 @@
-import BN from "bn.js";
 import * as web3 from "@solana/web3.js";
 import * as spl from "@solana/spl-token";
 import * as t from "io-ts";
@@ -7,16 +6,16 @@ import Client, * as cli from "./client.mts";
 import * as meta from "./utils/prepare-admin-meta.mts";
 import * as types from "./types.mts";
 
-export type CommandInput<O, A> = {
-  options: O;
-  arguments: A;
-};
-
 const _log = Debug("twamm-admin:methods");
 const log = (msg: any, affix?: string) => {
   const output = affix ? _log.extend(affix) : _log;
 
   output(JSON.stringify(msg, null, 2));
+};
+
+export type CommandInput<O, A> = {
+  options: O;
+  arguments: A;
 };
 
 export const init = async (

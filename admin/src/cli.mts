@@ -77,7 +77,7 @@ cli
 
 cli
   .command("init")
-  .description("Initialize the on-chain program")
+  .description("initialize the on-chain program")
   .option("-m, --min-signatures <u8>", "Minimum number of signatures", "1")
   .argument("<pubkeys...>", "List of signer keys")
   .action(
@@ -98,10 +98,10 @@ cli
 
 cli
   .command("init-token-pair")
-  .description("Initialize token-pair")
-  .argument("<a-mint-pubkey>", "Token A mint")
-  .argument("<b-mint-pubkey>", "Token B mint")
-  .argument("<path-to-token-pair-config>", "Path to token-pair config")
+  .description("initialize token-pair")
+  .argument("<pubkey>", "Token A mint")
+  .argument("<pubkey>", "Token B mint")
+  .argument("<path>", "Path to token-pair config")
   .action(
     handler(
       async (
@@ -136,7 +136,7 @@ cli
 
 cli
   .command("list-multisig")
-  .description("List multisig")
+  .description("list multisig")
   .action(
     handler(async (options: unknown, ctx: Command) => {
       const client = Client(ctx.optsWithGlobals().url);
@@ -147,7 +147,7 @@ cli
 
 cli
   .command("list-orders")
-  .description("List orders")
+  .description("list orders")
   .action(
     handler(async (options: unknown, ctx: Command) => {
       const client = Client(ctx.optsWithGlobals().url);
@@ -158,7 +158,7 @@ cli
 
 cli
   .command("list-pools")
-  .description("List available pools")
+  .description("list available pools")
   .action(
     handler(async (options: unknown, ctx: Command) => {
       const client = Client(ctx.optsWithGlobals().url);
@@ -169,7 +169,7 @@ cli
 
 cli
   .command("list-token-pairs")
-  .description("List available token-pairs")
+  .description("list available token-pairs")
   .action(
     handler(async (opts: {}, ctx: Command) => {
       const options = opts;
@@ -181,7 +181,7 @@ cli
 
 cli
   .command("set-admin-signers")
-  .description("Set admins")
+  .description("set admins")
   .option("-m, --min-signatures <u8>", "Minimum number of signatures", "1")
   .argument("<pubkeys...>", "List of signer keys")
   .action(
@@ -212,7 +212,7 @@ cli
 
 cli
   .command("set-crank-authority")
-  .description("Set `crank` authority")
+  .description("set `crank` authority")
   .requiredOption("-tp, --token-pair <pubkey>", "Token pair address; required")
   .argument("<pubkey>", "Crank authority pubkey")
   .action(
@@ -246,14 +246,14 @@ cli
 
 cli
   .command("set-fees")
-  .description("Set fees")
+  .description("set fees")
   .requiredOption("-tp, --token-pair <pubkey>", "Token pair address; required")
-  .argument("<fee-numerator-u64>", "Fee numerator")
-  .argument("<fee-denominator-u64>", "Fee denominator")
-  .argument("<settle-fee-numerator-u64>", "Settle fee numerator")
-  .argument("<settle-fee-denominator-u64>", "Settle fee denominator")
-  .argument("<crank-reward-token-a-u64>", "Crank reward for A")
-  .argument("<crank-reward-token-b-u64>", "Crank reward for B")
+  .argument("<u64>", "Fee numerator")
+  .argument("<u64>", "Fee denominator")
+  .argument("<u64>", "Settle fee numerator")
+  .argument("<u64>", "Settle fee denominator")
+  .argument("<u64>", "Crank reward for token A")
+  .argument("<u64>", "Crank reward for token B")
   .action(
     handler(
       async (
@@ -295,13 +295,13 @@ cli
 
 cli
   .command("set-limits")
-  .description("Set limits")
+  .description("set limits")
   .requiredOption("-tp, --token-pair <pubkey>", "Token pair address; required")
-  .argument("<min-swap-amount-token-a-u64>", "Minimal swap amount for token A")
-  .argument("<min-swap-amount-token-b-u64>", "Minimal swap amount for token B")
-  .argument("<max-swap-price-diff-u64>", "Maximal swap price difference")
-  .argument("<max-unsettled-amount-u64>", "Maximal amount of unsettled tokens")
-  .argument("<min-time-till-expiration-u64>", "Minimal time until expiration")
+  .argument("<u64>", "Minimal swap amount for token A")
+  .argument("<u64>", "Minimal swap amount for token B")
+  .argument("<u64>", "Maximal swap price difference")
+  .argument("<u64>", "Maximal amount of unsettled tokens")
+  .argument("<u64>", "Minimal time until expiration")
   .action(
     handler(
       async (
@@ -340,20 +340,14 @@ cli
   );
 cli
   .command("set-oracle-config")
-  .description("Set oracle config")
+  .description("set oracle config")
   .requiredOption("-tp, --token-pair <pubkey>", "Token pair address; required")
-  .argument("<max-price-error-token-a-f64>", "Max price error for A")
-  .argument("<max-price-error-token-b-f64>", "Max price error for B")
-  .argument(
-    "<max-oracle-price-age-sec-token-a-u32>",
-    "Max price agein seconds for A"
-  )
-  .argument(
-    "<max-oracle-price-age-sec-token-b-u32>",
-    "Max price age in seconds for B"
-  )
-  .argument("<oracle-type-token-a>", "Oracle type for A")
-  .argument("<oracle-type-token-b>", "Oracle type for B")
+  .argument("<f64>", "Maximal price error for token A")
+  .argument("<f64>", "Maximal price error for token B")
+  .argument("<u32>", "Maximal price age (seconds) for token A")
+  .argument("<u32>", "Maximal price age (seconds) for token B")
+  .argument("<string>", "Oracle type for token A")
+  .argument("<string>", "Oracle type for token B")
   .action(
     handler(
       async (
@@ -413,12 +407,12 @@ cli
 
 cli
   .command("set-permissions")
-  .description("Set permissions")
+  .description("set permissions")
   .requiredOption("-tp, --token-pair <pubkey>", "Token pair address; required")
-  .argument("<allow-deposits-bool>", "Allow deposits")
-  .argument("<allow-withdrawals-bool>", "Allow withdrawals")
-  .argument("<allow-cranks-bool>", "Allow cranks")
-  .argument("<allow-settlements-bool>", "Allow settlements")
+  .argument("<bool>", "Allow deposits")
+  .argument("<bool>", "Allow withdrawals")
+  .argument("<bool>", "Allow cranks")
+  .argument("<bool>", "Allow settlements")
   .action(
     handler(
       async (
@@ -466,7 +460,7 @@ cli
 
 cli
   .command("set-time-in-force")
-  .description("Set time in force")
+  .description("set time in force")
   .requiredOption("-tp, --token-pair <pubkey>", "Token pair address; required")
   .argument("<u8>", "Time in force index")
   .argument("<u32>", "New time in force")
@@ -508,15 +502,15 @@ cli.command("settle").description("").action(handler(commands.settle));
 
 cli
   .command("withdraw-fees")
-  .description("Withdraw fees")
+  .description("withdraw fees")
   .requiredOption("-tp, --token-pair <pubkey>", "Token pair address; required")
   .requiredOption(
     "-rk, --receiver-keys <pubkey,..>",
     "Comma-separated list of receiver' public keys for A, B and SOL respectively"
   )
-  .argument("<token-a-amount-u64>", "Amount of token A")
-  .argument("<token-b-amount-u64>", "Amount of token B")
-  .argument("<sol-amount-u64>", "Amount of SOL")
+  .argument("<u64>", "Amount of token A")
+  .argument("<u64>", "Amount of token B")
+  .argument("<u64>", "Amount of SOL")
   .action(
     handler(
       async (
