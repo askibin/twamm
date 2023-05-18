@@ -46,23 +46,19 @@ let cli = new Command()
 cli.hook("preSubcommand", (ctx, subCmd) => {
   const { dryRun, keypair } = ctx.optsWithGlobals();
 
-  if (!keypair) return;
-
-  const ANCHOR_WALLET = resolveWalletPath(keypair);
-
-  Object.assign(process.env, { ANCHOR_WALLET });
-
-  log("`ANCHOR_WALLET` env was set to:", ANCHOR_WALLET);
+  if (keypair) {
+    const ANCHOR_WALLET = resolveWalletPath(keypair);
+    Object.assign(process.env, { ANCHOR_WALLET });
+    log("`ANCHOR_WALLET` env was set to:", ANCHOR_WALLET);
+  } else {
+    log("`keypair` is absent. `ANCHOR_WALLET` should be set other way.");
+  }
 
   if (dryRun) {
     log(
-      "DryRun mode is enabled. Methods woud be simulated instead of executing"
+      "DryRun mode is enabled. Methods would be simulated instead of executing"
     );
   }
-
-  BN.prototype.toJSON = function () {
-    return this.toString(10);
-  };
 });
 
 cli
