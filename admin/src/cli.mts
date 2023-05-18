@@ -41,7 +41,7 @@ let cli = new Command()
 
 /**
  * Read the global options and fill the `ANCHOR_WALLET`
- * env variable with the path to the anchor wallet.
+ * env variable with the path to look at.
  */
 cli.hook("preSubcommand", (ctx, subCmd) => {
   const { dryRun, keypair } = ctx.optsWithGlobals();
