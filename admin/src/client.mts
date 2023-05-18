@@ -21,7 +21,7 @@ export default function client(urlOrMoniker: ClusterMoniker) {
   });
 
   const warning =
-    "\r\n❗️Be aware that `provider.cluster` setting at Anchor.toml and the `url` parameter should lead to the same cluster.\r\n";
+    "\r\n❗️Be aware that `provider.cluster` setting at Anchor.toml and the `url` option should lead to the same cluster.\r\n";
 
   process.stderr.write(warning);
 

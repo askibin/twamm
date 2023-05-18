@@ -52,6 +52,15 @@ export const GetOutstandingAmountOpts = TokenPairOpts;
 export const InitOpts = t.type({ minSignatures: t.number });
 
 /**
+ * List orders
+ */
+
+export const ListOrdersOpts = t.type({
+  wallet: t.union([PublicKeyType, t.undefined]),
+  tokenPair: t.union([PublicKeyType, t.undefined]),
+});
+
+/**
  * List token pairs
  */
 

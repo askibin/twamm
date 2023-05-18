@@ -251,12 +251,21 @@ export const listMultisig = async (
 
 export const listOrders = async (
   client: ReturnType<typeof Client>,
-  command: CommandInput<unknown, unknown>
+  command: CommandInput<t.TypeOf<typeof types.ListOrdersOpts>, unknown>
 ) => {
   log(command);
   loader.start("Loading orders");
 
-  const all = await client.program.account.order.all();
+  let all = await client.program.account.order.all();
+
+  const { wallet, tokenPair } = command.options;
+  if (wallet || tokenPair) {
+    all = all.filter((order: any) => {
+      if (order.owner.equals(wallet)) return true;
+      if (order.pool.tokenPair.equals(tokenPair)) return true;
+      return false;
+    });
+  }
 
   loader.stop();
   return all;

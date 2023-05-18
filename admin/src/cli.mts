@@ -232,14 +232,17 @@ cli
 cli
   .command("list-orders")
   .description("list orders")
+  .option("-w, --wallet <pubkey>", "Wallet to filter by")
+  .option("-tp, --tokenPair <pubkey>", "Token pair to filter by")
   .action(
-    handler(async (options: unknown, ctx: Command) => {
-      const client = Client(ctx.optsWithGlobals().url);
+    handler(
+      async (opts: { wallet?: string; tokenPair?: string }, ctx: Command) => {
+        const options = validators.list_orders_opts(opts);
+        const client = Client(ctx.optsWithGlobals().url);
 
-      // TODO: add filter by tokenpair or the wallet
-
-      return methods.listOrders(client, { options, arguments: {} });
-    })
+        return methods.listOrders(client, { options, arguments: {} });
+      }
+    )
   );
 
 cli

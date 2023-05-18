@@ -75,10 +75,29 @@ export const init = (params: { minSignatures: string }) => {
   return dOptions.right;
 };
 
+/// list_orders
+
+export const list_orders_opts = (params: {
+  tokenPair?: string;
+  wallet?: string;
+}): t.TypeOf<typeof types.ListOrdersOpts> => {
+  const dOptions = types.ListOrdersOpts.decode({
+    tokenPair: params.tokenPair ? new PublicKey(params.tokenPair) : undefined,
+    wallet: params.wallet ? new PublicKey(params.wallet) : undefined,
+  });
+
+  if (either.isLeft(dOptions)) {
+    throw new Error("Invalid options");
+  }
+
+  return dOptions.right;
+};
+
 /// list_token_pairs
+
 export const list_token_pairs_opts = (params: {
   mint?: string;
-}): { mint: PublicKey | undefined } => {
+}): t.TypeOf<typeof types.ListTokenPairsOpts> => {
   if (!params.mint) {
     return { mint: undefined };
   }
