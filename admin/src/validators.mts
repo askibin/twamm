@@ -75,6 +75,25 @@ export const init = (params: { minSignatures: string }) => {
   return dOptions.right;
 };
 
+/// list_token_pairs
+export const list_token_pairs_opts = (params: {
+  mint?: string;
+}): { mint: PublicKey | undefined } => {
+  if (!params.mint) {
+    return { mint: undefined };
+  }
+
+  const dOptions = types.ListTokenPairsOpts.decode({
+    mint: new PublicKey(params.mint),
+  });
+
+  if (either.isLeft(dOptions)) {
+    throw new Error("Invalid options");
+  }
+
+  return dOptions.right;
+};
+
 export const set_admin_signers = (params: { minSignatures: string }) => {
   const dOptions = types.SetAdminSignersOpts.decode({
     minSignatures: Number(params.minSignatures),

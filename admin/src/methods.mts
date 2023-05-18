@@ -2,12 +2,13 @@ import * as web3 from "@solana/web3.js";
 import * as spl from "@solana/spl-token";
 import * as t from "io-ts";
 import Debug from "debug";
-import Client, * as cli from "./client.mts";
+import { SimulateResponse } from "@project-serum/anchor/dist/cjs/program/namespace/simulate.js";
 import * as meta from "./utils/prepare-admin-meta.mts";
 import * as poolMeta from "./utils/prepare-pool-meta.mts";
 import * as types from "./types.mts";
+import Client, * as cli from "./client.mts";
+import loader from "./utils/loader.mts";
 import { prettifyJSON } from "./utils/index.mts";
-import { SimulateResponse } from "@project-serum/anchor/dist/cjs/program/namespace/simulate.js";
 
 const _log = Debug("twamm-admin:methods");
 const log = (msg: any, affix?: string) => {
@@ -240,8 +241,12 @@ export const listMultisig = async (
   command: CommandInput<unknown, unknown>
 ) => {
   log(command);
+  loader.start("Loading multisig");
 
-  return client.program.account.multisig.all();
+  const all = await client.program.account.multisig.all();
+
+  loader.stop();
+  return all;
 };
 
 export const listOrders = async (
@@ -249,8 +254,12 @@ export const listOrders = async (
   command: CommandInput<unknown, unknown>
 ) => {
   log(command);
+  loader.start("Loading orders");
 
-  return client.program.account.order.all();
+  const all = await client.program.account.order.all();
+
+  loader.stop();
+  return all;
 };
 
 export const listPools = async (
@@ -258,17 +267,33 @@ export const listPools = async (
   command: CommandInput<unknown, unknown>
 ) => {
   log(command);
+  loader.start("Loading pools");
 
-  return client.program.account.pool.all();
+  const all = await client.program.account.pool.all();
+
+  loader.stop();
+  return all;
 };
 
 export const listTokenPairs = async (
   client: ReturnType<typeof Client>,
-  command: CommandInput<unknown, unknown>
+  command: CommandInput<t.TypeOf<typeof types.ListTokenPairsOpts>, unknown>
 ) => {
   log(command);
+  loader.start("Loading pairs");
 
-  return client.program.account.tokenPair.all();
+  let all = await client.program.account.tokenPair.all();
+
+  if (command.options.mint) {
+    all = all.filter(
+      (tp: any) =>
+        tp.account.configA.mint.equals(command.options.mint) ||
+        tp.account.configB.mint.equals(command.options.mint)
+    );
+  }
+
+  loader.stop();
+  return all;
 };
 
 export const setAdminSigners = async (

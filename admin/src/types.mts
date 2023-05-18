@@ -52,6 +52,14 @@ export const GetOutstandingAmountOpts = TokenPairOpts;
 export const InitOpts = t.type({ minSignatures: t.number });
 
 /**
+ * List token pairs
+ */
+
+export const ListTokenPairsOpts = t.type({
+  mint: t.union([PublicKeyType, t.undefined]),
+});
+
+/**
  * Set admin signers
  */
 

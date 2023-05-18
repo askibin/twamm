@@ -1,13 +1,13 @@
 import BN from "bn.js";
 import { Command } from "commander";
 import Debug from "debug";
-import Client, * as clientHelpers from "./client.mts";
 import * as methods from "./methods.mts";
 import * as validators from "./validators.mts";
+import Client, * as clientHelpers from "./client.mts";
 import readSignerKeypair from "./utils/read-signer-keypair.mts";
 import resolveWalletPath from "./utils/resolve-wallet-path.mjs";
-import { readJSON } from "./utils/read-file-content.mts";
 import { populateSigners, prettifyJSON } from "./utils/index.mts";
+import { readJSON } from "./utils/read-file-content.mts";
 
 const VERSION = "0.1.0";
 
@@ -256,9 +256,10 @@ cli
 cli
   .command("list-token-pairs")
   .description("list available token-pairs")
+  .option("-m, --mint <pubkey>", "Mint to filter by")
   .action(
-    handler(async (opts: {}, ctx: Command) => {
-      const options = opts;
+    handler(async (opts: { mint?: string }, ctx: Command) => {
+      const options = validators.list_token_pairs_opts(opts);
       const client = Client(ctx.optsWithGlobals().url);
 
       return methods.listTokenPairs(client, { options, arguments: {} });
