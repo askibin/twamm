@@ -1,7 +1,7 @@
 import * as t from "io-ts";
-import BN from "bn.js";
 import { either } from "fp-ts";
 import { PublicKey } from "@solana/web3.js";
+import BN from "./utils/bn.mts";
 import * as types from "./types.mts";
 import { getTime, populateSigners, resolveNegative } from "./utils/index.mts";
 

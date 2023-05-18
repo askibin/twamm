@@ -12,7 +12,6 @@ import { SimulateResponse } from "@project-serum/anchor/dist/cjs/program/namespa
 const _log = Debug("twamm-admin:methods");
 const log = (msg: any, affix?: string) => {
   const output = affix ? _log.extend(affix) : _log;
-
   output(prettifyJSON(msg));
 };
 
