@@ -256,19 +256,67 @@ export const listOrders = async (
   log(command);
   loader.start("Loading orders");
 
+  const { wallet, tokenPair } = command.options;
+
   let all = await client.program.account.order.all();
 
-  const { wallet, tokenPair } = command.options;
+  const shouldUseTokenPairFilter = tokenPair;
+
+  let orders = new Map<
+    web3.PublicKey,
+    {
+      owner: web3.PublicKey;
+      pool: web3.PublicKey;
+      self: any;
+      tokenPair?: web3.PublicKey;
+    }
+  >([]);
+
+  all.forEach((order: any) => {
+    orders.set(order.publicKey, {
+      owner: order.account.owner,
+      pool: order.account.pool,
+      self: order,
+    });
+  });
+
+  let ordersPools = [...new Set(all.map((o: any) => o.account.pool))];
+
+  let pools = await client.program.account.pool.fetchMultiple(ordersPools);
+
+  const ordersKeyValues = [...orders];
+  pools.forEach((pool: any, index: number) => {
+    const poolKey = ordersPools[index];
+    const tokenPairKey = pool.tokenPair;
+
+    ordersKeyValues.forEach((kv) => {
+      const isTargetOrder = kv[1].pool === poolKey;
+      if (isTargetOrder) {
+        orders.set(kv[0], { ...kv[1], tokenPair: tokenPairKey });
+      }
+    });
+  });
+
+  let result: any[] = all;
   if (wallet || tokenPair) {
-    all = all.filter((order: any) => {
-      if (order.owner.equals(wallet)) return true;
-      if (order.pool.tokenPair.equals(tokenPair)) return true;
-      return false;
+    result = [];
+    [...orders.values()].forEach((orderItem) => {
+      const hasOwner = wallet && orderItem.owner.equals(wallet);
+      const hasTPair =
+        tokenPair && (orderItem.tokenPair?.equals(tokenPair) ?? false);
+
+      if (wallet && !tokenPair && hasOwner) {
+        result.push(orderItem.self);
+      } else if (tokenPair && !wallet && hasTPair) {
+        result.push(orderItem.self);
+      } else if (wallet && tokenPair && hasOwner && hasTPair) {
+        result.push(orderItem.self);
+      }
     });
   }
 
   loader.stop();
-  return all;
+  return result;
 };
 
 export const listPools = async (

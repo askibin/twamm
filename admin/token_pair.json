@@ -23,5 +23,5 @@
   "oracleAccountTokenA": "11111111111111111111111111111111",
   "oracleAccountTokenB": "11111111111111111111111111111111",
   "crankAuthority": "11111111111111111111111111111111",
-  "timeInForceIntervals": [0, 2, 3, 0, 0, 0, 0, 0, 0, 10]
+  "timeInForceIntervals": [0, 300, 900, 0, 0, 0, 0, 0, 0, 0]
 }
