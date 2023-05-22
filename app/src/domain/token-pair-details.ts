@@ -1,8 +1,23 @@
-import type { BN } from "@project-serum/anchor";
+import { BN } from "@project-serum/anchor";
 import type { TokenPair } from "@twamm/types";
 import { lensPath, view } from "ramda";
 
 import type { PairConfig, PairStats } from "../types/decl.d";
+
+const calculateVolume = (volumes: BN[] | number[]) => {
+  const mark = volumes[0];
+
+  if (mark instanceof BN) {
+    const a = volumes[0] as BN;
+    const b = volumes[1] as BN;
+    const volume = a.toNumber() + b.toNumber();
+    return volume / 1e6;
+  }
+  const a = volumes[0] as number;
+  const b = volumes[1] as number;
+
+  return a + b;
+};
 
 export const populateStats = (
   pair: Pick<TokenPair, "statsA" | "statsB" | "configA" | "configB">
@@ -27,22 +42,27 @@ export const populateStats = (
 
   const aMint = view<PairConfig, PairConfig["mint"]>(mint, pair.configA);
   const bMint = view<PairConfig, PairConfig["mint"]>(mint, pair.configB);
-  const orderVolumeValue =
-    view<PairStats, BN>(orderVolume, pair.statsA).toNumber() +
-    view<PairStats, BN>(orderVolume, pair.statsB).toNumber();
-  const settledVolumeValue =
-    view<PairStats, BN>(settledVolume, pair.statsA).toNumber() +
-    view<PairStats, BN>(settledVolume, pair.statsB).toNumber();
-  const routedVolumeValue =
-    view<PairStats, BN>(routedVolume, pair.statsA).toNumber() +
-    view<PairStats, BN>(routedVolume, pair.statsB).toNumber();
+  const orderVolumeValues = [
+    view<PairStats, BN | number>(orderVolume, pair.statsA),
+    view<PairStats, BN | number>(orderVolume, pair.statsB),
+  ];
+  const settledVolumeValues = [
+    view<PairStats, BN | number>(settledVolume, pair.statsA),
+    view<PairStats, BN | number>(settledVolume, pair.statsB),
+  ];
+  const routedVolumeValues = [
+    view<PairStats, BN | number>(routedVolume, pair.statsA),
+    view<PairStats, BN | number>(routedVolume, pair.statsB),
+  ];
+
+  // TODO: number should be deprecated in favor of BN
 
   return {
     a: aMint,
     b: bMint,
     fee,
-    orderVolume: orderVolumeValue / 1e6,
-    settledVolume: settledVolumeValue / 1e6,
-    routedVolume: routedVolumeValue / 1e6,
+    orderVolume: calculateVolume(orderVolumeValues as BN[] | number[]),
+    settledVolume: calculateVolume(settledVolumeValues as BN[] | number[]),
+    routedVolume: calculateVolume(routedVolumeValues as BN[] | number[]),
   };
 };
