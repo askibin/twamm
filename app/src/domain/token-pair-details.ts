@@ -1,3 +1,4 @@
+import type { BN } from "@project-serum/anchor";
 import type { TokenPair } from "@twamm/types";
 import { lensPath, view } from "ramda";
 
@@ -27,21 +28,21 @@ export const populateStats = (
   const aMint = view<PairConfig, PairConfig["mint"]>(mint, pair.configA);
   const bMint = view<PairConfig, PairConfig["mint"]>(mint, pair.configB);
   const orderVolumeValue =
-    view<PairStats, number>(orderVolume, pair.statsA) +
-    view<PairStats, number>(orderVolume, pair.statsB);
+    view<PairStats, BN>(orderVolume, pair.statsA).toNumber() +
+    view<PairStats, BN>(orderVolume, pair.statsB).toNumber();
   const settledVolumeValue =
-    view<PairStats, number>(settledVolume, pair.statsA) +
-    view<PairStats, number>(settledVolume, pair.statsB);
+    view<PairStats, BN>(settledVolume, pair.statsA).toNumber() +
+    view<PairStats, BN>(settledVolume, pair.statsB).toNumber();
   const routedVolumeValue =
-    view<PairStats, number>(routedVolume, pair.statsA) +
-    view<PairStats, number>(routedVolume, pair.statsB);
+    view<PairStats, BN>(routedVolume, pair.statsA).toNumber() +
+    view<PairStats, BN>(routedVolume, pair.statsB).toNumber();
 
   return {
     a: aMint,
     b: bMint,
     fee,
-    orderVolume: orderVolumeValue,
-    settledVolume: settledVolumeValue,
-    routedVolume: routedVolumeValue,
+    orderVolume: orderVolumeValue / 1e6,
+    settledVolume: settledVolumeValue / 1e6,
+    routedVolume: routedVolumeValue / 1e6,
   };
 };
