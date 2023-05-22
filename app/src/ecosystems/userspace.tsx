@@ -5,12 +5,13 @@ import { ErrorBoundary } from "react-error-boundary";
 import { OrderSide } from "@twamm/types/lib";
 import { useCallback, useMemo, useState } from "react";
 
+import AccountOrders from "../organisms/account-orders";
+import coinResolver from "../utils/coin-resolver";
 import ErrorFallback from "../atoms/error-fallback";
 import ModeToggle, { modes } from "../atoms/mode-toggle";
 import styles from "./userspace.module.css";
-import TokenPairs from "../organisms/token-pairs";
-import AccountOrders from "../organisms/account-orders";
 import TokenExchange, { TradeStruct } from "../organisms/token-exchange";
+import TokenPairs from "../organisms/token-pairs";
 import useBreakpoints from "../hooks/use-breakpoints";
 
 const DEFAULT_MODE = modes.get("exchange") as string;
@@ -18,8 +19,9 @@ const DEFAULT_MODE = modes.get("exchange") as string;
 const DEFAULT_TRADE = {
   amount: 0,
   pair: [
-    address.NATIVE_TOKEN_ADDRESS,
-    "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+    coinResolver(address.NATIVE_TOKEN_ADDRESS),
+    coinResolver("EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"),
+    // configure the default pair according the environment
   ] as AddressPair,
   type: OrderSide.buy,
 };
