@@ -6,6 +6,7 @@ import { SimulateResponse } from "@project-serum/anchor/dist/cjs/program/namespa
 import * as meta from "./utils/prepare-admin-meta.mts";
 import * as poolMeta from "./utils/prepare-pool-meta.mts";
 import * as types from "./types.mts";
+import BN from "./utils/bn.mts";
 import Client, * as cli from "./client.mts";
 import loader from "./utils/loader.mts";
 import { prettifyJSON } from "./utils/index.mts";
@@ -21,6 +22,196 @@ type RunOptions = { dryRun?: boolean };
 export type CommandInput<O, A> = {
   options: O;
   arguments: A;
+};
+
+const cancelOrder = async (
+  client: ReturnType<typeof Client>,
+  command: CommandInput<
+    unknown,
+    {
+      lpAmount: BN;
+      nextPool: boolean;
+      order: web3.PublicKey;
+      owner: web3.PublicKey;
+      pool: web3.PublicKey;
+      tif: number;
+      tokenPair: web3.PublicKey;
+      tokenPairData: any;
+    }
+  >,
+  signer: web3.Keypair,
+  opts: RunOptions
+) => {
+  log(command);
+  loader.start(`Canceling order ${command.arguments.order.toBase58()}`);
+
+  const { lpAmount, owner, pool, tokenPair, order, tokenPairData } =
+    command.arguments;
+
+  const authority = (await cli.transferAuthority(client.program)).pda;
+
+  const tokenA = tokenPairData.configA.mint;
+  const tokenB = tokenPairData.configB.mint;
+
+  const userAccountTokenA = (
+    await cli.getOrCreateTokenCustody(
+      client.provider.connection,
+      signer,
+      owner,
+      tokenA,
+      false
+    )
+  ).address;
+  const userAccountTokenB = (
+    await cli.getOrCreateTokenCustody(
+      client.provider.connection,
+      signer,
+      owner,
+      tokenB,
+      false
+    )
+  ).address;
+
+  const accounts = {
+    payer: owner,
+    owner: owner,
+    userAccountTokenA,
+    userAccountTokenB,
+    tokenPair,
+    transferAuthority: authority,
+    custodyTokenA: await cli.tokenCustody(authority, tokenA),
+    custodyTokenB: await cli.tokenCustody(authority, tokenB),
+    order,
+    pool,
+    tokenProgram: spl.TOKEN_PROGRAM_ID,
+  };
+
+  log(accounts, "cancel_order");
+
+  const m = client.program.methods
+    .cancelOrder({ lpAmount })
+    .accounts(accounts)
+    .signers([signer]);
+
+  const result = opts.dryRun ? await m.simulate() : await m.rpc();
+
+  loader.stop();
+  return result;
+};
+
+export const completeOrders = async (
+  client: ReturnType<typeof Client>,
+  command: CommandInput<unknown, unknown>,
+  signer: web3.Keypair,
+  opts: RunOptions
+) => {
+  log(command);
+  loader.start("Cancelling orders");
+
+  let all = await client.program.account.order.all();
+
+  let orders = new Map<
+    web3.PublicKey,
+    {
+      owner: web3.PublicKey;
+      pool: web3.PublicKey;
+      self: any;
+    }
+  >([]);
+  let expiredOrders = new Map<
+    web3.PublicKey,
+    {
+      owner: web3.PublicKey;
+      pool: web3.PublicKey;
+      poolData?: any;
+      self: any;
+      tokenPair?: web3.PublicKey;
+      tokenPairData?: any;
+    }
+  >(orders);
+
+  let tokenPairs = new Map<string, any>([]);
+
+  all.forEach((order: any) => {
+    orders.set(order.publicKey, {
+      owner: order.account.owner,
+      pool: order.account.pool,
+      self: order,
+    });
+  });
+
+  let ordersPools = [...new Set(all.map((o: any) => o.account.pool))];
+
+  let pools = await client.program.account.pool.fetchMultiple(ordersPools);
+
+  const ordersKeyValues = [...orders];
+  pools.forEach((pool: any, index: number) => {
+    const poolKey = ordersPools[index];
+    const tokenPairKey = pool.tokenPair;
+    const isExpired = pool.status?.expired ? true : false;
+
+    ordersKeyValues.forEach((kv) => {
+      const isTargetOrder = kv[1].pool === poolKey;
+      if (isTargetOrder && isExpired) {
+        expiredOrders.set(kv[0], {
+          ...kv[1],
+          poolData: pool,
+          tokenPair: tokenPairKey,
+        });
+      }
+    });
+  });
+
+  if (expiredOrders.size === 0) {
+    loader.stop();
+    return []
+  }
+
+  const tokenPairKeys = [...expiredOrders.values()]
+    .filter((eo) => eo !== undefined)
+    .map<web3.PublicKey>((eo) => eo.tokenPair as web3.PublicKey);
+
+  const uniqTokenPairKeys = [
+    ...new Set(tokenPairKeys.map((tpk) => tpk.toBase58())),
+  ];
+
+  const tokenPairsData = await client.program.account.tokenPair.fetchMultiple(
+    uniqTokenPairKeys
+  );
+
+  tokenPairsData.forEach((tp: any, index: number) => {
+    tokenPairs.set(uniqTokenPairKeys[index], tp);
+  });
+
+  let results = [];
+  const ordersToClose = [...expiredOrders.values()];
+  for (let i = 0; i <= ordersToClose.length - 1; i++) {
+    const currentOrder = ordersToClose[i];
+    const tokenPair = currentOrder.tokenPair as web3.PublicKey;
+
+    const sig = await cancelOrder(
+      client,
+      {
+        options: {},
+        arguments: {
+          owner: currentOrder.owner,
+          tif: currentOrder.poolData?.timeInForce,
+          lpAmount: new BN(Number.MAX_SAFE_INTEGER),
+          nextPool: false,
+          tokenPair,
+          tokenPairData: tokenPairs.get(tokenPair.toBase58()),
+          pool: currentOrder.pool,
+          order: currentOrder.self.publicKey,
+        },
+      },
+      signer,
+      opts
+    );
+    results.push(sig);
+  }
+
+  loader.stop();
+  return results;
 };
 
 export const deleteTestPair = async (
@@ -259,8 +450,6 @@ export const listOrders = async (
   const { wallet, tokenPair } = command.options;
 
   let all = await client.program.account.order.all();
-
-  const shouldUseTokenPairFilter = tokenPair;
 
   let orders = new Map<
     web3.PublicKey,

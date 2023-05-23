@@ -62,6 +62,24 @@ cli.hook("preSubcommand", (ctx, subCmd) => {
 });
 
 cli
+  .command("complete-orders")
+  .description("complete fulfilled orders")
+  .action(
+    handler(async (opts: unknown, ctx: Command) => {
+      const { dryRun, keypair, url } = ctx.optsWithGlobals();
+      const client = Client(url);
+      const signer = await readSignerKeypair(keypair);
+
+      return methods.completeOrders(
+        client,
+        { options: {}, arguments: {} },
+        signer,
+        { dryRun }
+      );
+    })
+  );
+
+cli
   .command("delete-test-pair")
   .description("delete test pair")
   .requiredOption("-tp, --token-pair <pubkey>", "Token pair address; required")
@@ -683,7 +701,7 @@ cli
   .requiredOption("-tp, --token-pair <pubkey>", "Token pair address; required")
   .requiredOption(
     "-tifs, --time-in-force-intervals <u8,..>",
-    "Time in force list; required"
+    'Time in force list (use "d1,d2,d3" pattern); required'
   )
   .argument("<sell|buy>", "Supply side")
   .argument("<u64>", "Minimal token amount in")
